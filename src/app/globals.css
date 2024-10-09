@@ -77,5 +77,18 @@ body {
   }
 }
 .movinggradient {
-  background: linear-gradient(to top right, rgba(229, 229, 229, 0.2), rgba(26, 26, 26, 0.1));
+  background: linear-gradient(to top right, #2C3E5080 , #4ca2af80 );
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+}
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }

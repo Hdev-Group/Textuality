@@ -97,8 +97,7 @@ export default function Header() {
         <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-background shadow-xl p-6 overflow-y-auto">
           <div className="flex items-center justify-between mb-8">
             <Link href="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
-              <PenSquare className="h-8 w-auto text-primary" />
-              <span className="ml-2 text-xl font-bold text-foreground">HContent</span>
+              <span className="ml-2 text-xl font-bold text-foreground">Textuality</span>
             </Link>
             <Button
               variant="ghost"
@@ -124,14 +123,6 @@ export default function Header() {
             </Link>
           </nav>
           <div className="mt-8 space-y-4">
-            <form className="relative">
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-full pl-10 pr-4 py-2 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            </form>
             <Button asChild className="w-full">
               <Link href="/create" onClick={() => setIsMenuOpen(false)}>
                 Create Content

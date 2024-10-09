@@ -44,6 +44,9 @@ export default function Home() {
                   <h1 className="font-medium text-lg">Pixel Perfect Components</h1>
                   <p className="text-muted-foreground">Create beautiful blog layouts with our prebuilt components.</p>
                 </div>
+                <a>
+                  <Button>Learn More</Button>
+                </a>
             </div>
             <div className="w-full h-full min-h-56  rounded-xl flex-col p-8 gap-5 border-2 flex">
                 <div className="h-12 w-12 bg-yellow-400 flex items-center justify-center text-white rounded-lg">
@@ -53,6 +56,9 @@ export default function Home() {
                   <h1 className="font-medium text-lg">Customize to your liking</h1>
                   <p className="text-muted-foreground">Change colors, fonts, and layout to match your brand.</p>
                 </div>
+                <a>
+                  <Button>Learn More</Button>
+                </a>
             </div>
             <div className="w-full h-full min-h-56  rounded-xl flex-col p-8 gap-5 border-2 flex">
                 <div className="h-12 w-12 bg-purple-400 flex items-center justify-center text-white rounded-lg">
@@ -62,6 +68,9 @@ export default function Home() {
                   <h1 className="font-medium text-lg">Seamless Integration</h1>
                   <p className="text-muted-foreground">Easily integrate with your existing blog or website.</p>
                 </div>
+                <a>
+                  <Button>Learn More</Button>
+                </a>
             </div>
             <div className="w-full h-full min-h-56  rounded-xl flex-col p-8 gap-5 border-2 flex">
                 <div className="h-12 w-12 bg-green-400 flex items-center justify-center text-white rounded-lg">
@@ -71,6 +80,9 @@ export default function Home() {
                   <h1 className="font-medium text-lg">SEO Optimized</h1>
                   <p className="text-muted-foreground">Improve your search engine rankings with our SEO tools.</p>
                 </div>
+                <a>
+                  <Button>Learn More</Button>
+                </a>
             </div>
           </div>
         </section>
@@ -339,20 +351,20 @@ function Prices() {
       name: "Free",
       price: "£0",
       description: "Perfect for getting started",
-      features: ["5 blog posts", "Basic components", "Email support"],
+      features: ["5 blog posts", "Basic components", "Email support", "500k/month API requests"],
     },
     {
       name: "Pro",
       price: "£19",
       description: "Best for growing blogs",
-      features: ["Unlimited blog posts", "Advanced components", "Email + chat support"],
+      features: ["Unlimited blog posts", "Advanced components", "Email + chat support", "1M/month API requests"],
       popular: true,
     },
     {
       name: "Enterprise",
       price: "£49",
       description: "For large-scale operations",
-      features: ["Unlimited blog posts", "Custom components", "24/7 support"],
+      features: ["Unlimited blog posts", "Custom components", "24/7 support", "50M/month API requests"],
     },
   ]
 
