@@ -21,8 +21,9 @@ export default function Header() {
         <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
+              <img src="/IMG_6128.png" alt="Textuality" className="h-8 w-8" />
               <span className="sr-only">Textuality</span>
-              <span className="ml-2 text-xl font-bold text-foreground">Textuality</span>
+              <span className="text-xl mt-1.5 ml-[-8px] font-bold text-foreground hidden sm:block">extuality</span>
             </Link>
           </div>
 
@@ -69,7 +70,7 @@ export default function Header() {
               </Link>
             </Button>
             <Button variant='outline' asChild>
-                <Link href="/login">
+                <Link href="/sign-in">
                     Log in
                 </Link>
             </Button>

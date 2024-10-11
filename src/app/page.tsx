@@ -20,7 +20,7 @@ export default function Home() {
         {/* Hero Section */}
         <section className="movinggradient h-[50rem] justify-center flex flex-col rounded-3xl mx-auto text-center py-12 md:py-24">
           <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-8xl">
-          <span className="text-primary">Transform your content. <br/> Engage your audience. Seamlessly</span>
+          <span className="text-primary flex justify-center gap-0">Transform your content. <br/> Engage your audience. Seamlessly</span>
         </h1>
         <p className="mt-4 text-xl text-muted-foreground md:text-2xl">
 

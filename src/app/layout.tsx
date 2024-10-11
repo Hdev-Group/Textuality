@@ -1,35 +1,47 @@
+"use client";
+import React from "react";
+import { ClerkProvider } from "@clerk/nextjs";
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { Inter as FontSans } from "next/font/google"
 import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
+import ConvexClientProvider from "./ConvexClientProvider";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import "./globals.css"
+ 
+const fontSans = FontSans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+})
 
-export const metadata: Metadata = {
-  title: "Textuality",
-  description: "Textuality is a content creation platform for developers.",
-};
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || '';
+
+if (!convexUrl) {
+  throw new Error('Missing Convex URL. Check your environment variables.');
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body
-
+    <ClerkProvider>
+      <ConvexProvider client={new ConvexReactClient(convexUrl)}>
+        <html lang="en" className="dark" >
+          <head>
+            <link rel="icon" href="/IMG_6127.png" />
+            <title>Textuality</title>
+            <meta
+              name="description"
+              content="Empowering your digital narrative."
+            />
+          </head>
+          <body
       >
-        {children}
-      </body>
-    </html>
+        <ConvexClientProvider>{children}</ConvexClientProvider>
+        </body>
+        </html>
+      </ConvexProvider>
+    </ClerkProvider>
   );
 }
