@@ -1,142 +1,221 @@
 "use client"
 import HomeHeader from "@/components/header/homeheader";
 import { useUser } from "@clerk/clerk-react";
-import { CalendarDays, Users, BookOpen, ArrowRight, ChevronDown, Plus } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {Button} from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectGroup } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+import {
+  CalendarDays, Users, BookOpen, ArrowRight, ChevronDown, Plus
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectGroup
+} from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-
 interface ProjectProps {
-    title: string
-    description: string
-    date: string
-    postCount: number
-    teamMembers: { name: string; avatar: string }[]
-    latestPost: { title: string; excerpt: string }
-  }
+  title: string;
+  description: string;
+  date: string;
+  postCount: number;
+  _id: string;
+  category: string;
+  content: string;
+  users: string[];
+  _creationTime: number;
+  latestPost: { title: string; excerpt: string };
+}
+
 export default function Page() {
-    const projects = [
+  const user = useUser();
 
-      ]
-    const { user } = useUser();
+  // Fetch projects using useQuery
+  const projects = useQuery(api.page.getPages);
+  // check if user can access projects
+  const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id));
 
-    const date = new Date();
-    const hours = date.getHours();
-    let time = "morning";
-    if (hours >= 12 && hours < 17) {
-        time = "afternoon";
-    }
-    if (hours >= 17 && hours < 24) {
-        time = "evening";
-    }
-    if (hours >= 0 && hours < 5) {
-        time = "night";
-    }
+  // Check loading and error states manually
+  const isLoading = !projects; // Projects will be undefined when still loading
+  const error = projects === null; // Assuming null is returned on error
 
-    return (
-        <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
-        <HomeHeader activesection="home" />
-        <main className="mx-auto px-10 py-8">
-          <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8">
-            <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
-                <div>
-                    <h1 className="text-4xl font-bold">Good {time} {user?.firstName},</h1>
-                    <p className="text-lg text-neutral-600 dark:text-neutral-400">Welcome to Textuality.</p>
-                </div>
-                <div className="flex items-start">
-                  <CreatePage />
-                </div>
-            </div>
+  console.log(projects);
+
+  // Calculate time of day greeting
+  const date = new Date();
+  const hours = date.getHours();
+  let time = "morning";
+  if (hours >= 12 && hours < 17) {
+    time = "afternoon";
+  } else if (hours >= 17 && hours < 24) {
+    time = "evening";
+  } else if (hours >= 0 && hours < 5) {
+    time = "night";
+  }
+
+  return (
+    <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
+      <HomeHeader activesection="home" />
+      <main className="mx-auto px-10 py-8">
+        <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8">
+          <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
             <div>
-              <h2 className="text-xl font-semibold mb-2">Recent Pages</h2>
-              <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
-                {projects.length > 0 ? (
-                  projects.map((project, index) => (
-                    <Project key={index} {...project} />
-                  ))
-                ) : (
-                  <div className="flex flex-col justify-center items-center w-full py-3">
-                    <p className="text-2xl font-semibold text-center w-full">No Pages found.</p>
+              <h1 className="text-4xl font-bold">
+                Good {time} {user?.user?.firstName},
+              </h1>
+              <p className="text-lg text-neutral-600 dark:text-neutral-400">
+                Welcome to Textuality.
+              </p>
+            </div>
+            <div className="flex items-start">
+              <CreatePage />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Recent Pages</h2>
+
+            {/* Handle loading and error states */}
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center w-full h-full">
+                <div className="animate-spin rounded-full h-24 w-24 border-t-2 border-b-2 border-neutral-400"></div>
+              </div>
+            ) : error ? (
+              <p>Error loading projects.</p>
+            ) : projects?.length === 0 ? (
+              <p>No projects available.</p>
+            ) : (
+                <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
+                {/* Map through the projects if available */}
+                {filteredprojects?.length === 0 ? (
+                  <div className="w-full flex items-center flex-col py-4 justify-center">
+                    <p className="text-lg ">No projects available.</p>
                     <CreatePage />
                   </div>
+                ) : (
+                  filteredprojects.map((page, index) => (
+                  <Project key={index} {...page} />
+                  ))
                 )}
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    )
-}
-function Project({ 
-    title, 
-    description, 
-    date, 
-    postCount, 
-    teamMembers, 
-    latestPost 
-  }: ProjectProps) {
-    return (
-      <div className="bg-neutral-50 dark:bg-neutral-900 border  dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-        <div className="p-6 space-y-4">
-          <div className="flex justify-between items-start">
-            <h3 className="text-xl font-bold">{title}</h3>
-            <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
-              <CalendarDays className="w-4 h-4 mr-1" />
-              {date}
-            </div>
-          </div>
-          <p className="text-sm text-neutral-600 dark:text-neutral-300">{description}</p>
-          <div className="flex justify-between items-center text-sm text-neutral-500 dark:text-neutral-400">
-            <div className="flex items-center">
-              <BookOpen className="w-4 h-4 mr-1" />
-              <span>{postCount} posts</span>
-            </div>
-            <div className="flex items-center">
-              <Users className="w-4 h-4 mr-1" />
-              <span>{teamMembers.length} members</span>
-            </div>
-          </div>
-        </div>
-        {latestPost && (
-          <div className="bg-neutral-100 dark:bg-neutral-800 p-4 border-t dark:border-neutral-700">
-            <h4 className="font-semibold mb-2">Latest Post</h4>
-            <p className="text-sm font-medium">{latestPost.title}</p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">{latestPost.excerpt}</p>
-          </div>
-        )}
-        <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200 dark:bg-neutral-850">
-          <div className="flex -space-x-2">
-            {teamMembers.slice(0, 3).map((member, index) => (
-              <Avatar key={index} className="w-8 h-8 border-2 border-white dark:border-neutral-900">
-                <AvatarImage src={member.avatar} alt={member.name} />
-                <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-            ))}
-            {teamMembers.length > 3 && (
-              <div className="w-8 h-8 rounded-full bg-neutral-300 dark:bg-neutral-700 flex items-center justify-center text-xs font-medium">
-                +{teamMembers.length - 3}
-              </div>
+                </div>
             )}
           </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+function Project({ 
+  title,
+  description,
+  postCount,
+  users,
+  _id,
+  _creationTime,
+  latestPost,
+}: ProjectProps) {
+  const [userData, setUserData] = useState<{ firstName: string; imageUrl: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAssigneeData() {
+      if (users && users.length > 0) {
+        try {
+          const response = await fetch(`/api/get-user?userId=${users.join(",")}`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log(data);
+          setUserData(data.users); // Assuming API returns { users: [...] }
+        } catch (error) {
+          console.error("Error fetching assignee data:", error);
+          setUserData([]);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchAssigneeData();
+  }, [users]);
+
+  const teamMemberCount = users.length;
+  const creationDate = new Date(_creationTime);
+
+  return (
+    <div className="bg-neutral-50 dark:bg-neutral-900 border w-1/3 dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+      <div className="p-6 space-y-4">
+        <div className="flex justify-between items-start">
+          <h3 className="text-xl font-bold">{title}</h3>
+          <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
+            <CalendarDays className="w-4 h-4 mr-1" />
+            {creationDate.toLocaleDateString()}
+          </div>
+        </div>
+        <p className="text-sm text-neutral-600 dark:text-neutral-300">{description}</p>
+        <div className="flex justify-between items-center text-sm text-neutral-500 dark:text-neutral-400">
+          <div className="flex items-center">
+            <BookOpen className="w-4 h-4 mr-1" />
+            <span>
+              {postCount === 1 ? "1 post" : `${postCount || "No"} posts`}
+            </span>
+          </div>
+          <div className="flex items-center">
+            <Users className="w-4 h-4 mr-1" />
+            <span>{teamMemberCount} members</span>
+          </div>
+        </div>
+      </div>
+      {latestPost && (
+        <div className="bg-neutral-100 dark:bg-neutral-800 p-4 border-t dark:border-neutral-700">
+          <h4 className="font-semibold mb-2">Latest Post</h4>
+          <p className="text-sm font-medium">{latestPost.title}</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">{latestPost.excerpt}</p>
+        </div>
+      )}
+      <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
+        <div className="flex -space-x-2">
+          {/* Show avatars for the first 3 users */}
+          {userData.slice(0, 3).map((member, index) => (
+            <Avatar key={index} className="w-8 h-8 border-2 border-white dark:border-neutral-900">
+              <AvatarImage src={member.imageUrl} alt={member.firstName} />
+              <AvatarFallback>{member.firstName.charAt(0)}</AvatarFallback>
+            </Avatar>
+          ))}
+          {/* Display the +X if more than 3 users */}
+          {teamMemberCount > 3 && (
+            <div className="w-8 h-8 rounded-full bg-neutral-300 dark:bg-neutral-700 flex items-center justify-center text-xs font-medium">
+              +{teamMemberCount - 3}
+            </div>
+          )}
+        </div>
+        <a href={`/application/${_id}/dashboard`}>
           <Button variant="secondary" size="sm">
             View Project <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
-        </div>
+        </a>
       </div>
-    )
-  }
+    </div>
+  );
+}
 
 function Tutorial(){
 
 }
 
 function CreatePage() {
+  const user = useUser()
+
+  const createPage = useMutation(api.createPage.create)
+
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
@@ -144,8 +223,9 @@ function CreatePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const userid = user.user?.id
     // Handle form submission here
-    console.log({ title, content, category })
+    createPage({ title, content, category, userid: userid! })
     setIsOpen(false)
     // Reset form fields
     setTitle("")
@@ -193,7 +273,7 @@ function CreatePage() {
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectGroup label="Categories">
+                <SelectGroup>
                 <SelectLabel>What is this for?</SelectLabel>
                   <SelectItem value="personalblog">My Personal Blog</SelectItem>
                   <SelectItem value="teamblog">My Teams Blog</SelectItem>

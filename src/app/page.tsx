@@ -10,6 +10,7 @@ import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2
 import { motion } from 'framer-motion'
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Link from "next/link"
 
 
 export default function Home() {
@@ -26,9 +27,11 @@ export default function Home() {
 
         </p>
         <div>
-          <button className="mt-8 px-10 md:w-1/6 bg-black h-full hover:bg-neutral-600/90 transition-all hover:ring-1 hover:ring-blue-300 rounded-full text-white text-lg font-bold">
-              Start blogging
-          </button>
+          <Link href="/application/home" >
+            <button className="mt-8 px-10 md:w-1/6 bg-black h-full hover:bg-neutral-600/90 transition-all hover:ring-1 hover:ring-blue-300 rounded-full text-white text-lg font-bold">
+                Start blogging
+            </button>
+          </Link>
         </div>
         </section>
 

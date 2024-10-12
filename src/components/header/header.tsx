@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Menu, X, PenSquare, Search, ChevronDown } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -10,10 +10,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useUser } from '@clerk/clerk-react'
 import { Input } from "@/components/ui/input"
+import { useClerk } from '@clerk/nextjs'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const user = useUser()
+  const { signOut } = useClerk()
+  const [image, setImage] = useState("")
+
+  useEffect(() => {
+    const updateImage = () => {
+      if (localStorage.getItem('theme') === 'dark') {
+        setImage("/IMG_6128.png")
+      } else {
+        setImage("/IMG_6129.png")
+      }
+    }
+
+    updateImage()
+
+    window.addEventListener('storage', updateImage)
+    return () => {
+      window.removeEventListener('storage', updateImage)
+    }
+  }, [])
 
   return (
     <header className="border-b w-full fixed shadow-sm z-50 bg-background">
@@ -21,7 +43,7 @@ export default function Header() {
         <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
-              <img src="/IMG_6128.png" alt="Textuality" className="h-8 w-8" />
+              <img src={image} alt="Textuality" className="h-8 w-8" />
               <span className="sr-only">Textuality</span>
               <span className="text-xl mt-1.5 ml-[-8px] font-bold text-foreground hidden sm:block">extuality</span>
             </Link>
@@ -69,11 +91,32 @@ export default function Header() {
                 Create Content
               </Link>
             </Button>
+            {user.isSignedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    <img src={user?.user?.imageUrl} alt="User avatar" className="w-8 h-8 rounded-full" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <Link href="/application/home">Dashboard</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href="/application/settings">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => signOut({ redirectUrl: '/' })}>
+                      Sign out
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
             <Button variant='outline' asChild>
                 <Link href="/sign-in">
                     Log in
                 </Link>
             </Button>
+            )}
           </div>
 
           <div className="flex md:hidden">

@@ -5,15 +5,19 @@ import { useEffect, useState } from "react";
 
 export default function Footer() {
   const [isdark, setDark] = useState(true);
+  const [image, setImage] = useState("");
+
     useEffect(() => {
       const themesetter = document.getElementById('themesetter');
 
       if (localStorage.getItem('theme') === 'dark') {
         setDark(true);
         document.documentElement.classList.add('dark');
+        setImage("/IMG_6128.png")
       } else {
         setDark(false);
         document.documentElement.classList.remove('dark');
+        setImage("/IMG_6129.png")
       }
 
       themesetter?.addEventListener('click', () => {
@@ -21,10 +25,12 @@ export default function Footer() {
           setDark(false);
           document.documentElement.classList.remove('dark');
           localStorage.setItem('theme', 'light');
+          setImage("/IMG_6129.png")
         } else {
           setDark(true);
           document.documentElement.classList.add('dark');
           localStorage.setItem('theme', 'dark');
+          setImage("/IMG_6128.png")
         }
       });
 
@@ -33,13 +39,14 @@ export default function Footer() {
       };
     }, [isdark]);
 
+
     return(
       <footer className="bg-background border-t">
       <div className="container mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="flex flex-row">
-              <img src="/IMG_6128.png" alt="Textuality" className="h-8 w-8" />
+              <img src={image} alt="Textuality" className="h-8 w-8" />
               <h2 className="text-2xl font-bold ml-[-8px] mt-0.5 mb-4">extuality</h2>
             </div>
             <p className="text-muted-foreground mb-4">Empowering your digital narrative.</p>
