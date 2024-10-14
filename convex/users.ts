@@ -62,3 +62,10 @@ async function userByExternalId(ctx: QueryCtx, externalId: string) {
     .withIndex("byExternalId", (q) => q.eq("externalId", externalId))
     .unique();
 }
+export const getUserById = query({
+  args: { id: v.string() },
+  handler: async (ctx, { id }) => {
+    return await userByExternalId(ctx
+    , id);
+  },
+});

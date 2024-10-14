@@ -15,16 +15,17 @@ pages: defineTable({
 }).index("bytitle", ["title"]),
 roles: defineTable({
     externalId: v.string(),
+    pageid: v.string(),
     permissions: v.array(v.string()),
-}),
+}).index("byexternalId", ["externalId"]),
 blogs: defineTable({
     title: v.string(),
     content: v.string(),
     category: v.string(),
-    author: v.string(),
+    authorid: v.string(),
     collaborators: v.array(v.string()),
     tags: v.array(v.string()),
     published: v.boolean(),
-}).index("bytitle", ["title"]),
+}).index("byauthorid", ["authorid"]),
 
 });

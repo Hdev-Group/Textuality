@@ -2,11 +2,13 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse, NextRequest } from "next/server";
 import { LRUCache } from "lru-cache";
 import { getAuth } from '@clerk/nextjs/server';
+import { fetchQuery } from "convex/nextjs";
+import { api } from "../../../../../convex/_generated/api";
 
 // Define the cache entry interface
 interface CacheEntry {
   userId: string;
-  data: any; 
+  data: any;
 }
 
 // Create a new LRU cache instance
@@ -22,10 +24,8 @@ export async function GET(request: NextRequest) {
 
   // Ensure Clerk middleware is in place
   const { userId } = getAuth(request);
-
-
   if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized. You are not logged in.' }, { status: 401 });
   }
 
   if (!userIdString) {
@@ -40,24 +40,40 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "No userIds provided" }, { status: 400 });
   }
 
-  const usersData = [];
-
   try {
-    for (const userIda of userIds) {
+    // Fetch the pages data
+    const fetchPages = await fetchQuery(api.page.getPages);
+
+    // Check if the user is in the same project or group
+    const isUserInPage = fetchPages.some((page: any) =>
+      page.users.includes(userId) && userIds.every((requestedId) => page.users.includes(requestedId))
+    );
+
+    // If the user is not in the same project, return unauthorized
+    if (!isUserInPage) {
+      return NextResponse.json({ error: 'Unauthorized. You are not in the same project as this user. You are unable to see this data.' }, { status: 401 });
+    }
+
+    // Store user data
+    const usersData = [];
+
+    for (const requestedUserId of userIds) {
       // Check if user data is in cache
-      if (cache.has(userIda)) {
-        const cachedUser = cache.get(userIda);
-        const { firstName, lastName, id, imageUrl } = cachedUser!.data;
-        usersData.push({ firstName, lastName, id, imageUrl});
+      if (cache.has(requestedUserId)) {
+        const cachedUser = cache.get(requestedUserId);
+        if (cachedUser) {
+          const { firstName, lastName, id, imageUrl, emailAddresses } = cachedUser.data;
+          usersData.push({ firstName, lastName, id, imageUrl, emailAddresses: emailAddresses[0].emailAddress });
+        }
       } else {
         // Fetch user data from Clerk API
-        const user = await clerkClient.users.getUser(userIda);
+        const user = await clerkClient.users.getUser(requestedUserId);
 
         // Store user data in cache
-        cache.set(userIda, { userId: userIda, data: user });
+        cache.set(requestedUserId, { userId: requestedUserId, data: user });
 
-        const { firstName, lastName, id, imageUrl } = user;
-        usersData.push({ firstName, lastName, id, imageUrl });
+        const { firstName, lastName, id, imageUrl, emailAddresses } = user;
+        usersData.push({ firstName, lastName, id, imageUrl, emailAddresses: emailAddresses[0].emailAddress });
       }
     }
 

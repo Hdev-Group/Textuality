@@ -11,6 +11,17 @@ import { UserPlus, Mail, Phone, UserCheck2Icon, BookMarkedIcon } from "lucide-re
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel,
+} from "@/components/ui/select"
+
+
 
 
 interface TeamMember {
@@ -29,6 +40,7 @@ export default function Page({params: {_teamid }}: any) {
     const user = useUser();
 
     const getPage = useQuery(api.page.getPage, { _id: teamid });
+
     const users = getPage?.users;
 
     const [userData, setUserData] = useState(null);
@@ -38,7 +50,7 @@ export default function Page({params: {_teamid }}: any) {
       async function fetchAssigneeData() {
         if (users) {
           try {
-            const response = await fetch(`/api/get-user?userId=${users.join(",")}`);
+            const response = await fetch(`/api/secure/get-user?userId=${users.join(",")}`);
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -60,7 +72,7 @@ export default function Page({params: {_teamid }}: any) {
 
     return (
         <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
-        <AppHeader activesection="home" />
+        <AppHeader activesection="dashboard" />
         <main className="mx-auto px-10 py-8">
           <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
@@ -105,11 +117,11 @@ function TeamMemberList({ users, isLoading }: { users: TeamMember[] | null; isLo
     const [searchQuery, setSearchQuery] = useState("");
 useEffect(() => {
     if (users) {
-        const mappedUsers = users.users.map((user: any) => ({
+        const mappedUsers = users?.users?.map((user: any) => ({
             id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
-            emailAddresses: user.emailAddresses[0].emailAddress,
+            emailAddresses: user.emailAddresses,
             phone: user.phone,
             role: user.role,
             imageUrl: user.imageUrl
@@ -129,12 +141,10 @@ useEffect(() => {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Team Members</CardTitle>
-              <CardDescription>Manage and view your team members</CardDescription>
+              <CardDescription>Manage and view your team members <br/><span className='font-bold'>{teamMembers.length}/5</span> members invited</CardDescription>
+              
             </div>
-            <Button>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Invite Member
-            </Button>
+            <InviteTeamMember />
           </div>
         </CardHeader>
   
@@ -160,7 +170,7 @@ useEffect(() => {
                     className="flex min-w-[400px] flex-col items-left w-auto rounded-lg border p-4"
                   >
                     <div className="flex flex-row items-center gap-2">
-                      <Avatar className="h-12 w-12">
+                      <Avatar className="h-8 w-8">
                         <AvatarImage src={member.imageUrl} alt={`${member.firstName} ${member.lastName}`} />
                         <AvatarFallback>
                           {member?.firstName?.charAt(0) ?? ''}
@@ -186,12 +196,13 @@ useEffect(() => {
                         <UserCheck2Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                         <span className="text-xs font-bold text-muted-foreground">Owner</span>
                       </div>
-                      <div className='pt-2'>
+                      <div className='pt-2 flex flex-row gap-8'>
                         <Link href={`/author/${member.id}`}>
                           <Button variant="outline" className='text-left px-4 py-0.5 flex w-auto'>
-                            <button className="text-xs font-bold text-primary">View Profile</button>
+                            <p className="text-xs font-bold text-primary">View Profile</p>
                           </Button>
                         </Link>
+                        <Role userid={member.id} onValueChange={(newValue: string) => console.log(newValue)} />
                       </div>
                     </div>
                   </div>
@@ -216,3 +227,80 @@ useEffect(() => {
       </Link>
     );
   }
+export function Role({ onValueChange, userid }: any) {
+  const getRole = useQuery(api.page.getRole, { externalId: userid });
+  const role = getRole?.[0]?.permissions[0];
+
+  const handleChange = (newValue: string) => {
+    if (onValueChange) {
+      onValueChange(newValue);
+    }
+  };
+
+  return (
+    <Select value={role} onValueChange={handleChange} disabled={role === 'owner'}>
+      <SelectTrigger>
+        <SelectValue className="px-2" />
+      </SelectTrigger>
+      <SelectContent className="z-50">
+        <SelectGroup>
+          <SelectLabel>Role</SelectLabel>
+          <SelectItem value="member">Member</SelectItem>
+          <SelectItem value="manager">Manager</SelectItem>
+          <SelectItem value="admin">Admin</SelectItem>
+          <SelectItem value="owner">Owner</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function RoleInvite() {
+
+  const handleChange = (newValue: string) => {
+    console.log(newValue);
+  }
+
+  return (
+    <Select value="member" onValueChange={handleChange} >
+      <SelectTrigger className='w-1/3'>
+        <SelectValue className="px-2" />
+      </SelectTrigger>
+      <SelectContent className="z-50">
+        <SelectGroup>
+          <SelectLabel>Role</SelectLabel>
+          <SelectItem value="member">Member</SelectItem>
+          <SelectItem value="manager">Manager</SelectItem>
+          <SelectItem value="admin">Admin</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
+import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
+} from "@/components/ui/dialog";
+export function InviteTeamMember() {
+  return(
+    <Dialog>
+      <DialogTrigger>
+        <div className='bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring h-10 px-4 py-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'>
+          <UserPlus className="mr-2 h-4 w-4" />
+          Invite Member
+        </div>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Invite Team Member</DialogTitle>
+          <DialogDescription>Invite a new team member to your team</DialogDescription>
+        </DialogHeader>
+        <div className='flex flex-row gap-2'>
+        <Input placeholder="Email Address" />
+        <RoleInvite />
+        </div>
+        <Button>Invite</Button>
+      </DialogContent>
+    </Dialog>
+  )
+}

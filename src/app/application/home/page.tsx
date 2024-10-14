@@ -37,6 +37,7 @@ export default function Page() {
 
   // Fetch projects using useQuery
   const projects = useQuery(api.page.getPages);
+  console.log(projects);
   // check if user can access projects
   const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id));
 
@@ -98,7 +99,7 @@ export default function Page() {
                     <CreatePage />
                   </div>
                 ) : (
-                  filteredprojects.map((page, index) => (
+                  filteredprojects?.map((page, index) => (
                   <Project key={index} {...page} />
                   ))
                 )}
@@ -214,7 +215,7 @@ function Tutorial(){
 function CreatePage() {
   const user = useUser()
 
-  const createPage = useMutation(api.createPage.create)
+  const createPage = useMutation(api.page.create)
 
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState("")

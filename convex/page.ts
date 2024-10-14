@@ -9,7 +9,7 @@ export const create = mutation({
         userid: v.string(),
     },
     handler: async (ctx, { title, content, category, userid }) => {
-        await ctx.db.insert("pages", {
+        const page = await ctx.db.insert("pages", {
             title,
             content,
             category,
@@ -17,14 +17,16 @@ export const create = mutation({
         });
         await ctx.db.insert("roles", {
             externalId: userid,
+            pageid: page, // Access the id property directly
             permissions: ["owner"]
         });
-        },
-    });
+    },
+});
 export const getPages = query({
     args: {},
     handler: async (ctx) => {
-        return ctx.db.query("pages").collect();
+        const result = ctx.db.query("pages").collect();
+        return result;
     },
 });
 export const getPage = query({
@@ -35,3 +37,13 @@ export const getPage = query({
       return ctx.db.get(_id);
     },
   });
+export const getRole = query({
+  args: {
+    externalId: v.string(),
+  },
+  handler: async (ctx, { externalId }) => {
+    return ctx.db.query("roles")
+    .withIndex("byexternalId", q => q.eq("externalId", externalId))
+    .collect();
+  },
+});

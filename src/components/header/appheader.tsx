@@ -18,11 +18,11 @@ import {
   import { Moon, Sun } from "lucide-react"
 
 const navItems = [
-  { icon: Home, label: "Home", route: "/application/home", activesection: "home" },
-  { icon: Wrench, label: "Templates", route: "/templates", activesection: "templates" },
-  { icon: FolderPen, label: "Content", route: "/content", activesection: "content" },
-  { icon: ImageIcon, label: "Media", route: "/media", activesection: "media" },
-  { icon: Component, label: "Components", route: "/components", activesection: "components" },
+  { icon: Home, label: "Dashboard", route: "./dashboard", activesection: "dashboard" },
+  { icon: Wrench, label: "Templates", route: "./templates", activesection: "templates" },
+  { icon: FolderPen, label: "Content", route: "./content", activesection: "content" },
+  { icon: ImageIcon, label: "Media", route: "./media", activesection: "media" },
+  { icon: Component, label: "Components", route: "./components", activesection: "components" },
 ]
 
 export default function AppHeader({activesection}: any) {
@@ -68,7 +68,7 @@ export default function AppHeader({activesection}: any) {
     <div className="px-10 mx-auto">
     <div className="flex w-full justify-between items-center py-4">
       <div className="flex items-center gap-4 lg:gap-6">
-      <Link href="/" className="flex items-center">
+      <Link href="/application/home" className="flex items-center">
         <img src={image} alt="Textuality Logo" className="h-8 w-8" />
         <span className="sr-only">Textuality</span>
       </Link>
