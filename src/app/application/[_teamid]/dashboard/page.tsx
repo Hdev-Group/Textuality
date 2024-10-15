@@ -2,8 +2,8 @@
 import AppHeader from '@/components/header/appheader';
 import React, { useEffect, useState } from 'react';
 import { useUser } from "@clerk/clerk-react";
-import { useQuery } from 'convex/react';
-import { api } from '../../../../../convex/_generated/api';
+import { useMutation, useQuery } from 'convex/react';
+import { api} from '../../../../../convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -23,7 +23,12 @@ import {
 
 
 
-
+const invalidRoleUpdates = {
+  admin: ['owner', 'admin'],
+  editor: ['owner', 'admin', 'editor', 'author'], // Editor cannot update anyone
+  author: ['owner', 'admin', 'editor', 'contributor', 'author'], // Author cannot update anyone
+  contributor: ['owner', 'admin', 'editor', 'contributor', 'author'], // Contributor cannot update anyone
+};
 interface TeamMember {
     id: string
     firstName: string
@@ -68,8 +73,6 @@ export default function Page({params: {_teamid }}: any) {
       fetchAssigneeData();
     }, [users]);
 
-    console.log(userData);
-
     return (
         <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
         <AppHeader activesection="dashboard" />
@@ -105,16 +108,25 @@ export default function Page({params: {_teamid }}: any) {
                 </CardContent>
             </Card>
 
-            <TeamMemberList users={userData} isLoading={isLoading} />
+            <TeamMemberList users={userData}  isLoading={isLoading} getPage={getPage} teamid={teamid} />
             </div>
         </main>
       </div>
     );
 }
 
-function TeamMemberList({ users, isLoading }: { users: TeamMember[] | null; isLoading: boolean }) {
+function TeamMemberList({ users, isLoading, getPage, teamid }: { users: any | null; isLoading: boolean, getPage: any, teamid: string }) {
     const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const getInvites = useQuery(api.page.getPageInvites, { pageId: teamid });
+    const { user } = useUser();
+    const cancelInvite = useMutation(api.page.cancelInvite);
+    const getUser = useQuery(api.users.getUsersAndRoles, {
+      pageId: teamid,
+      externalId: user?.id
+    });
+    const { toast } = useToast();
+
 useEffect(() => {
     if (users) {
         const mappedUsers = users?.users?.map((user: any) => ({
@@ -134,17 +146,56 @@ useEffect(() => {
     const filteredMembers = teamMembers.filter((member) =>
       `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  
+
+    function capitalise(string: string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+    function CancelInvite(inviteId: any) {
+      cancelInvite({ _id: inviteId });
+      toast({
+        title: 'Success',
+        description: 'Invite has been cancelled',
+      });
+    }
+    const updateRole = useMutation(api.users.updateRole);
+    function UpdateUserRole({ role, userupdate }: any) {
+      console.log(getUser);
+      // security checks
+    
+      const updatingusersrole = getUser?.roles?.[0]?.permissions[0];
+      console.log(updatingusersrole);
+      // updatingusersrole is the person who is updating the role
+      // userupdate is the person who is being updated
+    
+      // If the person updating the role is not the owner
+      if (updatingusersrole !== 'owner') {
+      // Check if the current role trying to be updated is restricted for the updater
+      if (invalidRoleUpdates[updatingusersrole as keyof typeof invalidRoleUpdates]?.includes(role) || user === null) {
+        toast({
+        title: 'Error',
+        description: `You do not have permission to update a user to the ${role} role`,
+        variant: 'destructive',
+        });
+        return;
+      }
+      }
+    
+      updateRole({ externalId: userupdate, pageid: teamid, permissions: [role] });
+      toast({
+      title: 'Success',
+      description: 'Role has been updated',
+      });
+    }
     return (
       <Card className="w-full">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Team Members</CardTitle>
-              <CardDescription>Manage and view your team members <br/><span className='font-bold'>{teamMembers.length}/5</span> members invited</CardDescription>
+              <CardDescription>Manage and view your team members <br/><span className='font-bold'>{teamMembers.length + getInvites?.length}/5</span> members invited</CardDescription>
               
             </div>
-            <InviteTeamMember />
+            <InviteTeamMember getPage={getPage} />
           </div>
         </CardHeader>
   
@@ -163,7 +214,8 @@ useEffect(() => {
             </div>
           ) : teamMembers.length > 0 ? (
             <ScrollArea className="h-auto rounded-md">
-              <div className="flex flex-row gap-4">
+              <div className="flex flex-col gap-4">
+                <div className='flex flex-row gap-4'>
                 {filteredMembers.map((member) => (
                   <div
                     key={member.id}
@@ -192,21 +244,48 @@ useEffect(() => {
                             : member.emailAddresses}
                         </span>
                       </div>
-                      <div className="flex items-center pt-2">
-                        <UserCheck2Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <span className="text-xs font-bold text-muted-foreground">Owner</span>
-                      </div>
                       <div className='pt-2 flex flex-row gap-8'>
                         <Link href={`/author/${member.id}`}>
                           <Button variant="outline" className='text-left px-4 py-0.5 flex w-auto'>
                             <p className="text-xs font-bold text-primary">View Profile</p>
                           </Button>
                         </Link>
-                        <Role userid={member.id} onValueChange={(newValue: string) => console.log(newValue)} />
+                        <Role teamid={teamid} userid={member.id} onValueChange={(newValue: string) => UpdateUserRole({role: newValue, userupdate: member.id})} />
                       </div>
                     </div>
                   </div>
                 ))}
+                </div>
+                {getInvites && getInvites.length > 0 && (
+                  <div className='flex flex-col'>
+                    <CardTitle>Pending Invites</CardTitle>
+                    <CardDescription>Manage and view your pending invites</CardDescription>
+                    <div className='flex flex-row gap-4 mt-4'>
+                      {getInvites.map((invite: any) => (
+                        <div key={invite._id} className="flex min-w-[400px] flex-col items-left w-auto rounded-lg border p-4">
+                          <div className="flex flex-row items-center gap-2">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback>
+                                {invite.email?.charAt(0) ?? ''}
+                              </AvatarFallback>
+                            </Avatar>
+                            <p className="text-lg font-semibold leading-none">
+                              {invite.email}
+                            </p>
+                          </div>
+                          <div className="flex flex-row gap-4 items-center mt-2">
+                            <p className="text-sm font-semibold text-muted-foreground">{capitalise(invite.role)}</p>
+                            <div className=' flex flex-row gap-8'>
+                              <Button variant="outline" className='text-left px-4 py-0.5 flex w-auto'>
+                                <p className="text-xs font-bold text-primary" onClick={() => CancelInvite(invite._id)}>Cancel Invite</p>
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </ScrollArea>
           ) : (
@@ -227,61 +306,171 @@ useEffect(() => {
       </Link>
     );
   }
-export function Role({ onValueChange, userid }: any) {
-  const getRole = useQuery(api.page.getRole, { externalId: userid });
-  const role = getRole?.[0]?.permissions[0];
-
-  const handleChange = (newValue: string) => {
-    if (onValueChange) {
-      onValueChange(newValue);
-    }
-  };
-
-  return (
-    <Select value={role} onValueChange={handleChange} disabled={role === 'owner'}>
-      <SelectTrigger>
-        <SelectValue className="px-2" />
-      </SelectTrigger>
-      <SelectContent className="z-50">
-        <SelectGroup>
-          <SelectLabel>Role</SelectLabel>
-          <SelectItem value="member">Member</SelectItem>
-          <SelectItem value="manager">Manager</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
-          <SelectItem value="owner">Owner</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  );
-}
-
-function RoleInvite() {
-
-  const handleChange = (newValue: string) => {
-    console.log(newValue);
+  export function Role({ onValueChange, userid, teamid }: any) {
+    const getRole = useQuery(api.page.getRole, { externalId: userid });
+    const role = getRole?.[0]?.permissions[0];
+    const { user } = useUser();
+    
+    const getUser = useQuery(api.users.getUsersAndRoles, {
+      pageId: teamid,
+      externalId: user?.id
+    });
+    
+    // Role of the person trying to update roles
+    const updatingUserRole = getUser?.roles?.[0]?.permissions[0];
+  
+    const handleChange = (newValue: string) => {
+      if (onValueChange) {
+        onValueChange(newValue);
+      }
+    };
+  
+    // Determine which roles should be disabled based on the updating user's role
+    const isDisabled = (itemRole: string) => {
+  
+      // Owners can update any role but the role of owner
+      if (updatingUserRole === 'owner') {
+        return itemRole === 'owner';
+      }
+      // If current user's role has restrictions, check if the target role is in the invalid list
+      return invalidRoleUpdates[updatingUserRole as keyof typeof invalidRoleUpdates]?.includes(itemRole);
+    };
+  
+    return (
+      <Select value={role} onValueChange={handleChange} disabled={role === 'owner'}>
+        <SelectTrigger>
+          <SelectValue className="px-2" />
+        </SelectTrigger>
+        <SelectContent className="z-50">
+          <SelectGroup>
+            <SelectLabel>Role</SelectLabel>
+            <SelectItem value="contributor" disabled={isDisabled('contributor')}>Contributor</SelectItem>
+            <SelectItem value="author" disabled={isDisabled('author')}>Author</SelectItem>
+            <SelectItem value="editor" disabled={isDisabled('editor')}>Editor</SelectItem>
+            <SelectItem value="admin" disabled={isDisabled('admin')}>Admin</SelectItem>
+            <SelectItem value="owner" disabled={isDisabled('owner')}>Owner</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    );
   }
 
+function RoleInvite({teamid}: any) {
+  const [role, setRole] = useState("contributor");
+  const {user} = useUser();
+  const getUser = useQuery(api.users.getUsersAndRoles, {
+    pageId: teamid,
+    externalId: user?.id
+  });
+  
+  // Role of the person trying to update roles
+  const updatingUserRole = getUser?.roles?.[0]?.permissions[0];
+  const onValueChange = (newValue: string) => {
+    setRole(newValue);
+  };
+
+  const isDisabled = (itemRole: string) => {
+  
+    // Owners can update any role but the role of owner
+    if (updatingUserRole === 'owner') {
+      return itemRole === 'owner';
+    }
+    // If current user's role has restrictions, check if the target role is in the invalid list
+    return invalidRoleUpdates[updatingUserRole as keyof typeof invalidRoleUpdates]?.includes(itemRole);
+  };
+
+
   return (
-    <Select value="member" onValueChange={handleChange} >
-      <SelectTrigger className='w-1/3'>
-        <SelectValue className="px-2" />
-      </SelectTrigger>
-      <SelectContent className="z-50">
-        <SelectGroup>
-          <SelectLabel>Role</SelectLabel>
-          <SelectItem value="member">Member</SelectItem>
-          <SelectItem value="manager">Manager</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <Select value={role} name='role' onValueChange={onValueChange}>
+        <SelectTrigger className='w-1/2'>
+          <SelectValue className="px-2" />
+        </SelectTrigger>
+        <SelectContent className="z-50">
+          <SelectGroup>
+            <SelectLabel>Role</SelectLabel>
+            <SelectItem value="contributor" disabled={isDisabled('contributor')}>Contributor</SelectItem>
+            <SelectItem value="author" disabled={isDisabled('author')}>Author</SelectItem>
+            <SelectItem value="editor" disabled={isDisabled('editor')}>Editor</SelectItem>
+            <SelectItem value="admin" disabled={isDisabled('admin')}>Admin</SelectItem>
+            <SelectItem value="owner" disabled={isDisabled('owner')}>Owner</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
   );
 }
 
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
-export function InviteTeamMember() {
+import { useToast } from "@/hooks/use-toast"
+import { ToastAction } from "@/components/ui/toast"
+import { get } from 'http';
+
+export function InviteTeamMember(getPage: any) {
+  const { toast } = useToast()
+  const user = useUser();
+  const invitesender = useMutation(api.page.inviteUser);
+  const getUser = useQuery(api.users.getUsersAndRoles, {
+    pageId: getPage?.getPage?._id ?? '',
+    externalId: user?.user?.id
+  });
+  if (!user || getUser?.roles[0]?.permissions[0] === 'contributor' || getUser?.roles[0]?.permissions[0] === 'author') {
+    return null;
+  } 
+
+  function handleSubmit(e: any) {
+    e.preventDefault();
+    const form = document.getElementById('formemailer') as HTMLFormElement;
+    const formData = new FormData(form);
+    const email = formData.get('email') as string;
+    const role = formData.get('role') as string;
+    if (!email || !role) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all fields',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // now we can go and check to see if a user exists with that email
+    var setExists = false;
+    var userData = null;
+
+    function RemoveUser() {
+      console.log('User removed');
+    }
+
+    fetch(`/api/get-email-user?userEmail=${email}`)
+    .then((response) => response.json())
+    .then((data) => {
+      if (user?.user?.id === data.id) {
+        toast({
+          title: 'Error',
+          description: 'You cannot invite yourself, Or can you?',
+          variant: 'destructive',
+        });
+       } if (data.error) {
+        toast({
+          title: 'Error',
+          description: 'User does not exist',
+          variant: 'destructive',
+        });
+      } else {
+        setExists = true;
+        userData = data;
+        if (setExists = true) {
+            invitesender({ email: userData?.EmailAddress, role: role, pageId: getPage?.getPage?._id, externalId: userData?.id });
+          toast({
+            title: 'Success',
+            description: `${data?.firstName ?? ''} ${data?.lastName ?? ''} has been invited to join ${getPage?.getPage?.title} with a role of ${role}.`,
+            action: <ToastAction altText="Undo" onClick={RemoveUser}>Undo</ToastAction>,
+          });
+        }
+      }
+    })
+  }
+
   return(
     <Dialog>
       <DialogTrigger>
@@ -296,10 +485,18 @@ export function InviteTeamMember() {
           <DialogDescription>Invite a new team member to your team</DialogDescription>
         </DialogHeader>
         <div className='flex flex-row gap-2'>
-        <Input placeholder="Email Address" />
-        <RoleInvite />
+          <form id='formemailer' onSubmit={handleSubmit} className='flex flex-col gap-5 w-full'>
+            <div className='flex flex-row gap-2'>
+              <Input placeholder="Email Address" name='email' type='email' />
+              <RoleInvite teamid={getPage?.getPage?._id} />
+            </div>
+            <DialogTrigger className='w-full'>
+              <div className='flex w-full'>
+                <Button type='submit' className='w-full'>Invite</Button>
+              </div>
+            </DialogTrigger>
+          </form>
         </div>
-        <Button>Invite</Button>
       </DialogContent>
     </Dialog>
   )

@@ -1,4 +1,4 @@
-import { internalMutation, query, QueryCtx } from "./_generated/server";
+import { internalMutation, mutation, query, QueryCtx } from "./_generated/server";
 import { UserJSON } from "@clerk/backend";
 import { v, Validator } from "convex/values";
 
@@ -67,5 +67,42 @@ export const getUserById = query({
   handler: async (ctx, { id }) => {
     return await userByExternalId(ctx
     , id);
+  },
+});
+export const getUsersAndRoles = query({
+  args: {
+    pageId: v.string(),
+    externalId: v.any(),
+  },
+  handler: async (ctx, {pageId, externalId}) => {
+    const users = await ctx.db
+      .query("users")
+      .withIndex("byExternalId", (q) => q.eq("externalId", externalId))
+      .collect();
+    const roles = await ctx.db.query("roles")
+      .withIndex("byexternalandpageid", (q) => q.eq("externalId", externalId).eq("pageid", pageId))
+      .collect();
+    return { users, roles };
+  },
+});
+export const updateRole = mutation({
+  args: {
+    externalId: v.string(),
+    pageid: v.string(),
+    permissions: v.array(v.any()),
+  },
+  handler: async (ctx, { externalId, pageid, permissions }) => {
+    const role = await ctx.db
+      .query("roles")
+      .withIndex("byexternalandpageid", (q) => q.eq("externalId", externalId).eq("pageid", pageid))
+      .unique();
+
+    if (role !== null) {
+      await ctx.db.patch(role._id, { permissions });
+    } else {
+      console.warn(
+        `Can't update role, there is none for externalId: ${externalId} and pageid: ${pageid}`,
+      );
+    }
   },
 });

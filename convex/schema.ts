@@ -17,7 +17,7 @@ roles: defineTable({
     externalId: v.string(),
     pageid: v.string(),
     permissions: v.array(v.string()),
-}).index("byexternalId", ["externalId"]),
+}).index("byexternalandpageid", ["externalId", "pageid"]).index("byexternalId", ["externalId"]),
 blogs: defineTable({
     title: v.string(),
     content: v.string(),
@@ -27,5 +27,10 @@ blogs: defineTable({
     tags: v.array(v.string()),
     published: v.boolean(),
 }).index("byauthorid", ["authorid"]),
-
+invites: defineTable({
+    externalId: v.string(),
+    pageId: v.string(),
+    role: v.string(),
+    email: v.string(),
+}).index("byexternalId", ["externalId"]).index("bypageId", ["pageId"]),
 });

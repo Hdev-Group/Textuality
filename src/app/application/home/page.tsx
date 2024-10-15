@@ -5,19 +5,23 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import {
-  CalendarDays, Users, BookOpen, ArrowRight, ChevronDown, Plus
+  CalendarDays, Users, BookOpen, ArrowRight, ChevronDown, Plus,
+  Check
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectGroup
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast"
+
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Toast } from "@radix-ui/react-toast";
 
 interface ProjectProps {
   title: string;
@@ -40,6 +44,7 @@ export default function Page() {
   console.log(projects);
   // check if user can access projects
   const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id));
+  const getinvites = useQuery(api.page.getInvites, { externalId: user?.user?.id || "" });
 
   // Check loading and error states manually
   const isLoading = !projects; // Projects will be undefined when still loading
@@ -58,7 +63,33 @@ export default function Page() {
   } else if (hours >= 0 && hours < 5) {
     time = "night";
   }
+  const cancelInvite = useMutation(api.page.cancelInvite);
+  const acceptInvite = useMutation(api.page.acceptInvite);
 
+  function CancelInvite(InviteDetails: any) {
+    if (user?.user?.id === InviteDetails.externalId) {
+      console.log(InviteDetails._id);
+      cancelInvite({ _id: InviteDetails._id });
+    }
+    else{
+      console.log("You are not authorized to cancel this invite.");
+    }
+  }
+
+  function AcceptInvite(InviteDetails: any) {
+    console.log(InviteDetails.InviteDetails, "ae");
+    if (user?.user?.id === InviteDetails.InviteDetails.externalId) {
+      console.log(InviteDetails.InviteDetails._id);
+      acceptInvite({ _id: InviteDetails.InviteDetails._id, pageId: InviteDetails.InviteDetails.pageId, role: InviteDetails.InviteDetails.role, externalId: InviteDetails.InviteDetails.externalId });
+      const { toast } = useToast()
+      toast({
+        title: "Your in.",
+        description: "You have been added to the page.",
+      })
+    }
+  }
+  if (!getinvites) {
+  }
   return (
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <HomeHeader activesection="home" />
@@ -80,7 +111,7 @@ export default function Page() {
 
           <div>
             <h2 className="text-xl font-semibold mb-2">Recent Pages</h2>
-
+            
             {/* Handle loading and error states */}
             {isLoading ? (
               <div className="flex flex-col items-center justify-center w-full h-full">
@@ -105,8 +136,33 @@ export default function Page() {
                 )}
                 </div>
             )}
+            {getinvites?.length > 0 && (
+            <div>
+              <h2 className="text-xl mt-5 font-semibold mb-2">Page Invites</h2>
+              <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
+              {getinvites?.map((invite, index) => (
+                <div key={index} className="bg-neutral-50 dark:bg-neutral-800 border w-1/3 dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <div className="p-6 space-y-4">
+                    <div className="flex justify-between items-start">
+                    <PageName type="title" pageid={invite.pageId} />
+                    </div>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300 flex flex-row">You have been invited to join <PageNameDefault type="content" pageid={invite.pageId}/> with the role of {invite.role}.</p>
+                  </div>
+                  <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
+                    <Button variant="secondary" size="sm" onClick={() => AcceptInvite({InviteDetails: invite})}>
+                      Accept Invite <Check className="w-4 h-4 ml-1" />
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => CancelInvite({InviteDetails: invite})}>
+                      Decline Invite
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              </div>
+            </div>
+            )}
           </div>
-        </div>
+          </div>
       </main>
     </div>
   );
@@ -208,10 +264,6 @@ function Project({
   );
 }
 
-function Tutorial(){
-
-}
-
 function CreatePage() {
   const user = useUser()
 
@@ -289,4 +341,23 @@ function CreatePage() {
       </DialogContent>
     </Dialog>
   )
+}
+
+function PageName({ pageid, type }: { pageid: string, type: string }) {
+  const page = useQuery(api.page.getExactPage, { _id: pageid });
+
+  if (!page) {
+    return <p>Loading...</p>;
+  }
+
+  return <h1 className={`font-semibold text-lg`}>{page.title ? page.title : "Unknown Page"}</h1>;
+}
+function PageNameDefault({ pageid, type }: { pageid: string, type: string }) {
+  const page = useQuery(api.page.getExactPage, { _id: pageid });
+
+  if (!page) {
+    return <p>Loading...</p>;
+  }
+
+  return <h1 className="mx-1"> {page.title ? page.title : "Unknown Page"} </h1>;
 }

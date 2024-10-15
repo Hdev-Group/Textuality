@@ -5,6 +5,7 @@ import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { Inter as FontSans } from "next/font/google"
 import type { Metadata } from "next";
 import ConvexClientProvider from "./ConvexClientProvider";
+import { Toaster } from "@/components/ui/toaster"
 
 import "./globals.css"
  
@@ -38,6 +39,7 @@ export default function RootLayout({
           </head>
           <body>
         <ConvexClientProvider>{children}</ConvexClientProvider>
+        <Toaster />
         </body>
         </html>
       </ConvexProvider>
