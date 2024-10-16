@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, ArrowUp, Home } from "lucide-react"
 import { useUser } from "@clerk/clerk-react"
 import { useState, useEffect } from "react"
+import { useClerk } from '@clerk/nextjs'
 import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ const navItems = [
 ]
 
 export default function AppHeader({activesection}: any) {
+  const { signOut } = useClerk()
   const [isdark, setDark] = useState(true);
   const [image, setImage] = useState("/IMG_6128.png");
 
@@ -101,26 +103,30 @@ export default function AppHeader({activesection}: any) {
       <Button size="sm" variant='outline' id="themesetter"> {isdark ? <Moon size={16} /> : <Sun size={16} />} </Button> 
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button size="icon" variant="ghost" aria-label="Settings">
+          <div className={`${activesection === "settings" ? 'border-blue-400 p-1 rounded-md bg-blue-300/20 border text-blue-500' : ''}`}>
             <Settings className="h-4 w-4" />
-          </Button>
+          </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Page Settings</DropdownMenuLabel>
-          <a href="./settings">
+          <Link href="./settings">
             <DropdownMenuItem>Settings</DropdownMenuItem>
-          </a>
-          <a href="./settings/users">
+          </Link>
+          <Link href="./settings/users">
             <DropdownMenuItem>Users</DropdownMenuItem>
-          </a>
-          <a href="./plans">
+          </Link>
+          <Link href="./plans">
             <DropdownMenuItem>Upgrade</DropdownMenuItem>
-          </a>
+          </Link>
           <DropdownMenuSeparator />
           <DropdownMenuLabel>Account</DropdownMenuLabel>
+          <a href="./settings/users">
           <DropdownMenuItem>Profile</DropdownMenuItem>
+          </a>
+          <a href="./settings/users">
           <DropdownMenuItem>Settings</DropdownMenuItem>
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          </a>
+          <DropdownMenuItem onClick={() => signOut({ redirectUrl: '/' })}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {user?.imageUrl && (

@@ -30,13 +30,12 @@ export const getPages = query({
     },
 });
 export const getPage = query({
-    args: {
-      _id: v.id("pages"),
-    },
-    handler: async (ctx, { _id }) => {
-
-      return ctx.db.get(_id);
-    },
+  args: {
+    _id: v.id("pages"),
+  },
+  handler: async (ctx, { _id }) => {
+    return ctx.db.get(_id);
+  },
   });
 export const getRole = query({
   args: {

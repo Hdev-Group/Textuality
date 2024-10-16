@@ -1,0 +1,6 @@
+{
+    "admin": ["owner", "admin"],
+    "editor": ["owner", "admin", "editor", "author"],
+    "author": ["owner", "admin", "editor", "contributor", "author"],
+    "contributor": ["owner", "admin", "editor", "contributor", "author"]
+}
