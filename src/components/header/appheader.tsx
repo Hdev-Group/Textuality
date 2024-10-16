@@ -103,7 +103,7 @@ export default function AppHeader({activesection}: any) {
       <Button size="sm" variant='outline' id="themesetter"> {isdark ? <Moon size={16} /> : <Sun size={16} />} </Button> 
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <div className={`${activesection === "settings" ? 'border-blue-400 p-1 rounded-md bg-blue-300/20 border text-blue-500' : ''}`}>
+          <div className={`${activesection === "settings" ? 'border-blue-400 p-2 rounded-md bg-blue-300/20 border text-blue-500' : ''}`}>
             <Settings className="h-4 w-4" />
           </div>
         </DropdownMenuTrigger>
