@@ -99,9 +99,30 @@ export default function AppHeader({activesection}: any) {
         <Search className="h-4 w-4" />
       </Button>
       <Button size="sm" variant='outline' id="themesetter"> {isdark ? <Moon size={16} /> : <Sun size={16} />} </Button> 
-      <Button size="icon" variant="ghost" aria-label="Settings">
-        <Settings className="h-4 w-4" />
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button size="icon" variant="ghost" aria-label="Settings">
+            <Settings className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Page Settings</DropdownMenuLabel>
+          <a href="./settings">
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+          </a>
+          <a href="./settings/users">
+            <DropdownMenuItem>Users</DropdownMenuItem>
+          </a>
+          <a href="./plans">
+            <DropdownMenuItem>Upgrade</DropdownMenuItem>
+          </a>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Account</DropdownMenuLabel>
+          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem>Logout</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       {user?.imageUrl && (
         <img 
         src={user.imageUrl} 

@@ -186,6 +186,9 @@ useEffect(() => {
       description: 'Role has been updated',
       });
     }
+    if (!getInvites){
+      return null;
+    }
     return (
       <Card className="w-full">
         <CardHeader>
@@ -298,41 +301,41 @@ useEffect(() => {
 
   function CreateBlog() {
     return (
-        <Link href='./templates/create-blog-template'>
-            <Button>
-                <BookMarkedIcon className="mr-2 h-4 w-4" />
-                Create Blog
-            </Button>
+      <Link href="/author/${member.id}" legacyBehavior>
+        <Button>
+          <BookMarkedIcon className="mr-2 h-4 w-4" />
+          Create Blog
+        </Button>
       </Link>
     );
   }
+  
+  
+
   export function Role({ onValueChange, userid, teamid }: any) {
+    // Get the role of the user
     const getRole = useQuery(api.page.getRole, { externalId: userid });
     const role = getRole?.[0]?.permissions[0];
     const { user } = useUser();
     
-    const getUser = useQuery(api.users.getUsersAndRoles, {
+    // Get the roles of the person updating
+    const { data: getUser } = useQuery<any>(api.users.getUsersAndRoles, {
       pageId: teamid,
       externalId: user?.id
     });
     
-    // Role of the person trying to update roles
     const updatingUserRole = getUser?.roles?.[0]?.permissions[0];
   
+    // Function to handle the role change
     const handleChange = (newValue: string) => {
       if (onValueChange) {
         onValueChange(newValue);
       }
     };
   
-    // Determine which roles should be disabled based on the updating user's role
+    // Determine whether a role should be disabled
     const isDisabled = (itemRole: string) => {
-  
-      // Owners can update any role but the role of owner
-      if (updatingUserRole === 'owner') {
-        return itemRole === 'owner';
-      }
-      // If current user's role has restrictions, check if the target role is in the invalid list
+
       return invalidRoleUpdates[updatingUserRole as keyof typeof invalidRoleUpdates]?.includes(itemRole);
     };
   
@@ -348,7 +351,7 @@ useEffect(() => {
             <SelectItem value="author" disabled={isDisabled('author')}>Author</SelectItem>
             <SelectItem value="editor" disabled={isDisabled('editor')}>Editor</SelectItem>
             <SelectItem value="admin" disabled={isDisabled('admin')}>Admin</SelectItem>
-            <SelectItem value="owner" disabled={isDisabled('owner')}>Owner</SelectItem>
+            <SelectItem value="owner" disabled={true}>Owner</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -404,19 +407,20 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast"
 import { ToastAction } from "@/components/ui/toast"
-import { get } from 'http';
 
-export function InviteTeamMember(getPage: any) {
-  const { toast } = useToast()
+
+export  function InviteTeamMember(getPage: any) {
+  const { toast } = useToast();
   const user = useUser();
   const invitesender = useMutation(api.page.inviteUser);
   const getUser = useQuery(api.users.getUsersAndRoles, {
     pageId: getPage?.getPage?._id ?? '',
     externalId: user?.user?.id
   });
+
   if (!user || getUser?.roles[0]?.permissions[0] === 'contributor' || getUser?.roles[0]?.permissions[0] === 'author') {
     return null;
-  } 
+  }
 
   function handleSubmit(e: any) {
     e.preventDefault();
@@ -433,71 +437,53 @@ export function InviteTeamMember(getPage: any) {
       return;
     }
 
-    // now we can go and check to see if a user exists with that email
-    var setExists = false;
-    var userData = null;
-
-    function RemoveUser() {
-      console.log('User removed');
-    }
-
     fetch(`/api/get-email-user?userEmail=${email}`)
-    .then((response) => response.json())
-    .then((data) => {
-      if (user?.user?.id === data.id) {
-        toast({
-          title: 'Error',
-          description: 'You cannot invite yourself, Or can you?',
-          variant: 'destructive',
-        });
-       } if (data.error) {
-        toast({
-          title: 'Error',
-          description: 'User does not exist',
-          variant: 'destructive',
-        });
-      } else {
-        setExists = true;
-        userData = data;
-        if (setExists = true) {
-            invitesender({ email: userData?.EmailAddress, role: role, pageId: getPage?.getPage?._id, externalId: userData?.id });
+      .then((response) => response.json())
+      .then((data) => {
+        if (user?.user?.id === data.id) {
+          toast({
+            title: 'Error',
+            description: 'You cannot invite yourself, Or can you?',
+            variant: 'destructive',
+          });
+        } else if (data.error) {
+          toast({
+            title: 'Error',
+            description: 'User does not exist',
+            variant: 'destructive',
+          });
+        } else {
+          invitesender({ email: data?.EmailAddress, role: role, pageId: getPage?.getPage?._id, externalId: data?.id });
           toast({
             title: 'Success',
             description: `${data?.firstName ?? ''} ${data?.lastName ?? ''} has been invited to join ${getPage?.getPage?.title} with a role of ${role}.`,
-            action: <ToastAction altText="Undo" onClick={RemoveUser}>Undo</ToastAction>,
+            action: <ToastAction altText="Undo">Undo</ToastAction>,
           });
         }
-      }
-    })
+      });
   }
 
-  return(
+  return (
     <Dialog>
-      <DialogTrigger>
-        <div className='bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring h-10 px-4 py-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50'>
+      <DialogTrigger asChild>
+        <Button>
           <UserPlus className="mr-2 h-4 w-4" />
           Invite Member
-        </div>
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Invite Team Member</DialogTitle>
           <DialogDescription>Invite a new team member to your team</DialogDescription>
         </DialogHeader>
-        <div className='flex flex-row gap-2'>
-          <form id='formemailer' onSubmit={handleSubmit} className='flex flex-col gap-5 w-full'>
-            <div className='flex flex-row gap-2'>
-              <Input placeholder="Email Address" name='email' type='email' />
-              <RoleInvite teamid={getPage?.getPage?._id} />
-            </div>
-            <DialogTrigger className='w-full'>
-              <div className='flex w-full'>
-                <Button type='submit' className='w-full'>Invite</Button>
-              </div>
-            </DialogTrigger>
-          </form>
-        </div>
+        <form id='formemailer' onSubmit={handleSubmit} className='flex flex-col gap-5 w-full'>
+          <div className='flex flex-row gap-2'>
+            <Input placeholder="Email Address" name='email' type='email' />
+            <RoleInvite teamid={getPage?.getPage?._id} />
+          </div>
+          <Button type='submit' className='w-full'>Invite</Button>
+        </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
