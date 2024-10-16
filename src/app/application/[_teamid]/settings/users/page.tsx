@@ -31,13 +31,7 @@ import {Separator} from '@/components/ui/separator'
     imageUrl: string
     users: any
   }
-  
-  const invalidRoleUpdates = {
-    admin: ['owner', 'admin'],
-    editor: ['owner', 'admin', 'editor', 'author'], // Editor cannot update anyone
-    author: ['owner', 'admin', 'editor', 'contributor', 'author'], // Author cannot update anyone
-    contributor: ['owner', 'admin', 'editor', 'contributor', 'author'], // Contributor cannot update anyone
-  };
+import rolesConfig from '../../../../../config/rolesConfig.json';
 
 
 export default function Page({params: { _teamid }}: any) {
@@ -88,12 +82,10 @@ export default function Page({params: { _teamid }}: any) {
     )
 }
 export function Role({ onValueChange, userid, teamid }: any) {
-    // Get the role of the user
     const getRole = useQuery(api.page.getRole, { externalId: userid });
     const role = getRole?.[0]?.permissions[0];
     const { user } = useUser();
     
-    // Get the roles of the person updating
     const { data: getUser } = useQuery<any>(api.users.getUsersAndRoles, {
       pageId: teamid,
       externalId: user?.id
@@ -111,7 +103,7 @@ export function Role({ onValueChange, userid, teamid }: any) {
     // Determine whether a role should be disabled
     const isDisabled = (itemRole: string) => {
 
-      return invalidRoleUpdates[updatingUserRole as keyof typeof invalidRoleUpdates]?.includes(itemRole);
+      return rolesConfig[updatingUserRole as keyof typeof rolesConfig]?.includes(itemRole);
     };
   
     return (
@@ -154,7 +146,7 @@ function RoleInvite({teamid}: any) {
       return itemRole === 'owner';
     }
     // If current user's role has restrictions, check if the target role is in the invalid list
-    return invalidRoleUpdates[updatingUserRole as keyof typeof invalidRoleUpdates]?.includes(itemRole);
+    return rolesConfig[updatingUserRole as keyof typeof rolesConfig]?.includes(itemRole);
   };
 
 
@@ -307,17 +299,13 @@ useEffect(() => {
     const updateRole = useMutation(api.users.updateRole);
     function UpdateUserRole({ role, userupdate }: any) {
       console.log(getUser);
-      // security checks
     
       const updatingusersrole = getUser?.roles?.[0]?.permissions[0];
       console.log(updatingusersrole);
-      // updatingusersrole is the person who is updating the role
-      // userupdate is the person who is being updated
+
     
-      // If the person updating the role is not the owner
       if (updatingusersrole !== 'owner') {
-      // Check if the current role trying to be updated is restricted for the updater
-      if (invalidRoleUpdates[updatingusersrole as keyof typeof invalidRoleUpdates]?.includes(role) || user === null) {
+      if (rolesConfig[updatingusersrole as keyof typeof rolesConfig]?.includes(role) || user === null) {
         toast({
         title: 'Error',
         description: `You do not have permission to update a user to the ${role} role`,
@@ -390,7 +378,7 @@ useEffect(() => {
                         <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
                         <span className="text-xs text-muted-foreground">
                           {Array.isArray(member.emailAddresses)
-                            ? member.emailAddresses.map((email) => email).join(", ") // Fixing email display logic
+                            ? member.emailAddresses.map((email) => email).join(", ")
                             : member.emailAddresses}
                         </span>
                       </div>
