@@ -18,18 +18,20 @@ import {
   import { useSelectedLayoutSegment } from 'next/navigation'
   import { Moon, Sun } from "lucide-react"
 
-const navItems = [
-  { icon: Home, label: "Dashboard", route: "./dashboard", activesection: "dashboard" },
-  { icon: Wrench, label: "Templates", route: "./templates", activesection: "templates" },
-  { icon: FolderPen, label: "Content", route: "./content", activesection: "content" },
-  { icon: ImageIcon, label: "Media", route: "./media", activesection: "media" },
-  { icon: Component, label: "Components", route: "./components", activesection: "components" },
-]
 
-export default function AppHeader({activesection}: any) {
+
+export default function AppHeader({teamid, activesection}: any) {
+  const navItems = [
+    { icon: Home, label: "Dashboard", route: `../../../application/${teamid}/dashboard`, activesection: "dashboard" },
+    { icon: Wrench, label: "Templates", route: `../../../application/${teamid}/templates`, activesection: "templates" },
+    { icon: FolderPen, label: "Content", route: `../../../application/${teamid}/content`, activesection: "content" },
+    { icon: ImageIcon, label: "Media", route: `../../../application/${teamid}/media`, activesection: "media" },
+    { icon: Component, label: "Components", route: `../../../application/${teamid}/components`, activesection: "components" },
+  ]
   const { signOut } = useClerk()
   const [isdark, setDark] = useState(true);
   const [image, setImage] = useState("/IMG_6128.png");
+
 
   useEffect(() => {
   const themesetter = document.getElementById('themesetter');
@@ -103,19 +105,19 @@ export default function AppHeader({activesection}: any) {
       <Button size="sm" variant='outline' id="themesetter"> {isdark ? <Moon size={16} /> : <Sun size={16} />} </Button> 
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <div className={`${activesection === "settings" ? 'border-blue-400 p-2 rounded-md bg-blue-300/20 border text-blue-500' : ''}`}>
+          <div className={`${activesection === "settings" ? 'border-blue-400  bg-blue-300/20 border text-blue-500' : ''} p-2 rounded-md hover:bg-neutral-900/5 hover:text-accent-background dark:hover:bg-accent`}>
             <Settings className="h-4 w-4" />
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Page Settings</DropdownMenuLabel>
-          <Link href="./settings">
+          <Link href={`../../../../application/${teamid}/settings`}>
             <DropdownMenuItem>Settings</DropdownMenuItem>
           </Link>
-          <Link href="./settings/users">
+          <Link href={`../../../../application/${teamid}/settings/users`}>
             <DropdownMenuItem>Users</DropdownMenuItem>
           </Link>
-          <Link href="./plans">
+          <Link href={`${teamid}/plans`}>
             <DropdownMenuItem>Upgrade</DropdownMenuItem>
           </Link>
           <DropdownMenuSeparator />

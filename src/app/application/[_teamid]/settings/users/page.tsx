@@ -2,12 +2,13 @@
 import AppHeader from '@/components/header/appheader';
 import React, { useEffect, useState } from 'react';
 import { useUser } from "@clerk/clerk-react";
+import {useAuth} from '@clerk/nextjs'
 import { useMutation, useQuery } from 'convex/react';
 import { api} from '../../../../../../convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { UserPlus, Mail, X, Search} from "lucide-react"
+import { UserPlus, Mail, X, Search, AlertTriangle} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
@@ -21,7 +22,7 @@ import {
     SelectLabel,
   } from "@/components/ui/select"
 import {Separator} from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger,  } from "@/components/ui/tabs"
 
   interface TeamMember {
     id: string
@@ -37,61 +38,132 @@ import rolesConfig from '../../../../../config/rolesConfig.json';
 
 
 export default function TeamManagement({ params: { _teamid } }: { params: { _teamid: any } }) {
-    const teamid = _teamid
-    const { user } = useUser()
-    const getPage = useQuery(api.page.getPage, { _id: teamid })
-    const [userData, setUserData] = useState<TeamMember[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [searchQuery, setSearchQuery] = useState("")
-    const [roleFilter, setRoleFilter] = useState("all")
-    const { toast } = useToast()
+    const teamid = _teamid;
+    const { userId, isLoaded, isSignedIn } = useAuth();
   
-    const getInvites = useQuery(api.page.getPageInvites, { pageId: teamid })
-    const cancelInvite = useMutation(api.page.cancelInvite)
-    const updateRole = useMutation(api.users.updateRole)
+    const getPage = useQuery(api.page.getPage, { _id: teamid });
+    const getInvites = useQuery(api.page.getPageInvites, { pageId: teamid });
+    const cancelInvite = useMutation(api.page.cancelInvite);
+    const updateRole = useMutation(api.users.updateRole);
   
-    const CancelInvite = (inviteId: any) => {
-      cancelInvite({ _id: inviteId })
-      toast({ title: "Success", description: "Invite has been cancelled" })
-    }
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [userData, setUserData] = useState<TeamMember[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [roleFilter, setRoleFilter] = useState("all");
+    const { toast } = useToast();
+
+
   
-    const UpdateUserRole = ({ role, userupdate }: { role: string; userupdate: string }) => {
-      updateRole({ externalId: userupdate, pageid: teamid, permissions: [role] })
-      toast({ title: "Success", description: "Role has been updated" })
-    }
-  
+    // Return early if user is not authorized
+    useEffect(() => {
+      if (getPage?.users?.includes(userId as string)) {
+        setIsAuthorized(true);
+
+        setIsLoading(false);
+      }
+    }, [userId, getPage, getPage?.users]);
+
     useEffect(() => {
       async function fetchUserData() {
         if (getPage?.users) {
           try {
-            const response = await fetch(`/api/secure/get-user?userId=${getPage.users.join(",")}`)
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-            const data = await response.json()
-            setUserData(data.users)
+            const response = await fetch(`/api/secure/get-user?userId=${getPage.users.join(",")}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            setUserData(data.users);
           } catch (error) {
-            console.error("Error fetching user data:", error)
-            setUserData([])
+            console.error("Error fetching user data:", error);
+            setUserData([]);
           } finally {
-            setIsLoading(false)
+            setIsLoading(false);
           }
         }
       }
-      fetchUserData()
-    }, [getPage?.users])
+      fetchUserData();
+    }, [getPage]);
   
-    const filteredMembers = userData.filter(
-        (member) =>
-            (`${member.firstName} ${member.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (Array.isArray(member.emailAddresses) ? member.emailAddresses.some((email) => email.toLowerCase().includes(searchQuery.toLowerCase())) : member.emailAddresses.toLowerCase().includes(searchQuery.toLowerCase()))) &&
-            (roleFilter === "all" || member?.role?.toLowerCase() === roleFilter)
+    if (!isLoaded) {
+      return (
+        <div className="flex items-center flex-col justify-center min-h-screen">
+          <div className="flex items-center flex-col justify-center min-h-screen">
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+            <p className="text-muted-foreground text-center mt-4">Loading.</p>
+          </div>
+        </div>
+      );
+    }
+    if (!isAuthorized) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <Card className="w-full border-red-500 max-w-md">
+            <CardContent className="pt-6 text-left items-start flex flex-col justify-start">
+              <p>
+                <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+              </p>
+              <h2 className="text-2xl font-bold mb-2">Not Authorised</h2>
+              <p className="text-muted-foreground">
+                You are not authorised to access this page. <br />
+                <span className="text-xs">Think this is wrong? Contact the page owner.</span>
+              </p>
+              <a href='/application/home'>
+                <Button className="mt-4" variant="outline">Go Home</Button>
+              </a>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+  
+
+  
+  const CancelInvite = (inviteId: any) => {
+      cancelInvite({ _id: inviteId });
+      toast({ title: "Success", description: "Invite has been cancelled" });
+  };
+
+  const UpdateUserRole = ({ role, userupdate }: { role: string; userupdate: string }) => {
+      updateRole({ externalId: userupdate, pageid: teamid, permissions: [role] });
+      toast({ title: "Success", description: "Role has been updated" });
+  };
+
+  const filteredMembers = userData.filter(
+      (member) =>
+          (`${member.firstName} ${member.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (Array.isArray(member.emailAddresses)
+                  ? member.emailAddresses.some((email) =>
+                      email.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  : member.emailAddresses.toLowerCase().includes(searchQuery.toLowerCase()))) &&
+          (roleFilter === "all" || member?.role?.toLowerCase() === roleFilter)
+  );
+
+  // Early return for unauthorized access
+  if (!isAuthorized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-full border-red-500 max-w-md">
+          <CardContent className="pt-6 text-left items-start flex flex-col justify-start">
+            <p><AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" /></p>
+            <h2 className="text-2xl font-bold mb-2">Not Authorised</h2>
+            <p className="text-muted-foreground">You are not authorised to access this page. <br /> <span className='text-xs'>Think this is wrong? Contact the page owner.</span></p>
+            <a href='/application/home'>
+              <Button className="mt-4" variant="outline">Go Home</Button>
+            </a>
+          </CardContent>
+        </Card>
+      </div>
     )
+  }
   
   
     return (
       <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
-        <AppHeader activesection="settings" />
+        <AppHeader activesection="settings" teamid={teamid} />
         <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 ">
-          <Card className="w-full border-none shadow-lg dark:bg-neutral-900">
+          <Card className="w-full border-none shadow-lg ">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
               <div>
                 <CardTitle className="text-2xl font-bold">Team Members</CardTitle>
@@ -166,7 +238,7 @@ export default function TeamManagement({ params: { _teamid } }: { params: { _tea
                                       : member.emailAddresses}
                                   </span>
                                 </div>
-                                <div className="flex items-center justify-between mt-4">
+                                <div className="flex items-center justify-between gap-10 mt-4">
                                   <Button asChild variant="outline" size="sm">
                                     <Link href={`/author/${member.id}`}>View Profile</Link>
                                   </Button>
@@ -189,7 +261,6 @@ export default function TeamManagement({ params: { _teamid } }: { params: { _tea
                 <TabsContent value="invites">
                   {getInvites && getInvites.length > 0 && (
                     <div className="mt-8">
-                      <Separator className="my-6" />
                       <h2 className="text-xl font-semibold mb-2">Pending Invites</h2>
                       <p className="text-sm text-muted-foreground mb-4">Manage and view your pending invites</p>
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -230,8 +301,11 @@ export default function TeamManagement({ params: { _teamid } }: { params: { _tea
                   )}
                 </TabsContent>
               </Tabs>
+              <Separator className="my-6" />
+
             </CardContent>
           </Card>
+          
         </main>
       </div>
     )
@@ -265,7 +339,7 @@ export function Role({ onValueChange, userid, teamid }: any) {
     return (
       <Select value={role} onValueChange={handleChange} disabled={role === 'owner'}>
         <SelectTrigger>
-          <SelectValue className="px-2" />
+          <SelectValue className="px-2 w-1/2 " />
         </SelectTrigger>
         <SelectContent className="z-50">
           <SelectGroup>
@@ -330,6 +404,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast"
 import { ToastAction } from "@/components/ui/toast"
+import HomeHeader from '@/components/header/homeheader';
 
 
 export  function InviteTeamMember(getPage: any) {
@@ -404,7 +479,9 @@ export  function InviteTeamMember(getPage: any) {
             <Input placeholder="Email Address" name='email' type='email' />
             <RoleInvite teamid={getPage?.getPage?._id} />
           </div>
-          <Button type='submit' className='w-full'>Invite</Button>
+          <DialogTrigger>
+            <Button type='submit' className='w-full'>Invite</Button>
+          </DialogTrigger>
         </form>
       </DialogContent>
     </Dialog>
@@ -552,7 +629,6 @@ useEffect(() => {
                 </div>
                 {getInvites.length > 0 && (
                     <div>
-                      <Separator className="my-6" />
                       <h2 className="text-xl font-semibold mb-2">Pending Invites</h2>
                       <p className="text-sm text-muted-foreground mb-4">Manage and view your pending invites</p>
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

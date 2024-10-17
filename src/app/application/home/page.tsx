@@ -66,14 +66,8 @@ export default function Page() {
   const cancelInvite = useMutation(api.page.cancelInvite);
   const acceptInvite = useMutation(api.page.acceptInvite);
 
-  function CancelInvite(InviteDetails: any) {
-    if (user?.user?.id === InviteDetails.externalId) {
-      console.log(InviteDetails._id);
-      cancelInvite({ _id: InviteDetails._id });
-    }
-    else{
-      console.log("You are not authorized to cancel this invite.");
-    }
+  const CancelInvite = (inviteId: any) => {
+      cancelInvite({ _id: inviteId.InviteDetails._id });
   }
 
   function AcceptInvite(InviteDetails: any) {

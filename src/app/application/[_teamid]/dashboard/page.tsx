@@ -2,14 +2,12 @@
 import AppHeader from '@/components/header/appheader';
 import React, { useEffect, useState } from 'react';
 import { useUser } from "@clerk/clerk-react";
-import { useMutation, useQuery } from 'convex/react';
+import {useAuth} from '@clerk/nextjs'
+import { useQuery } from 'convex/react';
 import { api} from '../../../../../convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { UserPlus, Mail, Phone, UserCheck2Icon, BookMarkedIcon } from "lucide-react"
+import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
 
 
@@ -17,15 +15,56 @@ import Link from 'next/link';
 export default function Page({params: {_teamid }}: any) {
     const teamid = _teamid;
     const user = useUser();
-
+    const { userId, isLoaded, isSignedIn } = useAuth();
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const getPage = useQuery(api.page.getPage, { _id: teamid });
+    useEffect(() => {
+      if (getPage?.users?.includes(userId as string)) {
+        setIsAuthorized(true);
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+      }
+    }, [getPage, userId]);
 
-    const users = getPage?.users;
-
+    if (!isLoaded) {
+      return (
+        <div className="flex items-center flex-col justify-center min-h-screen">
+          <div className="flex items-center flex-col justify-center min-h-screen">
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+            <p className="text-muted-foreground text-center mt-4">Loading.</p>
+          </div>
+        </div>
+      );
+    }
+    if (!isAuthorized) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <Card className="w-full border-red-500 max-w-md">
+            <CardContent className="pt-6 text-left items-start flex flex-col justify-start">
+              <p>
+                <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+              </p>
+              <h2 className="text-2xl font-bold mb-2">Not Authorised</h2>
+              <p className="text-muted-foreground">
+                You are not authorised to access this page. <br />
+                <span className="text-xs">Think this is wrong? Contact the page owner.</span>
+              </p>
+              <a href='/application/home'>
+                <Button className="mt-4" variant="outline">Go Home</Button>
+              </a>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
 
     return (
         <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
-        <AppHeader activesection="dashboard" />
+        <AppHeader activesection="dashboard" teamid={teamid} />
         <main className="mx-auto px-10 py-8">
           <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
@@ -55,6 +94,7 @@ export default function Page({params: {_teamid }}: any) {
                 </div>
                 </CardContent>
             </Card>
+            <QuickStartGuide />
             </div>
         </main>
       </div>
@@ -72,4 +112,95 @@ export default function Page({params: {_teamid }}: any) {
         </Button>
       </Link>
     );
+  }
+  export  function QuickStartGuide() {
+    const [completedSteps, setCompletedSteps] = useState<number[]>([1, 2])
+  
+    const steps = [
+      {
+        icon: <Layout className="w-6 h-6" />,
+        title: "Create a structure with a Content Model",
+        description: "This defines the schema for your content, including fields and data types.",
+      },
+      {
+        icon: <FileText className="w-6 h-6" />,
+        title: "Create a content entry",
+        description: "They are actual pieces of content, instances of the structure you created.",
+      },
+      {
+        icon: <Cloud className="w-6 h-6" />,
+        title: "Make your first API call and retrieve content",
+        description: "Make your first API call for a content entry and preview the response.",
+        action: "Open code sample",
+      },
+      {
+        icon: <Code className="w-6 h-6" />,
+        title: "Consume API",
+        description: "This app allows you to test the capabilities of our APIs using the GraphQL.",
+        action: "JavaScript",
+      },
+    ]
+  
+    const toggleStep = (index: number) => {
+      setCompletedSteps(prev =>
+        prev.includes(index)
+          ? prev.filter(i => i !== index)
+          : [...prev, index]
+      )
+    }
+  
+    const allCompleted = completedSteps.length === steps.length
+  
+    return (
+      <div className="mx-auto p-6 border rounded-lg shadow-lg">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-gray-200">Your quick start guide</h2>
+          <div className="flex items-center">
+            <span className="text-sm text-green-600 mr-2">All steps completed</span>
+            <div className="w-24 h-2 bg-green-500 rounded-full"></div>
+          </div>
+        </div>
+        <div className=" rounded-lg p-6 relative">
+          <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+            <X className="w-5 h-5" />
+          </button>
+          <h3 className="text-lg font-semibold mb-4">Learn how to use the basics of Textuality </h3>
+          <ul className="space-y-6">
+            {steps.map((step, index) => (
+              <li key={index} className="flex items-start space-x-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded border border-blue-200 flex items-center justify-center">
+                  {step.icon}
+                </div>
+                <div className="flex-grow">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-md font-semibold">
+                      <span className="text-blue-600 mr-2">{index + 1}</span>
+                      {step.title}
+                    </h4>
+                    {completedSteps.includes(index + 1) && (
+                      <Check className="w-5 h-5 text-green-500" />
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-300 mt-1">{step.description}</p>
+                  {step.action && (
+                    <button className="mt-2 px-3 py-1 text-sm border border-gray-300 rounded-md flex items-center">
+                      {step.action}
+                      <ChevronDown className="w-4 h-4 ml-2" />
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="mt-4 text-sm text-gray-300 flex justify-between items-center">
+          <span>Switch to editor experience to learn about editing and creating content.</span>
+          <button className="px-3 py-1 border border-gray-300 rounded-md flex items-center">
+            <Code className="w-4 h-4 mr-2" />
+            Developer
+            <ChevronDown className="w-4 h-4 ml-2" />
+          </button>
+        </div>
+      </div>
+    )
   }
