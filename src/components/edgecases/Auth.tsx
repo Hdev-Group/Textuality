@@ -3,8 +3,11 @@ import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 export function IsAuthorizedEdge(){
     return (
+      <div>
+        <title>Not Authorised | Textuality</title>
+        <img src="/authimg/restricted.png" className="absolute h-full z-0 w-full bg-contain" />
         <div className="flex items-center justify-center min-h-screen">
-          <Card className="w-full border-red-500 max-w-md">
+          <Card className="w-full border-red-500 max-w-md z-50">
             <CardContent className="pt-6 text-left items-start flex flex-col justify-start">
               <p>
                 <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
@@ -20,10 +23,13 @@ export function IsAuthorizedEdge(){
             </CardContent>
           </Card>
         </div>
+        </div>
       );
 }
 export function IsLoadedEdge(){
     return (
+      <div>
+        <title>Loading... | Textuality</title>
         <div className="flex items-center flex-col justify-center min-h-screen">
           <div className="flex items-center flex-col justify-center min-h-screen">
             <div className="flex justify-center items-center h-64">
@@ -31,6 +37,7 @@ export function IsLoadedEdge(){
             </div>
             <p className="text-muted-foreground text-center mt-4">Loading.</p>
           </div>
+        </div>
         </div>
       );
 }

@@ -270,6 +270,13 @@ function CreatePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (title.length === 0 || content.length === 0 || category.length === 0) {
+      return
+    } else if (user.user === null) {
+      return
+    } else if (title.length > 50 || content.length > 500) {
+      return alert("Title must be less than 50 characters and content must be less than 500 characters.")
+    }
     const userid = user.user?.id
     // Handle form submission here
     createPage({ title, content, category, userid: userid! })
@@ -301,6 +308,7 @@ function CreatePage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              maxLength={50}
             />
           </div>
           <div className="space-y-2">
@@ -311,6 +319,7 @@ function CreatePage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
+              maxLength={500}
             />
           </div>
           <div className="space-y-2">
