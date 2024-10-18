@@ -37,16 +37,7 @@ export const getPage = query({
     return ctx.db.get(_id);
   },
   });
-export const getRole = query({
-  args: {
-    externalId: v.string(),
-  },
-  handler: async (ctx, { externalId }) => {
-    return ctx.db.query("roles")
-    .withIndex("byexternalId", q => q.eq("externalId", externalId))
-    .collect();
-  },
-});
+
 export const inviteUser = mutation({
   args: {
     externalId: v.string(),
@@ -125,4 +116,32 @@ export const acceptInvite = mutation({
 
     await ctx.db.delete(_id);
   }
+});
+
+export const getRoledetail = query({
+  args: {
+    externalId: v.string(),
+    pageId: v.optional(v.any()),
+  },
+  handler: async (ctx, { externalId, pageId }) => {
+    return ctx.db.query("roles")
+    .withIndex("byexternalandpageid", q => q.eq("externalId", externalId).eq("pageid", pageId))
+    .collect();
+  },
+});
+export const removeUser = mutation({
+  args: {
+    externalId: v.string(),
+    pageId: v.id("pages"),
+  },
+  handler: async (ctx, { externalId, pageId }) => {
+    const role = await ctx.db.query("roles")
+    .withIndex("byexternalandpageid", q => q.eq("externalId", externalId).eq("pageid", pageId))
+    .collect();
+    await ctx.db.delete(role[0]._id);
+    const page = await ctx.db.get(pageId);
+    const currentUsers = page?.users ?? [];
+    const updatedUsers = currentUsers.filter((user: string) => user !== externalId);
+    await ctx.db.patch(pageId, { users: updatedUsers });
+  },
 });
