@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectGroup
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast"
 
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
@@ -75,11 +74,6 @@ export default function Page() {
     if (user?.user?.id === InviteDetails.InviteDetails.externalId) {
       console.log(InviteDetails.InviteDetails._id);
       acceptInvite({ _id: InviteDetails.InviteDetails._id, pageId: InviteDetails.InviteDetails.pageId, role: InviteDetails.InviteDetails.role, externalId: InviteDetails.InviteDetails.externalId });
-      const { toast } = useToast()
-      toast({
-        title: "Your in.",
-        description: "You have been added to the page.",
-      })
     }
   }
   if (!getinvites) {
