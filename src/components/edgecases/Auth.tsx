@@ -7,7 +7,7 @@ export function IsAuthorizedEdge(){
         <title>Not Authorised | Textuality</title>
         <img src="/authimg/restricted.png" className="absolute h-full z-0 w-full bg-contain" />
         <div className="flex items-center justify-center min-h-screen">
-          <Card className="w-full border-red-500 max-w-md z-50">
+          <Card className="w-full border-red-500 max-w-md z-50 pingpulseborder">
             <CardContent className="pt-6 text-left items-start flex flex-col justify-start">
               <p>
                 <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />

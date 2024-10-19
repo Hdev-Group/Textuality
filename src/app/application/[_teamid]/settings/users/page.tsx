@@ -33,6 +33,7 @@ import {
 import {Separator} from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger,  } from "@/components/ui/tabs"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
+import AuthWrapper from '../../withAuth';
 
   interface TeamMember {
     id: string
@@ -164,6 +165,7 @@ export default function TeamManagement({ params: { _teamid } }: { params: { _tea
   
   
     return (
+      <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
         <AppHeader activesection="settings" teamid={teamid} />
         <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 ">
@@ -327,6 +329,7 @@ export default function TeamManagement({ params: { _teamid } }: { params: { _tea
           
         </main>
       </div>
+      </AuthWrapper>
     )
   }
   

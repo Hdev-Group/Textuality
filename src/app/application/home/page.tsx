@@ -27,7 +27,7 @@ interface ProjectProps {
   description: string;
   date: string;
   postCount: number;
-  _id: string;
+  _id: any;
   category: string;
   content: string;
   users: string[];
@@ -168,23 +168,40 @@ function Project({
 }: ProjectProps) {
   const [userData, setUserData] = useState<{ firstName: string; imageUrl: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const userCache: { [key: string]: { id: string; firstName: string; imageUrl: string } } = {};
 
   useEffect(() => {
     async function fetchAssigneeData() {
       if (users && users.length > 0) {
-        try {
-          const response = await fetch(`/api/get-user?userId=${users.join(",")}`);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // Filter out the users that have already been fetched (exist in the cache)
+        const usersToFetch = users.filter((user: string) => !userCache[user]);
+
+        if (usersToFetch.length > 0) {
+          setIsLoading(true);
+          try {
+            const response = await fetch(`/api/get-user?userId=${usersToFetch.join(",")}`);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            // Store the new user data in the cache
+            data.users.forEach((user: { id: string; firstName: string; imageUrl: string }) => {
+              userCache[user.id] = user; // Assuming the user object has an 'id' field
+            });
+
+            // Update the state with both cached and newly fetched users
+            setUserData(users.map((user: string) => userCache[user]));
+
+          } catch (error) {
+            console.error("Error fetching assignee data:", error);
+            setUserData([]);
+          } finally {
+            setIsLoading(false);
           }
-          const data = await response.json();
-          console.log(data);
-          setUserData(data.users); // Assuming API returns { users: [...] }
-        } catch (error) {
-          console.error("Error fetching assignee data:", error);
-          setUserData([]);
-        } finally {
-          setIsLoading(false);
+        } else {
+          // If no users need to be fetched, just use the cache
+          setUserData(users.map((user: string) => userCache[user]));
         }
       }
     }
@@ -340,7 +357,7 @@ function CreatePage() {
   )
 }
 
-function PageName({ pageid, type }: { pageid: string, type: string }) {
+function PageName({ pageid, type }: { pageid: any, type: any }) {
   const page = useQuery(api.page.getExactPage, { _id: pageid });
 
   if (!page) {
@@ -349,7 +366,7 @@ function PageName({ pageid, type }: { pageid: string, type: string }) {
 
   return <h1 className={`font-semibold text-lg`}>{page.title ? page.title : "Unknown Page"}</h1>;
 }
-function PageNameDefault({ pageid, type }: { pageid: string, type: string }) {
+function PageNameDefault({ pageid, type }: { pageid: any, type: string }) {
   const page = useQuery(api.page.getExactPage, { _id: pageid });
 
   if (!page) {

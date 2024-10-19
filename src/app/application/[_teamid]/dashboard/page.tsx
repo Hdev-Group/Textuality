@@ -10,7 +10,7 @@ import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, A
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
-
+import AuthWrapper from '../withAuth';
 
 
 export default function Page({params: {_teamid }}: any) {
@@ -41,6 +41,7 @@ export default function Page({params: {_teamid }}: any) {
     }
 
     return (
+      <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
         <AppHeader activesection="dashboard" teamid={teamid} />
         <main className="mx-auto px-10 py-8">
@@ -76,6 +77,7 @@ export default function Page({params: {_teamid }}: any) {
             </div>
         </main>
       </div>
+      </AuthWrapper>
     );
 }
 
