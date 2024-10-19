@@ -22,6 +22,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import Link from 'next/link'
+import AuthWrapper from '../withAuth';
+
 
 type Template = {
   name: string
@@ -77,15 +79,9 @@ export default function Page({params: {_teamid }}: any) {
     });
   }, [searchTerm, lastUpdatedFilter, nameFilter]);
 
-  if (!isLoaded) {
-    return <IsLoadedEdge />;
-  }
-
-  if (!isAuthorized) {
-    return <IsAuthorizedEdge />;
-  }
 
   return (
+    <AuthWrapper _teamid={teamid}>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
       <main className="mx-auto px-10 py-8">
@@ -132,5 +128,6 @@ export default function Page({params: {_teamid }}: any) {
         </div>
       </main>
     </div>
+    </AuthWrapper>
   )
 }
