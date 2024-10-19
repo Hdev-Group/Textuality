@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
-import { useQuery } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../../../convex/_generated/api'
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -44,10 +44,18 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
   const [isLoading, setIsLoading] = useState(true)
   const [fields, setFields] = useState<FieldType[]>([])
   const [open, setOpen] = useState(true)
-  const router = useRouter()
-  if (open === false) {
-    router.push(`/application/${_teamid}/templates`)
-  }
+  const [isSectionOpen, setIsSectionOpen] = useState(false)
+  const [template, setTemplater] = useState({name: '', apiref: ''})
+
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!open && template.apiref === '') {
+          console.log('redirecting', template.apiref)
+            router.push(`/application/${_teamid}/templates`);
+        }
+    }, [open, template, router]);
+
   const [namevalue, setNameValue] = useState('')
   const [apivalue, setApiValue] = useState('')
 
@@ -84,6 +92,31 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
   const handleDelete = (fieldId: string) => {
     setFields(fields.filter(field => field.fieldid !== fieldId))
   }
+  const newtemplatemaker = useMutation(api.template.create)
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = (event) => {
+    if (event.target.id === 'newtemplate') {
+      event.preventDefault();
+      
+      if (isSubmitting) return; // Prevent double submit
+      setIsSubmitting(true);
+      
+      setTemplater({ name: namevalue, apiref: apivalue });
+      newtemplatemaker({
+        pageid: _teamid,
+        title: namevalue,
+        apiref: apivalue,
+        lastUpdatedBy: userId as string,
+      }).finally(() => {
+        setTimeout(() => {
+          setOpen(false);
+          setIsSubmitting(false); // Allow new submission after completion
+        }, 100);
+      });
+    }
+  };
 
 
   return (
@@ -94,14 +127,14 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
         <div className="bg-white dark:bg-neutral-950 rounded-2xl flex flex-col shadow-lg p-8 space-y-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-semibold">Fields</h1>
+              <h1 className="text-3xl font-semibold">{template.name} Fields</h1>
             </div>
-            <AddSectionDialog onAddField={addField} />
+            <AddSectionDialog open={isSectionOpen} onAddField={addField} />
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTitle>New Template</DialogTitle>
             <DialogContent>
-              <div className='gap-2 flex flex-col'>
+              <form id='newtemplate' onSubmit={handleSubmit} className='gap-2 flex flex-col'>
               <div className="flex flex-col gap-4">
                 <Label htmlFor="name" className="font-semibold text-sm">
                   Name
@@ -120,14 +153,15 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
                     <p className='text-xs'>{apivalue.length}/60</p>
                 </div>
               </div>
-              </div>
               <DialogFooter>
               <div className="flex justify-between w-full">
-                <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button variant="outline" type='submit' onClick={() => setOpen(false)}>Cancel</Button>
                 <Button>Create Template</Button>
               </div>
             </DialogFooter>
+            </form>
             </DialogContent>
+            
 
           </Dialog>
           <DragDropContext onDragEnd={onDragEnd}>
@@ -193,12 +227,17 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
     </AuthWrapper>
   )
 }
-
 function AddSectionDialog({ onAddField }: { onAddField: (field: FieldType) => void }) {
-  const [selectedField, setSelectedField] = useState(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedField, setSelectedField] = useState<FieldType | null>(null)
+
+  const handleClose = () => {
+    setIsOpen(false)
+    setSelectedField(null)
+  }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="default" size="lg">Add Section</Button>
       </DialogTrigger>
@@ -207,7 +246,14 @@ function AddSectionDialog({ onAddField }: { onAddField: (field: FieldType) => vo
           <DialogTitle>{selectedField ? `Add ${selectedField.name} Field` : 'Add new field'}</DialogTitle>
         </DialogHeader>
         {selectedField ? (
-          <FieldForm field={selectedField} onBack={() => setSelectedField(null)} onAddField={onAddField} />
+          <FieldForm 
+            field={selectedField} 
+            onBack={() => setSelectedField(null)} 
+            onAddField={(field) => {
+              onAddField(field)
+              handleClose()
+            }} 
+          />
         ) : (
           <div className="grid grid-cols-3 gap-4 py-4">
             {fieldTypes.map((field, index) => (
@@ -227,11 +273,11 @@ function AddSectionDialog({ onAddField }: { onAddField: (field: FieldType) => vo
   )
 }
 
-function FieldForm({ field, onBack, onAddField }: any) {
+function FieldForm({ field, onBack, onAddField }: { field: FieldType, onBack: () => void, onAddField: (field: FieldType) => void }) {
   const [fieldName, setFieldName] = useState('');
   const [fieldId, setFieldId] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const newField = { ...field, fieldid: fieldId, fieldname: fieldName };
     console.log('submitting', newField);
