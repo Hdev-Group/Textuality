@@ -45,8 +45,7 @@ export default function Page({params: {_teamid }}: any) {
   const [nameFilter, setNameFilter] = useState('asc');
   const [lastUpdatedFilter, setLastUpdatedFilter] = useState('');
   const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
-
-
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId, pageId: _teamid })
 
   function nameFilterSetter() {
     setNameFilter(nameFilter === 'asc' ? 'desc' : 'asc');
@@ -114,16 +113,18 @@ export default function Page({params: {_teamid }}: any) {
                 </h1>
                 <div className='flex flex-row gap-5'>
                   <Input 
-                    placeholder="Search Templates" 
-                    className="w-full md:w-[40rem]"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search Templates" 
+                  className="w-full md:w-[40rem]"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
+                {getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
                 <Link href={`/application/${teamid}/templates/new`}>
                   <Button variant="default" className="w-full md:w-auto">Create Template</Button>
                 </Link>
-              </div>
+                )}  
+                </div>
             </div>
   
             <Table>

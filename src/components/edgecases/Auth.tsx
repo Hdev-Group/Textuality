@@ -17,9 +17,7 @@ export function IsAuthorizedEdge(){
                 You are not authorised to access this page. <br />
                 <span className="text-xs">Think this is wrong? Contact the page owner.</span>
               </p>
-              <a href='/application/home'>
-                <Button className="mt-4" variant="outline">Go Home</Button>
-              </a>
+                <Button className="mt-4" variant="outline" onClick={() => window.history.back()}>Go Back</Button>
             </CardContent>
           </Card>
         </div>
