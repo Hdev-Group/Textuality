@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { ScrollArea } from "@/components/ui/scroll-area"
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../withAuth';
-
+import { useRouter } from 'next/navigation'
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>
@@ -44,6 +44,12 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
   const [isLoading, setIsLoading] = useState(true)
   const [fields, setFields] = useState<FieldType[]>([])
   const [open, setOpen] = useState(true)
+  const router = useRouter()
+  if (open === false) {
+    router.push(`/application/${_teamid}/templates`)
+  }
+  const [namevalue, setNameValue] = useState('')
+  const [apivalue, setApiValue] = useState('')
 
   const getPage = useQuery(api.page.getPage, { _id: _teamid })
 
@@ -81,7 +87,7 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
 
 
   return (
-    <AuthWrapper _teamid={teamid}>
+    <AuthWrapper _teamid={_teamid}>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
       <main className="mx-auto px-10 py-8">
@@ -95,11 +101,25 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTitle>New Template</DialogTitle>
             <DialogContent>
+              <div className='gap-2 flex flex-col'>
               <div className="flex flex-col gap-4">
                 <Label htmlFor="name" className="font-semibold text-sm">
                   Name
                 </Label>
-                <Input id="name" placeholder="Enter template name" />
+                <Input id="name" onChange={(e) => setNameValue(e.target.value)} maxLength={45} placeholder="Enter template name" />
+                <div className='flex justify-end'>
+                    <p className='text-xs'>{namevalue.length}/45</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4">
+                <Label htmlFor="apiref" className="font-semibold text-sm">
+                  API Reference
+                </Label>
+                <Input id="apiref" onChange={(e) => setApiValue(e.target.value)} maxLength={60} placeholder="Enter an API reference" />
+                <div className='flex justify-end'>
+                    <p className='text-xs'>{apivalue.length}/60</p>
+                </div>
+              </div>
               </div>
               <DialogFooter>
               <div className="flex justify-between w-full">
