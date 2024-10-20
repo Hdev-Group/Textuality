@@ -50,13 +50,15 @@ export const addField = mutation({
         fieldname: v.string(),
         type: v.string(),
         reference: v.any(),
+        fieldposition: v.number(),
     },
-    handler: async (ctx, { templateid, fieldname, type, reference }) => {
+    handler: async (ctx, { templateid, fieldname, type, reference, fieldposition }) => {
         const field = await ctx.db.insert("fields", {
             templateid,
             fieldname,
             type,
             reference,
+            fieldposition
         });
         const template = await ctx.db.get(templateid);
         if(template && 'fields' in template) {
@@ -91,4 +93,22 @@ export const deleteField = mutation({
             });
         }
     }
+});
+
+export const updateField = mutation({
+    args: {
+        fieldid: v.any(),
+        fieldname: v.string(),
+        type: v.string(),
+        reference: v.any(),
+        fieldposition: v.number(),
+    },
+    handler: async (ctx, { fieldid, fieldname, type, reference, fieldposition }) => {
+        await ctx.db.patch(fieldid, {
+            fieldname,
+            type,
+            reference,
+            fieldposition,
+        });
+    },
 });

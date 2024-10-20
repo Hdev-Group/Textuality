@@ -47,7 +47,7 @@ export default function Page({params: {_teamid }}: any) {
   const [nameFilter, setNameFilter] = useState('asc');
   const [lastUpdatedFilter, setLastUpdatedFilter] = useState('');
   const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
-  const getRole = useQuery(api.page.getRoledetail, { externalId: userId, pageId: _teamid })
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: _teamid })
 
   function nameFilterSetter() {
     setNameFilter(nameFilter === 'asc' ? 'desc' : 'asc');
@@ -77,7 +77,7 @@ export default function Page({params: {_teamid }}: any) {
       const matchesSearch = Object.values(template).some(
         value => value.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
-      const matchesLastUpdated = lastUpdatedFilter === '' || template.updated.includes(lastUpdatedFilter);
+      const matchesLastUpdated = lastUpdatedFilter === '' || template?.lastUpdatedBy.includes(lastUpdatedFilter);
       return matchesSearch && matchesLastUpdated;
     });
   }, [getTemplates, searchTerm, lastUpdatedFilter, nameFilter]);
@@ -103,12 +103,14 @@ export default function Page({params: {_teamid }}: any) {
 
   
   return (
-    <AuthWrapper _teamid={teamid}>
-      <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
-        <AppHeader activesection="templates" teamid={_teamid} />
-        <main className="mx-auto px-10 py-8">
-          <div className="bg-white dark:bg-neutral-950 rounded-2xl flex flex-col shadow-lg p-8 space-y-8">
-            <div className="flex flex-col md:gap-4 gap-5 md:flex-row justify-between">
+    <>
+    <body className='overflow-y-hidden'>
+      <AuthWrapper _teamid={teamid}>
+      <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
+        <AppHeader activesection="templates" teamid={teamid} />
+        <main className="mx-auto px-10 pt-8 py-3">
+          <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8 h-screen overflow-y-auto">
+            <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold w-full md:w-auto min-w-[15rem]">
                   Content Templates
@@ -128,8 +130,7 @@ export default function Page({params: {_teamid }}: any) {
                 )}  
                 </div>
             </div>
-  
-            <Table>
+            <Table className='overflow-y-auto max-h-screen'>
               <TableHeader>
                 <TableRow>
                   <TableHead className='flex flex-row gap-1 items-center' onClick={() => nameFilterSetter()}>
@@ -169,5 +170,7 @@ export default function Page({params: {_teamid }}: any) {
         </main>
       </div>
     </AuthWrapper>
+    </body>
+    </>
   );
 }

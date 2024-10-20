@@ -41,11 +41,13 @@ export default function Page({params: {_teamid }}: any) {
     }
 
     return (
+    <>
+      <body className='overflow-y-hidden'>
       <AuthWrapper _teamid={teamid}>
-        <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
+        <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen ">
         <AppHeader activesection="dashboard" teamid={teamid} />
-        <main className="mx-auto px-10 py-8">
-          <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8">
+        <main className="mx-auto px-10 py-3 ">
+          <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div>
                 <h1 className="text-4xl font-bold">
@@ -78,6 +80,8 @@ export default function Page({params: {_teamid }}: any) {
         </main>
       </div>
       </AuthWrapper>
+      </body>
+      </>
     );
 }
 

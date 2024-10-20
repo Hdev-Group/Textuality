@@ -45,5 +45,6 @@ fields: defineTable({
     fieldname: v.string(),
     type: v.string(),
     reference: v.string(),
+    fieldposition: v.any(),
 }).index("bytemplateid", ["templateid"]),
 });
