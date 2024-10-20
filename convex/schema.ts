@@ -40,4 +40,10 @@ templates: defineTable({
     lastUpdatedBy: v.string(),
     fields: v.number(),
 }).index("bypageid", ["pageid"]),
+fields: defineTable({
+    templateid: v.string(),
+    fieldname: v.string(),
+    type: v.string(),
+    reference: v.string(),
+}).index("bytemplateid", ["templateid"]),
 });

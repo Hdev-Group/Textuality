@@ -25,6 +25,7 @@ import Link from 'next/link'
 import AuthWrapper from '../withAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useUser } from "@clerk/clerk-react";
+import { useRouter } from 'next/navigation';
 
 
 type Template = {
@@ -40,6 +41,7 @@ export default function Page({params: {_teamid }}: any) {
   const user = useUser();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
   const getPage = useQuery(api.page.getPage, { _id: teamid });
   const [searchTerm, setSearchTerm] = useState('');
   const [nameFilter, setNameFilter] = useState('asc');
@@ -65,9 +67,9 @@ export default function Page({params: {_teamid }}: any) {
 
     const sortedTemplates = getTemplates.sort((a, b) => {
       if (nameFilter === 'asc') {
-        return a.name.localeCompare(b.name);
+        return a.title.localeCompare(b.title);
       } else {
-        return b.name.localeCompare(a.name);
+        return b.title.localeCompare(a.title);
       }
     });
 
@@ -140,17 +142,27 @@ export default function Page({params: {_teamid }}: any) {
                   <TableHead>Updated</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {filteredTemplates?.map((template, index) => (
-                  <TableRow key={index}>
+                <TableBody>
+                {
+                  filteredTemplates.length > 0 ? (
+                  filteredTemplates.map((template, index) => (
+                    <TableRow key={index} onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
                     <TableCell>{template.title}</TableCell>
                     <TableCell>{template.fields}</TableCell>
                     <TableCell>
                       {template.lastUpdatedBy}
                     </TableCell>
                     <TableCell>{timeAgo(new Date(template._creationTime))}</TableCell>
-                  </TableRow>
-                ))}
+                    </TableRow>
+                  ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center">
+                        No templates found.
+                      </TableCell>
+                    </TableRow>
+                  )
+                }
               </TableBody>
             </Table>
           </div>

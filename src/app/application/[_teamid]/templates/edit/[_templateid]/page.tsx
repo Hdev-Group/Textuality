@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { useMutation, useQuery } from 'convex/react'
-import { api } from '../../../../../../convex/_generated/api'
+import { api } from '../../../../../../../convex/_generated/api'
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, Link, ArrowLeft, MoreHorizontal, Edit, Trash  } from "lucide-react"
@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import AppHeader from "@/components/header/appheader"
-import AuthWrapper from '../../withAuth';
+import AuthWrapper from '../../../withAuth';
 import { useRouter } from 'next/navigation'
 
 type FieldType = {
@@ -38,27 +38,39 @@ const fieldTypes: FieldType[] = [
   { icon: Link, name: "Reference", description: "For example, a blog post can reference its author(s)" },
 ]
 
-export default function Page({ params: { _teamid } }: { params: { _teamid: string } }) {
+export default function Page({ params: { _teamid, _templateid } }: { params: { _teamid: string, _templateid: string } }) {
   const { userId, isLoaded, isSignedIn } = useAuth()
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [fields, setFields] = useState<FieldType[]>([])
-  const [open, setOpen] = useState(true)
   const [isSectionOpen, setIsSectionOpen] = useState(false)
-  const [template, setTemplater] = useState({name: '', apiref: ''})
+  const [template, setTemplater] = useState(null);
 
     const router = useRouter();
 
     useEffect(() => {
         if (!open && template.apiref === '') {
+          console.log('redirecting', template.apiref)
             router.push(`/application/${_teamid}/templates`);
         }
     }, [open, template, router]);
 
-  const [namevalue, setNameValue] = useState('')
-  const [apivalue, setApiValue] = useState('')
 
   const getPage = useQuery(api.page.getPage, { _id: _teamid })
+  const getTemplates = useQuery(api.template.getExactTemplate, { pageid: _teamid, _id: _templateid })
+  console.log(getTemplates, 'h')
+  const getFields = useQuery(api.template.getFields, { templateid: _templateid })
+  useEffect(() => {
+    if (getTemplates) {
+      setTemplater(getTemplates)
+    }
+  }, [getTemplates])
+  console.log(getFields)
+  useEffect(() => {
+    if (getFields) {
+      setFields(getFields)
+    }
+  }, [getFields])
 
   useEffect(() => {
     if (getPage?.users?.includes(userId as string)) {
@@ -68,88 +80,48 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
       setIsLoading(false)
     }
   }, [getPage, userId])
-  const newtemplatemaker = useMutation(api.template.create)
+  const templateaddfield = useMutation(api.template.addField)
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [templateid, setTemplateId] = useState('')
+  const addField = (field: FieldType) => {
+    setFields((prevFields) => [...prevFields, { ...field, fieldid: Date.now().toString() }])
+    templateaddfield({templateid: _templateid, fieldname: field.name, type: field.name, reference: field.fieldid})
+  }
+  const onDragEnd = (result: any) => {
+    if (!result.destination) return
 
-  function TransporterWeb(data: string) {
-    setOpen(false)
-    router.push(`/application/${_teamid}/templates/edit/${data}`);
+    const newFields = Array.from(fields)
+    const [reorderedItem] = newFields.splice(result.source.index, 1)
+    newFields.splice(result.destination.index, 0, reorderedItem)
+
+    setFields(newFields)
   }
 
-  const handleSubmit = (event) => {
-    if (event.target.id === 'newtemplate') {
-      event.preventDefault();
-      
-      if (isSubmitting) return; // Prevent double submit
-      setIsSubmitting(true);
-      
-      setTemplater({ name: namevalue, apiref: apivalue });
-      const templateinfo = newtemplatemaker({
-        pageid: _teamid,
-        title: namevalue,
-        apiref: apivalue,
-        lastUpdatedBy: userId as string,
-      }).finally(() => {
-        setTimeout(() => {
-          setOpen(false);
-          setIsSubmitting(false); // Allow new submission after completion
-          templateinfo.then((data) => {
-            setTemplateId(data);
-            TransporterWeb(data);
-          });
-        }, 100);
-      });
-    }
-  };
+  const handleEdit = (fieldId: string) => {
+    // Implement edit functionality
+    console.log("Edit field", fieldId)
+  }
+
+  const handleDelete = (fieldId: string) => {
+    setFields(fields.filter(field => field.fieldid !== fieldId))
+  }
 
 
   return (
     <AuthWrapper _teamid={_teamid}>
+      <head>
+        <title>Templates | Textuality</title>
+      </head>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
       <main className="mx-auto px-10 py-8">
         <div className="bg-white dark:bg-neutral-950 rounded-2xl flex flex-col shadow-lg p-8 space-y-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-semibold">{template.name} Fields</h1>
+              <h1 className="text-3xl font-semibold">{getTemplates?.[0].title} Fields</h1>
             </div>
+            <AddSectionDialog open={isSectionOpen} onAddField={addField} />
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTitle>New Template</DialogTitle>
-            <DialogContent>
-              <form id='newtemplate' onSubmit={handleSubmit} className='gap-2 flex flex-col'>
-              <div className="flex flex-col gap-4">
-                <Label htmlFor="name" className="font-semibold text-sm">
-                  Name
-                </Label>
-                <Input id="name" onChange={(e) => setNameValue(e.target.value)} maxLength={45} placeholder="Enter template name" />
-                <div className='flex justify-end'>
-                    <p className='text-xs'>{namevalue.length}/45</p>
-                </div>
-              </div>
-              <div className="flex flex-col gap-4">
-                <Label htmlFor="apiref" className="font-semibold text-sm">
-                  API Reference
-                </Label>
-                <Input id="apiref" onChange={(e) => setApiValue(e.target.value)} maxLength={60} placeholder="Enter an API reference" />
-                <div className='flex justify-end'>
-                    <p className='text-xs'>{apivalue.length}/60</p>
-                </div>
-              </div>
-              <DialogFooter>
-              <div className="flex justify-between w-full">
-                <Button variant="outline"  onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type='submit'>Create Template</Button>
-              </div>
-            </DialogFooter>
-            </form>
-            </DialogContent>
-            
-
-          </Dialog>
-          <DragDropContext onDragEnd={null}>
+          <DragDropContext onDragEnd={onDragEnd}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -162,7 +134,7 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
                 {(provided) => (
                   <TableBody {...provided.droppableProps} ref={provided.innerRef}>
                     {fields.map((field, index) => (
-                      <Draggable key={field.fieldid} draggableId={field.fieldid!} index={index}>
+                      <Draggable key={field.fieldid} draggableId={field?._id} index={index}>
                         {(provided) => (
                           <TableRow
                             ref={provided.innerRef}
@@ -172,13 +144,20 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
                             <TableCell>{field.fieldname || field.name}</TableCell>
                             <TableCell>
                               <div className="flex items-center">
-                                <field.icon className="mr-2 h-4 w-4" />
-                                {field.name}
+                              {
+                                fieldTypes.map((type) => {
+                                  if (type.name === field.type) {
+                                    const Icon = type.icon
+                                    return <Icon className="h-4 w-4 mr-2" />
+                                  }
+                                })
+                              } 
+                                {field.type}
                               </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
-                                <Button variant="ghost" size="sm">
+                                <Button variant="ghost" size="sm" onClick={() => handleEdit(field.fieldid!)}>
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <DropdownMenu>
@@ -188,7 +167,7 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end">
-                                    <DropdownMenuItem >
+                                    <DropdownMenuItem onClick={() => handleDelete(field.fieldid!)}>
                                       <Trash className="mr-2 h-4 w-4" />
                                       Delete
                                     </DropdownMenuItem>

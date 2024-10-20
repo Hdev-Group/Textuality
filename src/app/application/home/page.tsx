@@ -45,9 +45,8 @@ export default function Page() {
   const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id));
   const getinvites = useQuery(api.page.getInvites, { externalId: user?.user?.id || "" });
 
-  // Check loading and error states manually
-  const isLoading = !projects; // Projects will be undefined when still loading
-  const error = projects === null; // Assuming null is returned on error
+  const isLoading = !projects; 
+  const error = projects === null; 
 
   console.log(projects);
 

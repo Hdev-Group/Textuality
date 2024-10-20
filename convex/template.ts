@@ -29,3 +29,66 @@ export const getTemplates = query({
         return result;
     },
 });
+
+export const getExactTemplate = query({
+    args: {
+        pageid: v.any(),
+        _id: v.any(),
+    },
+    handler: async (ctx, { pageid, _id }) => {
+        const result = await ctx.db.query("templates")
+            .filter(q => q.eq(q.field("pageid"), pageid))
+            .filter(q => q.eq(q.field("_id"), _id))
+            .collect();
+        return result;
+    },
+});
+
+export const addField = mutation({
+    args: {
+        templateid: v.any(),
+        fieldname: v.string(),
+        type: v.string(),
+        reference: v.any(),
+    },
+    handler: async (ctx, { templateid, fieldname, type, reference }) => {
+        const field = await ctx.db.insert("fields", {
+            templateid,
+            fieldname,
+            type,
+            reference,
+        });
+        const template = await ctx.db.get(templateid);
+        if(template && 'fields' in template) {
+            await ctx.db.patch(templateid, {
+                fields: template.fields + 1,
+            });
+        }
+        return field;
+    },
+});
+
+export const getFields = query({
+    args: {
+        templateid: v.any(),
+    },
+    handler: async (ctx, { templateid }) => {
+        const result = await ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), templateid)).collect();
+        return result;
+    },
+});
+export const deleteField = mutation({
+    args: {
+        fieldid: v.any(),
+        templateid: v.any(),
+    },
+    handler: async (ctx, { fieldid, templateid }) => {
+        await ctx.db.delete(fieldid);
+        const template = await ctx.db.get(templateid);
+        if(template && 'fields' in template) {
+            await ctx.db.patch(templateid, {
+                fields: template.fields - 1,
+            });
+        }
+    }
+});
