@@ -33,4 +33,11 @@ invites: defineTable({
     role: v.string(),
     email: v.string(),
 }).index("byexternalId", ["externalId"]).index("bypageId", ["pageId"]),
+templates: defineTable({
+    pageid: v.string(),
+    title: v.string(),
+    apiref: v.string(),
+    lastUpdatedBy: v.string(),
+    fields: v.number(),
+}).index("bypageid", ["pageid"]),
 });
