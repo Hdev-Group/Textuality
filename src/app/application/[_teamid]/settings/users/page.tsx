@@ -47,9 +47,10 @@ import CheckpointAuthWrapper from '../checkpointauthroleperms';
     users: any
   }
 import rolesConfig from '../../../../../config/rolesConfig.json';
+import {use} from 'react';
 
-
-export default function TeamManagement({ params: { _teamid } }: { params: { _teamid: any } }) {
+export default function TeamManagement({ params }: { params: any, _teamid: any }) {
+    const { _teamid }: { _teamid: any } = use(params);
     const teamid = _teamid;
     const { userId, isLoaded, isSignedIn } = useAuth();
     const getPage = useQuery(api.page.getPage, { _id: teamid });

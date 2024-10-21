@@ -78,6 +78,7 @@ export default function Page() {
   if (!getinvites) {
   }
   return (
+    <>
     <body className="overflow-hidden">
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
@@ -129,7 +130,7 @@ export default function Page() {
               <h2 className="text-xl mt-5 font-semibold mb-2">Page Invites</h2>
               <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
               {getinvites?.map((invite, index) => (
-                <div key={index} className="bg-neutral-50 dark:bg-neutral-800 border w-1/3 dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div key={index} className="bg-neutral-50 min-w-[30rem] dark:bg-neutral-800 border w-min dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
                   <div className="p-6 space-y-4">
                     <div className="flex justify-between items-start">
                     <PageName type="title" pageid={invite.pageId} />
@@ -154,6 +155,7 @@ export default function Page() {
       </main>
     </div>
     </body>
+    </>
   );
 }
 
@@ -214,10 +216,11 @@ function Project({
   const creationDate = new Date(_creationTime);
 
   return (
-    <div className="bg-neutral-50 dark:bg-neutral-900 border w-1/3 dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+    <>
+        <div className="bg-neutral-50 md:min-w-[30rem] md:w-min dark:bg-neutral-900 border w-full dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       <div className="p-6 space-y-4">
         <div className="flex justify-between items-start">
-          <h3 className="text-xl font-bold">{title}</h3>
+          <h3 className="text-xl font-bold">{title.length > 15 ? `${title.substring(0, 15)}...` : title}</h3>
           <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
             <CalendarDays className="w-4 h-4 mr-1" />
             {creationDate.toLocaleDateString()}
@@ -267,6 +270,7 @@ function Project({
         </a>
       </div>
     </div>
+    </>
   );
 }
 

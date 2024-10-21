@@ -17,6 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../withAuth';
 import { useRouter } from 'next/navigation'
+import { use } from 'react'
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>
@@ -38,7 +39,8 @@ const fieldTypes: FieldType[] = [
   { icon: Link, name: "Reference", description: "For example, a blog post can reference its author(s)" },
 ]
 
-export default function Page({ params: { _teamid } }: { params: { _teamid: string } }) {
+export default function Page({ params }: { params: any, _teamid: any }) {
+  const { _teamid }: { _teamid: any } = use(params);
   const { userId, isLoaded, isSignedIn } = useAuth()
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -106,6 +108,8 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
 
 
   return (
+  <>
+  <body className='overflow-hidden'>
     <AuthWrapper _teamid={_teamid}>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
@@ -210,6 +214,8 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
       </main>
     </div>
     </AuthWrapper>
+  </body>
+  </>
   )
 }
 function AddSectionDialog({ onAddField }: { onAddField: (field: FieldType) => void }) {

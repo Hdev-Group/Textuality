@@ -6,7 +6,7 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../../../../convex/_generated/api'
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, Link, ArrowLeft, MoreHorizontal, Edit, Trash } from "lucide-react"
+import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, Link, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../../withAuth'
 import { useRouter } from 'next/navigation'
+import { use } from 'react';
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>
@@ -42,7 +43,10 @@ const fieldTypes: FieldType[] = [
   { icon: Link, name: "Reference", description: "For example, a blog post can reference its author(s)", position: 0, templateid: '', reference: '' },
 ]
 
-export default function TemplateManager({ params: { _teamid, _templateid } }: { params: { _teamid: string, _templateid: string } }) {
+export default function TemplateManager({ params }: { params: Promise<{ _teamid: string; _templateid: string }> }) {
+  const { _teamid, _templateid } = React.use(params);
+  const teamid = _teamid;
+  const templateid = _templateid; 
   const { userId } = useAuth()
   const [fields, setFields] = useState<FieldType[]>([])
   const [isAddFieldOpen, setIsAddFieldOpen] = useState(false)
@@ -50,37 +54,39 @@ export default function TemplateManager({ params: { _teamid, _templateid } }: { 
   const [editingField, setEditingField] = useState<FieldType | null>(null)
   const router = useRouter()
 
-  const getPage = useQuery(api.page.getPage, { _id: _teamid })
-  const getTemplates = useQuery(api.template.getExactTemplate, { pageid: _teamid, _id: _templateid })
-  const getFields = useQuery(api.template.getFields, { templateid: _templateid })
+  const getPage = useQuery(api.page.getPage, { _id: teamid })
+  const getTemplates = useQuery(api.template.getExactTemplate, { pageid: teamid, _id: templateid })
+  const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
   const saveField = useMutation(api.template.updateField)
 
   useEffect(() => {
     if (getFields) {
-      setFields(getFields.map((field, index) => ({ ...field, fieldposition: index + 1 })))
+      setFields(getFields?.map((field, index) => ({ ...field, fieldposition: index + 1 })))
     }
   }, [getFields])
 
   useEffect(() => {
     if (getTemplates && getTemplates[0]?.apiref === '') {
-      router.push(`/application/${_teamid}/templates`)
+      router.push(`/application/${teamid}/templates`)
     }
-  }, [getTemplates, router, _teamid])
+  }, [getTemplates, router, teamid])
 
   const addField = async (field: FieldType) => {
+    console.log(field)
     const newField = { 
       ...field, 
-      fieldid: Date.now().toString(), 
-      _id: Date.now().toString(), 
+      fieldid: field.fieldid, 
+      _id: field.fieldid, 
       position: fields.length + 1,
       templateid: _templateid,
-      reference: Date.now().toString()
+      reference: field.reference,
+      name: field.fieldname as string,
     }
     setFields((prevFields) => [...prevFields, newField])
     await templateaddfield({
       templateid: _templateid, 
-      fieldname: field.name, 
+      fieldname: newField.name, 
       type: field.name, 
       reference: newField.reference,
       fieldposition: fields.length + 1
@@ -135,7 +141,6 @@ export default function TemplateManager({ params: { _teamid, _templateid } }: { 
     for (const field of updatedFields) {
       await saveField({
         fieldid: field._id as string,
-        templateid: field.templateid,
         fieldname: field.fieldname as string,
         type: field.type as string,
         reference: field.reference,
@@ -150,9 +155,9 @@ export default function TemplateManager({ params: { _teamid, _templateid } }: { 
 
   return (
     <body className='overflow-y-hidden'>
-      <AuthWrapper _teamid={_teamid}>
+      <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
-          <AppHeader activesection="templates" teamid={_teamid} />
+          <AppHeader activesection="templates" teamid={teamid} />
           <main className="mx-auto px-10 py-3">
             <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg py-6 overflow-y-auto">
               <div className="flex justify-between items-center px-6 border-b pb-4">
@@ -181,13 +186,20 @@ export default function TemplateManager({ params: { _teamid, _templateid } }: { 
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
                                 >
-                                  <TableCell>{field.fieldposition}</TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center">
+                                      <span {...provided.dragHandleProps} className="mr-2 cursor-move">
+                                        <GripVertical className="h-4 w-4" />
+                                      </span>
+                                      {field.fieldposition}
+                                    </div>
+                                  </TableCell>
                                   <TableCell>{field.fieldname || field.name}</TableCell>
                                   <TableCell>
                                     <div className="flex items-center">
                                       <div className="flex items-center">
-                                        {field.icon && <field.icon className="mr-2 h-4 w-4" />}
-                                        {field.name}
+                                        {fieldTypes.find(ft => ft.name === field.type)?.icon && React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })}
+                                        {field.type}
                                       </div>
                                     </div>
                                   </TableCell>
@@ -248,7 +260,7 @@ export default function TemplateManager({ params: { _teamid, _templateid } }: { 
             setFields(updatedFields)
             setIsEditFieldOpen(false)
             await saveField({
-              _id: updatedField._id as string,
+              _id: updatedField._id as any,
               templateid: updatedField.templateid,
               fieldname: updatedField.fieldname as string,
               type: updatedField.type as string,
@@ -332,7 +344,7 @@ function FieldForm({ field, onBack, onSubmit }: { field: FieldType, onBack: () =
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
-    onSubmit({ ...field, fieldid: fieldId, fieldname: fieldName })
+    onSubmit({ ...field, reference: fieldId, fieldname: fieldName })
   }
 
   return (

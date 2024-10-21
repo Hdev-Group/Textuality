@@ -26,7 +26,7 @@ import AuthWrapper from '../withAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useUser } from "@clerk/clerk-react";
 import { useRouter } from 'next/navigation';
-
+import { use } from 'react';
 
 type Template = {
   name: string
@@ -35,7 +35,8 @@ type Template = {
   updated: string
 }
 
-export default function Page({params: {_teamid }}: any) {
+export default function Page({ params }: { params: any, _teamid: any }) {
+  const { _teamid }: { _teamid: any } = use(params);
   const teamid = _teamid;
   const { userId, isLoaded, isSignedIn } = useAuth();
   const user = useUser();
@@ -104,7 +105,7 @@ export default function Page({params: {_teamid }}: any) {
   
   return (
     <>
-    <body className='overflow-y-hidden'>
+      <body className="overflow-y-hidden">
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
         <AppHeader activesection="templates" teamid={teamid} />

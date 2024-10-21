@@ -37,10 +37,8 @@ export default function RootLayout({
               content="Empowering your digital narrative."
             />
           </head>
-          <body>
         <ConvexClientProvider>{children}</ConvexClientProvider>
         <Toaster />
-        </body>
         </html>
       </ConvexProvider>
     </ClerkProvider>
