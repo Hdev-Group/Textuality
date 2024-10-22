@@ -44,6 +44,7 @@ fields: defineTable({
     templateid: v.string(),
     fieldname: v.string(),
     type: v.string(),
+    description: v.string(),
     reference: v.string(),
     fieldposition: v.any(),
 }).index("bytemplateid", ["templateid"]),

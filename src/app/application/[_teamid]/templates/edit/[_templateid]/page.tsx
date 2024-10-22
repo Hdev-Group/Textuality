@@ -17,6 +17,7 @@ import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../../withAuth'
 import { useRouter } from 'next/navigation'
 import { use } from 'react';
+import { motion } from 'framer-motion';
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>
@@ -25,11 +26,16 @@ type FieldType = {
   fieldid?: string
   fieldname?: string
   type?: string
+  defaultValue?: string
+  validationRules?: string
+  placeholder?: string
   _id?: string
+  isRequired?: boolean
   position: number
   templateid: string
   reference: string
 }
+
 
 const fieldTypes: FieldType[] = [
   { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", position: 0, templateid: '', reference: '' },
@@ -79,6 +85,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
       fieldid: field.fieldid, 
       _id: field.fieldid, 
       position: fields.length + 1,
+      description: field.description,
       templateid: _templateid,
       reference: field.reference,
       name: field.fieldname as string,
@@ -87,6 +94,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     await templateaddfield({
       templateid: _templateid, 
       fieldname: newField.name, 
+      description: newField.description,
       type: field.name, 
       reference: newField.reference,
       fieldposition: fields.length + 1
@@ -113,6 +121,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         fieldid: field._id as string,
         fieldname: field.fieldname as string,
         type: field.type as string,
+        description: field.description,
         reference: field.reference,
         fieldposition: field.position
       })
@@ -144,6 +153,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         fieldname: field.fieldname as string,
         type: field.type as string,
         reference: field.reference,
+        description: field.description,
         fieldposition: field.position
       })
     }
@@ -152,9 +162,10 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   if (!getPage?.users?.includes(userId as string)) {
     return <div className="flex items-center justify-center h-screen">Not authorized</div>
   }
-
+  const title = getTemplates?.[0]?.title + ' — Templates' + ' — Textuality'
   return (
     <body className='overflow-y-hidden'>
+      <title>{title}</title>
       <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
           <AppHeader activesection="templates" teamid={teamid} />
@@ -273,53 +284,85 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   )
 }
 
-function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boolean, onOpenChange: (open: boolean) => void, onAddField: (field: FieldType) => void }) {
-  const [selectedField, setSelectedField] = useState<FieldType | null>(null)
+export function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boolean, onOpenChange: (open: boolean) => void, onAddField: (field: FieldType) => void }) {
+  const [selectedField, setSelectedField] = useState<FieldType | null>(null);
+  const [animationDirection, setAnimationDirection] = useState<'left' | 'right'>('right');
 
   const handleClose = () => {
-    onOpenChange(false)
-    setSelectedField(null)
-  }
+    onOpenChange(false);
+    setSelectedField(null);
+  };
+
+  const swipeTransition = {
+    initial: (direction: 'left' | 'right') => ({
+      x: direction === 'left' ? '-100%' : '100%',
+      opacity: 0
+    }),
+    animate: {
+      x: 0,
+      opacity: 1,
+      transition: { duration: 0.4 }
+    },
+    exit: (direction: 'left' | 'right') => ({
+      x: direction === 'left' ? '100%' : '-100%',
+      opacity: 0,
+      transition: { duration: 0.4 }
+    })
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[725px]">
+      <DialogContent className="sm:max-w-[725px] overflow-x-hidden transition-all">
         <DialogHeader>
           <DialogTitle>{selectedField ? `Add ${selectedField.name} Field` : 'Add new field'}</DialogTitle>
         </DialogHeader>
-        {selectedField ? (
-          <FieldForm
-            field={selectedField}
-            onBack={() => setSelectedField(null)}
-            onSubmit={(field) => {
-              onAddField(field)
-              handleClose()
-            }}
-          />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-4">
-            {fieldTypes.map((field, index) => (
-              <button
-                key={index}
-                className="flex flex-col items-center justify-center p-4 border rounded-lg hover:border-primary cursor-pointer transition-colors"
-                onClick={() => setSelectedField(field)}
-              >
-                {React.createElement(field.icon, { className: "h-8 w-8 mb-2" })}
-                <h3 className="text-lg font-semibold mb-1">{field.name}</h3>
-                <p className="text-sm text-center text-muted-foreground">{field.description}</p>
-              </button>
-            ))}
-          </div>
-        )}
+        
+        <motion.div
+          key={selectedField ? 'field-form' : 'field-selection'}
+          initial={swipeTransition.initial(animationDirection)}
+          animate={swipeTransition.animate}
+          exit={swipeTransition.exit(animationDirection)}
+        >
+          {selectedField ? (
+            <FieldForm
+              field={selectedField}
+              onBack={() => {
+                setAnimationDirection('left');
+                setSelectedField(null);
+              }}
+              onSubmit={(field) => {
+                onAddField(field);
+                handleClose();
+              }}
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-4">
+              {fieldTypes.map((field, index) => (
+                <button
+                  key={index}
+                  className="flex flex-col items-center justify-center p-4 border rounded-lg hover:border-primary cursor-pointer transition-colors"
+                  onClick={() => {
+                    setAnimationDirection('right');
+                    setSelectedField(field);
+                  }}
+                >
+                  {React.createElement(field.icon, { className: "h-8 w-8 mb-2" })}
+                  <h3 className="text-lg font-semibold mb-1">{field.name}</h3>
+                  <p className="text-sm text-center text-muted-foreground">{field.description}</p>
+                </button>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 function EditFieldDialog({ open, onOpenChange, field, onEditField }: { open: boolean, onOpenChange: (open: boolean) => void, field: FieldType | null, onEditField: (field: FieldType) => void }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[725px]">
+      <DialogContent className="sm:max-w-[725px] overflow-hidden transition-all">
         <DialogHeader>
           <DialogTitle>Edit Field</DialogTitle>
         </DialogHeader>
@@ -339,13 +382,23 @@ function EditFieldDialog({ open, onOpenChange, field, onEditField }: { open: boo
 }
 
 function FieldForm({ field, onBack, onSubmit }: { field: FieldType, onBack: () => void, onSubmit: (field: FieldType) => void }) {
-  const [fieldName, setFieldName] = useState(field.fieldname || '')
-  const [fieldId, setFieldId] = useState(field.fieldid || '')
+  const [fieldName, setFieldName] = useState(field.fieldname || '');
+  const [fieldId, setFieldId] = useState(field.reference || '');
+  const [description, setDescription] = useState(field.description || '');
+  const [isRequired, setIsRequired] = useState(field.isRequired || false); 
+  const [defaultValue, setDefaultValue] = useState(field.defaultValue || '');
 
   const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault()
-    onSubmit({ ...field, reference: fieldId, fieldname: fieldName })
-  }
+    event.preventDefault();
+    onSubmit({
+      ...field,
+      reference: fieldId,
+      fieldname: fieldName,
+      description,
+      isRequired,
+      defaultValue
+    });
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -354,7 +407,6 @@ function FieldForm({ field, onBack, onSubmit }: { field: FieldType, onBack: () =
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
-            
             placeholder="Enter field name"
             value={fieldName}
             onChange={(e) => setFieldName(e.target.value)}
@@ -372,6 +424,39 @@ function FieldForm({ field, onBack, onSubmit }: { field: FieldType, onBack: () =
           />
         </div>
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Input
+          id="description"
+          placeholder="Enter field description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="defaultValue">Default Value</Label>
+        <Input
+          id="defaultValue"
+          placeholder="Enter default value"
+          value={defaultValue}
+          onChange={(e) => setDefaultValue(e.target.value)}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Is Required</Label>
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={isRequired}
+            onChange={(e) => setIsRequired(e.target.checked)}
+          />
+          <span>Required</span>
+        </div>
+      </div>
+
       {field.name === 'Number' && (
         <div className="space-y-2">
           <Label>Type</Label>
@@ -396,5 +481,6 @@ function FieldForm({ field, onBack, onSubmit }: { field: FieldType, onBack: () =
         </div>
       </DialogFooter>
     </form>
-  )
+  );
 }
+

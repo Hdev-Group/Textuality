@@ -43,10 +43,12 @@ export default function Page({ params }: { params: any, _teamid: any }) {
       <IsAuthorizedEdge />
     );
   }
+  const title = getPage?.title  + ' — Textuality'
 
   return (
     <>
       <body className='overflow-hidden'>
+        <title>{title}</title>
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
         <AppHeader activesection="dashboard" teamid={teamid} />

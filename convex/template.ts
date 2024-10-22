@@ -49,13 +49,15 @@ export const addField = mutation({
         templateid: v.any(),
         fieldname: v.string(),
         type: v.string(),
+        description: v.string(),
         reference: v.any(),
         fieldposition: v.number(),
     },
-    handler: async (ctx, { templateid, fieldname, type, reference, fieldposition }) => {
+    handler: async (ctx, { templateid, description, fieldname, type, reference, fieldposition }) => {
         const field = await ctx.db.insert("fields", {
             templateid,
             fieldname,
+            description,
             type,
             reference,
             fieldposition
@@ -100,14 +102,16 @@ export const updateField = mutation({
         fieldid: v.any(),
         fieldname: v.string(),
         type: v.string(),
+        description: v.string(),
         reference: v.any(),
         fieldposition: v.number(),
     },
-    handler: async (ctx, { fieldid, fieldname, type, reference, fieldposition }) => {
+    handler: async (ctx, { fieldid, fieldname, description, type, reference, fieldposition }) => {
         await ctx.db.patch(fieldid, {
             fieldname,
             type,
             reference,
+            description,
             fieldposition,
         });
     },
