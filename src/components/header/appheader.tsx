@@ -73,11 +73,11 @@ export default function AppHeader({ teamid, activesection }: any) {
       <div className="px-10 mx-auto">
         <div className="flex w-full justify-between items-center py-4">
           <div className="flex items-center gap-4 lg:gap-6">
-            <Link href="/application/home" className="flex items-center">
+            <Link href="/application/home" className="flex items-center h-8 w-8">
               <img src={image} alt="Textuality Logo" className="h-8 w-8" />
               <span className="sr-only">Textuality</span>
             </Link>
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (
   <Link href={item.route} key={item.label} passHref>
     <Button
@@ -139,7 +139,7 @@ export default function AppHeader({ teamid, activesection }: any) {
               />
             )}
             <Button
-              className="md:hidden"
+              className="lg:hidden"
               size="icon"
               variant="ghost"
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -151,7 +151,7 @@ export default function AppHeader({ teamid, activesection }: any) {
         </div>
       </div>
       {isMenuOpen && (
-        <nav className="md:hidden bg-background py-2">
+        <nav className="lg:hidden bg-background py-2">
           {navItems.slice(0, 6).map((item) => (
             <Link href={item.route} key={item.label}>
               <Button

@@ -81,7 +81,6 @@ export default function TeamManagement({ params }: { params: any, _teamid: any }
     useEffect(() => {
       if (getPage?.users?.includes(userId as string)) {
         setIsAuthorized(true);
-
         setIsLoading(false);
       }
       setUserRole(getRole?.[0]?.permissions[0] as string);

@@ -6,7 +6,7 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../../../../convex/_generated/api'
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, Link, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical } from "lucide-react"
+import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -18,6 +18,7 @@ import AuthWrapper from '../../../withAuth'
 import { useRouter } from 'next/navigation'
 import { use } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>
@@ -35,7 +36,6 @@ type FieldType = {
   templateid: string
   reference: string
 }
-
 
 const fieldTypes: FieldType[] = [
   { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", position: 0, templateid: '', reference: '' },
@@ -172,7 +172,12 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
           <main className="mx-auto px-10 py-3">
             <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg py-6 overflow-y-auto">
               <div className="flex justify-between items-center px-6 border-b pb-4">
-                <h1 className="text-2xl font-semibold">{getTemplates?.[0]?.title} Fields</h1>
+                <div className='flex flex-row gap-1 items-center'>
+                  <Link href={`/application/${teamid}/templates`} className="text-primary hover:underline">
+                    <ChevronLeft  />
+                  </Link>
+                  <h1 className="text-2xl font-semibold ml-3">{getTemplates?.[0]?.title} Fields</h1>
+                </div>
                 <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
               </div>
               <div className='flex flex-col px-6'>
@@ -301,12 +306,12 @@ export function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boole
     animate: {
       x: 0,
       opacity: 1,
-      transition: { duration: 0.4 }
+      transition: { duration: 0.25 }
     },
     exit: (direction: 'left' | 'right') => ({
       x: direction === 'left' ? '100%' : '-100%',
       opacity: 0,
-      transition: { duration: 0.4 }
+      transition: { duration: 0.25 }
     })
   };
 

@@ -31,7 +31,7 @@ import { use } from 'react';
 type Template = {
   name: string
   fields: number
-  lastUpdatedBy: string
+  lastUpdatedBy: any
   updated: string
 }
 
@@ -43,11 +43,14 @@ export default function Page({ params }: { params: any, _teamid: any }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const [userData, setUserData] = useState<any[]>([]);
+  console.log(userData);
   const getPage = useQuery(api.page.getPage, { _id: teamid });
   const [searchTerm, setSearchTerm] = useState('');
   const [nameFilter, setNameFilter] = useState('asc');
   const [lastUpdatedFilter, setLastUpdatedFilter] = useState('');
   const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
+  console.log(getTemplates);
   const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: _teamid })
 
   function nameFilterSetter() {
@@ -101,15 +104,34 @@ export default function Page({ params }: { params: any, _teamid: any }) {
       return `a few seconds ago`;
     }
   }
+  useEffect(() => {
+    async function fetchUserData() {
+      if (getTemplates?.[0]?.lastUpdatedBy) {
+        try {
+          const response = await fetch(`/api/secure/get-user?userId=${getTemplates?.[0]?.lastUpdatedBy}`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          setUserData(data.users);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUserData([]);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchUserData();
 
+  }, [getTemplates]);
+  const title = getPage?.title + ' — Templates — Textuality'
   
   return (
-    <>
       <body className="overflow-y-hidden">
+        <title>{title}</title>
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
         <AppHeader activesection="templates" teamid={teamid} />
-        <main className="mx-auto px-10 pt-8 py-3">
+        <main className="mx-auto px-10  py-3">
           <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8 h-screen overflow-y-auto">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">
@@ -148,11 +170,32 @@ export default function Page({ params }: { params: any, _teamid: any }) {
                 {
                   filteredTemplates.length > 0 ? (
                   filteredTemplates.map((template, index) => (
-                    <TableRow key={index} onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
+                    <TableRow className='cursor-pointer border-b-red-200' key={index} onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
                     <TableCell>{template.title}</TableCell>
                     <TableCell>{template.fields}</TableCell>
                     <TableCell>
-                      {template.lastUpdatedBy}
+                      {userData.length > 0 ? (
+                        <div className="flex flex-row items-center gap-2">
+                          <Avatar className='h-7 w-7 border-2 p-0.5'>
+                            <AvatarImage className='rounded-full' src={userData[0]?.imageUrl} />
+                            <AvatarFallback>
+                              <AvatarImage>
+                                <BookMarkedIcon />
+                              </AvatarImage>
+                            </AvatarFallback>
+                          </Avatar>
+                          <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-row items-center gap-2">
+                          <Avatar>
+                            <AvatarImage>
+                              <BookMarkedIcon />
+                            </AvatarImage>
+                          </Avatar>
+                          <span>Unknown User</span>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>{timeAgo(new Date(template._creationTime))}</TableCell>
                     </TableRow>
@@ -172,6 +215,5 @@ export default function Page({ params }: { params: any, _teamid: any }) {
       </div>
     </AuthWrapper>
     </body>
-    </>
   );
 }
