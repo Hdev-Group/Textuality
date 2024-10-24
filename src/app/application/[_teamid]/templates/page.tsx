@@ -202,8 +202,17 @@ export default function Page({ params }: { params: any, _teamid: any }) {
                   ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center">
+                      <TableCell colSpan={4} className="text-center  items-center justify-center w-full">
+                        <div className='flex flex-col gap-2'>
                         No templates found.
+                          {
+                            getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
+                              <Link href={`/application/${teamid}/templates/new`}>
+                                <Button variant="default" className="w-full md:w-auto">Create Template</Button>
+                              </Link>
+                            )
+                          }
+                        </div>
                       </TableCell>
                     </TableRow>
                   )

@@ -99,20 +99,25 @@ export const deleteField = mutation({
 
 export const updateField = mutation({
     args: {
-        fieldid: v.any(),
+        fieldid: v.id("fields"),
         fieldname: v.string(),
+        templateid: v.id("templates"),
         type: v.string(),
-        description: v.string(),
+        lastUpdatedBy: v.string(),
+        description: v.optional(v.string()),
         reference: v.any(),
         fieldposition: v.number(),
     },
-    handler: async (ctx, { fieldid, fieldname, description, type, reference, fieldposition }) => {
+    handler: async (ctx, { fieldid, templateid, lastUpdatedBy, fieldname, description, type, reference, fieldposition }) => {
         await ctx.db.patch(fieldid, {
             fieldname,
             type,
             reference,
             description,
             fieldposition,
+        });
+        await ctx.db.patch(templateid, {
+            lastUpdatedBy, 
         });
     },
 });

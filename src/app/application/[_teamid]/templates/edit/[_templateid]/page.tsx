@@ -24,7 +24,7 @@ type FieldType = {
   icon: React.ComponentType<{ className?: string }>
   name: string
   description: string
-  fieldid?: string
+  fieldid?: any
   fieldname?: string
   type?: string
   defaultValue?: string
@@ -35,7 +35,9 @@ type FieldType = {
   position: number
   templateid: string
   reference: string
+  fieldposition?: number
 }
+
 
 const fieldTypes: FieldType[] = [
   { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", position: 0, templateid: '', reference: '' },
@@ -46,7 +48,6 @@ const fieldTypes: FieldType[] = [
   { icon: Image, name: "Media", description: "Images, videos, PDFs and other files", position: 0, templateid: '', reference: '' },
   { icon: ToggleLeft, name: "Boolean", description: "Yes or no, 1 or 0, true or false", position: 0, templateid: '', reference: '' },
   { icon: Braces, name: "JSON object", description: "Data in JSON format", position: 0, templateid: '', reference: '' },
-  { icon: Link, name: "Reference", description: "For example, a blog post can reference its author(s)", position: 0, templateid: '', reference: '' },
 ]
 
 export default function TemplateManager({ params }: { params: Promise<{ _teamid: string; _templateid: string }> }) {
@@ -60,7 +61,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const [editingField, setEditingField] = useState<FieldType | null>(null)
   const router = useRouter()
 
-  const getPage = useQuery(api.page.getPage, { _id: teamid })
+  const getPage = useQuery(api.page.getPage, { _id: teamid as any })
   const getTemplates = useQuery(api.template.getExactTemplate, { pageid: teamid, _id: templateid })
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
@@ -118,12 +119,14 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     // Save the updated positions
     for (const field of updatedFields) {
       await saveField({
-        fieldid: field._id as string,
+        fieldid: field._id as string, 
+        templateid: _templateid as any,
         fieldname: field.fieldname as string,
         type: field.type as string,
         description: field.description,
         reference: field.reference,
-        fieldposition: field.position
+        fieldposition: field.position,
+        lastupdatedby: userId as string
       })
     }
   }
@@ -150,6 +153,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     for (const field of updatedFields) {
       await saveField({
         fieldid: field._id as string,
+        templateid: _templateid as any,
         fieldname: field.fieldname as string,
         type: field.type as string,
         reference: field.reference,
@@ -207,7 +211,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                                       <span {...provided.dragHandleProps} className="mr-2 cursor-move">
                                         <GripVertical className="h-4 w-4" />
                                       </span>
-                                      {field.fieldposition}
+                                      {field?.fieldposition}
                                     </div>
                                   </TableCell>
                                   <TableCell>{field.fieldname || field.name}</TableCell>
@@ -273,14 +277,17 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
             const updatedFields = fields.map(f => 
               f._id === updatedField._id ? { ...updatedField, position: f.position } : f
             )
+            console.log(userId, "userid")
             setFields(updatedFields)
             setIsEditFieldOpen(false)
             await saveField({
-              _id: updatedField._id as any,
-              templateid: updatedField.templateid,
+              fieldid: updatedField._id as string,
+              templateid: _templateid as any,
+              lastUpdatedBy: userId as string,
               fieldname: updatedField.fieldname as string,
               type: updatedField.type as string,
-              reference: updatedField.reference
+              reference: updatedField.reference,
+              fieldposition: updatedField.fieldposition as number,
             })
           }}
         />
