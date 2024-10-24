@@ -114,7 +114,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
       <main className="mx-auto px-10 py-3">
-        <div className="bg-white dark:bg-neutral-950 rounded-2xl flex flex-col shadow-lg p-8 space-y-8">
+        <div className="bg-white dark:bg-neutral-950 rounded-lg flex flex-col shadow-lg p-8 space-y-8">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-semibold">{template.name} Fields</h1>

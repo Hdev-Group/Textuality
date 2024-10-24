@@ -131,8 +131,8 @@ export default function Page({ params }: { params: any, _teamid: any }) {
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
         <AppHeader activesection="templates" teamid={teamid} />
-        <main className="mx-auto px-10  py-3">
-          <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8 h-screen overflow-y-auto">
+        <main className="mx-auto px-10 py-3">
+          <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold w-full md:w-auto min-w-[15rem]">

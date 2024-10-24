@@ -8,10 +8,25 @@ import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { useMutation, useQuery } from 'convex/react';
 import { api} from '../../../../../convex/_generated/api';
 import AuthWrapper from '../withAuth';
+import { Input } from "@/components/ui/input"
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Plus, Search } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from "@/components/ui/table"
+  import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
 export default function Page({ params }: { params: any, _teamid: any }) {
     const { _teamid }: {_teamid: any} = use(params)
     const router = useRouter()
@@ -19,7 +34,14 @@ export default function Page({ params }: { params: any, _teamid: any }) {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const getPage = useQuery(api.page.getPage, { _id: _teamid });
+    const [activeTab, setActiveTab] = useState('all')
 
+    const contentItems = [
+      { id: 1, title: "Getting Started with React", type: "Article", updated: "1 hour ago", author: "Jane Doe", status: "Published" },
+      { id: 2, title: "Advanced TypeScript Tips", type: "Tutorial", updated: "2 days ago", author: "John Smith", status: "Draft" },
+      { id: 3, title: "CSS Grid Layout Mastery", type: "Course", updated: "5 weeks ago", author: "Emily Brown", status: "Review" },
+    ]
+  
     const { userId, isLoaded, isSignedIn } = useAuth();
     useEffect(() => {
         if (getPage?.users?.includes(userId as string)) {
@@ -39,36 +61,96 @@ export default function Page({ params }: { params: any, _teamid: any }) {
             <AuthWrapper _teamid={_teamid}>
             <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
             <AppHeader activesection="content" teamid={_teamid} />
-                <main className="mx-auto px-4 sm:px-6 lg:px-8 py-3 overflow-y-auto h-full">
-                <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg overflow-y-auto">
-                    <div className="flex">
-                        <div className="w-1/4 border-r dark:border-gray-800">
-                            <div className="p-4">
-                                <h2 className="text-xl font-semibold mb-4">Content</h2>
-                                <div className="space-y-2">
-                                <Button variant="ghost" className="w-full justify-start">
-                                    Pages
-                                    <ChevronDown className="ml-auto h-4 w-4" />
-                                </Button>
+            <main className="mx-auto px-10 py-3">
+            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg  overflow-y-auto">
+                <div className="flex">
+                        {/* Sidebar */}
+                        <aside className="w-1/6 bg-white dark:bg-neutral-950 py-3 p-4 border-r border-gray-200 dark:border-neutral-800">
+                            <h2 className="text-xl font-bold mb-4">Content</h2>
+                            <nav>
+                            <ul className="space-y-2">
+                                {['All', 'Articles', 'Tutorials', 'Courses'].map((item) => (
+                                <li key={item}>
+                                    <Button
+                                    variant={activeTab === item.toLowerCase() ? "secondary" : "ghost"}
+                                    className="w-full justify-start"
+                                    onClick={() => setActiveTab(item.toLowerCase())}
+                                    >
+                                    {item}
+                                    </Button>
+                                </li>
+                                ))}
+                            </ul>
+                            </nav>
+                        </aside>
 
+                        {/* Main Content */}
+                        <main className="flex-1">
+                            <div className="p-6 py-3 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
+                            <div className="flex justify-between items-center">
+                                <h1 className="text-2xl font-bold">All Content</h1>
+                                <Button>
+                                <Plus className="mr-2 h-4 w-4" /> New Content
+                                </Button>
                             </div>
-                        </div>
-                        </div>
-                            <div className="w-full flex-col flex">
-                                <div className='border-b p-6 items-center justify-between flex'>
-                                    <h1 className="text-2xl font-bold">Test</h1>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger>
-                                            <Button variant="default"  className='gap-2'>
-                                                New Entry
-                                                <ChevronDown className="ml-auto h-5 w-5" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                    </DropdownMenu>
-                                </div>
-                                <div className='p-6'>
+                            </div>
+
+                            <div className="p-6 bg-white  dark:bg-neutral-950">
+                            {/* Filters */}
+                            <div className="flex gap-4 mb-6 ">
+                                <Select>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Content Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Types</SelectItem>
+                                    <SelectItem value="article">Article</SelectItem>
+                                    <SelectItem value="tutorial">Tutorial</SelectItem>
+                                    <SelectItem value="course">Course</SelectItem>
+                                </SelectContent>
+                                </Select>
+                                <Select>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Statuses</SelectItem>
+                                    <SelectItem value="published">Published</SelectItem>
+                                    <SelectItem value="draft">Draft</SelectItem>
+                                    <SelectItem value="review">In Review</SelectItem>
+                                </SelectContent>
+                                </Select>
+                                <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <Input className="pl-10" placeholder="Search content..." />
                                 </div>
                             </div>
+
+                            {/* Content Table */}
+                            <Table>
+                                <TableHeader>
+                                <TableRow>
+                                    <TableHead>Title</TableHead>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead>Updated</TableHead>
+                                    <TableHead>Author</TableHead>
+                                    <TableHead>Status</TableHead>
+                                </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                {contentItems.map((item) => (
+                                    <TableRow key={item.id}>
+                                    <TableCell className="font-medium">{item.title}</TableCell>
+                                    <TableCell>{item.type}</TableCell>
+                                    <TableCell>{item.updated}</TableCell>
+                                    <TableCell>{item.author}</TableCell>
+                                    <TableCell>{item.status}</TableCell>
+                                    </TableRow>
+                                ))}
+                                </TableBody>
+                            </Table>
+                            </div>
+                        </main>
                         </div>
                     </div>
                 </main>

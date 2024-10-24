@@ -84,7 +84,7 @@ export default function Page() {
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
       <main className="mx-auto px-10 py-8">
-        <div className="bg-white dark:bg-neutral-950 h-screen rounded-2xl overflow-y-auto shadow-lg p-8 space-y-8">
+        <div className="bg-white dark:bg-neutral-950 h-screen rounded-lg overflow-y-auto shadow-lg p-8 space-y-8">
           <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
             <div>
               <h1 className="text-4xl font-bold">
