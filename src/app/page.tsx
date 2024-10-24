@@ -12,10 +12,10 @@ import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 
-
 export default function Home() {
   return (
     <>
+    <body>
       <Header />
       <main className="mx-auto overflow-x-auto pt-28 px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
@@ -114,6 +114,7 @@ export default function Home() {
         </section>
         <Footer />
       </main>
+      </body>
     </>
   )
 }

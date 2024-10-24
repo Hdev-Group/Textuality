@@ -1,3 +1,4 @@
+"use client"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { useAuth } from '@clerk/nextjs';
 import { useState, useEffect } from 'react';

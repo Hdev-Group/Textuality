@@ -36,7 +36,7 @@ export const getPage = query({
   handler: async (ctx, { _id }) => {
     return ctx.db.get(_id);
   },
-  });
+});
 
 export const inviteUser = mutation({
   args: {

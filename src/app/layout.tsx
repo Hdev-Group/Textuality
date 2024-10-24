@@ -30,17 +30,15 @@ export default function RootLayout({
       <ConvexProvider client={new ConvexReactClient(convexUrl)}>
         <html lang="en" className="dark" >
           <head>
-            <link rel="icon" href="/IMG_6127.png" />
+            <link rel="icon" href="/IMG_6128.png" />
             <title>Textuality</title>
             <meta
               name="description"
               content="Empowering your digital narrative."
             />
           </head>
-          <body>
         <ConvexClientProvider>{children}</ConvexClientProvider>
         <Toaster />
-        </body>
         </html>
       </ConvexProvider>
     </ClerkProvider>
