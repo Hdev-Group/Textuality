@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider dynamic>
       <ConvexProvider client={new ConvexReactClient(convexUrl)}>
         <html lang="en" className="dark" >
           <head>

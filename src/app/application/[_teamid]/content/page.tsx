@@ -55,17 +55,23 @@ export default function Page({ params }: { params: any, _teamid: any }) {
       if (!isAuthorized) {
         return <IsAuthorizedEdge />;
       }
+    const filteredContentItems = contentItems.filter((item) => {
+        if (activeTab === 'all') {
+          return true;
+        }
+        return item.type === activeTab;
+      });
 
     return(
-        <body>
+        <body className='overflow-y-hidden'>
             <AuthWrapper _teamid={_teamid}>
             <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
             <AppHeader activesection="content" teamid={_teamid} />
-            <main className="mx-auto px-10 py-3">
-            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg  overflow-y-auto">
+            <main className="mx-auto px-10 py-3 h-full">
+            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg h-screen overflow-y-auto">
                 <div className="flex">
                         {/* Sidebar */}
-                        <aside className="w-1/6 bg-white dark:bg-neutral-950 py-3 p-4 border-r border-gray-200 dark:border-neutral-800">
+                        <aside className="w-1/6 bg-white dark:bg-neutral-950 p-8 space-y-8 border-r border-gray-200 dark:border-neutral-800">
                             <h2 className="text-xl font-bold mb-4">Content</h2>
                             <nav>
                             <ul className="space-y-2">
@@ -86,7 +92,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
 
                         {/* Main Content */}
                         <main className="flex-1">
-                            <div className="p-6 py-3 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
+                            <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
                             <div className="flex justify-between items-center">
                                 <h1 className="text-2xl font-bold">All Content</h1>
                                 <Button>
@@ -95,7 +101,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
                             </div>
                             </div>
 
-                            <div className="p-6 bg-white  dark:bg-neutral-950">
+                            <div className="p-8 space-y-8 bg-white  dark:bg-neutral-950">
                             {/* Filters */}
                             <div className="flex gap-4 mb-6 ">
                                 <Select>
@@ -138,13 +144,19 @@ export default function Page({ params }: { params: any, _teamid: any }) {
                                 </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                {contentItems.map((item) => (
-                                    <TableRow key={item.id}>
+                                {filteredContentItems.map((item) => (
+                                    <TableRow key={item.id} className='cursor-pointer hover:border-b-red-300/60'>
                                     <TableCell className="font-medium">{item.title}</TableCell>
                                     <TableCell>{item.type}</TableCell>
                                     <TableCell>{item.updated}</TableCell>
                                     <TableCell>{item.author}</TableCell>
-                                    <TableCell>{item.status}</TableCell>
+                                    <TableCell>
+                                        <div>
+                                            <div className={`${item.status === "Published" ? "bg-green-300/60 text-green-700" : ""} ${item.status === "Draft" ? "bg-yellow-300/60 text-yellow-700" : ""} ${item.status === "Review" ? "bg-purple-300/60 text-purple-700" : ""} w-min px-2.5 py-1 rounded-sm`}>
+                                            {item.status}
+                                            </div>
+                                        </div>
+                                    </TableCell>
                                     </TableRow>
                                 ))}
                                 </TableBody>

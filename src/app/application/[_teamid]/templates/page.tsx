@@ -136,7 +136,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold w-full md:w-auto min-w-[15rem]">
-                  Content Templates
+                  Templates
                 </h1>
                 <div className='flex flex-row gap-5'>
                   <Input 
