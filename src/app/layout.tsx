@@ -26,11 +26,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider dynamic>
       <ConvexProvider client={new ConvexReactClient(convexUrl)}>
         <html lang="en" className="dark" >
           <head>
-            <link rel="icon" href="/IMG_6127.png" />
+            <link rel="icon" href="/IMG_6128.png" />
             <title>Textuality</title>
             <meta
               name="description"
@@ -38,9 +38,9 @@ export default function RootLayout({
             />
           </head>
           <body>
-        <ConvexClientProvider>{children}</ConvexClientProvider>
+            <ConvexClientProvider>{children}</ConvexClientProvider>
+          </body>
         <Toaster />
-        </body>
         </html>
       </ConvexProvider>
     </ClerkProvider>

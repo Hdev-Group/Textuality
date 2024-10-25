@@ -1,10 +1,11 @@
 "use client"
 import AppHeader from '@/components/header/appheader';
 import React, { useEffect, useState } from 'react';
+import { use } from 'react';
 import { useUser } from "@clerk/clerk-react";
-import {useAuth} from '@clerk/nextjs'
+import { useAuth } from '@clerk/nextjs'
 import { useQuery } from 'convex/react';
-import { api} from '../../../../../convex/_generated/api';
+import { api } from '../../../../../convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,126 +14,133 @@ import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import AuthWrapper from '../withAuth';
 
 
-export default function Page({params: {_teamid }}: any) {
-    const teamid = _teamid;
-    const user = useUser();
-    const { userId, isLoaded, isSignedIn } = useAuth();
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const getPage = useQuery(api.page.getPage, { _id: teamid });
-    useEffect(() => {
-      if (getPage?.users?.includes(userId as string)) {
-        setIsAuthorized(true);
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
-    }, [getPage, userId]);
 
-    if (!isLoaded) {
-      return (
-        <IsLoadedEdge />
-      );
-    }
-    if (!isAuthorized) {
-      return (
-        <IsAuthorizedEdge />
-      );
-    }
+export default function Page({ params }: { params: any, _teamid: any }) {
+  const { _teamid }: { _teamid: any } = use(params);
+  const teamid = _teamid;
+  const user = useUser();
+  const { userId, isLoaded, isSignedIn } = useAuth();
 
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const getPage = useQuery(api.page.getPage, { _id: teamid });
+
+  useEffect(() => {
+    if (getPage?.users?.includes(userId as string)) {
+      setIsAuthorized(true);
+    } else {
+      setIsAuthorized(false);
+    }
+  }, [getPage, userId]);
+  
+  if (!isLoaded) {
     return (
+      <IsLoadedEdge />
+    );
+  }
+  if (!isAuthorized) {
+    return (
+      <IsAuthorizedEdge />
+    );
+  }
+  const title = getPage?.title  + ' — Textuality'
+
+  return (
+    <>
+      <body className='overflow-hidden'>
+        <title>{title}</title>
       <AuthWrapper _teamid={teamid}>
-        <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
+      <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
         <AppHeader activesection="dashboard" teamid={teamid} />
-        <main className="mx-auto px-10 py-8">
-          <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-lg p-8 space-y-8">
+        <main className="mx-auto px-10 py-3">
+          <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div>
                 <h1 className="text-4xl font-bold">
-                    Welcome to {getPage?.title}.
+                  Welcome to {getPage?.title}.
                 </h1>
-                <p className="text-lg text-neutral-600 dark:text-neutral-400">
-                </p>
+                <p className="text-lg text-neutral-600 dark:text-neutral-400"></p>
               </div>
             </div>
-  
+
             <Card className="w-full">
-                <CardHeader>
+              <CardHeader>
                 <div className="flex items-center justify-between">
-                    <div>
+                  <div>
                     <CardTitle>Latest Blogs</CardTitle>
                     <CardDescription>Manage and view your blogs</CardDescription>
-                    </div>
-                    <CreateBlog />
+                  </div>
+                  <CreateBlog />
                 </div>
-                </CardHeader>
-                <CardContent>
-                <div className="flex flex-col items-center justify-center w-full h-full">
-                    <p className="text-center py-4">No blogs found.</p>
-                    <CreateBlog />
-                </div>
-                </CardContent>
+              </CardHeader>
+              <CardContent>
+                {/* Your blog content here */}
+              </CardContent>
             </Card>
             <QuickStartGuide />
-            </div>
+          </div>
         </main>
       </div>
-      </AuthWrapper>
-    );
+    </AuthWrapper>
+    </body>
+    </>
+  );
 }
 
+function CreateBlog() {
+  return (
+    <Link href="/author/${member.id}" legacyBehavior>
+      <Button>
+        <BookMarkedIcon className="mr-2 h-4 w-4" />
+        Create Blog
+      </Button>
+    </Link>
+  );
+}
 
+export function QuickStartGuide() {
+  const [completedSteps, setCompletedSteps] = useState<number[]>([1, 2])
 
-  function CreateBlog() {
-    return (
-      <Link href="/author/${member.id}" legacyBehavior>
-        <Button>
-          <BookMarkedIcon className="mr-2 h-4 w-4" />
-          Create Blog
-        </Button>
-      </Link>
-    );
+  const steps = [
+    {
+      icon: <Layout className="w-6 h-6" />,
+      title: "Create a structure with a Content Model",
+      description: "This defines the schema for your content, including fields and data types.",
+    },
+    {
+      icon: <FileText className="w-6 h-6" />,
+      title: "Create a content entry",
+      description: "They are actual pieces of content, instances of the structure you created.",
+    },
+    {
+      icon: <Cloud className="w-6 h-6" />,
+      title: "Make your first API call and retrieve content",
+      description: "Make your first API call for a content entry and preview the response.",
+      action: "Open code sample",
+    },
+    {
+      icon: <Code className="w-6 h-6" />,
+      title: "Consume API",
+      description: "This app allows you to test the capabilities of our APIs using the GraphQL.",
+      action: "JavaScript",
+    },
+  ]
+
+  const toggleStep = (index: number) => {
+    setCompletedSteps(prev =>
+      prev.includes(index)
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    )
   }
-  export  function QuickStartGuide() {
-    const [completedSteps, setCompletedSteps] = useState<number[]>([1, 2])
-  
-    const steps = [
-      {
-        icon: <Layout className="w-6 h-6" />,
-        title: "Create a structure with a Content Model",
-        description: "This defines the schema for your content, including fields and data types.",
-      },
-      {
-        icon: <FileText className="w-6 h-6" />,
-        title: "Create a content entry",
-        description: "They are actual pieces of content, instances of the structure you created.",
-      },
-      {
-        icon: <Cloud className="w-6 h-6" />,
-        title: "Make your first API call and retrieve content",
-        description: "Make your first API call for a content entry and preview the response.",
-        action: "Open code sample",
-      },
-      {
-        icon: <Code className="w-6 h-6" />,
-        title: "Consume API",
-        description: "This app allows you to test the capabilities of our APIs using the GraphQL.",
-        action: "JavaScript",
-      },
-    ]
-  
-    const toggleStep = (index: number) => {
-      setCompletedSteps(prev =>
-        prev.includes(index)
-          ? prev.filter(i => i !== index)
-          : [...prev, index]
-      )
-    }
-  
-    const allCompleted = completedSteps.length === steps.length
-  
-    return (
-      <div className="mx-auto p-6 border rounded-lg shadow-lg">
+
+  const allCompleted = completedSteps.length === steps.length
+
+  return (
+    <div className="mx-auto p-6 border rounded-lg shadow-lg">
+      <div className="flex justify-between items-center mb-4"></div>
+        <h2 className="text-2xl font-bold text-gray-200">Your quick start guide</h2>
+        <div className="flex items-center"></div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-200">Your quick start guide</h2>
           <div className="flex items-center">

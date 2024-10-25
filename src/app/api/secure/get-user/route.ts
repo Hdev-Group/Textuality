@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     // Store user data
     const usersData = [];
-
+    const clerk = await clerkClient();
     for (const requestedUserId of userIds) {
       // Check if user data is in cache
       if (cache.has(requestedUserId)) {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
         }
       } else {
         // Fetch user data from Clerk API
-        const user = await clerkClient.users.getUser(requestedUserId);
+        const user = await clerk.users.getUser(requestedUserId);
 
         // Store user data in cache
         cache.set(requestedUserId, { userId: requestedUserId, data: user });

@@ -47,9 +47,10 @@ import CheckpointAuthWrapper from '../checkpointauthroleperms';
     users: any
   }
 import rolesConfig from '../../../../../config/rolesConfig.json';
+import {use} from 'react';
 
-
-export default function TeamManagement({ params: { _teamid } }: { params: { _teamid: any } }) {
+export default function TeamManagement({ params }: { params: any, _teamid: any }) {
+    const { _teamid }: { _teamid: any } = use(params);
     const teamid = _teamid;
     const { userId, isLoaded, isSignedIn } = useAuth();
     const getPage = useQuery(api.page.getPage, { _id: teamid });
@@ -80,7 +81,6 @@ export default function TeamManagement({ params: { _teamid } }: { params: { _tea
     useEffect(() => {
       if (getPage?.users?.includes(userId as string)) {
         setIsAuthorized(true);
-
         setIsLoading(false);
       }
       setUserRole(getRole?.[0]?.permissions[0] as string);
@@ -166,13 +166,15 @@ export default function TeamManagement({ params: { _teamid } }: { params: { _tea
   
   
     return (
-      <AuthWrapper _teamid={teamid}>
+      <>
+      <body className='overflow-y-hidden'>
+              <AuthWrapper _teamid={teamid}>
         <CheckpointAuthWrapper teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
         <AppHeader activesection="settings" teamid={teamid} />
-        <main className="mx-auto px-4 sm:px-6 lg:px-8 py-8 ">
-          <Card className="w-full border-none shadow-lg ">
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+        <main className="mx-auto px-4 sm:px-6 lg:px-8 py-3 overflow-y-auto h-full">
+          <Card className="w-full border-none shadow-lg overflow-y-auto h-full">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center overflow-auto h-full justify-between space-y-4 sm:space-y-0">
               <div>
                 <CardTitle className="text-2xl font-bold">Team Members</CardTitle>
                 <CardDescription className="mt-1">
@@ -333,6 +335,8 @@ export default function TeamManagement({ params: { _teamid } }: { params: { _tea
       </div>
       </CheckpointAuthWrapper>
       </AuthWrapper>
+      </body>
+      </>
     )
   }
   

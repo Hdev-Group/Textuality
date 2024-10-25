@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
   }
 
   const usersData = [];
+  const clerk = await clerkClient();
 
   try {
     for (const userIda of userIds) {
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
         usersData.push({ firstName, lastName, id, imageUrl});
       } else {
         // Fetch user data from Clerk API
-        const user = await clerkClient.users.getUser(userIda);
+        const user = await clerk.users.getUser(userIda);
 
         // Store user data in cache
         cache.set(userIda, { userId: userIda, data: user });

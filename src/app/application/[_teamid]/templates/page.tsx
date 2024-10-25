@@ -25,27 +25,33 @@ import Link from 'next/link'
 import AuthWrapper from '../withAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useUser } from "@clerk/clerk-react";
-
+import { useRouter } from 'next/navigation';
+import { use } from 'react';
 
 type Template = {
   name: string
   fields: number
-  lastUpdatedBy: string
+  lastUpdatedBy: any
   updated: string
 }
 
-export default function Page({params: {_teamid }}: any) {
+export default function Page({ params }: { params: any, _teamid: any }) {
+  const { _teamid }: { _teamid: any } = use(params);
   const teamid = _teamid;
   const { userId, isLoaded, isSignedIn } = useAuth();
   const user = useUser();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const [userData, setUserData] = useState<any[]>([]);
+  console.log(userData);
   const getPage = useQuery(api.page.getPage, { _id: teamid });
   const [searchTerm, setSearchTerm] = useState('');
   const [nameFilter, setNameFilter] = useState('asc');
   const [lastUpdatedFilter, setLastUpdatedFilter] = useState('');
   const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
-  const getRole = useQuery(api.page.getRoledetail, { externalId: userId, pageId: _teamid })
+  console.log(getTemplates);
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: _teamid })
 
   function nameFilterSetter() {
     setNameFilter(nameFilter === 'asc' ? 'desc' : 'asc');
@@ -65,9 +71,9 @@ export default function Page({params: {_teamid }}: any) {
 
     const sortedTemplates = getTemplates.sort((a, b) => {
       if (nameFilter === 'asc') {
-        return a.name.localeCompare(b.name);
+        return a.title.localeCompare(b.title);
       } else {
-        return b.name.localeCompare(a.name);
+        return b.title.localeCompare(a.title);
       }
     });
 
@@ -75,7 +81,7 @@ export default function Page({params: {_teamid }}: any) {
       const matchesSearch = Object.values(template).some(
         value => value.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
-      const matchesLastUpdated = lastUpdatedFilter === '' || template.updated.includes(lastUpdatedFilter);
+      const matchesLastUpdated = lastUpdatedFilter === '' || template?.lastUpdatedBy.includes(lastUpdatedFilter);
       return matchesSearch && matchesLastUpdated;
     });
   }, [getTemplates, searchTerm, lastUpdatedFilter, nameFilter]);
@@ -98,18 +104,39 @@ export default function Page({params: {_teamid }}: any) {
       return `a few seconds ago`;
     }
   }
+  useEffect(() => {
+    async function fetchUserData() {
+      if (getTemplates?.[0]?.lastUpdatedBy) {
+        try {
+          const response = await fetch(`/api/secure/get-user?userId=${getTemplates?.[0]?.lastUpdatedBy}`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          setUserData(data.users);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUserData([]);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    }
+    fetchUserData();
 
+  }, [getTemplates]);
+  const title = getPage?.title + ' — Templates — Textuality'
   
   return (
-    <AuthWrapper _teamid={teamid}>
-      <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
-        <AppHeader activesection="templates" teamid={_teamid} />
-        <main className="mx-auto px-10 py-8">
-          <div className="bg-white dark:bg-neutral-950 rounded-2xl flex flex-col shadow-lg p-8 space-y-8">
-            <div className="flex flex-col md:gap-4 gap-5 md:flex-row justify-between">
+      <body className="overflow-y-hidden">
+        <title>{title}</title>
+      <AuthWrapper _teamid={teamid}>
+      <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
+        <AppHeader activesection="templates" teamid={teamid} />
+        <main className="mx-auto px-10 py-3">
+          <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto">
+            <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold w-full md:w-auto min-w-[15rem]">
-                  Content Templates
+                  Templates
                 </h1>
                 <div className='flex flex-row gap-5'>
                   <Input 
@@ -126,8 +153,7 @@ export default function Page({params: {_teamid }}: any) {
                 )}  
                 </div>
             </div>
-  
-            <Table>
+            <Table className='overflow-y-auto max-h-screen'>
               <TableHeader>
                 <TableRow>
                   <TableHead className='flex flex-row gap-1 items-center' onClick={() => nameFilterSetter()}>
@@ -140,22 +166,63 @@ export default function Page({params: {_teamid }}: any) {
                   <TableHead>Updated</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {filteredTemplates?.map((template, index) => (
-                  <TableRow key={index}>
+                <TableBody>
+                {
+                  filteredTemplates.length > 0 ? (
+                  filteredTemplates.map((template, index) => (
+                    <TableRow className='cursor-pointer border-b-red-200' key={index} onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
                     <TableCell>{template.title}</TableCell>
                     <TableCell>{template.fields}</TableCell>
                     <TableCell>
-                      {template.lastUpdatedBy}
+                      {userData.length > 0 ? (
+                        <div className="flex flex-row items-center gap-2">
+                          <Avatar className='h-7 w-7 border-2 p-0.5'>
+                            <AvatarImage className='rounded-full' src={userData[0]?.imageUrl} />
+                            <AvatarFallback>
+                              <AvatarImage>
+                                <BookMarkedIcon />
+                              </AvatarImage>
+                            </AvatarFallback>
+                          </Avatar>
+                          <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-row items-center gap-2">
+                          <Avatar>
+                            <AvatarImage>
+                              <BookMarkedIcon />
+                            </AvatarImage>
+                          </Avatar>
+                          <span>Unknown User</span>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>{timeAgo(new Date(template._creationTime))}</TableCell>
-                  </TableRow>
-                ))}
+                    </TableRow>
+                  ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center  items-center justify-center w-full">
+                        <div className='flex flex-col gap-2'>
+                        No templates found.
+                          {
+                            getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
+                              <Link href={`/application/${teamid}/templates/new`}>
+                                <Button variant="default" className="w-full md:w-auto">Create Template</Button>
+                              </Link>
+                            )
+                          }
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                }
               </TableBody>
             </Table>
           </div>
         </main>
       </div>
     </AuthWrapper>
+    </body>
   );
 }

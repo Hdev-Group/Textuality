@@ -17,6 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../withAuth';
 import { useRouter } from 'next/navigation'
+import { use } from 'react'
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>
@@ -38,7 +39,8 @@ const fieldTypes: FieldType[] = [
   { icon: Link, name: "Reference", description: "For example, a blog post can reference its author(s)" },
 ]
 
-export default function Page({ params: { _teamid } }: { params: { _teamid: string } }) {
+export default function Page({ params }: { params: any, _teamid: any }) {
+  const { _teamid }: { _teamid: any } = use(params);
   const { userId, isLoaded, isSignedIn } = useAuth()
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -51,7 +53,6 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
 
     useEffect(() => {
         if (!open && template.apiref === '') {
-          console.log('redirecting', template.apiref)
             router.push(`/application/${_teamid}/templates`);
         }
     }, [open, template, router]);
@@ -69,32 +70,15 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
       setIsLoading(false)
     }
   }, [getPage, userId])
-
-  const addField = (field: FieldType) => {
-    setFields((prevFields) => [...prevFields, { ...field, fieldid: Date.now().toString() }])
-  }
-
-  const onDragEnd = (result: any) => {
-    if (!result.destination) return
-
-    const newFields = Array.from(fields)
-    const [reorderedItem] = newFields.splice(result.source.index, 1)
-    newFields.splice(result.destination.index, 0, reorderedItem)
-
-    setFields(newFields)
-  }
-
-  const handleEdit = (fieldId: string) => {
-    // Implement edit functionality
-    console.log("Edit field", fieldId)
-  }
-
-  const handleDelete = (fieldId: string) => {
-    setFields(fields.filter(field => field.fieldid !== fieldId))
-  }
   const newtemplatemaker = useMutation(api.template.create)
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [templateid, setTemplateId] = useState('')
+
+  function TransporterWeb(data: string) {
+    setOpen(false)
+    router.push(`/application/${_teamid}/templates/edit/${data}`);
+  }
 
   const handleSubmit = (event) => {
     if (event.target.id === 'newtemplate') {
@@ -104,7 +88,7 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
       setIsSubmitting(true);
       
       setTemplater({ name: namevalue, apiref: apivalue });
-      newtemplatemaker({
+      const templateinfo = newtemplatemaker({
         pageid: _teamid,
         title: namevalue,
         apiref: apivalue,
@@ -113,6 +97,10 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
         setTimeout(() => {
           setOpen(false);
           setIsSubmitting(false); // Allow new submission after completion
+          templateinfo.then((data) => {
+            setTemplateId(data);
+            TransporterWeb(data);
+          });
         }, 100);
       });
     }
@@ -120,16 +108,17 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
 
 
   return (
+  <>
+  <body className='overflow-hidden'>
     <AuthWrapper _teamid={_teamid}>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
-      <main className="mx-auto px-10 py-8">
-        <div className="bg-white dark:bg-neutral-950 rounded-2xl flex flex-col shadow-lg p-8 space-y-8">
+      <main className="mx-auto px-10 py-3">
+        <div className="bg-white dark:bg-neutral-950 rounded-lg flex flex-col shadow-lg p-8 space-y-8">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-semibold">{template.name} Fields</h1>
             </div>
-            <AddSectionDialog open={isSectionOpen} onAddField={addField} />
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTitle>New Template</DialogTitle>
@@ -155,8 +144,8 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
               </div>
               <DialogFooter>
               <div className="flex justify-between w-full">
-                <Button variant="outline" type='submit' onClick={() => setOpen(false)}>Cancel</Button>
-                <Button>Create Template</Button>
+                <Button variant="outline"  onClick={() => setOpen(false)}>Cancel</Button>
+                <Button type='submit'>Create Template</Button>
               </div>
             </DialogFooter>
             </form>
@@ -164,7 +153,7 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
             
 
           </Dialog>
-          <DragDropContext onDragEnd={onDragEnd}>
+          <DragDropContext onDragEnd={null}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -193,7 +182,7 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center space-x-2">
-                                <Button variant="ghost" size="sm" onClick={() => handleEdit(field.fieldid!)}>
+                                <Button variant="ghost" size="sm">
                                   <Edit className="h-4 w-4" />
                                 </Button>
                                 <DropdownMenu>
@@ -203,7 +192,7 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => handleDelete(field.fieldid!)}>
+                                    <DropdownMenuItem >
                                       <Trash className="mr-2 h-4 w-4" />
                                       Delete
                                     </DropdownMenuItem>
@@ -225,6 +214,8 @@ export default function Page({ params: { _teamid } }: { params: { _teamid: strin
       </main>
     </div>
     </AuthWrapper>
+  </body>
+  </>
   )
 }
 function AddSectionDialog({ onAddField }: { onAddField: (field: FieldType) => void }) {

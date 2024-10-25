@@ -17,10 +17,11 @@ export async function GET(request: NextRequest) {
   if (!userEmail) {
     return NextResponse.json({ error: "Invalid userEmail" }, { status: 400 });
   }
+  const clerk = await clerkClient();
 
   try {
     // Use the Clerk Backend API to fetch users by email
-    const response = await clerkClient.users.getUserList({
+    const response = await clerk.users.getUserList({
       emailAddress: [userEmail],
     });
 
