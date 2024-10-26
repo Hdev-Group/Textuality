@@ -201,9 +201,11 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                       </TableRow>
                     </TableHeader>
                     <Droppable droppableId="fields">
-                      {(provided) => (
-                        <TableBody {...provided.droppableProps} ref={provided.innerRef}>
-                          {fields.map((field, index) => (
+                    {(provided) => (
+                      <TableBody {...provided.droppableProps} ref={provided.innerRef}>
+                        {fields
+                          .sort((a, b) => a.fieldposition - b.fieldposition) // Sorting based on fieldposition
+                          .map((field, index) => (
                             <Draggable key={field._id} draggableId={field._id as string} index={index}>
                               {(provided) => (
                                 <TableRow
@@ -254,10 +256,10 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                               )}
                             </Draggable>
                           ))}
-                          {provided.placeholder}
-                        </TableBody>
-                      )}
-                    </Droppable>
+                        {provided.placeholder}
+                      </TableBody>
+                    )}
+                  </Droppable>
                   </Table>
                 </DragDropContext>
               </div>

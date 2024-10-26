@@ -48,4 +48,15 @@ fields: defineTable({
     reference: v.string(),
     fieldposition: v.any(),
 }).index("bytemplateid", ["templateid"]),
+content: defineTable({
+    pageid: v.string(),
+    templateid: v.string(),
+    title: v.string(),
+    apiref: v.string(),
+    authorid: v.string(),
+    lastUpdatedBy: v.string(),
+    status: v.string(),
+    content: v.string(),
+    updated: v.any(),
+}).index("bytemplateid", ["templateid"]),
 });

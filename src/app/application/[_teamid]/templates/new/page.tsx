@@ -26,19 +26,6 @@ type FieldType = {
   fieldid?: string,
   fieldname?: string
 }
-
-const fieldTypes: FieldType[] = [
-  { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media" },
-  { icon: Type, name: "Short Text", description: "Titles, names, paragraphs, list of names" },
-  { icon: Hash, name: "Number", description: "ID, order number, rating, quantity" },
-  { icon: Calendar, name: "Date and time", description: "Event dates" },
-  { icon: MapPin, name: "Location", description: "Coordinates: latitude and longitude" },
-  { icon: Image, name: "Media", description: "Images, videos, PDFs and other files" },
-  { icon: ToggleLeft, name: "Boolean", description: "Yes or no, 1 or 0, true or false" },
-  { icon: Braces, name: "JSON object", description: "Data in JSON format" },
-  { icon: Link, name: "Reference", description: "For example, a blog post can reference its author(s)" },
-]
-
 export default function TemplateManager({ params }: { params: Promise<{ _teamid: string}> }) {
   const { _teamid }: { _teamid: any } = use(params);
   const { userId } = useAuth()
@@ -149,8 +136,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
             </DialogFooter>
             </form>
             </DialogContent>
-            
-
           </Dialog>
             <DragDropContext onDragEnd={() => { }}>
             <Table>

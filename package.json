@@ -30,7 +30,7 @@
     "convex": "^1.16.4",
     "framer-motion": "^11.11.4",
     "lucide-react": "^0.451.0",
-    "next": "^15.0.0",
+    "next": "^15.0.1",
     "next-themes": "^0.3.0",
     "nextjs": "^0.0.3",
     "react": "^18",
