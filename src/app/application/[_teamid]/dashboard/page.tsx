@@ -13,17 +13,15 @@ import Link from 'next/link';
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import AuthWrapper from '../withAuth';
 
-
-
-export default function Page({ params }: { params: any, _teamid: any }) {
-  const { _teamid }: { _teamid: any } = use(params);
+export default function Page({ params }: { params: Promise<{ _teamid: string}> }) {
+  const { _teamid } = React.use(params);
   const teamid = _teamid;
   const user = useUser();
   const { userId, isLoaded, isSignedIn } = useAuth();
 
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const getPage = useQuery(api.page.getPage, { _id: teamid });
+  const getPage = useQuery(api.page.getPage, { _id: teamid as any });
 
   useEffect(() => {
     if (getPage?.users?.includes(userId as string)) {
@@ -52,7 +50,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
         <AppHeader activesection="dashboard" teamid={teamid} />
-        <main className="mx-auto px-10 py-3">
+        <main className="md:mx-auto md:px-10 py-3 h-full">
           <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div>
@@ -86,19 +84,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
     </>
   );
 }
-
-function CreateBlog() {
-  return (
-    <Link href="/author/${member.id}" legacyBehavior>
-      <Button>
-        <BookMarkedIcon className="mr-2 h-4 w-4" />
-        Create Blog
-      </Button>
-    </Link>
-  );
-}
-
-export function QuickStartGuide() {
+function QuickStartGuide(): JSX.Element {
   const [completedSteps, setCompletedSteps] = useState<number[]>([1, 2])
 
   const steps = [
@@ -142,7 +128,7 @@ export function QuickStartGuide() {
         <h2 className="text-2xl font-bold text-gray-200">Your quick start guide</h2>
         <div className="flex items-center"></div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-200">Your quick start guide</h2>
+          <h2 className="text-sm font-medium text-gray-200">Your quick start guide</h2>
           <div className="flex items-center">
             <span className="text-sm text-green-600 mr-2">All steps completed</span>
             <div className="w-24 h-2 bg-green-500 rounded-full"></div>
@@ -192,3 +178,14 @@ export function QuickStartGuide() {
       </div>
     )
   }
+function CreateBlog() {
+  return (
+    <Link href="/author/${member.id}" legacyBehavior>
+      <Button>
+        <BookMarkedIcon className="mr-2 h-4 w-4" />
+        Create Blog
+      </Button>
+    </Link>
+  );
+}
+

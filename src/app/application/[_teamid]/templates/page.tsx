@@ -35,7 +35,7 @@ type Template = {
   updated: string
 }
 
-export default function Page({ params }: { params: any, _teamid: any }) {
+export default function Page({ params }: { params: Promise<{ _teamid: string}> }) {
   const { _teamid }: { _teamid: any } = use(params);
   const teamid = _teamid;
   const { userId, isLoaded, isSignedIn } = useAuth();
@@ -131,17 +131,17 @@ export default function Page({ params }: { params: any, _teamid: any }) {
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
         <AppHeader activesection="templates" teamid={teamid} />
-        <main className="mx-auto px-10 py-3">
+        <main className="md:mx-auto md:px-10 py-3 h-full">
           <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
-              <div className="flex flex-col md:flex-row w-full items-center justify-between gap-4">
-                <h1 className="text-2xl font-bold w-full md:w-auto min-w-[15rem]">
+              <div className="flex flex-col md:flex-row w-full items-start justify-between gap-4">
+                <h1 className="text-2xl font-bold w-full md:w-auto ">
                   Templates
                 </h1>
-                <div className='flex flex-row gap-5'>
+                <div className='flex  md:w-[40rem] flex-row w-full gap-5'>
                   <Input 
                   placeholder="Search Templates" 
-                  className="w-full md:w-[40rem]"
+                  className="w-full md:w-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   />
