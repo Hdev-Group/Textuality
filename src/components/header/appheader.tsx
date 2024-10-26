@@ -7,6 +7,7 @@ import { useUser } from "@clerk/clerk-react"
 import { useState, useEffect } from "react"
 import { useClerk } from '@clerk/nextjs'
 import { useRouter } from "next/navigation"
+import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,7 +68,7 @@ export default function AppHeader({ teamid, activesection }: any) {
   const { user } = useUser()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   console.log('Rendering nav items:', navItems);
-
+  const pathname = usePathname();
   return (
     <header className="w-full z-50 bg-transparent">
       <div className="px-10 mx-auto">
@@ -156,7 +157,7 @@ export default function AppHeader({ teamid, activesection }: any) {
             <Link href={item.route} key={item.label}>
               <Button
                 variant="ghost"
-                className={`w-full justify-start font-semibold py-2 ${router?.pathname === item.route ? 'text-blue-500' : ''}`}
+                className={`w-full justify-start font-semibold py-2 ${pathname === item.route ? 'text-blue-500' : ''}`}
               >
                 <item.icon className="mr-2 h-4 w-4" />
                 {item.label}

@@ -8,34 +8,29 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../../withAuth'
 import { useRouter } from 'next/navigation'
-import { use } from 'react';
-import { motion } from 'framer-motion';
+import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
 
 type FieldType = {
-  icon: React.ComponentType<{ className?: string }>
-  name: string
-  description: string
-  fieldid?: any
-  fieldname?: string
-  type?: string
-  defaultValue?: string
-  validationRules?: string
-  placeholder?: string
-  _id?: string
-  isRequired?: boolean
-  position: number
-  templateid: string
-  reference: string
-  fieldposition?: number
+  icon: React.ComponentType<{ className?: string }>;
+  name: string;
+  description: string;
+  fieldid?: string;
+  fieldname?: string;
+  type?: string;
+  defaultValue?: string;
+  validationRules?: string;
+  placeholder?: string;
+  _id?: string;
+  isRequired?: boolean;
+  position: number;
+  templateid: string;
+  reference: string;
+  fieldposition?: number;
 }
 
 
@@ -69,7 +64,16 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
 
   useEffect(() => {
     if (getFields) {
-      setFields(getFields?.map((field, index) => ({ ...field, fieldposition: index + 1 })))
+      setFields(getFields?.map((field: any, index: number) => ({
+        ...field,
+        fieldposition: index + 1,
+        icon: fieldTypes.find(ft => ft.name === field.type)?.icon || AlignLeft,
+        name: field.fieldname || field.name,
+        description: field.description || '',
+        position: field.position || 0,
+        templateid: field.templateid,
+        reference: field.reference,
+      })))
     }
   }, [getFields])
 
@@ -119,14 +123,14 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     // Save the updated positions
     for (const field of updatedFields) {
       await saveField({
-        fieldid: field._id as string, 
+        fieldid: field._id as any, 
         templateid: _templateid as any,
         fieldname: field.fieldname as string,
         type: field.type as string,
         description: field.description,
         reference: field.reference,
         fieldposition: field.position,
-        lastupdatedby: userId as string
+        lastUpdatedBy: userId as string
       })
     }
   }
@@ -152,13 +156,14 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     // Save the updated positions after deletion
     for (const field of updatedFields) {
       await saveField({
-        fieldid: field._id as string,
+        fieldid: field._id as any, 
         templateid: _templateid as any,
         fieldname: field.fieldname as string,
         type: field.type as string,
-        reference: field.reference,
         description: field.description,
-        fieldposition: field.position
+        reference: field.reference,
+        fieldposition: field.position,
+        lastUpdatedBy: userId as string
       })
     }
   }
@@ -281,9 +286,10 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
             setFields(updatedFields)
             setIsEditFieldOpen(false)
             await saveField({
-              fieldid: updatedField._id as string,
+              fieldid: updatedField._id as any,
               templateid: _templateid as any,
               lastUpdatedBy: userId as string,
+              description: updatedField.description,
               fieldname: updatedField.fieldname as string,
               type: updatedField.type as string,
               reference: updatedField.reference,
@@ -296,203 +302,4 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   )
 }
 
-export function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boolean, onOpenChange: (open: boolean) => void, onAddField: (field: FieldType) => void }) {
-  const [selectedField, setSelectedField] = useState<FieldType | null>(null);
-  const [animationDirection, setAnimationDirection] = useState<'left' | 'right'>('right');
-
-  const handleClose = () => {
-    onOpenChange(false);
-    setSelectedField(null);
-  };
-
-  const swipeTransition = {
-    initial: (direction: 'left' | 'right') => ({
-      x: direction === 'left' ? '-100%' : '100%',
-      opacity: 0
-    }),
-    animate: {
-      x: 0,
-      opacity: 1,
-      transition: { duration: 0.25 }
-    },
-    exit: (direction: 'left' | 'right') => ({
-      x: direction === 'left' ? '100%' : '-100%',
-      opacity: 0,
-      transition: { duration: 0.25 }
-    })
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[725px] overflow-x-hidden transition-all">
-        <DialogHeader>
-          <DialogTitle>{selectedField ? `Add ${selectedField.name} Field` : 'Add new field'}</DialogTitle>
-        </DialogHeader>
-        
-        <motion.div
-          key={selectedField ? 'field-form' : 'field-selection'}
-          initial={swipeTransition.initial(animationDirection)}
-          animate={swipeTransition.animate}
-          exit={swipeTransition.exit(animationDirection)}
-        >
-          {selectedField ? (
-            <FieldForm
-              field={selectedField}
-              onBack={() => {
-                setAnimationDirection('left');
-                setSelectedField(null);
-              }}
-              onSubmit={(field) => {
-                onAddField(field);
-                handleClose();
-              }}
-            />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-4">
-              {fieldTypes.map((field, index) => (
-                <button
-                  key={index}
-                  className="flex flex-col items-center justify-center p-4 border rounded-lg hover:border-primary cursor-pointer transition-colors"
-                  onClick={() => {
-                    setAnimationDirection('right');
-                    setSelectedField(field);
-                  }}
-                >
-                  {React.createElement(field.icon, { className: "h-8 w-8 mb-2" })}
-                  <h3 className="text-lg font-semibold mb-1">{field.name}</h3>
-                  <p className="text-sm text-center text-muted-foreground">{field.description}</p>
-                </button>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function EditFieldDialog({ open, onOpenChange, field, onEditField }: { open: boolean, onOpenChange: (open: boolean) => void, field: FieldType | null, onEditField: (field: FieldType) => void }) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[725px] overflow-hidden transition-all">
-        <DialogHeader>
-          <DialogTitle>Edit Field</DialogTitle>
-        </DialogHeader>
-        {field && (
-          <FieldForm
-            field={field}
-            onBack={() => onOpenChange(false)}
-            onSubmit={(updatedField) => {
-              onEditField(updatedField)
-              onOpenChange(false)
-            }}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function FieldForm({ field, onBack, onSubmit }: { field: FieldType, onBack: () => void, onSubmit: (field: FieldType) => void }) {
-  const [fieldName, setFieldName] = useState(field.fieldname || '');
-  const [fieldId, setFieldId] = useState(field.reference || '');
-  const [description, setDescription] = useState(field.description || '');
-  const [isRequired, setIsRequired] = useState(field.isRequired || false); 
-  const [defaultValue, setDefaultValue] = useState(field.defaultValue || '');
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    onSubmit({
-      ...field,
-      reference: fieldId,
-      fieldname: fieldName,
-      description,
-      isRequired,
-      defaultValue
-    });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            placeholder="Enter field name"
-            value={fieldName}
-            onChange={(e) => setFieldName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="id">Field ID</Label>
-          <Input
-            id="id"
-            placeholder="Enter field reference"
-            value={fieldId}
-            onChange={(e) => setFieldId(e.target.value)}
-            required
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Input
-          id="description"
-          placeholder="Enter field description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="defaultValue">Default Value</Label>
-        <Input
-          id="defaultValue"
-          placeholder="Enter default value"
-          value={defaultValue}
-          onChange={(e) => setDefaultValue(e.target.value)}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Is Required</Label>
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={isRequired}
-            onChange={(e) => setIsRequired(e.target.checked)}
-          />
-          <span>Required</span>
-        </div>
-      </div>
-
-      {field.name === 'Number' && (
-        <div className="space-y-2">
-          <Label>Type</Label>
-          <div className="flex space-x-4">
-            <label className="flex items-center space-x-2">
-              <input type="radio" name="numberType" value="integer" />
-              <span>Integer</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input type="radio" name="numberType" value="decimal" />
-              <span>Decimal</span>
-            </label>
-          </div>
-        </div>
-      )}
-      <DialogFooter>
-        <div className="flex justify-between w-full">
-          <Button type="button" variant="outline" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back
-          </Button>
-          <Button type="submit">{field.fieldid ? 'Update' : 'Add'} {field.name} Field</Button>
-        </div>
-      </DialogFooter>
-    </form>
-  );
-}
 

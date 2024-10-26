@@ -10,8 +10,8 @@ import { api} from '../../../../../convex/_generated/api';
 import AuthWrapper from '../withAuth';
 import { Input } from "@/components/ui/input"
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Plus, Search } from 'lucide-react'
-import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ChevronDown, Plus, Search, AlignLeftIcon, History, TimerIcon, Timer, EyeOff } from 'lucide-react'
+import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import {
     Table,
     TableBody,
@@ -27,77 +27,76 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
-export default function Page({ params }: { params: any, _teamid: any }) {
-    const { _teamid }: {_teamid: any} = use(params)
-    const router = useRouter()
-    const user = useAuth()
+  export default function Page({ params }: any) {
+    const { _teamid } = params;
+    const router = useRouter();
+    const user = useAuth();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const getPage = useQuery(api.page.getPage, { _id: _teamid });
-    const [activeTab, setActiveTab] = useState('all')
+    const getPage = useQuery(api.page.getPage, { _id: _teamid as any });
+    const [activeTab, setActiveTab] = useState('all');
+    const getTemplates = useQuery(api.template.getTemplates, { pageid: _teamid });
 
     const contentItems = [
-      { id: 1, title: "Getting Started with React", type: "Article", updated: "1 hour ago", author: "Jane Doe", status: "Published" },
-      { id: 2, title: "Advanced TypeScript Tips", type: "Tutorial", updated: "2 days ago", author: "John Smith", status: "Draft" },
-      { id: 3, title: "CSS Grid Layout Mastery", type: "Course", updated: "5 weeks ago", author: "Emily Brown", status: "Review" },
-    ]
-  
+        { id: 1, title: "Getting Started with React", type: "Blogging Template", updated: "1 hour ago", author: "Jane Doe", status: "Published" },
+        { id: 2, title: "Advanced TypeScript Tips", type: "Blogging Template", updated: "2 days ago", author: "John Smith", status: "Draft" },
+        { id: 3, title: "CSS Grid Layout Mastery", type: "Blogging Template", updated: "5 weeks ago", author: "Emily Brown", status: "Review" },
+    ];
+
     const { userId, isLoaded, isSignedIn } = useAuth();
     useEffect(() => {
         if (getPage?.users?.includes(userId as string)) {
-          setIsAuthorized(true);
-          setIsLoading(false);
+            setIsAuthorized(true);
+            setIsLoading(false);
         }
-      }, [userId, getPage, getPage?.users]);
+    }, [userId, getPage, getPage?.users]);
+
     if (!isLoaded) {
         return <IsLoadedEdge />;
-      }
-      if (!isAuthorized) {
+    }
+    if (!isAuthorized) {
         return <IsAuthorizedEdge />;
-      }
+    }
+
     const filteredContentItems = contentItems.filter((item) => {
         if (activeTab === 'all') {
-          return true;
+            return true;
+        } else if (activeTab === 'new') {
+            return item.updated === '1 hour ago';
+        } else if (activeTab === 'scheduled') {
+            return item.updated === '5 weeks ago';
         }
         return item.type === activeTab;
-      });
+    });
 
-    return(
+    return (
         <body className='overflow-y-hidden'>
             <AuthWrapper _teamid={_teamid}>
-            <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
             <AppHeader activesection="content" teamid={_teamid} />
-            <main className="mx-auto px-10 py-3 h-full">
-            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg h-screen overflow-y-auto">
+            <main className="md:mx-auto md:px-10 py-3 h-full">
+            <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg h-screen overflow-y-auto">
                 <div className="flex">
-                        {/* Sidebar */}
-                        <aside className="w-1/6 bg-white dark:bg-neutral-950 p-8 space-y-8 border-r border-gray-200 dark:border-neutral-800">
-                            <h2 className="text-xl font-bold mb-4">Content</h2>
-                            <nav>
-                            <ul className="space-y-2">
-                                {['All', 'Articles', 'Tutorials', 'Courses'].map((item) => (
-                                <li key={item}>
-                                    <Button
-                                    variant={activeTab === item.toLowerCase() ? "secondary" : "ghost"}
-                                    className="w-full justify-start"
-                                    onClick={() => setActiveTab(item.toLowerCase())}
-                                    >
-                                    {item}
-                                    </Button>
-                                </li>
-                                ))}
-                            </ul>
-                            </nav>
-                        </aside>
-
-                        {/* Main Content */}
+                    <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
                         <main className="flex-1">
                             <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
                             <div className="flex justify-between items-center">
                                 <h1 className="text-2xl font-bold">All Content</h1>
-                                <Button>
-                                <Plus className="mr-2 h-4 w-4" /> New Content
-                                </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger>
+                                    <Button>
+                                        <Plus className="mr-2 h-4 w-4" /> New Content
+                                    </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <DropdownMenuLabel>Templates</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        {
+                                            getTemplates?.map((template: any) => (
+                                                <DropdownMenuItem key={template._id} onClick={() => router.push(`/application/${_teamid}/content/create?templateid=${template._id}`)} >{template.title}</DropdownMenuItem>
+                                            ))
+                                        }
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                             </div>
 
@@ -137,7 +136,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
                                 <TableHeader>
                                 <TableRow>
                                     <TableHead>Title</TableHead>
-                                    <TableHead>Type</TableHead>
+                                    <TableHead>Template</TableHead>
                                     <TableHead>Updated</TableHead>
                                     <TableHead>Author</TableHead>
                                     <TableHead>Status</TableHead>
@@ -152,7 +151,12 @@ export default function Page({ params }: { params: any, _teamid: any }) {
                                     <TableCell>{item.author}</TableCell>
                                     <TableCell>
                                         <div>
-                                            <div className={`${item.status === "Published" ? "bg-green-300/60 text-green-700" : ""} ${item.status === "Draft" ? "bg-yellow-300/60 text-yellow-700" : ""} ${item.status === "Review" ? "bg-purple-300/60 text-purple-700" : ""} w-min px-2.5 py-1 rounded-sm`}>
+                                            <div className={`
+                                                ${item.status === "Published" ? "bg-green-300/60 text-green-700 dark:bg-green-700 dark:text-green-300" : ""}
+                                                ${item.status === "Draft" ? "bg-yellow-300/60 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""}
+                                                ${item.status === "Review" ? "bg-purple-300/60 text-purple-700 dark:bg-purple-700 dark:text-purple-300" : ""}
+                                                w-min px-2.5 py-1 rounded-sm
+                                            `}>
                                             {item.status}
                                             </div>
                                         </div>
@@ -166,8 +170,26 @@ export default function Page({ params }: { params: any, _teamid: any }) {
                         </div>
                     </div>
                 </main>
+                </AuthWrapper>
+            </body>
+    )
+}
+
+function Sidebar({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
+    return (
+        <aside className="min-w-[13rem] bg-white h-screen dark:bg-neutral-950 border-r border-gray-200 dark:border-neutral-800">
+            <div className='px-4 py-5 space-y-8 border-b flex flex-col'>
+                <ul className='space-y-2'>
+                    <li className={`${activeTab === "all" ? "bg-accent/80" : "hover:bg-card-foreground/5"} cursor-pointer text-sm  px-2 py-1 rounded-sm flex flex-row gap-2 items-center`} onClick={() => setActiveTab('all')}><AlignLeftIcon className='h-4 w-4' />All Content</li>
+                    <li className={`${activeTab === "new" ? "bg-accent/80" : "hover:bg-card-foreground/5"} cursor-pointer text-sm  px-2 py-1 rounded-sm flex flex-row gap-2 items-center`} onClick={() => setActiveTab('new')}><History className='h-4 w-4' />New</li>
+                    <li className={`${activeTab === "scheduled" ? "bg-accent/80" : "hover:bg-card-foreground/5"} cursor-pointer text-sm  px-2 py-1 rounded-sm flex flex-row gap-2 items-center`} onClick={() => setActiveTab('scheduled')}><Timer className='h-4 w-4' /> Scheduled</li>
+                </ul>
             </div>
-            </AuthWrapper>
-        </body>
+
+            <nav>
+                <ul className="space-y-2">
+                </ul>
+            </nav>
+        </aside>
     )
 }

@@ -6,12 +6,18 @@ import { useQuery } from 'convex/react'
 import { api } from '../../../../../convex/_generated/api'
 import HomeHeader from '@/components/header/homeheader'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AuthorSidebar } from "../page"
+import { AuthorSidebar, NavigationZone } from "@/components/author/comp"
 import { Button } from '@/components/ui/button'
-import Link from 'next/link' // Corrected import
 import { Skeleton } from "@/components/ui/skeleton"
-import { NavigationZone } from "../page"
-
+type UserData = {
+    firstName: string
+    lastName: string
+    imageUrl: string
+    bio: string
+    about: string
+    teams: string[]
+    recentBlogs: { title: string; date: string }[]
+  }
 export default function Page({ params: { _authorid } }: any) {
     const authorid = _authorid;
     const user = useUser();

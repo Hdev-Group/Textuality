@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client"
 import AppHeader from '@/components/header/appheader';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +13,7 @@ import { UserPlus, Mail, X, Search, AlertTriangle, MoreVertical} from "lucide-re
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from 'next/link';
+import {Role, InviteTeamMember} from '@/components/users/comp';
 import {
     Select,
     SelectContent,
@@ -29,7 +31,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-  
 import {Separator} from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger,  } from "@/components/ui/tabs"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
@@ -48,9 +49,13 @@ import CheckpointAuthWrapper from '../checkpointauthroleperms';
   }
 import rolesConfig from '../../../../../config/rolesConfig.json';
 import {use} from 'react';
-
-export default function TeamManagement({ params }: { params: any, _teamid: any }) {
-    const { _teamid }: { _teamid: any } = use(params);
+interface TeamManagementProps {
+  params: {
+      _teamid: string; // Specify the type for _teamid
+  };
+}
+export default function TeamManagement({ params }: { params: Promise<{ _teamid: string }> }) {
+  const { _teamid } = params;
     const teamid = _teamid;
     const { userId, isLoaded, isSignedIn } = useAuth();
     const getPage = useQuery(api.page.getPage, { _id: teamid });
@@ -71,7 +76,7 @@ export default function TeamManagement({ params }: { params: any, _teamid: any }
     const [searchQuery, setSearchQuery] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
     const [userrole, setUserRole] = useState("");
-    const RemoveUserString = useMutation(api.page.removeUser, { externalId: userId, pageId: teamid });
+    const RemoveUserString = useMutation(api.page.removeUser);
 
     const { toast } = useToast();
 
@@ -122,26 +127,29 @@ export default function TeamManagement({ params }: { params: any, _teamid: any }
       updateRole({ externalId: userupdate, pageid: teamid, permissions: [role] });
       toast({ title: "Success", description: "Role has been updated" });
   };
-  function RemoveUser(userid: any) {
-    const roleRestrictions = {
+  function RemoveUser(userid: string) {
+    const roleRestrictions: Record<string, string[]> = {
       "admin": ["owner", "admin"],
       "editor": ["owner", "admin", "editor", "author"],
       "author": ["owner", "admin", "editor", "contributor", "author"],
       "contributor": ["owner", "admin", "editor", "contributor", "author"]
     };
   
-    const currentUserRole = getRole?.[0]?.permissions[0];  // Get current user's role (assuming it's in getRole)
-    const targetUserRole = userData.find((user) => user.id === userid)?.role;  // Get the target user's role
-
-    setUserRole(currentUserRole?.toString());
+    const currentUserRole = getRole?.[0]?.permissions[0];  // Get current user's role
+    const targetUserRole = userData.find((user) => user.id === userid)?.role;  // Get target user's role
+    
+    // Set user role as a string, default to empty if undefined
+    setUserRole(currentUserRole ? currentUserRole.toString() : "");
   
     if (userid === userId) {
       toast({ title: "Error", description: "You cannot remove yourself" });
       return;
-    } else if (getPage?.users?.length === 1) {
+    } 
+    if (getPage?.users?.length === 1) {
       toast({ title: "Error", description: "You cannot remove the last user" });
       return;
-    } else if (roleRestrictions[currentUserRole]?.includes(targetUserRole)) {
+    }
+    if (currentUserRole && targetUserRole && roleRestrictions[currentUserRole]?.includes(targetUserRole)) {
       toast({ title: "Error", description: `You cannot remove a ${targetUserRole}` });
       return;
     }
@@ -339,94 +347,6 @@ export default function TeamManagement({ params }: { params: any, _teamid: any }
       </>
     )
   }
-  
-export function Role({ onValueChange, userid, teamid }: any) {
-    const getRole = useQuery(api.page.getRoledetail, { externalId: userid, pageId: teamid });
-    const role = getRole?.[0]?.permissions[0];
-    const { user } = useUser();
-    
-    const { data: getUser } = useQuery<any>(api.users.getUsersAndRoles, {
-      pageId: teamid,
-      externalId: user?.id
-    });
-    
-    const updatingUserRole = getUser?.roles?.[0]?.permissions[0];
-  
-    // Function to handle the role change
-    const handleChange = (newValue: string) => {
-      if (onValueChange) {
-        onValueChange(newValue);
-      }
-    };
-  
-    // Determine whether a role should be disabled
-    const isDisabled = (itemRole: string) => {
-
-      return rolesConfig[updatingUserRole as keyof typeof rolesConfig]?.includes(itemRole);
-    };
-  
-    return (
-      <Select value={role} onValueChange={handleChange} disabled={role === 'owner'}>
-        <SelectTrigger>
-          <SelectValue className="px-2 w-1/2 " />
-        </SelectTrigger>
-        <SelectContent className="z-50">
-          <SelectGroup>
-            <SelectLabel>Role</SelectLabel>
-            <SelectItem value="contributor" disabled={isDisabled('contributor')}>Contributor</SelectItem>
-            <SelectItem value="author" disabled={isDisabled('author')}>Author</SelectItem>
-            <SelectItem value="editor" disabled={isDisabled('editor')}>Editor</SelectItem>
-            <SelectItem value="admin" disabled={isDisabled('admin')}>Admin</SelectItem>
-            <SelectItem value="owner" disabled={true}>Owner</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    );
-  }
-
-function RoleInvite({teamid}: any) {
-  const [role, setRole] = useState("contributor");
-  const {user} = useUser();
-  const getUser = useQuery(api.users.getUsersAndRoles, {
-    pageId: teamid,
-    externalId: user?.id
-  });
-  
-  // Role of the person trying to update roles
-  const updatingUserRole = getUser?.roles?.[0]?.permissions[0];
-  const onValueChange = (newValue: string) => {
-    setRole(newValue);
-  };
-
-  const isDisabled = (itemRole: string) => {
-  
-    // Owners can update any role but the role of owner
-    if (updatingUserRole === 'owner') {
-      return itemRole === 'owner';
-    }
-    // If current user's role has restrictions, check if the target role is in the invalid list
-    return rolesConfig[updatingUserRole as keyof typeof rolesConfig]?.includes(itemRole);
-  };
-
-
-  return (
-    <Select value={role} name='role' onValueChange={onValueChange}>
-        <SelectTrigger className='w-1/2'>
-          <SelectValue className="px-2" />
-        </SelectTrigger>
-        <SelectContent className="z-50">
-          <SelectGroup>
-            <SelectLabel>Role</SelectLabel>
-            <SelectItem value="contributor" disabled={isDisabled('contributor')}>Contributor</SelectItem>
-            <SelectItem value="author" disabled={isDisabled('author')}>Author</SelectItem>
-            <SelectItem value="editor" disabled={isDisabled('editor')}>Editor</SelectItem>
-            <SelectItem value="admin" disabled={isDisabled('admin')}>Admin</SelectItem>
-            <SelectItem value="owner" disabled={isDisabled('owner')}>Owner</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-  );
-}
 
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
@@ -435,83 +355,4 @@ import { useToast } from "@/hooks/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 
 
-export function InviteTeamMember(getPage: any) {
-  const { toast } = useToast();
-  const user = useUser();
-  const invitesender = useMutation(api.page.inviteUser);
-  const getUser = useQuery(api.users.getUsersAndRoles, {
-    pageId: getPage?.getPage?._id ?? '',
-    externalId: user?.user?.id
-  });
 
-  if (!user || getUser?.roles[0]?.permissions[0] === 'contributor' || getUser?.roles[0]?.permissions[0] === 'author') {
-    return null;
-  }
-
-  function handleSubmit(e: any) {
-    e.preventDefault();
-    const form = document.getElementById('formemailer') as HTMLFormElement;
-    const formData = new FormData(form);
-    const email = formData.get('email') as string;
-    const role = formData.get('role') as string;
-    if (!email || !role) {
-      toast({
-        title: 'Error',
-        description: 'Please fill in all fields',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    fetch(`/api/get-email-user?userEmail=${email}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (user?.user?.id === data.id) {
-          toast({
-            title: 'Error',
-            description: 'You cannot invite yourself, Or can you?',
-            variant: 'destructive',
-          });
-        } else if (data.error) {
-          toast({
-            title: 'Error',
-            description: 'User does not exist',
-            variant: 'destructive',
-          });
-        } else {
-          invitesender({ email: data?.EmailAddress, role: role, pageId: getPage?.getPage?._id, externalId: data?.id });
-          toast({
-            title: 'Success',
-            description: `${data?.firstName ?? ''} ${data?.lastName ?? ''} has been invited to join ${getPage?.getPage?.title} with a role of ${role}.`,
-            action: <ToastAction altText="Undo">Undo</ToastAction>,
-          });
-        }
-      });
-  }
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Invite Member
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Invite Team Member</DialogTitle>
-          <DialogDescription>Invite a new team member to your team</DialogDescription>
-        </DialogHeader>
-        <form id='formemailer' onSubmit={handleSubmit} className='flex flex-col gap-5 w-full'>
-          <div className='flex flex-row gap-2'>
-            <Input placeholder="Email Address" name='email' type='email' />
-            <RoleInvite teamid={getPage?.getPage?._id} />
-          </div>
-          <DialogTrigger>
-            <Button type='submit' className='w-full'>Invite</Button>
-          </DialogTrigger>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}

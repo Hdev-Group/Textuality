@@ -1,6 +1,6 @@
 import React from "react";
+import RootLayout from "@/app/layout";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import "./index.css";
 import { ClerkProvider, useAuth } from "@clerk/clerk-react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-        <App />
+        <RootLayout children />
       </ConvexProviderWithClerk>
     </ClerkProvider>
   </React.StrictMode>,

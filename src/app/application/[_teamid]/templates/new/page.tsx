@@ -39,14 +39,13 @@ const fieldTypes: FieldType[] = [
   { icon: Link, name: "Reference", description: "For example, a blog post can reference its author(s)" },
 ]
 
-export default function Page({ params }: { params: any, _teamid: any }) {
+export default function TemplateManager({ params }: { params: Promise<{ _teamid: string}> }) {
   const { _teamid }: { _teamid: any } = use(params);
-  const { userId, isLoaded, isSignedIn } = useAuth()
+  const { userId } = useAuth()
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [fields, setFields] = useState<FieldType[]>([])
   const [open, setOpen] = useState(true)
-  const [isSectionOpen, setIsSectionOpen] = useState(false)
   const [template, setTemplater] = useState({name: '', apiref: ''})
 
     const router = useRouter();
@@ -80,7 +79,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
     router.push(`/application/${_teamid}/templates/edit/${data}`);
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: any) => {
     if (event.target.id === 'newtemplate') {
       event.preventDefault();
       
@@ -153,7 +152,7 @@ export default function Page({ params }: { params: any, _teamid: any }) {
             
 
           </Dialog>
-          <DragDropContext onDragEnd={null}>
+            <DragDropContext onDragEnd={() => { }}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -216,118 +215,5 @@ export default function Page({ params }: { params: any, _teamid: any }) {
     </AuthWrapper>
   </body>
   </>
-  )
-}
-function AddSectionDialog({ onAddField }: { onAddField: (field: FieldType) => void }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedField, setSelectedField] = useState<FieldType | null>(null)
-
-  const handleClose = () => {
-    setIsOpen(false)
-    setSelectedField(null)
-  }
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="default" size="lg">Add Section</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[725px]">
-        <DialogHeader className="pb-5">
-          <DialogTitle>{selectedField ? `Add ${selectedField.name} Field` : 'Add new field'}</DialogTitle>
-        </DialogHeader>
-        {selectedField ? (
-          <FieldForm 
-            field={selectedField} 
-            onBack={() => setSelectedField(null)} 
-            onAddField={(field) => {
-              onAddField(field)
-              handleClose()
-            }} 
-          />
-        ) : (
-          <div className="grid grid-cols-3 gap-4 py-4">
-            {fieldTypes.map((field, index) => (
-              <button
-                key={index}
-                className="flex flex-col items-center justify-center p-4 border rounded-lg hover:border-primary cursor-pointer transition-colors"
-                onClick={() => setSelectedField(field)}
-              >
-                <h3 className="text-lg font-semibold mb-1">{field.name}</h3>
-                <p className="text-sm text-center text-muted-foreground">{field.description}</p>
-              </button>
-            ))}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function FieldForm({ field, onBack, onAddField }: { field: FieldType, onBack: () => void, onAddField: (field: FieldType) => void }) {
-  const [fieldName, setFieldName] = useState('');
-  const [fieldId, setFieldId] = useState('');
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const newField = { ...field, fieldid: fieldId, fieldname: fieldName };
-    console.log('submitting', newField);
-    onAddField(newField);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className={`space-y-4 flex flex-col justify-between`}>
-      <div className={`flex flex-col gap-4`}>
-        <div className={`${field.name === 'Number' ? ("flex-row") : ("flex-col")} w-full flex gap-4`}>
-          <div className="flex flex-col gap-1.5 w-full">
-            <Label htmlFor="name" className="font-semibold text-sm">
-              Name
-            </Label>
-            <Input 
-              id="name" 
-              placeholder="Enter field name" 
-              value={fieldName}
-              onChange={(e) => setFieldName(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5 w-full">
-            <Label htmlFor="id" className="font-semibold text-sm">
-              Field ID
-            </Label>
-            <Input 
-              id="id" 
-              placeholder="Enter field reference" 
-              value={fieldId}
-              onChange={(e) => setFieldId(e.target.value)}
-            />
-          </div>
-        </div>
-        {field.name === 'Number' && (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="type" className="font-semibold text-sm">
-              Type
-            </Label>
-            <div className='flex flex-row gap-[50%]'>
-              <div className='flex flex-row items-center gap-2'>
-                <Input id="integer" type="checkbox"/>
-                <p>Integer</p>
-              </div>
-              <div className='flex flex-row items-center gap-2'>
-                <Input id="decimal" type="checkbox" />
-                <p>Decimal</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      <DialogFooter>
-        <div className="flex justify-between w-full">
-          <Button type="button" variant="outline" onClick={onBack} className="flex items-center">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back
-          </Button>
-          <Button type="submit">Add {field.name} Field</Button>
-        </div>
-      </DialogFooter>
-    </form>
   )
 }

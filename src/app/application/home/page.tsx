@@ -21,18 +21,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@radix-ui/react-toast";
+import { get } from "http";
 
 interface ProjectProps {
   title: string;
-  description: string;
+  description?: any;
   date: string;
-  postCount: number;
+  // postCount: number;
   _id: any;
   category: string;
   content: string;
   users: string[];
   _creationTime: number;
-  latestPost: { title: string; excerpt: string };
+  // latestPost: { title: string; excerpt: string };
 }
 
 export default function Page() {
@@ -42,7 +43,7 @@ export default function Page() {
   const projects = useQuery(api.page.getPages);
   console.log(projects);
   // check if user can access projects
-  const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id));
+  const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id as string));
   const getinvites = useQuery(api.page.getInvites, { externalId: user?.user?.id || "" });
 
   const isLoading = !projects; 
@@ -83,8 +84,8 @@ export default function Page() {
     <body className="overflow-hidden">
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
-      <main className="mx-auto px-10 py-8">
-        <div className="bg-white dark:bg-neutral-950 h-screen rounded-lg overflow-y-auto shadow-lg p-8 space-y-8">
+      <main className="md:mx-auto md:px-10 py-3 h-full">
+      <div className="bg-white dark:bg-neutral-950 h-screen rounded-lg overflow-y-auto shadow-lg p-8 space-y-8">
           <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
             <div>
               <h1 className="text-4xl font-bold">
@@ -113,20 +114,30 @@ export default function Page() {
               <p>No projects available.</p>
             ) : (
                 <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
-                {/* Map through the projects if available */}
-                {filteredprojects?.length === 0 ? (
-                  <div className="w-full flex items-center flex-col py-4 justify-center">
-                    <p className="text-lg ">No projects available.</p>
-                    <CreatePage />
-                  </div>
-                ) : (
-                  filteredprojects?.map((page, index) => (
-                  <Project key={index} {...page} />
-                  ))
-                )}
+                  {/* Map through the projects if available */}
+                  {filteredprojects?.length === 0 ? (
+                    <div className="w-full flex items-center flex-col py-4 justify-center">
+                      <p className="text-lg ">No projects available.</p>
+                      <CreatePage />
+                    </div>
+                  ) : (
+                    filteredprojects?.map((page, index) => (
+                      <Project
+                        key={index}
+                        title={page.title}
+                        date={new Date(page._creationTime).toLocaleDateString()}
+                        _id={page._id}
+                        category={page.category}
+                        content={page.content}
+                        users={page.users}
+                        _creationTime={page._creationTime}
+                      />
+                    ))
+                  )}
                 </div>
             )}
-            {getinvites?.length > 0 && (
+            {getinvites &&
+            getinvites?.length > 0 && (
             <div>
               <h2 className="text-xl mt-5 font-semibold mb-2">Page Invites</h2>
               <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
@@ -164,11 +175,9 @@ export default function Page() {
 function Project({ 
   title,
   description,
-  postCount,
   users,
   _id,
   _creationTime,
-  latestPost,
 }: ProjectProps) {
   const [userData, setUserData] = useState<{ firstName: string; imageUrl: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -232,7 +241,7 @@ function Project({
           <div className="flex items-center">
             <BookOpen className="w-4 h-4 mr-1" />
             <span>
-              {postCount === 1 ? "1 post" : `${postCount || "No"} posts`}
+              {/* {postCount === 1 ? "1 post" : `${postCount || "No"} posts`} */}
             </span>
           </div>
           <div className="flex items-center">
@@ -241,13 +250,13 @@ function Project({
           </div>
         </div>
       </div>
-      {latestPost && (
+      {/* {latestPost && (
         <div className="bg-neutral-100 dark:bg-neutral-800 p-4 border-t dark:border-neutral-700">
           <h4 className="font-semibold mb-2">Latest Post</h4>
           <p className="text-sm font-medium">{latestPost.title}</p>
           <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">{latestPost.excerpt}</p>
         </div>
-      )}
+      )} */}
       <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
         <div className="flex -space-x-2">
           {/* Show avatars for the first 3 users */}
