@@ -28,10 +28,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <title>Textuality</title>
             <meta name="description" content="Empowering your digital narrative." />
           </head>
-          <body>
             <ConvexClientProvider>{children}</ConvexClientProvider>
             <Toaster />
-          </body>
         </html>
       </ConvexProvider>
     </ClerkProvider>

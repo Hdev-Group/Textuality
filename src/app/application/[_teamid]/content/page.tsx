@@ -102,7 +102,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
     const title = getPage?.title + ' — Content — Textuality';
 
     return (
-        <div>
+        
         <body className='overflow-y-hidden'>
             <title>{title}</title>
             <AuthWrapper _teamid={_teamid}>
@@ -238,7 +238,6 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                 </div>
             </AuthWrapper>
         </body>
-        </div>
     );
 }
 
