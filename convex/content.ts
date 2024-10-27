@@ -25,6 +25,14 @@ export const createContent = mutation({
     }
 });
 
+export const getContentSpecific = query({
+    args: {
+        _id: v.id("content"),
+    },
+    handler: async (ctx, { _id }) => {
+        return ctx.db.get(_id);
+    }
+});
 export const getContent = query({
     args: {
         pageid: v.string(),

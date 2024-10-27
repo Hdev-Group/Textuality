@@ -58,7 +58,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     const sendContent = useMutation(api.content.createContent)
   
     const templatefilter = getTemplates?.filter((template) => template._id === templateId)
-    console.log(templatefilter)
     async function onsubmit(event) {
         event.preventDefault();
         setOpen(false);
@@ -108,7 +107,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                         </form>
                     </DialogContent>
                 </Dialog>
-                    <main className="md:mx-auto md:px-10 py-3 h-full">
+                    <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
                         <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg h-screen overflow-y-auto">
                             <div className="flex-1 p-6 w-full overflow-y-auto">
                                 {/* Skeleton loaders */}

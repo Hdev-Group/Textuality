@@ -59,4 +59,15 @@ content: defineTable({
     content: v.string(),
     updated: v.any(),
 }).index("bytemplateid", ["templateid"]),
+comments: defineTable({
+    contentid: v.string(),
+    authorid: v.string(),
+    comment: v.string(),
+    updated: v.any(),
+}).index("bycontentid", ["contentid"]),
+aichat: defineTable({
+    question: v.string(),
+    answer: v.string(),
+    externalId: v.string(),
+}),
 });

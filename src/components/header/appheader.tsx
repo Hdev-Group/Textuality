@@ -67,11 +67,10 @@ export default function AppHeader({ teamid, activesection }: any) {
   const router = useRouter()
   const { user } = useUser()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  console.log('Rendering nav items:', navItems);
   const pathname = usePathname();
   return (
     <header className="w-full z-50 bg-transparent">
-      <div className="px-10 mx-auto">
+      <div className="md:px-10 mx-auto transition-all">
         <div className="flex w-full justify-between items-center py-4">
           <div className="flex items-center gap-4 lg:gap-6">
             <Link href="/application/home" className="flex items-center h-8 w-8">

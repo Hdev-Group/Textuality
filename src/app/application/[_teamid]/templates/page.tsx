@@ -5,12 +5,10 @@ import { useAuth } from '@clerk/nextjs'
 import { useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import AppHeader from "@/components/header/appheader"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, Filter } from "lucide-react"
+import { BookMarkedIcon, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -24,7 +22,7 @@ import {
 import Link from 'next/link'
 import AuthWrapper from '../withAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useUser } from "@clerk/clerk-react";
+import {useUser } from "@clerk/clerk-react";
 import { useRouter } from 'next/navigation';
 import { use } from 'react';
 
@@ -44,19 +42,13 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const [userData, setUserData] = useState<any[]>([]);
-  console.log(userData);
   const getPage = useQuery(api.page.getPage, { _id: teamid });
   const [searchTerm, setSearchTerm] = useState('');
   const [nameFilter, setNameFilter] = useState('asc');
   const [lastUpdatedFilter, setLastUpdatedFilter] = useState('');
   const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
-  console.log(getTemplates);
+
   const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: _teamid })
-
-  function nameFilterSetter() {
-    setNameFilter(nameFilter === 'asc' ? 'desc' : 'asc');
-  }
-
   useEffect(() => {
     if (getPage?.users?.includes(userId as string)) {
       setIsAuthorized(true);
@@ -65,6 +57,16 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
       setIsLoading(false);
     }
   }, [getPage, userId]);
+  if (!isSignedIn){
+    return (
+      <IsAuthorizedEdge />
+    );
+  }
+  function nameFilterSetter() {
+    setNameFilter(nameFilter === 'asc' ? 'desc' : 'asc');
+  }
+
+
 
   const filteredTemplates = useMemo(() => {
     if (!getTemplates) return [];
@@ -131,7 +133,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
         <AppHeader activesection="templates" teamid={teamid} />
-        <main className="md:mx-auto md:px-10 py-3 h-full">
+        <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
           <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div className="flex flex-col md:flex-row w-full items-start justify-between gap-4">

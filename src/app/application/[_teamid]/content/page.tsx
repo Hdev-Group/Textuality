@@ -108,7 +108,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
             <AuthWrapper _teamid={_teamid}>
                 <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
                     <AppHeader activesection="content" teamid={_teamid} />
-                    <main className="md:mx-auto md:px-10 py-3 h-full">
+                    <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
                         <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg h-screen overflow-y-auto">
                             <div className="flex">
                                 <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -165,7 +165,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                             <TableBody>
                                                 {filteredContentItems?.length > 0 ? (
                                                     filteredContentItems?.map((item) => (
-                                                        <TableRow key={item._id} className='cursor-pointer hover:border-b-red-300/60'>
+                                                        <TableRow key={item._id} onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)} className='cursor-pointer hover:border-b-red-300/60'>
                                                             <TableCell className="font-medium">{item.title}</TableCell>
                                                             <TableCell>{getTemplateName(item._id)}</TableCell>
                                                             <TableCell>{timeAgo(new Date(item.updated))}</TableCell>

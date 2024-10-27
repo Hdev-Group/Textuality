@@ -84,7 +84,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   }, [getTemplates, router, teamid])
 
   const addField = async (field: FieldType) => {
-    console.log(field)
     const newField = { 
       ...field, 
       fieldid: field.fieldid, 
@@ -178,7 +177,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
       <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
           <AppHeader activesection="templates" teamid={teamid} />
-          <main className="mx-auto px-10 py-3">
+          <main className="mx-auto px-10 py-3 transition-all">
             <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg py-6 overflow-y-auto">
               <div className="flex justify-between items-center px-6 border-b pb-4">
                 <div className='flex flex-row gap-1 items-center'>
@@ -284,7 +283,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
             const updatedFields = fields.map(f => 
               f._id === updatedField._id ? { ...updatedField, position: f.position } : f
             )
-            console.log(userId, "userid")
             setFields(updatedFields)
             setIsEditFieldOpen(false)
             await saveField({
