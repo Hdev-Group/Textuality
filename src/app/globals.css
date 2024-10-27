@@ -95,6 +95,9 @@ body {
 .pingpulseborder {
   animation: pingpulse 2s infinite;
 }
+.ql-editor {
+  color: white; /* Makes the text white */
+}
 @keyframes pingpulse {
   0%{
     border: red 2px solid;

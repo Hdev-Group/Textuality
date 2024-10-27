@@ -41,3 +41,11 @@ export const getContent = query({
         return ctx.db.query("content").filter(q => q.eq(q.field("pageid"), pageid)).collect();
     }
 });
+export const getFields = query({
+    args: {
+        templateid: v.string(),
+    },
+    handler: async (ctx, { templateid }) => {
+        return ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), templateid)).collect();
+    }
+});
