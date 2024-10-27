@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import RootLayout from "@/app/layout";
 import ReactDOM from "react-dom/client";

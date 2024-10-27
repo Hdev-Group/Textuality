@@ -132,29 +132,32 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                             ${getContent?.status === "Review" ? "bg-purple-300/60 text-purple-700 dark:bg-purple-700 dark:text-purple-300" : ""}
                                             px-2.5 py-1 h-auto min-h-8 rounded-sm w-full flex items-center 
                                         `}>
-                                                <div className='flex flex-col gap-0.5'>
-                                                    {
-                                                        isSideBarOpen === true ? <span className='font-bold'>{getContent?.status}</span> : null
-                                                    }
-                                                    {isSideBarOpen &&  (
-                                                        <>
-                                                            {getContent?.status === "Published" && <span className='text-xs font-medium'>This content has been published.</span>}
-                                                            {getContent?.status === "Draft" && <span className='text-xs font-medium'>This content is a draft. It has not been posted.</span>}
-                                                            {getContent?.status === "Review" && <span className='text-xs font-medium'>This content is under review. An owner, admin or author needs to review this first.</span>}
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
+                                        <div className='flex flex-col gap-0.5'>
+                                            {
+                                                isSideBarOpen === true ? <span className='font-bold'>{getContent?.status}</span> : null
+                                            }
+                                            {isSideBarOpen &&  (
+                                                <>
+                                                    {getContent?.status === "Published" && <span className='text-xs font-medium'>This content has been published.</span>}
+                                                    {getContent?.status === "Draft" && <span className='text-xs font-medium'>This content is a draft. It has not been posted.</span>}
+                                                    {getContent?.status === "Review" && <span className='text-xs font-medium'>This content is under review. An owner, admin or author needs to review this first.</span>}
+                                                </>
+                                            )}
                                         </div>
                                     </div>
-                                </div>
-                                <div className={`${isSideBarOpen && activeSidebar !== null  ? "w-[30rem] px-5 border-l" : "w-[0rem]"} flex flex-col gap-5 transition-all`}>
+                                    <div className='h-0.5 w-full border-t' />
+                                    {/* autosave sector */}
+                                    
                                 </div>
                             </div>
                         </div>
-                    </main>
+                        <div className={`${isSideBarOpen && activeSidebar !== null  ? "w-[30rem] px-5 border-l" : "w-[0rem]"} flex flex-col gap-5 transition-all`}>
+                        </div>
+                    </div>
                 </div>
-            </AuthWrapper>
-        </body>
+            </main>
+        </div>
+    </AuthWrapper>
+</body>
     )
 }

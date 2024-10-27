@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../withAuth';
@@ -107,8 +107,12 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
             </div>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTitle>New Template</DialogTitle>
+          <DialogTitle>New Template</DialogTitle>
             <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Template</DialogTitle>
+                <DialogDescription>Use this form to create a new template</DialogDescription>
+              </DialogHeader>
               <form id='newtemplate' onSubmit={handleSubmit} className='gap-2 flex flex-col'>
               <div className="flex flex-col gap-4">
                 <Label htmlFor="name" className="font-semibold text-sm">

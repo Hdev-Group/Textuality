@@ -8,6 +8,7 @@ import { useState, useEffect } from "react"
 import { useClerk } from '@clerk/nextjs'
 import { useRouter } from "next/navigation"
 import { usePathname } from 'next/navigation';
+import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,6 +70,13 @@ export default function AppHeader({ teamid, activesection }: any) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname();
   return (
+    <>
+    <ProgressBar
+      height="5px"
+      color="#000"
+      options={{ showSpinner: true }}
+      shallowRouting
+    />
     <header className="w-full z-50 bg-transparent">
       <div className="md:px-10 mx-auto transition-all">
         <div className="flex w-full justify-between items-center py-4">
@@ -170,5 +178,6 @@ export default function AppHeader({ teamid, activesection }: any) {
         </nav>
       )}
     </header>
+    </>
   )
 }

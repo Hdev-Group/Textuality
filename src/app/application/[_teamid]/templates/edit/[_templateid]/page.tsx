@@ -6,7 +6,7 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../../../../convex/_generated/api'
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight } from "lucide-react"
+import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight, LucideMessageCircleQuestion } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import AppHeader from "@/components/header/appheader"

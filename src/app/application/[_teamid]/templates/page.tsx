@@ -22,9 +22,8 @@ import {
 import Link from 'next/link'
 import AuthWrapper from '../withAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
 import { useRouter } from 'next/navigation';
-import { use } from 'react';
 
 type Template = {
   name: string
@@ -34,59 +33,71 @@ type Template = {
 }
 
 export default function Page({ params }: { params: Promise<{ _teamid: string}> }) {
-  const { _teamid }: { _teamid: any } = use(params);
+  const { _teamid } = React.use(params);
   const teamid = _teamid;
   const { userId, isLoaded, isSignedIn } = useAuth();
   const user = useUser();
+  const router = useRouter();
+
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
   const [userData, setUserData] = useState<any[]>([]);
-  const getPage = useQuery(api.page.getPage, { _id: teamid });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [nameFilter, setNameFilter] = useState('asc');
-  const [lastUpdatedFilter, setLastUpdatedFilter] = useState('');
-  const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [nameFilter, setNameFilter] = useState("asc");
+  const [lastUpdatedFilter, setLastUpdatedFilter] = useState("");
 
-  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: _teamid })
+  // Fetch data using hooks at the top level to avoid inconsistencies
+  const getPage = useQuery(api.page.getPage, { _id: teamid as any });
+  const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: teamid });
+
+  // Handle authorization and loading state
   useEffect(() => {
     if (getPage?.users?.includes(userId as string)) {
       setIsAuthorized(true);
-      setIsLoading(false);
-    } else {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }, [getPage, userId]);
-  if (!isSignedIn){
-    return (
-      <IsAuthorizedEdge />
-    );
-  }
-  function nameFilterSetter() {
-    setNameFilter(nameFilter === 'asc' ? 'desc' : 'asc');
-  }
 
+  // Fetch user data based on the fetched template details
+  useEffect(() => {
+    async function fetchUserData() {
+      if (getTemplates?.[0]?.lastUpdatedBy) {
+        try {
+          const response = await fetch(`/api/secure/get-user?userId=${getTemplates[0].lastUpdatedBy}`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          setUserData(data.users);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUserData([]);
+        }
+      }
+    }
+    fetchUserData();
+  }, [getTemplates]);
 
-
+  // Filter templates based on search terms and sorting options
   const filteredTemplates = useMemo(() => {
     if (!getTemplates) return [];
 
-    const sortedTemplates = getTemplates.sort((a, b) => {
-      if (nameFilter === 'asc') {
-        return a.title.localeCompare(b.title);
-      } else {
-        return b.title.localeCompare(a.title);
-      }
-    });
+    const sortedTemplates = [...getTemplates].sort((a, b) =>
+      nameFilter === "asc" ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title)
+    );
 
-    return sortedTemplates.filter(template => {
-      const matchesSearch = Object.values(template).some(
-        value => value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    return sortedTemplates.filter((template) => {
+      const matchesSearch = Object.values(template).some((value) =>
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
-      const matchesLastUpdated = lastUpdatedFilter === '' || template?.lastUpdatedBy.includes(lastUpdatedFilter);
+      const matchesLastUpdated = lastUpdatedFilter === "" || template?.lastUpdatedBy.includes(lastUpdatedFilter);
       return matchesSearch && matchesLastUpdated;
     });
   }, [getTemplates, searchTerm, lastUpdatedFilter, nameFilter]);
+
+  // Helper functions
+  function nameFilterSetter() {
+    setNameFilter((prevFilter) => (prevFilter === "asc" ? "desc" : "asc"));
+  }
 
   function timeAgo(date: Date) {
     const now = new Date();
@@ -96,36 +107,15 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (days > 0) {
-      return `${days} days ago`;
-    } else if (hours > 0) {
-      return `${hours} hours ago`;
-    } else if (minutes > 0) {
-      return `${minutes} minutes ago`;
-    } else {
-      return `a few seconds ago`;
-    }
+    if (days > 0) return `${days} days ago`;
+    if (hours > 0) return `${hours} hours ago`;
+    if (minutes > 0) return `${minutes} minutes ago`;
+    return "a few seconds ago";
   }
-  useEffect(() => {
-    async function fetchUserData() {
-      if (getTemplates?.[0]?.lastUpdatedBy) {
-        try {
-          const response = await fetch(`/api/secure/get-user?userId=${getTemplates?.[0]?.lastUpdatedBy}`);
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          const data = await response.json();
-          setUserData(data.users);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-          setUserData([]);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    }
-    fetchUserData();
 
-  }, [getTemplates]);
-  const title = getPage?.title + ' — Templates — Textuality'
+  if (!isSignedIn) return <IsAuthorizedEdge />;
+
+  const title = getPage?.title + " — Templates — Textuality";
   
   return (
       <body className="overflow-y-hidden">

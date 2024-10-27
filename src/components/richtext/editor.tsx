@@ -1,8 +1,7 @@
-// src/components/RichTextEditor.js
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
-import styles from "./RichTextEditor.module.css"; // Import if using CSS module
+import styles from "./RichTextEditor.css";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -27,17 +26,8 @@ const RichTextEditor = () => {
         value={value}
         onChange={setValue}
         modules={modules}
-        placeholder="Write something awesome..."
+        className={styles.editor}
       />
-      <style jsx global>{`
-        .ql-toolbar {
-          color: #fff !important;
-        }
-        .ql-editor {
-          color: white !important;
-          background-color: #fff !important;
-        }
-      `}</style>
     </div>
   );
 };

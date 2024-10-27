@@ -96,7 +96,10 @@ body {
   animation: pingpulse 2s infinite;
 }
 .ql-editor {
-  color: white; /* Makes the text white */
+  color: var(--foreground) !important;
+}
+.ql-editor.ql-blank:before {
+  color: white;
 }
 @keyframes pingpulse {
   0%{
