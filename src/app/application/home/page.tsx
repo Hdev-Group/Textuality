@@ -22,6 +22,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@radix-ui/react-toast";
 import { get } from "http";
+import { useAuth } from "@clerk/nextjs";
+import { IsAuthorizedEdge } from "@/components/edgecases/Auth";
 
 interface ProjectProps {
   title: string;
@@ -37,11 +39,13 @@ interface ProjectProps {
 }
 
 export default function Page() {
+  const { isSignedIn } = useAuth();
   const user = useUser();
-
+  if (!isSignedIn) {
+    return <IsAuthorizedEdge />;
+  }
   // Fetch projects using useQuery
   const projects = useQuery(api.page.getPages);
-  console.log(projects);
   // check if user can access projects
   const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id as string));
   const getinvites = useQuery(api.page.getInvites, { externalId: user?.user?.id || "" });
@@ -84,7 +88,7 @@ export default function Page() {
     <body className="overflow-hidden">
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
-      <main className="md:mx-auto md:px-10 py-3 h-full">
+      <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
       <div className="bg-white dark:bg-neutral-950 h-screen rounded-lg overflow-y-auto shadow-lg p-8 space-y-8">
           <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
             <div>

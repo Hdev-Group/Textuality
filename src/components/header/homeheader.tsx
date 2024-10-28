@@ -64,7 +64,7 @@ export default function HomeHeader({activesection}: any) {
 
   return (
   <header className="w-full z-50 bg-transparent">
-    <div className="px-10 mx-auto">
+    <div className="px-10 mx-auto transition-all">
     <div className="flex w-full justify-between items-center py-4">
       <div className="flex items-center gap-4 lg:gap-6">
       <Link href="/" className="flex items-center">

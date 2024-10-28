@@ -1,6 +1,5 @@
 'use client'
-
-import Link from "next/link"
+import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, ArrowUp, Home } from "lucide-react"
 import { useUser } from "@clerk/clerk-react"
@@ -8,6 +7,7 @@ import { useState, useEffect } from "react"
 import { useClerk } from '@clerk/nextjs'
 import { useRouter } from "next/navigation"
 import { usePathname } from 'next/navigation';
+import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,11 +67,10 @@ export default function AppHeader({ teamid, activesection }: any) {
   const router = useRouter()
   const { user } = useUser()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  console.log('Rendering nav items:', navItems);
   const pathname = usePathname();
   return (
     <header className="w-full z-50 bg-transparent">
-      <div className="px-10 mx-auto">
+      <div className="md:px-10 mx-auto transition-all">
         <div className="flex w-full justify-between items-center py-4">
           <div className="flex items-center gap-4 lg:gap-6">
             <Link href="/application/home" className="flex items-center h-8 w-8">
@@ -80,15 +79,15 @@ export default function AppHeader({ teamid, activesection }: any) {
             </Link>
             <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (
-  <Link href={item.route} key={item.label} passHref>
-    <Button
-      variant="ghost"
-      className={`font-semibold ${activesection === item.activesection ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''}`}
-    >
-      <item.icon className="mr-2 h-4 w-4" />
-      {item.label}
-    </Button>
-  </Link>
+            <Link href={item.route} key={item.label} >
+              <Button
+                variant="ghost"
+                className={`font-semibold ${activesection === item.activesection ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''}`}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                {item.label}
+              </Button>
+            </Link>
 ))}
 
             </nav>
@@ -110,13 +109,13 @@ export default function AppHeader({ teamid, activesection }: any) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Page Settings</DropdownMenuLabel>
-                <Link href={`/application/${teamid}/settings`} passHref>
+                <Link href={`/application/${teamid}/settings`}>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                 </Link>
-                <Link href={`/application/${teamid}/settings/users`} passHref>
+                <Link href={`/application/${teamid}/settings/users`}>
                   <DropdownMenuItem>Users</DropdownMenuItem>
                 </Link>
-                <Link href={`/${teamid}/plans`} passHref>
+                <Link href={`/${teamid}/plans`} >
                   <DropdownMenuItem>Upgrade</DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator />

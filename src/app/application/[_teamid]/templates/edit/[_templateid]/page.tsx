@@ -6,7 +6,7 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../../../../convex/_generated/api'
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight } from "lucide-react"
+import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight, LucideMessageCircleQuestion } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import AppHeader from "@/components/header/appheader"
@@ -14,6 +14,7 @@ import AuthWrapper from '../../../withAuth'
 import { useRouter } from 'next/navigation'
 import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
+import {NotFoundError} from '@/components/edgecases/error'
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>;
@@ -62,6 +63,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const templateaddfield = useMutation(api.template.addField)
   const saveField = useMutation(api.template.updateField)
 
+
   useEffect(() => {
     if (getFields) {
       setFields(getFields?.map((field: any, index: number) => ({
@@ -84,7 +86,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   }, [getTemplates, router, teamid])
 
   const addField = async (field: FieldType) => {
-    console.log(field)
     const newField = { 
       ...field, 
       fieldid: field.fieldid, 
@@ -134,7 +135,9 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
       })
     }
   }
-
+  if (!getTemplates?.[0]?.title) {
+    return <NotFoundError />
+  }
   const handleEdit = (fieldId: string) => {
     const fieldToEdit = fields.find(field => field._id === fieldId)
     if (fieldToEdit) {
@@ -178,7 +181,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
       <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
           <AppHeader activesection="templates" teamid={teamid} />
-          <main className="mx-auto px-10 py-3">
+          <main className="mx-auto px-10 py-3 transition-all">
             <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg py-6 overflow-y-auto">
               <div className="flex justify-between items-center px-6 border-b pb-4">
                 <div className='flex flex-row gap-1 items-center'>
@@ -201,9 +204,11 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                       </TableRow>
                     </TableHeader>
                     <Droppable droppableId="fields">
-                      {(provided) => (
-                        <TableBody {...provided.droppableProps} ref={provided.innerRef}>
-                          {fields.map((field, index) => (
+                    {(provided) => (
+                      <TableBody {...provided.droppableProps} ref={provided.innerRef}>
+                        {fields
+                          .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))                          // Sort by fieldposition in ascending order
+                          .map((field, index) => (
                             <Draggable key={field._id} draggableId={field._id as string} index={index}>
                               {(provided) => (
                                 <TableRow
@@ -216,14 +221,16 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                                       <span {...provided.dragHandleProps} className="mr-2 cursor-move">
                                         <GripVertical className="h-4 w-4" />
                                       </span>
-                                      {field?.fieldposition}
+                                      {field?.fieldposition} {/* Display the field position */}
                                     </div>
                                   </TableCell>
                                   <TableCell>{field.fieldname || field.name}</TableCell>
                                   <TableCell>
                                     <div className="flex items-center">
                                       <div className="flex items-center">
-                                        {fieldTypes.find(ft => ft.name === field.type)?.icon && React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })}
+                                        {fieldTypes.find(ft => ft.name === field.type)?.icon && 
+                                          React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
+                                        }
                                         {field.type}
                                       </div>
                                     </div>
@@ -254,10 +261,10 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                               )}
                             </Draggable>
                           ))}
-                          {provided.placeholder}
-                        </TableBody>
-                      )}
-                    </Droppable>
+                        {provided.placeholder}
+                      </TableBody>
+                    )}
+                  </Droppable>
                   </Table>
                 </DragDropContext>
               </div>
@@ -282,7 +289,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
             const updatedFields = fields.map(f => 
               f._id === updatedField._id ? { ...updatedField, position: f.position } : f
             )
-            console.log(userId, "userid")
             setFields(updatedFields)
             setIsEditFieldOpen(false)
             await saveField({

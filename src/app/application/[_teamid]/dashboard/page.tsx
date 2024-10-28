@@ -50,7 +50,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
         <AppHeader activesection="dashboard" teamid={teamid} />
-        <main className="md:mx-auto md:px-10 py-3 h-full">
+        <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
           <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div>

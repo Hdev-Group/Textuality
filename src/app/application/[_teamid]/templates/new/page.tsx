@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../withAuth';
@@ -26,19 +26,6 @@ type FieldType = {
   fieldid?: string,
   fieldname?: string
 }
-
-const fieldTypes: FieldType[] = [
-  { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media" },
-  { icon: Type, name: "Short Text", description: "Titles, names, paragraphs, list of names" },
-  { icon: Hash, name: "Number", description: "ID, order number, rating, quantity" },
-  { icon: Calendar, name: "Date and time", description: "Event dates" },
-  { icon: MapPin, name: "Location", description: "Coordinates: latitude and longitude" },
-  { icon: Image, name: "Media", description: "Images, videos, PDFs and other files" },
-  { icon: ToggleLeft, name: "Boolean", description: "Yes or no, 1 or 0, true or false" },
-  { icon: Braces, name: "JSON object", description: "Data in JSON format" },
-  { icon: Link, name: "Reference", description: "For example, a blog post can reference its author(s)" },
-]
-
 export default function TemplateManager({ params }: { params: Promise<{ _teamid: string}> }) {
   const { _teamid }: { _teamid: any } = use(params);
   const { userId } = useAuth()
@@ -112,7 +99,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     <AuthWrapper _teamid={_teamid}>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
-      <main className="mx-auto px-10 py-3">
+      <main className="mx-auto px-10 py-3 transition-all">
         <div className="bg-white dark:bg-neutral-950 rounded-lg flex flex-col shadow-lg p-8 space-y-8">
           <div className="flex justify-between items-center">
             <div>
@@ -120,8 +107,12 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
             </div>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTitle>New Template</DialogTitle>
+          <DialogTitle>New Template</DialogTitle>
             <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Template</DialogTitle>
+                <DialogDescription>Use this form to create a new template</DialogDescription>
+              </DialogHeader>
               <form id='newtemplate' onSubmit={handleSubmit} className='gap-2 flex flex-col'>
               <div className="flex flex-col gap-4">
                 <Label htmlFor="name" className="font-semibold text-sm">
@@ -149,8 +140,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
             </DialogFooter>
             </form>
             </DialogContent>
-            
-
           </Dialog>
             <DragDropContext onDragEnd={() => { }}>
             <Table>

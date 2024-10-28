@@ -2,15 +2,13 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@clerk/nextjs'
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import AppHeader from "@/components/header/appheader"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, Filter } from "lucide-react"
+import { BookMarkedIcon, Filter, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -26,7 +24,6 @@ import AuthWrapper from '../withAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useUser } from "@clerk/clerk-react";
 import { useRouter } from 'next/navigation';
-import { use } from 'react';
 
 type Template = {
   name: string
@@ -36,55 +33,72 @@ type Template = {
 }
 
 export default function Page({ params }: { params: Promise<{ _teamid: string}> }) {
-  const { _teamid }: { _teamid: any } = use(params);
+  const { _teamid } = React.use(params);
   const teamid = _teamid;
   const { userId, isLoaded, isSignedIn } = useAuth();
   const user = useUser();
+  const router = useRouter();
+
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
   const [userData, setUserData] = useState<any[]>([]);
-  console.log(userData);
-  const getPage = useQuery(api.page.getPage, { _id: teamid });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [nameFilter, setNameFilter] = useState('asc');
-  const [lastUpdatedFilter, setLastUpdatedFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [nameFilter, setNameFilter] = useState("asc");
+  const [lastUpdatedFilter, setLastUpdatedFilter] = useState("");
+  const TemplateRemove = useMutation(api.template.remove);
+
+  // Fetch data using hooks at the top level to avoid inconsistencies
+  const getPage = useQuery(api.page.getPage, { _id: teamid as any });
   const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
-  console.log(getTemplates);
-  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: _teamid })
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: teamid });
 
-  function nameFilterSetter() {
-    setNameFilter(nameFilter === 'asc' ? 'desc' : 'asc');
-  }
-
+  // Handle authorization and loading state
   useEffect(() => {
     if (getPage?.users?.includes(userId as string)) {
       setIsAuthorized(true);
-      setIsLoading(false);
-    } else {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }, [getPage, userId]);
 
+  // Fetch user data based on the fetched template details
+  useEffect(() => {
+    async function fetchUserData() {
+      if (getTemplates?.[0]?.lastUpdatedBy) {
+        try {
+          const response = await fetch(`/api/secure/get-user?userId=${getTemplates[0].lastUpdatedBy}`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          setUserData(data.users);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUserData([]);
+        }
+      }
+    }
+    fetchUserData();
+  }, [getTemplates]);
+
+  // Filter templates based on search terms and sorting options
   const filteredTemplates = useMemo(() => {
     if (!getTemplates) return [];
 
-    const sortedTemplates = getTemplates.sort((a, b) => {
-      if (nameFilter === 'asc') {
-        return a.title.localeCompare(b.title);
-      } else {
-        return b.title.localeCompare(a.title);
-      }
-    });
+    const sortedTemplates = [...getTemplates].sort((a, b) =>
+      nameFilter === "asc" ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title)
+    );
 
-    return sortedTemplates.filter(template => {
-      const matchesSearch = Object.values(template).some(
-        value => value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    return sortedTemplates.filter((template) => {
+      const matchesSearch = Object.values(template).some((value) =>
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
-      const matchesLastUpdated = lastUpdatedFilter === '' || template?.lastUpdatedBy.includes(lastUpdatedFilter);
+      const matchesLastUpdated = lastUpdatedFilter === "" || template?.lastUpdatedBy.includes(lastUpdatedFilter);
       return matchesSearch && matchesLastUpdated;
     });
   }, [getTemplates, searchTerm, lastUpdatedFilter, nameFilter]);
+
+  // Helper functions
+  function nameFilterSetter() {
+    setNameFilter((prevFilter) => (prevFilter === "asc" ? "desc" : "asc"));
+  }
 
   function timeAgo(date: Date) {
     const now = new Date();
@@ -94,36 +108,22 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
 
-    if (days > 0) {
-      return `${days} days ago`;
-    } else if (hours > 0) {
-      return `${hours} hours ago`;
-    } else if (minutes > 0) {
-      return `${minutes} minutes ago`;
-    } else {
-      return `a few seconds ago`;
+    if (days > 0) return `${days} days ago`;
+    if (hours > 0) return `${hours} hours ago`;
+    if (minutes > 0) return `${minutes} minutes ago`;
+    return "a few seconds ago";
+  }
+
+  if (!isSignedIn) return <IsAuthorizedEdge />;
+
+
+  function DeleteTemplate(id: string) {
+    if (getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission))) {
+      confirm("Are you sure you want to delete this template? Removing this will clear any content") && TemplateRemove({ _id: id as any });
     }
   }
-  useEffect(() => {
-    async function fetchUserData() {
-      if (getTemplates?.[0]?.lastUpdatedBy) {
-        try {
-          const response = await fetch(`/api/secure/get-user?userId=${getTemplates?.[0]?.lastUpdatedBy}`);
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          const data = await response.json();
-          setUserData(data.users);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-          setUserData([]);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    }
-    fetchUserData();
 
-  }, [getTemplates]);
-  const title = getPage?.title + ' — Templates — Textuality'
+  const title = getPage?.title + " — Templates — Textuality";
   
   return (
       <body className="overflow-y-hidden">
@@ -131,7 +131,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
         <AppHeader activesection="templates" teamid={teamid} />
-        <main className="md:mx-auto md:px-10 py-3 h-full">
+        <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
           <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto">
             <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
               <div className="flex flex-col md:flex-row w-full items-start justify-between gap-4">
@@ -164,6 +164,11 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                   <TableHead>Fields</TableHead>
                   <TableHead>Last Updated By</TableHead>
                   <TableHead>Updated</TableHead>
+                  {
+                    getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
+                      <TableHead>Actions</TableHead>
+                    )
+                  }
                 </TableRow>
               </TableHeader>
                 <TableBody>
@@ -198,6 +203,15 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                       )}
                     </TableCell>
                     <TableCell>{timeAgo(new Date(template._creationTime))}</TableCell>
+                    {
+                      getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission)) && (
+                        <TableCell className='z-50'>
+                          <div className='flex'>
+                            <Trash2 className='hover:text-red-400 transition-all h-4' onClick={() => DeleteTemplate(template._id)} />
+                          </div>
+                        </TableCell>
+                      )
+                    }
                     </TableRow>
                   ))
                   ) : (
@@ -216,6 +230,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                       </TableCell>
                     </TableRow>
                   )
+                  
                 }
               </TableBody>
             </Table>

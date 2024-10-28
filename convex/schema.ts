@@ -48,4 +48,28 @@ fields: defineTable({
     reference: v.string(),
     fieldposition: v.any(),
 }).index("bytemplateid", ["templateid"]),
+content: defineTable({
+    pageid: v.string(),
+    templateid: v.string(),
+    title: v.string(),
+    apiref: v.string(),
+    authorid: v.string(),
+    lastUpdatedBy: v.string(),
+    status: v.string(),
+    content: v.string(),
+    updated: v.any(),
+}).index("bytemplateid", ["templateid"]),
+comments: defineTable({
+    contentid: v.string(),
+    authorid: v.string(),
+    comment: v.string(),
+    updated: v.any(),
+    templateid: v.string(),
+}).index("bycontentid", ["contentid"]),
+aichat: defineTable({
+    question: v.string(),
+    answer: v.string(),
+    externalId: v.string(),
+    templateid: v.string(),
+}),
 });

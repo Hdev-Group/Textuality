@@ -23,7 +23,7 @@ type FieldType = {
     fieldposition?: number;
   }
   import { ScrollArea } from "@/components/ui/scroll-area"
-import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces } from "lucide-react"
+import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, MessageCircleQuestionIcon, Frown } from "lucide-react"
 
   const fieldTypes: FieldType[] = [
     { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", position: 0, templateid: '', reference: '' },
@@ -34,8 +34,60 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     { icon: Image, name: "Media", description: "Images, videos, PDFs and other files", position: 0, templateid: '', reference: '' },
     { icon: ToggleLeft, name: "Boolean", description: "Yes or no, 1 or 0, true or false", position: 0, templateid: '', reference: '' },
     { icon: Braces, name: "JSON object", description: "Data in JSON format", position: 0, templateid: '', reference: '' },
+    { icon: Frown, name: "Unsure", description: "Not sure what to choose? Click here", position: 0, templateid: '', reference: '' },
   ]
-export function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boolean; onOpenChange: (open: boolean) => void; onAddField: (field: FieldType) => void; }) {
+  const unsureTemplates = [
+    { 
+      name: "Blog Post", 
+      fields: [
+        { name: "Title", type: "Short Text" },
+        { name: "Content", type: "Rich text" },
+        { name: "Featured Image", type: "Media" },
+        { name: "Tags", type: "Short Text" },
+        { name: "Category", type: "Short Text" }
+      ]
+    },
+    { 
+      name: "Event Announcement", 
+      fields: [
+        { name: "Event Name", type: "Short Text" },
+        { name: "Date", type: "Date and time" },
+        { name: "Time", type: "Date and time" },
+        { name: "Location", type: "Location" },
+        { name: "Description", type: "Rich text" }
+      ]
+    },
+    { 
+      name: "Product Review", 
+      fields: [
+        { name: "Product Name", type: "Short Text" },
+        { name: "Rating", type: "Number" },
+        { name: "Review Text", type: "Rich text" },
+        { name: "Pros", type: "Rich text" },
+        { name: "Cons", type: "Rich text" }
+      ]
+    }
+  ];  
+  
+  function UnsureFieldTemplates({ onSelectTemplate }: { onSelectTemplate: (template: { name: string, fields: string[] }) => void }) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
+        {unsureTemplates.map((template, index) => (
+          <button
+            key={index}
+            className="flex flex-col items-start p-4 border rounded-lg hover:border-primary cursor-pointer transition-colors"
+            onClick={() => onSelectTemplate(template as any)}
+          >
+            <h3 className="text-lg font-semibold mb-2">{template.name}</h3>
+              {template.fields.map((field, fieldIndex) => (
+                <div key={fieldIndex}>{field.name}</div>
+              ))}
+          </button>
+        ))}
+      </div>
+    )
+  }
+  export function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boolean; onOpenChange: (open: boolean) => void; onAddField: (field: FieldType) => void }) {
     const [selectedField, setSelectedField] = useState<FieldType | null>(null);
     const [animationDirection, setAnimationDirection] = useState<'left' | 'right'>('right');
   
@@ -61,6 +113,23 @@ export function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boole
       })
     };
   
+    const handleSelectTemplate = (template) => {
+      const newFields = template.fields.map((field, index) => {
+        const matchedType = fieldTypes.find((type) => type.name === field.type);
+        return {
+          ...matchedType,
+          type: field.type,
+          fieldname: field.name,
+          reference: `${template.name.toLowerCase().replace(/\s+/g, '_')}_${field.name.toLowerCase().replace(/\s+/g, '_')}`,
+          position: index,
+        };
+      });
+    
+      newFields.forEach((field) => onAddField(field));
+      handleClose();
+    };
+    
+  
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[725px] overflow-x-hidden transition-all">
@@ -75,17 +144,21 @@ export function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boole
             exit={swipeTransition.exit(animationDirection)}
           >
             {selectedField ? (
-              <FieldForm
-                field={selectedField}
-                onBack={() => {
-                  setAnimationDirection('left');
-                  setSelectedField(null);
-                }}
-                onSubmit={(field) => {
-                  onAddField(field);
-                  handleClose();
-                }}
-              />
+              selectedField.name === "Unsure" ? (
+                <UnsureFieldTemplates onSelectTemplate={handleSelectTemplate} />
+              ) : (
+                <FieldForm
+                  field={selectedField}
+                  onBack={() => {
+                    setAnimationDirection('left');
+                    setSelectedField(null);
+                  }}
+                  onSubmit={(field) => {
+                    onAddField(field);
+                    handleClose();
+                  }}
+                />
+              )
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 py-4">
                 {fieldTypes.map((field, index) => (

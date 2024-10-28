@@ -23,6 +23,7 @@ type RoleProps = {
     teamid: string;
 };
 export function Role({ onValueChange, userid, teamid }: RoleProps) {
+  
     const getRole = useQuery(api.page.getRoledetail, { externalId: userid, pageId: teamid });
     const role = getRole?.[0]?.permissions[0] || ''; // Ensure there's a fallback
     const { user } = useUser();

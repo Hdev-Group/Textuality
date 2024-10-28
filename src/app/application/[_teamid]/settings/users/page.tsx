@@ -61,9 +61,12 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
     const getPage = useQuery(api.page.getPage, { _id: teamid });
     const getInvites = useQuery(api.page.getPageInvites, { pageId: teamid });
     const cancelInvite = useMutation(api.page.cancelInvite);
-    console.log(teamid)
+    if (!isSignedIn){
+      return (
+        <IsAuthorizedEdge />
+      );
+    }
     const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: teamid });
-
     if (!getRole){
       <IsAuthorizedEdge />
     }
@@ -180,7 +183,7 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
         <CheckpointAuthWrapper teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
         <AppHeader activesection="settings" teamid={teamid} />
-        <main className="mx-auto px-4 sm:px-6 lg:px-8 py-3 overflow-y-auto h-full">
+        <main className="mx-auto px-4 sm:px-6 lg:px-8 py-3 overflow-y-auto h-full transition-all">
           <Card className="w-full border-none shadow-lg overflow-y-auto h-full">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center overflow-auto h-full justify-between space-y-4 sm:space-y-0">
               <div>
