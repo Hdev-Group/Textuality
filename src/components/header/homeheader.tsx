@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Users, FolderPen, Image as ImageIcon, Component, Moon, Sun, Settings, Search, ArrowUp, House } from "lucide-react"
 import { useUser } from "@clerk/clerk-react"
+import { UserButton } from '@clerk/clerk-react'
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { usePathname } from 'next/navigation';
@@ -102,11 +103,7 @@ export default function HomeHeader({activesection}: any) {
         <Settings className="h-4 w-4" />
       </Button>
       {user?.imageUrl && (
-        <img 
-        src={user.imageUrl} 
-        alt={user.fullName || "User avatar"} 
-        className="h-8 w-8 rounded-full ml-2 border-2 border-neutral-600/20 p-0.5"
-        />
+        <UserButton />
       )}
       <Button
         className="md:hidden"

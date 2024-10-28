@@ -55,36 +55,39 @@ interface TeamManagementProps {
   };
 }
 export default function TeamManagement({ params }: { params: Promise<{ _teamid: string }> }) {
-  const { _teamid } = params;
-    const teamid = _teamid;
-    const { userId, isLoaded, isSignedIn } = useAuth();
-    const getPage = useQuery(api.page.getPage, { _id: teamid });
-    const getInvites = useQuery(api.page.getPageInvites, { pageId: teamid });
-    const cancelInvite = useMutation(api.page.cancelInvite);
+  const { userId, isLoaded, isSignedIn } = useAuth();
+  const { _teamid } = React.use(params);
+  const teamid = _teamid;
+
+  // Place hooks at the top level
+  const getPage = useQuery(api.page.getPage, { _id: teamid });
+  const getInvites = useQuery(api.page.getPageInvites, { pageId: teamid });
+  const cancelInvite = useMutation(api.page.cancelInvite);
+  const updateRole = useMutation(api.users.updateRole);
+  const RemoveUserString = useMutation(api.page.removeUser);
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: teamid });
+  // States
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [userData, setUserData] = useState<TeamMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [userrole, setUserRole] = useState("");
+
+  const { toast } = useToast();
+
+
+  useEffect(() => {
     if (!isSignedIn){
       return (
         <IsAuthorizedEdge />
       );
     }
-    const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: teamid });
     if (!getRole){
       <IsAuthorizedEdge />
     }
+  }, [isSignedIn, getRole]);
 
-    const updateRole = useMutation(api.users.updateRole);
-  
-    const [isAuthorized, setIsAuthorized] = useState(false);
-    const [userData, setUserData] = useState<TeamMember[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [roleFilter, setRoleFilter] = useState("all");
-    const [userrole, setUserRole] = useState("");
-    const RemoveUserString = useMutation(api.page.removeUser);
-
-    const { toast } = useToast();
-
-
-  
     // Return early if user is not authorized
     useEffect(() => {
       if (getPage?.users?.includes(userId as string)) {
@@ -171,13 +174,8 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
                   : member.emailAddresses.toLowerCase().includes(searchQuery.toLowerCase()))) &&
           (roleFilter === "all" || member?.role?.toLowerCase() === roleFilter)
   );
-
-  // Early return for unauthorized access
-
-  
   
     return (
-      <>
       <body className='overflow-y-hidden'>
               <AuthWrapper _teamid={teamid}>
         <CheckpointAuthWrapper teamid={teamid}>
@@ -347,7 +345,6 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
       </CheckpointAuthWrapper>
       </AuthWrapper>
       </body>
-      </>
     )
   }
 

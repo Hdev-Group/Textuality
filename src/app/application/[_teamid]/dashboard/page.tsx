@@ -17,11 +17,12 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
   const { _teamid } = React.use(params);
   const teamid = _teamid;
   const user = useUser();
+  const getPage = useQuery(api.page.getPage, { _id: teamid as any });
+
   const { userId, isLoaded, isSignedIn } = useAuth();
 
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const getPage = useQuery(api.page.getPage, { _id: teamid as any });
 
   useEffect(() => {
     if (getPage?.users?.includes(userId as string)) {
