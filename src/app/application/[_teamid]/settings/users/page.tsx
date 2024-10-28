@@ -78,11 +78,6 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
 
 
   useEffect(() => {
-    if (!isSignedIn){
-      return (
-        <IsAuthorizedEdge />
-      );
-    }
     if (!getRole){
       <IsAuthorizedEdge />
     }

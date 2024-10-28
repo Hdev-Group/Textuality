@@ -31,58 +31,49 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
       setIsAuthorized(false);
     }
   }, [getPage, userId]);
-  
-  if (!isLoaded) {
-    return (
-      <IsLoadedEdge />
-    );
-  }
-  if (!isAuthorized) {
-    return (
-      <IsAuthorizedEdge />
-    );
-  }
+
   const title = getPage?.title  + ' — Textuality'
 
   return (
     <>
-      <body className='overflow-hidden'>
+        <body className='overflow-hidden'>
         <title>{title}</title>
-      <AuthWrapper _teamid={teamid}>
-      <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
-        <AppHeader activesection="dashboard" teamid={teamid} />
-        <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
-          <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
-            <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
-              <div>
-                <h1 className="text-4xl font-bold">
-                  Welcome to {getPage?.title}.
-                </h1>
-                <p className="text-lg text-neutral-600 dark:text-neutral-400"></p>
-              </div>
-            </div>
 
-            <Card className="w-full">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Latest Blogs</CardTitle>
-                    <CardDescription>Manage and view your blogs</CardDescription>
-                  </div>
-                  <CreateBlog />
-                </div>
-              </CardHeader>
-              <CardContent>
-                {/* Your blog content here */}
-              </CardContent>
-            </Card>
-          {/* {<QuickStartGuide />} */}
+          <AuthWrapper _teamid={teamid}>
+        <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
+          <AppHeader activesection="dashboard" teamid={teamid} />
+          <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
+            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
+          <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
+            <div>
+              <h1 className="text-4xl font-bold">
+            Welcome to {getPage?.title}.
+              </h1>
+              <p className="text-lg text-neutral-600 dark:text-neutral-400"></p>
+            </div>
           </div>
-        </main>
-      </div>
-    </AuthWrapper>
-    </body>
-    </>
+
+          <Card className="w-full">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Latest Blogs</CardTitle>
+              <CardDescription>Manage and view your blogs</CardDescription>
+            </div>
+            <CreateBlog />
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Your blog content here */}
+            </CardContent>
+          </Card>
+          {/* {<QuickStartGuide />} */}
+            </div>
+          </main>
+        </div>
+          </AuthWrapper>
+        </body>
+      </>
   );
 }
 function QuickStartGuide(): JSX.Element {

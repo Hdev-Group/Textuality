@@ -119,8 +119,6 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
 
   if (!isSignedIn) return <IsAuthorizedEdge />;
 
-
-
   const title = getPage?.title + " — Templates — Textuality";
   
   return (

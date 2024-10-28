@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { useAuth } from '@clerk/nextjs';
 import { useState, useEffect } from 'react';
@@ -9,6 +9,7 @@ const AuthWrapper = ({ children, _teamid }) => {
   const { userId, isLoaded, isSignedIn } = useAuth(); // Clerk auth data
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false); // Track if auth has been checked
 
   // Fetch the page or team data based on team ID
   const getPage = useQuery(api.page.getPage, { _id: _teamid });
@@ -20,6 +21,7 @@ const AuthWrapper = ({ children, _teamid }) => {
         setIsAuthorized(true);
       }
       setIsLoading(false);
+      setAuthChecked(true); // Mark the auth check as complete
     }
   }, [isLoaded, getPage, userId]);
 
@@ -28,12 +30,11 @@ const AuthWrapper = ({ children, _teamid }) => {
     return <IsLoadedEdge />;
   }
 
-  // Show unauthorized state if user is not authorized
-  if (!isAuthorized) {
+  if (authChecked && !isAuthorized) {
+    console.log('not authorized');
     return <IsAuthorizedEdge />;
   }
-
-  // Render children (i.e., the page content) if the user is authorized
+  console.log('authorized');
   return <>{children}</>;
 };
 
