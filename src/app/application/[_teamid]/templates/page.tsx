@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@clerk/nextjs'
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import AppHeader from "@/components/header/appheader"
-import { BookMarkedIcon, Filter } from "lucide-react"
+import { BookMarkedIcon, Filter, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
   const [searchTerm, setSearchTerm] = useState("");
   const [nameFilter, setNameFilter] = useState("asc");
   const [lastUpdatedFilter, setLastUpdatedFilter] = useState("");
+  const TemplateRemove = useMutation(api.template.remove);
 
   // Fetch data using hooks at the top level to avoid inconsistencies
   const getPage = useQuery(api.page.getPage, { _id: teamid as any });
@@ -115,6 +116,13 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
 
   if (!isSignedIn) return <IsAuthorizedEdge />;
 
+
+  function DeleteTemplate(id: string) {
+    if (getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission))) {
+      confirm("Are you sure you want to delete this template? Removing this will clear any content") && TemplateRemove({ _id: id as any });
+    }
+  }
+
   const title = getPage?.title + " — Templates — Textuality";
   
   return (
@@ -156,6 +164,11 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                   <TableHead>Fields</TableHead>
                   <TableHead>Last Updated By</TableHead>
                   <TableHead>Updated</TableHead>
+                  {
+                    getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
+                      <TableHead>Actions</TableHead>
+                    )
+                  }
                 </TableRow>
               </TableHeader>
                 <TableBody>
@@ -190,6 +203,15 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                       )}
                     </TableCell>
                     <TableCell>{timeAgo(new Date(template._creationTime))}</TableCell>
+                    {
+                      getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission)) && (
+                        <TableCell className='z-50'>
+                          <div className='flex'>
+                            <Trash2 className='hover:text-red-400 transition-all h-4' onClick={() => DeleteTemplate(template._id)} />
+                          </div>
+                        </TableCell>
+                      )
+                    }
                     </TableRow>
                   ))
                   ) : (
@@ -208,6 +230,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                       </TableCell>
                     </TableRow>
                   )
+                  
                 }
               </TableBody>
             </Table>

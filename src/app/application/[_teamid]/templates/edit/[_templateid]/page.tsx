@@ -14,6 +14,7 @@ import AuthWrapper from '../../../withAuth'
 import { useRouter } from 'next/navigation'
 import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
+import {NotFoundError} from '@/components/edgecases/error'
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>;
@@ -61,6 +62,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
   const saveField = useMutation(api.template.updateField)
+
 
   useEffect(() => {
     if (getFields) {
@@ -133,7 +135,9 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
       })
     }
   }
-
+  if (!getTemplates?.[0]?.title) {
+    return <NotFoundError />
+  }
   const handleEdit = (fieldId: string) => {
     const fieldToEdit = fields.find(field => field._id === fieldId)
     if (fieldToEdit) {
@@ -203,7 +207,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                     {(provided) => (
                       <TableBody {...provided.droppableProps} ref={provided.innerRef}>
                         {fields
-                          .sort((a, b) => a.fieldposition - b.fieldposition) // Sorting based on fieldposition
+                          .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))                          // Sort by fieldposition in ascending order
                           .map((field, index) => (
                             <Draggable key={field._id} draggableId={field._id as string} index={index}>
                               {(provided) => (
@@ -217,14 +221,16 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                                       <span {...provided.dragHandleProps} className="mr-2 cursor-move">
                                         <GripVertical className="h-4 w-4" />
                                       </span>
-                                      {field?.fieldposition}
+                                      {field?.fieldposition} {/* Display the field position */}
                                     </div>
                                   </TableCell>
                                   <TableCell>{field.fieldname || field.name}</TableCell>
                                   <TableCell>
                                     <div className="flex items-center">
                                       <div className="flex items-center">
-                                        {fieldTypes.find(ft => ft.name === field.type)?.icon && React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })}
+                                        {fieldTypes.find(ft => ft.name === field.type)?.icon && 
+                                          React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
+                                        }
                                         {field.type}
                                       </div>
                                     </div>

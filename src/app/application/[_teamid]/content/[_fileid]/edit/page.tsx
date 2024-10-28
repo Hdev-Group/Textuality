@@ -90,12 +90,12 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                             <div onClick={() => router.push(`/application/${_teamid}/content`)} className='flex flex-row gap-2 border rounded-md hover:border-black hover:shadow-md cursor-pointer transition-all items-center'>
                                                 <ChevronLeft />
                                             </div>
-                                            <h1 className='text-2xl font-bold'><span className='text-neutral-400 font-normal text-sm'>/ Content /</span> {getContent?.title}</h1>
+                                            <h1 className='text-2xl font-bold'>{getContent?.title}</h1>
                                         </div>
                                     </div>
                                     <div className='container mx-auto px-5 py-5'>
                                         <div className='flex flex-col gap-5'>
-                                            {getFields?.map((field, index) => (
+                                            {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1'>
                                                     <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
                                                     {renderField(field)}

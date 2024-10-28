@@ -121,3 +121,29 @@ export const updateField = mutation({
         });
     },
 });
+export const remove = mutation({
+    args: {
+        _id: v.id("templates"),
+    },
+    handler: async (ctx, { _id }) => {
+        const maintemplate = ctx.db.delete(_id);
+        const fields = await ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), _id)).collect();
+        fields.forEach(async (field) => {
+            await ctx.db.delete(field._id);
+        }, []);
+        const content = await ctx.db.query("content").filter(q => q.eq(q.field("templateid"), _id)).collect();
+        content.forEach(async (content) => {
+            await ctx.db.delete(content._id);
+        }, []);
+        const comments = await ctx.db.query("comments").filter(q => q.eq(q.field("templateid"), _id)).collect();
+        comments.forEach(async (comment) => {
+            await ctx.db.delete(comment._id);
+        }, []);
+        const aichat = await ctx.db.query("aichat").filter(q => q.eq(q.field("templateid"), _id)).collect();
+        aichat.forEach(async (chat) => {
+            await ctx.db.delete(chat._id);
+        }, []);
+
+        return maintemplate;
+    },
+});

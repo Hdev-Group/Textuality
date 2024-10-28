@@ -64,10 +64,12 @@ comments: defineTable({
     authorid: v.string(),
     comment: v.string(),
     updated: v.any(),
+    templateid: v.string(),
 }).index("bycontentid", ["contentid"]),
 aichat: defineTable({
     question: v.string(),
     answer: v.string(),
     externalId: v.string(),
+    templateid: v.string(),
 }),
 });
