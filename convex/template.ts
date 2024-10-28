@@ -83,11 +83,11 @@ export const getFields = query({
 });
 export const deleteField = mutation({
     args: {
-        fieldid: v.any(),
+        _id: v.any(),
         templateid: v.any(),
     },
-    handler: async (ctx, { fieldid, templateid }) => {
-        await ctx.db.delete(fieldid);
+    handler: async (ctx, { _id, templateid }) => {
+        await ctx.db.delete(_id);
         const template = await ctx.db.get(templateid);
         if(template && 'fields' in template) {
             await ctx.db.patch(templateid, {

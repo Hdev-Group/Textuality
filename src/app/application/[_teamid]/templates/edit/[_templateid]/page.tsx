@@ -52,6 +52,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const templateid = _templateid; 
   const { userId } = useAuth()
   const [fields, setFields] = useState<FieldType[]>([])
+  console.log(fields)
   const [isAddFieldOpen, setIsAddFieldOpen] = useState(false)
   const [isEditFieldOpen, setIsEditFieldOpen] = useState(false)
   const [editingField, setEditingField] = useState<FieldType | null>(null)
@@ -62,6 +63,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
   const saveField = useMutation(api.template.updateField)
+  const deleteField = useMutation(api.template.deleteField)
 
 
   useEffect(() => {
@@ -108,44 +110,44 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   }
 
   const onDragEnd = async (result: DropResult) => {
-    if (!result.destination) return
-
-    const newFields = Array.from(fields)
-    const [reorderedItem] = newFields.splice(result.source.index, 1)
-    newFields.splice(result.destination.index, 0, reorderedItem)
-
+    if (!result.destination) return;
+  
+    const newFields = Array.from(fields);
+    const [reorderedItem] = newFields.splice(result.source.index, 1);
+    newFields.splice(result.destination.index, 0, reorderedItem);
+  
     const updatedFields = newFields.map((field, index) => ({
       ...field,
-      position: index + 1
-    }))
+      fieldposition: index + 1, // Update to match your field's property
+    }));
+  
+    // Set new field order in state
+    setFields(null)
+    setFields(updatedFields);
+  
+    // Prepare data for batch update
+    updatedFields.map((field) => ({
+      fieldid: field._id as any,
+      templateid: _templateid as any,
+      fieldname: field.fieldname as string,
+      type: field.type as string,
+      description: field.description,
+      reference: field.reference,
+      fieldposition: field.fieldposition,
+      lastUpdatedBy: userId as string,
+    }));
+  
+    // Save the updated positions in a single API call
 
-    setFields(updatedFields)
-
-    // Save the updated positions
-    for (const field of updatedFields) {
-      await saveField({
-        fieldid: field._id as any, 
-        templateid: _templateid as any,
-        fieldname: field.fieldname as string,
-        type: field.type as string,
-        description: field.description,
-        reference: field.reference,
-        fieldposition: field.position,
-        lastUpdatedBy: userId as string
-      })
-    }
-  }
-  if (!getTemplates?.[0]?.title) {
-    return <NotFoundError />
-  }
+  };
   const handleEdit = (fieldId: string) => {
-    const fieldToEdit = fields.find(field => field._id === fieldId)
+    const fieldToEdit = fields.find(field => field._id === fieldId);
     if (fieldToEdit) {
-      setEditingField(fieldToEdit)
-      setIsEditFieldOpen(true)
+      setEditingField(fieldToEdit);
+      setIsEditFieldOpen(true);
     }
-  }
-
+  };
+  
   const handleDelete = async (fieldId: string) => {
     const updatedFields = fields
       .filter(field => field._id !== fieldId)
@@ -153,7 +155,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         ...field,
         position: index + 1
       }))
-    
+    deleteField({ _id: fieldId, templateid: _templateid })
     setFields(updatedFields)
 
     // Save the updated positions after deletion
@@ -207,7 +209,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                     {(provided) => (
                       <TableBody {...provided.droppableProps} ref={provided.innerRef}>
                         {fields
-                          .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))                          // Sort by fieldposition in ascending order
+                          .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))  
                           .map((field, index) => (
                             <Draggable key={field._id} draggableId={field._id as string} index={index}>
                               {(provided) => (

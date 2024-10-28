@@ -75,7 +75,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                 {/* Your blog content here */}
               </CardContent>
             </Card>
-            <QuickStartGuide />
+          {/* {<QuickStartGuide />} */}
           </div>
         </main>
       </div>
@@ -125,10 +125,10 @@ function QuickStartGuide(): JSX.Element {
   return (
     <div className="mx-auto p-6 border rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-4"></div>
-        <h2 className="text-2xl font-bold text-gray-200">Your quick start guide</h2>
+        <h2 className="text-2xl font-bold text-neutral-900 dark:text-gray-200">Your quick start guide</h2>
         <div className="flex items-center"></div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-sm font-medium text-gray-200">Your quick start guide</h2>
+          <h2 className="text-sm font-medium text-neutral-900 dark:text-gray-200">Get started with Textuality in a few steps</h2>
           <div className="flex items-center">
             <span className="text-sm text-green-600 mr-2">All steps completed</span>
             <div className="w-24 h-2 bg-green-500 rounded-full"></div>
