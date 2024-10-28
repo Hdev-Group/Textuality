@@ -65,7 +65,7 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
   const cancelInvite = useMutation(api.page.cancelInvite);
   const updateRole = useMutation(api.users.updateRole);
   const RemoveUserString = useMutation(api.page.removeUser);
-  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: teamid });
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId ?? 'none', pageId: teamid });
   // States
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [userData, setUserData] = useState<TeamMember[]>([]);
