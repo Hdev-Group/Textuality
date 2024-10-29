@@ -27,6 +27,7 @@ const AuthWrapper = ({ children, _teamid }) => {
 
   // Show loading state if data or auth is not yet loaded
   if (!isLoaded || isLoading) {
+    console.log('loading');
     return <IsLoadedEdge />;
   }
 

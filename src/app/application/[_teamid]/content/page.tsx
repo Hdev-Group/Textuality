@@ -68,13 +68,6 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
         fetchUserData();
     }, [getContent]);
 
-    if (!isLoaded) {
-        return <IsLoadedEdge />;
-    }
-    if (!isAuthorized) {
-        return <IsAuthorizedEdge />;
-    }
-
     const filteredContentItems = getContent?.filter((item) => {
         if (activeTab === 'all') {
             return true;
@@ -284,9 +277,11 @@ function ContentCreateButton({getTemplates, _teamid}: any) {
     return(
         <DropdownMenu>
         <DropdownMenuTrigger>
+            <div>
             <Button>
                 <Plus className="mr-2 h-4 w-4" /> New Content
             </Button>
+            </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
             <DropdownMenuLabel>Templates</DropdownMenuLabel>

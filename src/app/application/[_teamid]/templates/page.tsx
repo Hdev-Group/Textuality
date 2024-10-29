@@ -53,7 +53,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
   // Fetch data using hooks at the top level to avoid inconsistencies
   const getPage = useQuery(api.page.getPage, { _id: teamid as any });
   const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
-  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: teamid });
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId || "none", pageId: teamid });
 
   // Handle authorization and loading state
   useEffect(() => {
