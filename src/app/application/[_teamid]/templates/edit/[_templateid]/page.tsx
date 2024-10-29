@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../../withAuth'
 import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation';
 import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
 import {NotFoundError} from '@/components/edgecases/error'
@@ -55,9 +56,10 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   console.log(fields)
   const [isAddFieldOpen, setIsAddFieldOpen] = useState(false)
   const [isEditFieldOpen, setIsEditFieldOpen] = useState(false)
+  const [type, setType] = useState("")
   const [editingField, setEditingField] = useState<FieldType | null>(null)
   const router = useRouter()
-
+  const searchParams = useSearchParams();
   const getPage = useQuery(api.page.getPage, { _id: teamid as any })
   const getTemplates = useQuery(api.template.getExactTemplate, { pageid: teamid, _id: templateid })
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
@@ -65,7 +67,12 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const saveField = useMutation(api.template.updateField)
   const deleteField = useMutation(api.template.deleteField)
 
-
+  // Check the URL params if ?settings or ?preview is present
+  useEffect(() => {
+    const currentType = searchParams.get('type');
+    setType(currentType === 'settings' || currentType === 'preview' ? currentType : '');
+  }, [searchParams])
+  
   useEffect(() => {
     if (getFields) {
       setFields(getFields?.map((field: any, index: number) => ({
@@ -173,6 +180,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     }
   }
 
+
   if (!getPage?.users?.includes(userId as string)) {
     return <div className="flex items-center justify-center h-screen">Not authorized</div>
   }
@@ -184,8 +192,8 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
           <AppHeader activesection="templates" teamid={teamid} />
           <main className="mx-auto px-10 py-3 transition-all">
-            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg py-6 overflow-y-auto">
-              <div className="flex justify-between items-center px-6 border-b pb-4">
+            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg h-screen overflow-y-auto">
+              <div className="flex justify-between items-center px-6 border-b py-4">
                 <div className='flex flex-row gap-1 items-center'>
                   <Link href={`/application/${teamid}/templates`} className="text-primary hover:underline">
                     <ChevronLeft  />
@@ -194,24 +202,38 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                 </div>
                 <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
               </div>
-              <div className='flex flex-col px-6'>
+              <div className='flex flex-row px-6'>
+                <aside className='border-r h-screen pb-6 w-1/6'>
+                  <div className="flex pr-5 items-start flex-col gap-5 mt-4">
+                    <Link href={`/application/${teamid}/templates/edit/${templateid}`} className={`${type === "" ? "bg-neutral-400/20 font-semibold" : ""} w-full  text-sm rounded-lg px-2 py-1`}>
+                      <p className=''>Fields ({fields.length})</p>
+                    </Link>
+                    <Link href={`/application/${teamid}/templates/edit/${templateid}?type=settings`} className={`${type === "settings" ? "bg-neutral-400/20 font-semibold" : ""} w-full  text-sm rounded-lg px-2 py-1`}>
+                      <p className=''>Settings</p>
+                    </Link>
+                    <Link href={`/application/${teamid}/templates/edit/${templateid}?type=preview`} className={`${type === "preview" ? "bg-neutral-400/20 font-semibold" : ""} w-full  text-sm rounded-lg px-2 py-1`}>
+                      <p className=''>JSON Preview</p>
+                    </Link>
+                  </div>
+                </aside>
+                <div className='w-full pb-6 ml-6'>
                 <DragDropContext onDragEnd={onDragEnd}>
-                  <Table className='mt-4'>
-                    <TableHeader>
+                  <Table className='mt-4 mx-auto container py-6'>
+                    <TableHeader className='border rounded-t-md'>
                       <TableRow>
                         <TableHead>Position</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Field Type</TableHead>
+                        <TableHead className='w-1/2'>Name</TableHead>
+                        <TableHead className='w-full'>Field Type</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <Droppable droppableId="fields">
                     {(provided) => (
-                      <TableBody {...provided.droppableProps} ref={provided.innerRef}>
+                      <TableBody className='border-x border-b-2 border-gray-200 dark:border-neutral-800' {...provided.droppableProps} ref={provided.innerRef}>
                         {fields
                           .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))  
                           .map((field, index) => (
-                            <Draggable key={field._id} draggableId={field._id as string} index={index}>
+                            <Draggable  key={field._id} draggableId={field._id as string} index={index}>
                               {(provided) => (
                                 <TableRow
                                   ref={provided.innerRef}
@@ -269,6 +291,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                   </Droppable>
                   </Table>
                 </DragDropContext>
+                </div>
               </div>
               {fields.length === 0 && (
                 <div className="text-center py-4 text-gray-500">

@@ -87,6 +87,9 @@ export default function Page() {
   
   return (
     <>
+    <title>
+      Textuality - Home
+    </title>
     <body className="overflow-hidden">
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />

@@ -48,6 +48,12 @@ fields: defineTable({
     reference: v.string(),
     fieldposition: v.any(),
 }).index("bytemplateid", ["templateid"]),
+fieldvalues: defineTable({
+    fieldid: v.string(),
+    fieldname: v.string(),
+    value: v.any(),
+    externalId: v.string(),
+}).index("byfieldid", ["fieldid"]),
 content: defineTable({
     pageid: v.string(),
     templateid: v.string(),
@@ -72,4 +78,12 @@ aichat: defineTable({
     externalId: v.string(),
     templateid: v.string(),
 }),
+componenteditor: defineTable({
+    templateid: v.string(),
+    componentid: v.string(),
+    componentname: v.string(),
+    componenttype: v.string(),
+    componentposition: v.any(),
+    componentdata: v.any(),
+}).index("bytemplateid", ["templateid"]),
 });

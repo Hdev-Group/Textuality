@@ -51,8 +51,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
       name: "Event Announcement", 
       fields: [
         { name: "Event Name", type: "Short Text" },
-        { name: "Date", type: "Date and time" },
-        { name: "Time", type: "Date and time" },
+        { name: "Date and Time", type: "Date and time" },
         { name: "Location", type: "Location" },
         { name: "Description", type: "Rich text" }
       ]
