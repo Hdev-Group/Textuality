@@ -257,30 +257,43 @@ function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [length, setLength] = useState(0)
+  console.log(length)
   const TemplateRemove = useMutation(api.template.remove);
+  const getContentSpecific = useQuery(api.template.getContentViaTemplate, { templateid: id as any});
+
 
   const canDelete = getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission))
 
-  const handleDelete = async () => {
-    if (confirmTitle !== title) {
-      setError("The entered title doesn't match. Please try again.")
-      return
+    const handleDelete = async () => {
+      if (confirmTitle !== title) {
+        setError("The entered title doesn't match. Please try again.")
+        return
+      }
+      if (getContentSpecific?.length > 0){
+        setError("The template has content associated with it. Please delete the content items before deleting the template.")
+        return
+      }
+      setIsDeleting(true)
+      setError(null)
+  
+      try {
+        await onDelete(id)
+        setSuccess(true)
+        setTimeout(() => setIsOpen(false), 2000) // Close dialog after 2 seconds
+      } catch (err) {
+        setError("An error occurred while deleting the template. Please try again.")
+      } finally {
+        setIsDeleting(false)
+      }
     }
-    setIsDeleting(true)
-    setError(null)
-
-    try {
-      await onDelete(id)
-      setSuccess(true)
-      setTimeout(() => setIsOpen(false), 2000) // Close dialog after 2 seconds
-    } catch (err) {
-      setError("An error occurred while deleting the template. Please try again.")
-    } finally {
-      setIsDeleting(false)
-    }
-  }
 
   if (!canDelete) return null
+
+  useEffect(() => {
+    const length = getContentSpecific?.length
+    setLength(length)
+  }, [getContentSpecific])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -289,6 +302,7 @@ function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
           <Trash2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
+      {getContentSpecific && getContentSpecific?.length === 0 && (
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Delete Template</DialogTitle>
@@ -330,6 +344,28 @@ function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
           </Button>
         </DialogFooter>
       </DialogContent>
+      )} {
+        // we will show an error if the template has content
+        getContentSpecific && getContentSpecific?.length > 0 && (
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Error Deleting Template</DialogTitle>
+              <DialogDescription>
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              You are <strong>unable to delete this template</strong> as it has content associated with it. 
+              We detected <strong>{length}</strong> content items associated with this template.
+              Please delete the content items before deleting the template.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsOpen(false)}>Okay, Got it.</Button>
+            </DialogFooter>
+          </DialogContent>
+        )
+      }
     </Dialog>
   )
 }

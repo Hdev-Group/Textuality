@@ -147,3 +147,12 @@ export const remove = mutation({
         return maintemplate;
     },
 });
+export const getContentViaTemplate = query({
+    args: {
+        templateid: v.any(),
+    },
+    handler: async (ctx, { templateid }) => {
+        const result = await ctx.db.query("content").filter(q => q.eq(q.field("templateid"), templateid)).collect();
+        return result;
+    },
+});
