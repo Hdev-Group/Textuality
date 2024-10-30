@@ -117,6 +117,17 @@ body {
 .ql-editor.ql-blank:before {
   color: white;
 }
+.scrollbaredit::-webkit-scrollbar{
+  width: 10px;
+}
+.scrollbaredit::-webkit-scrollbar-thumb{
+  background: var(--accent-foreground);
+  border-radius: 10px;
+}
+.scrollbaredit::-webkit-scrollbar-track{
+  background: var(--accent-foregroun);
+}
+
 @keyframes pingpulse {
   0%{
     border: red 2px solid;

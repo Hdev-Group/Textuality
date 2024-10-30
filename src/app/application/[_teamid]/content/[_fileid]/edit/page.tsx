@@ -5,7 +5,7 @@ import { api } from '../../../../../../../convex/_generated/api'
 import { useQuery, useMutation } from 'convex/react'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BotMessageSquare, ChevronLeft, LucideClipboardSignature, MessagesSquare, SidebarOpen } from 'lucide-react';
+import { BotMessageSquare, ChevronLeft, LucideClipboardSignature, MessagesSquare, SidebarOpen, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -83,8 +83,8 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                     <AppHeader activesection="content" teamid={_teamid} />
                     <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
                         <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg h-screen overflow-y-auto">
-                            <div className='flex flex-row w-full h-full'>
-                                <div className='w-full flex flex-col h-full'>
+                            <div className={`flex flex-row w-full h-full`}>
+                                <div className={`${isSideBarOpen ? "md:w-full md:flex hidden" : "w-full flex"}  flex-col h-full`}>
                                     <div className="border-b py-5 px-5 flex flex-row">
                                         <div className='flex flex-row gap-3'>
                                             <div onClick={() => router.push(`/application/${_teamid}/content`)} className='flex flex-row gap-2 border rounded-md hover:border-black hover:shadow-md cursor-pointer transition-all items-center'>
@@ -104,7 +104,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                         </div>
                                     </div>
                                 </div>
-                                <div className={`${isSideBarOpen ? "w-[20rem]" : "w-[5rem]"} transition-all h-full justify-center flex border-l pt-5`}>
+                                <div className={`${isSideBarOpen ? "w-full md:w-[20rem]" : "w-[5rem]"} transition-all h-full justify-center flex border-x pt-5`}>
                                     <div className='flex flex-col w-full gap-5 px-5'>
                                         <div onClick={() => sidebardeployer()} className='border p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full'>
                                             <SidebarOpen className={`${isSideBarOpen ? '' : 'rotate-180'}`} />
@@ -123,6 +123,12 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                             <BotMessageSquare />
                                             {
                                                 isSideBarOpen ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>AI</p> : null
+                                            }
+                                        </div>
+                                        <div onClick={() => handleSidebarClick("viewer")} className={`${activeSidebar === "viewer" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
+                                            <View />
+                                            {
+                                                isSideBarOpen ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Viewer</p> : null
                                             }
                                         </div>
                                         <div>
@@ -151,7 +157,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                 </div>
                             </div>
                         </div>
-                        <div className={`${isSideBarOpen && activeSidebar !== null  ? "w-[30rem] px-5 border-l" : "w-[0rem]"} flex flex-col gap-5 transition-all`}>
+                        <div className={`${isSideBarOpen && activeSidebar !== null  ? `${activeSidebar === "viewer" ? "w-1/2" : "w-[30rem]"}` : "w-[0rem]"} : "w-[0rem]"} flex flex-col gap-5 transition-all`}>
                         </div>
                     </div>
                 </div>

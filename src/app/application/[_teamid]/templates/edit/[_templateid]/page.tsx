@@ -192,7 +192,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
           <AppHeader activesection="templates" teamid={teamid} />
           <main className="mx-auto px-10 py-3 transition-all">
-            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg h-screen overflow-y-auto">
+            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg h-screen scrollbaredit overflow-y-auto">
               <div className="flex justify-between items-center px-6 border-b py-4">
                 <div className='flex flex-row gap-1 items-center'>
                   <Link href={`/application/${teamid}/templates`} className="text-primary hover:underline">
@@ -204,93 +204,109 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
               </div>
               <div className='flex flex-row px-6'>
                 <aside className='border-r h-screen pb-6 w-1/6'>
-                  <div className="flex pr-5 items-start flex-col gap-5 mt-4">
-                    <Link href={`/application/${teamid}/templates/edit/${templateid}`} className={`${type === "" ? "bg-neutral-400/20 font-semibold" : ""} w-full  text-sm rounded-lg px-2 py-1`}>
+                  <div className="flex pr-5 items-start flex-col gap-3 mt-4">
+                    <Link href={`/application/${teamid}/templates/edit/${templateid}`} className={`${type === "" ? "bg-neutral-400/20 font-semibold" : "hover:bg-neutral-400/20"} w-full transition-all text-sm rounded-md px-2 py-1.5`}>
                       <p className=''>Fields ({fields.length})</p>
                     </Link>
-                    <Link href={`/application/${teamid}/templates/edit/${templateid}?type=settings`} className={`${type === "settings" ? "bg-neutral-400/20 font-semibold" : ""} w-full  text-sm rounded-lg px-2 py-1`}>
+                    <Link href={`/application/${teamid}/templates/edit/${templateid}?type=settings`} className={`${type === "settings" ? "bg-neutral-400/20 font-semibold" : "hover:bg-neutral-400/20"} w-full transition-all text-sm rounded-md px-2 py-1.5`}>
                       <p className=''>Settings</p>
                     </Link>
-                    <Link href={`/application/${teamid}/templates/edit/${templateid}?type=preview`} className={`${type === "preview" ? "bg-neutral-400/20 font-semibold" : ""} w-full  text-sm rounded-lg px-2 py-1`}>
+                    <Link href={`/application/${teamid}/templates/edit/${templateid}?type=preview`} className={`${type === "preview" ? "bg-neutral-400/20 font-semibold" : "hover:bg-neutral-400/20"} w-full transition-all text-sm rounded-md px-2 py-1.5`}>
                       <p className=''>JSON Preview</p>
                     </Link>
                   </div>
                 </aside>
                 <div className='w-full pb-6 ml-6'>
-                <DragDropContext onDragEnd={onDragEnd}>
-                  <Table className='mt-4 mx-auto container py-6'>
-                    <TableHeader className='border rounded-t-md'>
-                      <TableRow>
-                        <TableHead>Position</TableHead>
-                        <TableHead className='w-1/2'>Name</TableHead>
-                        <TableHead className='w-full'>Field Type</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <Droppable droppableId="fields">
-                    {(provided) => (
-                      <TableBody className='border-x border-b-2 border-gray-200 dark:border-neutral-800' {...provided.droppableProps} ref={provided.innerRef}>
-                        {fields
-                          .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))  
-                          .map((field, index) => (
-                            <Draggable  key={field._id} draggableId={field._id as string} index={index}>
-                              {(provided) => (
-                                <TableRow
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                >
-                                  <TableCell>
-                                    <div className="flex items-center">
-                                      <span {...provided.dragHandleProps} className="mr-2 cursor-move">
-                                        <GripVertical className="h-4 w-4" />
-                                      </span>
-                                      {field?.fieldposition} {/* Display the field position */}
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>{field.fieldname || field.name}</TableCell>
-                                  <TableCell>
-                                    <div className="flex items-center">
-                                      <div className="flex items-center">
-                                        {fieldTypes.find(ft => ft.name === field.type)?.icon && 
-                                          React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
-                                        }
-                                        {field.type}
-                                      </div>
-                                    </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    <div className="flex items-center space-x-2">
-                                      <Button variant="ghost" size="sm" onClick={() => handleEdit(field._id as string)}>
-                                        <Edit className="h-4 w-4" />
-                                        <span className="sr-only">Edit {field.fieldname || field.name}</span>
-                                      </Button>
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button variant="ghost" size="sm">
-                                            <MoreHorizontal className="h-4 w-4" />
-                                            <span className="sr-only">More options for {field.fieldname || field.name}</span>
+                  {
+                    type === "" ? (
+                      <DragDropContext onDragEnd={onDragEnd}>
+                      <Table className='mt-4 mx-auto container py-6'>
+                        <TableHeader className='border rounded-t-md'>
+                          <TableRow>
+                            <TableHead>Position</TableHead>
+                            <TableHead className='w-1/2'>Name</TableHead>
+                            <TableHead className='w-full'>Field Type</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <Droppable droppableId="fields">
+                        {(provided) => (
+                          <TableBody className='border-x border-b-2 border-gray-200 dark:border-neutral-800' {...provided.droppableProps} ref={provided.innerRef}>
+                            {fields
+                              .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))  
+                              .map((field, index) => (
+                                <Draggable  key={field._id} draggableId={field._id as string} index={index}>
+                                  {(provided) => (
+                                    <TableRow
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                    >
+                                      <TableCell>
+                                        <div className="flex items-center">
+                                          <span {...provided.dragHandleProps} className="mr-2 cursor-move">
+                                            <GripVertical className="h-4 w-4" />
+                                          </span>
+                                          {field?.fieldposition} {/* Display the field position */}
+                                        </div>
+                                      </TableCell>
+                                      <TableCell>{field.fieldname || field.name}</TableCell>
+                                      <TableCell>
+                                        <div className="flex items-center">
+                                          <div className="flex items-center">
+                                            {fieldTypes.find(ft => ft.name === field.type)?.icon && 
+                                              React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
+                                            }
+                                            {field.type}
+                                          </div>
+                                        </div>
+                                      </TableCell>
+                                      <TableCell>
+                                        <div className="flex items-center space-x-2">
+                                          <Button variant="ghost" size="sm" onClick={() => handleEdit(field._id as string)}>
+                                            <Edit className="h-4 w-4" />
+                                            <span className="sr-only">Edit {field.fieldname || field.name}</span>
                                           </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                          <DropdownMenuItem onClick={() => handleDelete(field._id as string)}>
-                                            <Trash className="mr-2 h-4 w-4" />
-                                            Delete
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    </div>
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                            </Draggable>
-                          ))}
-                        {provided.placeholder}
-                      </TableBody>
-                    )}
-                  </Droppable>
-                  </Table>
-                </DragDropContext>
+                                          <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                              <Button variant="ghost" size="sm">
+                                                <MoreHorizontal className="h-4 w-4" />
+                                                <span className="sr-only">More options for {field.fieldname || field.name}</span>
+                                              </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                              <DropdownMenuItem onClick={() => handleDelete(field._id as string)}>
+                                                <Trash className="mr-2 h-4 w-4" />
+                                                Delete
+                                              </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                          </DropdownMenu>
+                                        </div>
+                                      </TableCell>
+                                    </TableRow>
+                                  )}
+                                </Draggable>
+                              ))}
+                            {provided.placeholder}
+                          </TableBody>
+                        )}
+                      </Droppable>
+                      </Table>
+                    </DragDropContext>
+                    ) : type === "settings" ? (
+                      <div className="flex justify-center items-center h-full">
+                        <div className="text-center py-4 text-gray-500">
+                          Settings coming soon
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-center items-center h-full">
+                        <div className="text-center py-4 text-gray-500">
+                          JSON Preview coming soon
+                        </div>
+                      </div>
+                    )
+                  }
                 </div>
               </div>
               {fields.length === 0 && (
