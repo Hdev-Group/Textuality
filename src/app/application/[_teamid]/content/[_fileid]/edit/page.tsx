@@ -22,6 +22,8 @@ import {
     SelectSeparator
   } from "@/components/ui/select"
 import { AvatarImage } from '@radix-ui/react-avatar';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function ContentEditPage({ params }: { params: Promise<{ _teamid: string, _fileid: string }> }) {
     const router = useRouter();
@@ -129,7 +131,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                     </div>
                                     <div className='container mx-auto px-5 py-5'>
                                         <div className='flex flex-col gap-5'>
-                                            <Author authordetails={userData} onValueChange={setAuthor} />
+                                            <Author authordetails={userData} onValueChange={setAuthor} teamid={_teamid} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1'>
                                                     <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
@@ -237,7 +239,9 @@ interface Author {
     imageUrl?: string
   }
   
-function Author({ authordetails, onValueChange }: { authordetails: any, onValueChange: (selectedAuthor) => void }) {
+function Author({ authordetails, onValueChange, teamid }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string }) {
+
+    const getDepartments = useQuery(api.department.getDepartments, { pageid: teamid as any });
     const mainAuthor = authordetails?.[0]
     const [selectedAuthor, setSelectedAuthor] = useState<'mainAuthor' | 'hiddenAuthor'>('mainAuthor')
 
@@ -252,8 +256,8 @@ function Author({ authordetails, onValueChange }: { authordetails: any, onValueC
   
     return (
       <Select value={selectedAuthor} onValueChange={(value: 'mainAuthor' | 'hiddenAuthor') => SelectedAuthor(value)}>
-        <SelectTrigger className="w-[250px]">
-          <SelectValue placeholder="Select author type" />
+        <SelectTrigger className="w-full">
+          <SelectValue className='p-2' placeholder="Select author type" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -266,14 +270,20 @@ function Author({ authordetails, onValueChange }: { authordetails: any, onValueC
               />
             </SelectItem>
             <SelectSeparator />
-            <SelectLabel>Hidden Author / Company</SelectLabel>
-            <SelectItem value="hiddenAuthor">
-              <AuthorOption
-                author={"Hdev Group" as any}
-                showImage={false}
-                label="Hdev HQ"
-              />
-            </SelectItem>
+            <SelectLabel>Departments</SelectLabel>
+            {
+                getDepartments.length > 0 ? getDepartments.map((department) => (
+                        <SelectItem value={department._id} key={department._id}>
+                            <DepartmentOption
+                                author={department?.departmentname as any}
+                                showImage={false}
+                                label={department?.departmentdescription as any}
+                            />
+                        </SelectItem>
+                        )) : <Link href={`/application/${teamid}/settings?type=content`}>
+                            <Button className='w-full text-left'>Create a department</Button>
+                        </Link>
+            }
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -292,6 +302,25 @@ function Author({ authordetails, onValueChange }: { authordetails: any, onValueC
         </Avatar>
         <div className='flex flex-col items-start justify-center'>
           <p className="text-sm font-medium">{author.firstName || author as any} {author.lastName}</p>
+          <p className="text-xs text-muted-foreground">{label}</p>
+        </div>
+      </div>
+    )
+  }
+  function DepartmentOption({ author, showImage, label }: { author: any, showImage: boolean, label: string }) {
+    return (
+      <div className="flex items-center cursor-pointer justify-start gap-2">
+        <Avatar>
+          {showImage && author.imageUrl ? (
+            <AvatarImage src={author.imageUrl} alt={`${author.firstName || author} ${author.lastName}`} />
+          ) : (
+            <AvatarFallback>
+              {author.split(' ').map((word) => word[0]).join('')}
+            </AvatarFallback>
+          )}
+        </Avatar>
+        <div className='flex flex-col items-start justify-center'>
+          <p className="text-sm font-medium">{author}</p>
           <p className="text-xs text-muted-foreground">{label}</p>
         </div>
       </div>

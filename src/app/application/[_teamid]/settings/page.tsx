@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, AlertCircle, MoreVertical } from "lucide-react";
 import { z } from "zod";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Page({ params }: { params: Promise<{ _teamid: string}> }) {
     const { _teamid } = React.use(params)
@@ -104,36 +105,24 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                                             <h1 className="font-semibold text-lg">Departments</h1>
                                             <div className="flex flex-row gap-4">
                                                 {
-                                                    getDepartments?.map((department) => (
-                                                    <Alert className="flex items-center gap-2.5 w-auto rounded-md border px-4 py-2" key={department?._id}>
-                                                        <div className="flex flex-row gap-9">
-                                                            <div className="flex flex-col gap-1">
-                                                                <p className="font-semibold">
-                                                                    {department?.departmentname || "Department Name"}
-                                                                </p>
-                                                                <p className="text-sm text-muted-foreground">
-                                                                    {department?.departmentdescription || "Department description"}
-                                                                </p>
+                                                    getDepartments?.length > 0 ? getDepartments.map((department) => (
+                                                        <div key={department._id} className="flex flex-row items-center gap-4 px-6 py-4 border rounded-lg">
+                                                            <Avatar>
+                                                                <AvatarFallback>
+                                                                {department?.departmentname?.split(' ').map((word) => word[0]).join('')}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                            <div className="flex flex-col">
+                                                            <div className="flex items-center justify-between">
+                                                                <h1 className="font-semibold text-lg">{department.departmentname}</h1>
                                                             </div>
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger>
-                                                                    <Button variant="ghost" className="p-0.5">
-                                                                        <MoreVertical className="h-4 w-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent>
-                                                                    <DropdownMenuItem>
-                                                                        Edit
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem>
-                                                                        Delete
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
+                                                            <p className="text-sm text-gray-400">{department.departmentdescription}</p>
+                                                            </div>
+                                                            <div className="h-full flex items-start">
+                                                                <MoreVertical className="h-4 w-4" />
+                                                            </div>
                                                         </div>
-                                                    </Alert>
-                                                    ))
+                                                    )) : <p>No departments found</p>
                                                 }
                                             </div>
                                         </div>
