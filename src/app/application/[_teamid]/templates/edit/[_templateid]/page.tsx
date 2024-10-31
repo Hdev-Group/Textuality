@@ -89,7 +89,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   }, [getFields])
 
   useEffect(() => {
-    if (getTemplates && getTemplates[0]?.apiref === '') {
+    if (getTemplates && getTemplates[0]?.description === '') {
       router.push(`/application/${teamid}/templates`)
     }
   }, [getTemplates, router, teamid])

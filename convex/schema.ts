@@ -36,7 +36,7 @@ invites: defineTable({
 templates: defineTable({
     pageid: v.string(),
     title: v.string(),
-    apiref: v.string(),
+    description: v.string(),
     lastUpdatedBy: v.string(),
     fields: v.number(),
 }).index("bypageid", ["pageid"]),
@@ -93,4 +93,11 @@ departments: defineTable({
     isLive: v.boolean(),
     pageid: v.any(),
 }).index("bydepartmentname", ["departmentname"]),
+messages: defineTable({
+    message: v.string(),
+    authorid: v.string(),
+    contentid: v.string(),
+    pageid: v.string(),
+    updated: v.any(),
+}),
 });

@@ -18,6 +18,7 @@ import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../withAuth';
 import { useRouter } from 'next/navigation'
 import { use } from 'react'
+import { Textarea } from '@/components/ui/textarea'
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>
@@ -33,18 +34,18 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const [isLoading, setIsLoading] = useState(true)
   const [fields, setFields] = useState<FieldType[]>([])
   const [open, setOpen] = useState(true)
-  const [template, setTemplater] = useState({name: '', apiref: ''})
+  const [template, setTemplater] = useState({name: '', description: ''})
 
     const router = useRouter();
 
     useEffect(() => {
-        if (!open && template.apiref === '') {
+        if (!open && template.description === '') {
             router.push(`/application/${_teamid}/templates`);
         }
     }, [open, template, router]);
 
   const [namevalue, setNameValue] = useState('')
-  const [apivalue, setApiValue] = useState('')
+  const [descriptionValue, setDescriptionValue] = useState('')
 
   const getPage = useQuery(api.page.getPage, { _id: _teamid })
 
@@ -69,15 +70,19 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const handleSubmit = (event: any) => {
     if (event.target.id === 'newtemplate') {
       event.preventDefault();
-      
+      if (namevalue.length === 0 || descriptionValue.length === 0) {
+        return alert('Please fill out all fields');
+      } else if (namevalue.length > 45 || descriptionValue.length > 120) {
+        return alert('Name must be less than 45 characters and description must be less than 120 characters');
+      }
       if (isSubmitting) return; // Prevent double submit
       setIsSubmitting(true);
       
-      setTemplater({ name: namevalue, apiref: apivalue });
+      setTemplater({ name: namevalue, description: descriptionValue });
       const templateinfo = newtemplatemaker({
         pageid: _teamid,
         title: namevalue,
-        apiref: apivalue,
+        description: descriptionValue,
         lastUpdatedBy: userId as string,
       }).finally(() => {
         setTimeout(() => {
@@ -124,12 +129,12 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                 </div>
               </div>
               <div className="flex flex-col gap-4">
-                <Label htmlFor="apiref" className="font-semibold text-sm">
-                  API Reference
+                <Label htmlFor="description" className="font-semibold text-sm">
+                  Description
                 </Label>
-                <Input id="apiref" onChange={(e) => setApiValue(e.target.value)} maxLength={60} placeholder="Enter an API reference" />
+                <Textarea id="description" onChange={(e) => setDescriptionValue(e.target.value)} maxLength={120} placeholder="Enter a description" />
                 <div className='flex justify-end'>
-                    <p className='text-xs'>{apivalue.length}/60</p>
+                    <p className='text-xs'>{descriptionValue.length}/120</p>
                 </div>
               </div>
               <DialogFooter>

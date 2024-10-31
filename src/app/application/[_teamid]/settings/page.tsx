@@ -313,18 +313,6 @@ function AddDepartment({ teamid }) {
               />
               {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="image">Department Image</Label>
-              <Input
-                id="image"
-                name="image"
-                type="file"
-                required
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-              <p className="text-sm text-muted-foreground">Choose an image for the department</p>
-            </div>
             <div className="flex items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
                 <Label htmlFor="isLive">Department Live</Label>

@@ -172,7 +172,12 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                   filteredTemplates.length > 0 ? (
                   filteredTemplates.map((template, index) => (
                     <TableRow className='cursor-pointer border-b-red-200' key={index}>
-                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{template.title}</TableCell>
+                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
+                      <div className='flex flex-col gap-0.5 items-start justify-center'>
+                        <p>{template.title}</p>
+                        <p className='text-sm dark:text-neutral-400 text-neutral-700'>{template.description}</p>
+                      </div>
+                      </TableCell>
                     <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{template.fields}</TableCell>
                     <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
                       {userData.length > 0 ? (

@@ -13,29 +13,13 @@ import {
 import { useUser } from '@clerk/clerk-react'
 import { Input } from "@/components/ui/input"
 import { useClerk } from '@clerk/nextjs'
+import Image from 'next/image'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const user = useUser()
   const { signOut } = useClerk()
-  const [image, setImage] = useState("")
 
-  useEffect(() => {
-    const updateImage = () => {
-      if (localStorage.getItem('theme') === 'dark') {
-        setImage("/IMG_6128.png")
-      } else {
-        setImage("/IMG_6129.png")
-      }
-    }
-
-    updateImage()
-
-    window.addEventListener('storage', updateImage)
-    return () => {
-      window.removeEventListener('storage', updateImage)
-    }
-  }, [])
 
   return (
     <header className="border-b w-full flex items-center justify-center fixed shadow-sm z-50 bg-background">
@@ -43,7 +27,8 @@ export default function Header() {
         <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
-              <img src={image} alt="Textuality" className="h-8 w-8" />
+              <img src="/IMG_6128.png" alt="Textuality Logo" className="h-8 w-8 dark:flex hidden" />
+              <img src="/IMG_6129.png" alt="Textuality Logo" className="h-8 w-8 dark:hidden flex" />
               <span className="sr-only">Textuality</span>
               <span className="text-xl mt-1.5 ml-[-8px] font-bold text-foreground hidden sm:block">extuality</span>
             </Link>
