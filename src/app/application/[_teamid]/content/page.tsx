@@ -5,7 +5,7 @@ import AppHeader from '@/components/header/appheader';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/clerk-react';
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import AuthWrapper from '../withAuth';
 import { Input } from "@/components/ui/input";
@@ -24,10 +24,13 @@ import {
 import {
     Select,
     SelectContent,
+    SelectGroup,
     SelectItem,
+    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { SelectSeparator } from '@radix-ui/react-select';
 
 export default function Page({ params }: { params: Promise<{ _teamid: string }> }) {
     const { _teamid } = React.use(params);
@@ -38,10 +41,17 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
     const getPage = useQuery(api.page.getPage, { _id: _teamid as any });
     const [activeTab, setActiveTab] = useState('all');
     const getTemplates = useQuery(api.template.getTemplates, { pageid: _teamid });
+    const getRole = useQuery(api.page.getRoledetail, { externalId: userId ?? 'none', pageId: _teamid });
+    const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid });
+    const DeleteContenta = useMutation(api.content.deleteContent);
     const getContent = useQuery(api.content.getContent, { pageid: _teamid });
     const [userData, setUserData] = useState<any[]>([]);
     const [dataloaded, setDataLoaded] = useState(false);
-
+    const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
+    useEffect(() => {
+        setFilteredContentItems(getContent || []);
+    }, [getContent]);
+    
     useEffect(() => {
         if (getPage?.users?.includes(userId as string)) {
             setIsAuthorized(true);
@@ -54,7 +64,12 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
             if (getContent?.[0]?.authorid) {
                 try {
                     const response = await fetch(`/api/secure/get-user?userId=${getContent?.[0]?.authorid}`);
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    if (!response.ok) {
+                        getDepartments?.length > 0 ? setUserData(getDepartments) : setUserData([]);
+                        if (!getDepartments) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                    }
                     const data = await response.json();
                     setUserData(data.users);
                 } catch (error) {
@@ -68,23 +83,19 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
         fetchUserData();
     }, [getContent]);
 
-    const filteredContentItems = getContent?.filter((item) => {
-        if (activeTab === 'all') {
-            return true;
-        } else if (activeTab === 'new') {
-            if (item.updated) {
-                const updatedDate = new Date(item.updated);
-                const now = new Date();
-                const twoWeeksInMs = 14 * 24 * 60 * 60 * 1000;
-                if (now.getTime() - updatedDate.getTime() > twoWeeksInMs) {
-                    return false;
-                }
-            }
-        } else if (activeTab === 'scheduled') {
-            return item.updated === '5 weeks ago';
+    function filterContentItem(selectedItemId: string) {
+        if (selectedItemId === "all") {
+            setFilteredContentItems(getContent || []); // Show all content
+        } else {
+            const filteredItems = getContent?.filter(
+                (item) => item.authorid === selectedItemId || item._id === selectedItemId
+            );
+            setFilteredContentItems(filteredItems || []); // Update filtered items
         }
-        return item.status === activeTab;
-    });
+    }
+    function DeleteContent(contentId: any) {
+        DeleteContenta({ _id: contentId as any});
+    }
 
     function getTemplateName(contentId: string) {
         const content = getContent?.find((item) => item._id === contentId);
@@ -116,28 +127,26 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                     <div className="p-8 space-y-8 bg-white  dark:bg-neutral-950">
                                         {/* Filters */}
                                         <div className="flex gap-4 mb-6 ">
-                                            <Select>
-                                                <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder="Content Type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="all">All Types</SelectItem>
-                                                    <SelectItem value="article">Article</SelectItem>
-                                                    <SelectItem value="tutorial">Tutorial</SelectItem>
-                                                    <SelectItem value="course">Course</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <Select>
-                                                <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder="Status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="all">All Statuses</SelectItem>
-                                                    <SelectItem value="published">Published</SelectItem>
-                                                    <SelectItem value="draft">Draft</SelectItem>
-                                                    <SelectItem value="review">In Review</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            {/* Filter by Author */}
+                                                <Select defaultValue="all" onValueChange={(value) => filterContentItem(value)}>
+                                                    <SelectTrigger className="w-auto">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectGroup>
+                                                            <SelectLabel>All Authors</SelectLabel>
+                                                            <SelectItem value="all">All</SelectItem> {/* Option to show all */}
+                                                            {userData?.map((user) => (
+                                                                <SelectItem value={user._id} key={user._id}>{user.firstName} {user.lastName}</SelectItem>
+                                                            ))}
+                                                            <SelectSeparator />
+                                                            <SelectLabel>All Departments</SelectLabel>
+                                                            {getDepartments?.map((department) => (
+                                                                <SelectItem value={department._id} key={department._id}>{department.departmentname}</SelectItem>
+                                                            ))}
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
                                             <div className="relative flex-1">
                                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                                 <Input className="pl-10" placeholder="Search content..." />
@@ -153,68 +162,86 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                                     <TableHead>Updated</TableHead>
                                                     <TableHead>Author</TableHead>
                                                     <TableHead>Status</TableHead>
+                                                    {
+                                                        ["admin", "owner", "author"].some(role => getRole?.[0]?.permissions.includes(role)) ? (
+                                                            <TableHead>Actions</TableHead>
+                                                        ) : null
+                                                    }
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
                                                 {filteredContentItems?.length > 0 ? (
                                                     filteredContentItems?.map((item) => (
-                                                        <TableRow key={item._id} onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)} className='cursor-pointer hover:border-b-red-300/60'>
-                                                            <TableCell className="font-medium">{item.title}</TableCell>
-                                                            <TableCell>{getTemplateName(item._id)}</TableCell>
-                                                            <TableCell>{timeAgo(new Date(item.updated))}</TableCell>
-                                                            <TableCell>
-                                                                {dataloaded ? (
-                                                                    userData?.length > 0 ? (
-                                                                        <div className="flex flex-row items-center gap-2">
-                                                                            <Avatar className='h-7 w-7 border-2 p-0.5'>
-                                                                                <AvatarImage className='rounded-full' src={userData[0]?.imageUrl} />
-                                                                                <AvatarFallback>
-                                                                                    <AvatarImage>
+                                                                <TableRow key={item._id} className="cursor-pointer hover:border-b-red-300/60">
+                                                                    <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)} className="font-medium">{item.title}</TableCell>
+                                                                    <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>{getTemplateName(item._id)}</TableCell>
+                                                                    <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>{timeAgo(new Date(item.updated))}</TableCell>
+                                                                    <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>
+                                                                        {dataloaded ? (
+                                                                            userData?.length > 0 ? (
+                                                                                <div className="flex flex-row items-center gap-2">
+                                                                                    <Avatar className="h-7 w-7 border-2 p-0.5">
+                                                                                        <AvatarImage className="rounded-full" src={userData[0]?.imageUrl} />
                                                                                         <AvatarFallback>{userData?.[0]?.firstName.charAt(0)}</AvatarFallback>
-                                                                                    </AvatarImage>
-                                                                                </AvatarFallback>
-                                                                            </Avatar>
-                                                                            <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
+                                                                                    </Avatar>
+                                                                                    <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
+                                                                                </div>
+                                                                            ) : getDepartments?.length > 0 ? (
+                                                                                <div className="flex flex-row items-center gap-2 px-2.5 py-1 rounded-sm">
+                                                                                    <Avatar className="h-7 w-7 border-2 p-0.5">
+                                                                                        <AvatarFallback>{getDepartments?.[0]?.departmentname.charAt(0)}</AvatarFallback>
+                                                                                    </Avatar>
+                                                                                    <span>{getDepartments[0]?.departmentname}</span>
+                                                                                </div>
+                                                                            ) : (
+                                                                                <div className="flex flex-row items-center gap-2">
+                                                                                    <Avatar>
+                                                                                        <AvatarImage>
+                                                                                            <div className="w-20 h-5 bg-gray-200 dark:bg-neutral-800 rounded-md animate-pulse"></div>
+                                                                                        </AvatarImage>
+                                                                                    </Avatar>
+                                                                                    <div className="w-20 h-5 bg-gray-200 dark:bg-neutral-800 rounded-md animate-pulse"></div>
+                                                                                </div>
+                                                                            )
+                                                                        ) : null}
+                                                                    </TableCell>
+                                                                    <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>
+                                                                        <div>
+                                                                            <div className={`${
+                                                                                item.status === "Published" ? "bg-green-300/60 text-green-700 dark:bg-green-700 dark:text-green-300" : ""
+                                                                            } ${
+                                                                                item.status === "Draft" ? "bg-yellow-300/60 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""
+                                                                            } ${
+                                                                                item.status === "Review" ? "bg-purple-300/60 text-purple-700 dark:bg-purple-700 dark:text-purple-300" : ""
+                                                                            } w-min px-2.5 py-1 rounded-sm`}>
+                                                                                {item.status}
+                                                                            </div>
                                                                         </div>
-                                                                    ) : (
-                                                                        <div className="flex flex-row items-center gap-2">
-                                                                            <Avatar>
-                                                                                <AvatarImage>
-                                                                                    <AvatarFallback>UK</AvatarFallback>
-                                                                                </AvatarImage>
-                                                                            </Avatar>
-                                                                            <span>Unknown User</span>
-                                                                        </div>
-                                                                    )) : (
-                                                                    <div className="flex flex-row items-center gap-2">
-                                                                        <Avatar>
-                                                                            <AvatarImage>
-                                                                                <div className='w-20 h-5 bg-gray-200 dark:bg-neutral-800 rounded-md animate-pulse'></div>
-                                                                            </AvatarImage>
-                                                                        </Avatar>
-                                                                        <div className='w-20 h-5 bg-gray-200 dark:bg-neutral-800 rounded-md animate-pulse'></div>
-                                                                    </div>
-                                                                )}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <div>
-                                                                    <div className={`
-                                                                        ${item.status === "Published" ? "bg-green-300/60 text-green-700 dark:bg-green-700 dark:text-green-300" : ""}
-                                                                        ${item.status === "Draft" ? "bg-yellow-300/60 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""}
-                                                                        ${item.status === "Review" ? "bg-purple-300/60 text-purple-700 dark:bg-purple-700 dark:text-purple-300" : ""}
-                                                                        w-min px-2.5 py-1 rounded-sm
-                                                                    `}>
-                                                                        {item.status}
-                                                                    </div>
-                                                                </div>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    )) ) : (
+                                                                    </TableCell>
+                                                                    {
+                                                                        ["admin", "owner", "author"].some(role => getRole?.[0]?.permissions.includes(role)) ? (
+                                                                            <TableCell>
+                                                                                <DropdownMenu>
+                                                                                    <DropdownMenuTrigger>
+                                                                                        <Button variant="ghost" size="icon">
+                                                                                            <AlignLeftIcon className="h-4 w-4" />
+                                                                                        </Button>
+                                                                                    </DropdownMenuTrigger>
+                                                                                    <DropdownMenuContent align="end">
+                                                                                        <DropdownMenuItem onClick={() => DeleteContent(item._id)}>Delete</DropdownMenuItem>
+                                                                                    </DropdownMenuContent>
+                                                                                </DropdownMenu>
+                                                                            </TableCell>
+                                                                        ) : null
+                                                                    }
+                                                                </TableRow>
+                                                    ))
+                                                ) : (
                                                     <TableRow>
                                                         <TableCell colSpan={5} className="text-center items-center justify-center w-full">
-                                                            <div className='flex flex-col gap-2 w-auto'>
-                                                                <p className='text-lg'>No content found.</p>
-                                                                <div className='w-auto'>
+                                                            <div className="flex flex-col gap-2 w-auto">
+                                                                <p className="text-lg">No content found.</p>
+                                                                <div className="w-auto">
                                                                     <ContentCreateButton getTemplates={getTemplates} _teamid={_teamid} />
                                                                 </div>
                                                             </div>

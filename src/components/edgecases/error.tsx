@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 export function NotFoundError(){
     return (
-      <div>
+      <body>
         <title>Not Found | Textuality</title>
         <div className="flex items-center justify-center min-h-screen">
           <Card className="w-full border-yellow-500 max-w-md z-50 pingpulseborderyellow">
@@ -19,6 +19,6 @@ export function NotFoundError(){
             </CardContent>
           </Card>
         </div>
-        </div>
+        </body>
       );
 }

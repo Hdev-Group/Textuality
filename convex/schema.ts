@@ -60,6 +60,7 @@ content: defineTable({
     title: v.string(),
     apiref: v.string(),
     authorid: v.string(),
+    previousauthors: v.array(v.string()),
     lastUpdatedBy: v.string(),
     status: v.string(),
     content: v.string(),

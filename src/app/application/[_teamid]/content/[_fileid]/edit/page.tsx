@@ -24,13 +24,21 @@ import {
 import { AvatarImage } from '@radix-ui/react-avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { NotFoundError } from '@/components/edgecases/error';
 
 export default function ContentEditPage({ params }: { params: Promise<{ _teamid: string, _fileid: string }> }) {
     const router = useRouter();
     const { _teamid, _fileid } = React.use(params)
     const getPage = useQuery(api.page.getPage, { _id: _teamid as any });
     const getContent = useQuery(api.content.getContentSpecific, { _id: _fileid as any });
+    if (!getContent) {
+        return (
+            <NotFoundError />
+        )
+    }
     const getFields = useQuery(api.content.getFields, { templateid: getContent?.templateid });
+    const changeAuthor = useMutation(api.content.changeAuthor);
+    const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid as any });
     const [richTextValue, setRichTextValue] = useState('');
     console.log(getFields)
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
@@ -41,14 +49,22 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     useEffect(() => {
         async function fetchUserData() {
             if (getContent?.authorid) {
+                console.log(getContent?.authorid)
                 try {
                     const response = await fetch(`/api/secure/get-user?userId=${getContent?.authorid}`);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
                     setUserData(data.users);
                 } catch (error) {
-                    console.error("Error fetching user data:", error);
-                    setUserData([]);
+                    // check to see if its a department
+                    if (getDepartments?.[0]?._id === getContent?.authorid) {
+                        setUserData(getDepartments.map(department => ({
+                            firstName: department.departmentname,
+                            lastName: '',
+                            imageUrl: '',
+                            authordescription: department.departmentdescription
+                        })));
+                    }
                 } finally {
                     setDataLoaded(true);
                 }
@@ -108,8 +124,9 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                 return <Input type="text" className='border rounded-md p-2 w-full' placeholder="Unknown field type" />;
         }
     };
-    function setAuthor() {
-        console.log('Author set')
+    function setAuthor(selectedAuthor) {
+        console.log("Selected Author ID:", selectedAuthor);
+        changeAuthor({ _id: _fileid as any, authorid: selectedAuthor, previousauthors: [...getContent?.previousauthors + getContent.authorid] });
     }
     return (
         <body className='overflow-y-hidden'>
@@ -131,7 +148,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                     </div>
                                     <div className='container mx-auto px-5 py-5'>
                                         <div className='flex flex-col gap-5'>
-                                            <Author authordetails={userData} onValueChange={setAuthor} teamid={_teamid} />
+                                            <Author authordetails={userData} getDepartments={getDepartments} onValueChange={setAuthor} teamid={_teamid} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1'>
                                                     <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
@@ -237,13 +254,13 @@ interface Author {
     firstName: string
     lastName: string
     imageUrl?: string
+    authordescription: string
   }
   
-function Author({ authordetails, onValueChange, teamid }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string }) {
+function Author({ authordetails, onValueChange, teamid, getDepartments }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string, getDepartments: any }) {
 
-    const getDepartments = useQuery(api.department.getDepartments, { pageid: teamid as any });
     const mainAuthor = authordetails?.[0]
-    const [selectedAuthor, setSelectedAuthor] = useState<'mainAuthor' | 'hiddenAuthor'>('mainAuthor')
+    const [selectedAuthor, setSelectedAuthor] = useState()
 
     function SelectedAuthor(selectedAuthor) {
         setSelectedAuthor(selectedAuthor)
@@ -256,33 +273,45 @@ function Author({ authordetails, onValueChange, teamid }: { authordetails: any, 
   
     return (
       <Select value={selectedAuthor} onValueChange={(value: 'mainAuthor' | 'hiddenAuthor') => SelectedAuthor(value)}>
-        <SelectTrigger className="w-full">
-          <SelectValue className='p-2' placeholder="Select author type" />
+        <SelectTrigger className="w-full py-2">
+          <SelectValue className='p-2'  />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Main Author</SelectLabel>
-            <SelectItem value="mainAuthor">
-              <AuthorOption
-                author={mainAuthor}
-                showImage={true}
-                label="Main Author"
-              />
-            </SelectItem>
+                {
+                    getDepartments._id === mainAuthor._id ? (
+                        <SelectItem value={getDepartments?._id}>
+                            <DepartmentOption
+                                author={mainAuthor}
+                                showImage={true}
+                                label={mainAuthor.authordescription}
+                            />
+                        </SelectItem>
+                    ) : (
+                        <SelectItem value={mainAuthor._id}>
+                        <AuthorOption
+                            author={mainAuthor}
+                            showImage={true}
+                            label="Main author"
+                        />
+                        </SelectItem>
+                    )
+                }
             <SelectSeparator />
             <SelectLabel>Departments</SelectLabel>
             {
                 getDepartments.length > 0 ? getDepartments.map((department) => (
-                        <SelectItem value={department._id} key={department._id}>
-                            <DepartmentOption
-                                author={department?.departmentname as any}
-                                showImage={false}
-                                label={department?.departmentdescription as any}
-                            />
-                        </SelectItem>
-                        )) : <Link href={`/application/${teamid}/settings?type=content`}>
-                            <Button className='w-full text-left'>Create a department</Button>
-                        </Link>
+                <SelectItem value={department._id} key={department._id}>
+                    <DepartmentOption
+                        author={department?.departmentname as any}
+                        showImage={false}
+                        label={department?.departmentdescription as any}
+                    />
+                </SelectItem>
+                )) : <Link href={`/application/${teamid}/settings?type=content`}>
+                    <Button className='w-full text-left'>Create a department</Button>
+                </Link>
             }
           </SelectGroup>
         </SelectContent>
@@ -290,39 +319,45 @@ function Author({ authordetails, onValueChange, teamid }: { authordetails: any, 
     )
   }
   
-  function AuthorOption({ author, showImage, label }: { author: Author, showImage: boolean, label: string }) {
+  function AuthorOption({ author, showImage, label }: { author: any, showImage: boolean, label: string }) {
+    const displayName = typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`;
+  
     return (
       <div className="flex items-center cursor-pointer justify-start gap-2">
         <Avatar>
           {showImage && author.imageUrl ? (
-            <AvatarImage src={author.imageUrl} alt={`${author.firstName || author} ${author.lastName}`} />
+            <AvatarImage src={author.imageUrl} alt={displayName} />
           ) : (
-            <AvatarFallback>{author.firstName || ""}</AvatarFallback>
+            <AvatarFallback>{displayName}</AvatarFallback>
           )}
         </Avatar>
         <div className='flex flex-col items-start justify-center'>
-          <p className="text-sm font-medium">{author.firstName || author as any} {author.lastName}</p>
+          <p className="text-sm font-medium">{displayName}</p>
           <p className="text-xs text-muted-foreground">{label}</p>
         </div>
       </div>
-    )
+    );
   }
+  
   function DepartmentOption({ author, showImage, label }: { author: any, showImage: boolean, label: string }) {
+    const displayName = typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`;
+  
     return (
       <div className="flex items-center cursor-pointer justify-start gap-2">
         <Avatar>
           {showImage && author.imageUrl ? (
-            <AvatarImage src={author.imageUrl} alt={`${author.firstName || author} ${author.lastName}`} />
+            <AvatarImage src={author.imageUrl} alt={displayName} />
           ) : (
             <AvatarFallback>
-              {author.split(' ').map((word) => word[0]).join('')}
+              {typeof displayName === 'string' ? displayName.split(' ').map(word => word[0]).join('') : ''}
             </AvatarFallback>
           )}
         </Avatar>
         <div className='flex flex-col items-start justify-center'>
-          <p className="text-sm font-medium">{author}</p>
+          <p className="text-sm font-medium">{displayName}</p>
           <p className="text-xs text-muted-foreground">{label}</p>
         </div>
       </div>
-    )
+    );
   }
+  
