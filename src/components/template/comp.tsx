@@ -51,8 +51,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
       name: "Event Announcement", 
       fields: [
         { name: "Event Name", type: "Short Text" },
-        { name: "Date", type: "Date and time" },
-        { name: "Time", type: "Date and time" },
+        { name: "Date and Time", type: "Date and time" },
         { name: "Location", type: "Location" },
         { name: "Description", type: "Rich text" }
       ]
@@ -148,6 +147,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
                 <UnsureFieldTemplates onSelectTemplate={handleSelectTemplate} />
               ) : (
                 <FieldForm
+                  type={"Create"}
                   field={selectedField}
                   onBack={() => {
                     setAnimationDirection('left');
@@ -192,6 +192,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
           {field && (
             <FieldForm
               field={field}
+              type={"Edit"}
               onBack={() => onOpenChange(false)}
               onSubmit={(updatedField) => {
                 onEditField(updatedField)
@@ -204,7 +205,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     )
   }
   
-  function FieldForm({ field, onBack, onSubmit }: { field: FieldType, onBack: () => void, onSubmit: (field: FieldType) => void }) {
+  function FieldForm({ field, onBack, onSubmit, type }: { type: string, field: FieldType, onBack: () => void, onSubmit: (field: FieldType) => void }) {
     const [fieldName, setFieldName] = useState(field.fieldname || '');
     const [fieldId, setFieldId] = useState(field.reference || '');
     const [description, setDescription] = useState(field.description || '');
@@ -300,7 +301,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
             <Button type="button" variant="outline" onClick={onBack}>
               <ArrowLeft className="h-4 w-4 mr-2" /> Back
             </Button>
-            <Button type="submit">{field.fieldid ? 'Update' : 'Add'} {field.name} Field</Button>
+            <Button type="submit">{type} {field.name} Field</Button>
           </div>
         </DialogFooter>
       </form>

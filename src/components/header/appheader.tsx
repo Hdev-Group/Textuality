@@ -5,6 +5,7 @@ import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, Arr
 import { useUser } from "@clerk/clerk-react"
 import { useState, useEffect } from "react"
 import { useClerk } from '@clerk/nextjs'
+import { UserButton } from '@clerk/clerk-react'
 import { useRouter } from "next/navigation"
 import { usePathname } from 'next/navigation';
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
@@ -109,7 +110,7 @@ export default function AppHeader({ teamid, activesection }: any) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Page Settings</DropdownMenuLabel>
-                <Link href={`/application/${teamid}/settings`}>
+                <Link href={`/application/${teamid}/settings?type=general`}>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                 </Link>
                 <Link href={`/application/${teamid}/settings/users`}>
@@ -132,11 +133,7 @@ export default function AppHeader({ teamid, activesection }: any) {
               </DropdownMenuContent>
             </DropdownMenu>
             {user?.imageUrl && (
-              <img
-                src={user.imageUrl}
-                alt={user.fullName || "User avatar"}
-                className="h-8 w-8 rounded-full ml-2 border-2 border-neutral-600/20 p-0.5"
-              />
+              <UserButton />
             )}
             <Button
               className="lg:hidden"

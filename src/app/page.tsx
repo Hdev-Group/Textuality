@@ -15,6 +15,9 @@ import Link from "next/link"
 export default function Home() {
   return (
     <>
+    <title>
+      Textuality - Transform your content. Engage your audience. Seamlessly
+    </title>
     <body>
       <Header />
       <main className="mx-auto overflow-x-auto pt-28 px-4 sm:px-6 lg:px-8">
@@ -108,7 +111,7 @@ export default function Home() {
         <section className="container mx-auto text-center py-12 bg-gradient-to-tr from-teal-500/40 to-purple-700/40 dark:from-teal-500/20 dark:to-purple-400/20 rounded-3xl mb-12 mt-12 md:py-24">
           <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Blog?</h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Join thousands of content creators who trust HContent for their blogging needs
+            Join thousands of content creators who trust Textuality for their blogging needs
           </p>
           <Button size="lg">Sign Up Now</Button>
         </section>
@@ -304,14 +307,14 @@ function Reviews() {
     {
       name: "Harry Campbell",
       role: "CEO, Hdev Group",
-      content: "HContent has been a game changer for our blog. The prebuilt components make it easy to create stunning layouts in minutes.",
+      content: "Textuality has been a game changer for our blog. The prebuilt components make it easy to create stunning layouts in minutes.",
       avatar: "/placeholder.svg?height=40&width=40",
       rating: 5,
     },
     {
       name: "Alice Johnson",
       role: "Freelance Writer",
-      content: "I've tried many blogging platforms, but HContent is by far the best. The customization options are endless, and the support team is top-notch.",
+      content: "I've tried many blogging platforms, but Textuality is by far the best. The customization options are endless, and the support team is top-notch.",
       avatar: "/placeholder.svg?height=40&width=40",
       rating: 5,
     },

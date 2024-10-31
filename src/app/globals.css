@@ -108,12 +108,26 @@ body {
     box-shadow: 0 0 0 15px rgba(255, 255, 0, 0);
   }
 }
+.cl-internal-1hp5nqm, .cl-internal-1dauvpw{
+  display: none !important;
+}
 .ql-editor {
   color: var(--foreground) !important;
 }
 .ql-editor.ql-blank:before {
   color: white;
 }
+.scrollbaredit::-webkit-scrollbar{
+  width: 10px;
+}
+.scrollbaredit::-webkit-scrollbar-thumb{
+  background: var(--accent-foreground);
+  border-radius: 10px;
+}
+.scrollbaredit::-webkit-scrollbar-track{
+  background: var(--accent-foregroun);
+}
+
 @keyframes pingpulse {
   0%{
     border: red 2px solid;

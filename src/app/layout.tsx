@@ -6,6 +6,7 @@ import { Inter as FontSans } from "next/font/google";
 import ConvexClientProvider from "./ConvexClientProvider";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
+import Head from "next/head";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -23,13 +24,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY} dynamic>
       <ConvexProvider client={new ConvexReactClient(convexUrl)}>
         <html lang="en" className="dark">
-          <head>
+          <Head>
             <link rel="icon" href="/IMG_6128.png" />
             <title>Textuality</title>
             <meta name="description" content="Empowering your digital narrative." />
-          </head>
-            <ConvexClientProvider>{children}</ConvexClientProvider>
+          </Head>
+          <ConvexClientProvider>
+            {children}
             <Toaster />
+          </ConvexClientProvider>
         </html>
       </ConvexProvider>
     </ClerkProvider>

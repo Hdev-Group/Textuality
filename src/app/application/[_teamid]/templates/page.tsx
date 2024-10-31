@@ -9,6 +9,8 @@ import { BookMarkedIcon, Filter, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+
 import {
   Table,
   TableBody,
@@ -24,6 +26,7 @@ import AuthWrapper from '../withAuth';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useUser } from "@clerk/clerk-react";
 import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 type Template = {
   name: string
@@ -50,7 +53,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
   // Fetch data using hooks at the top level to avoid inconsistencies
   const getPage = useQuery(api.page.getPage, { _id: teamid as any });
   const getTemplates = useQuery(api.template.getTemplates, { pageid: teamid });
-  const getRole = useQuery(api.page.getRoledetail, { externalId: userId as string, pageId: teamid });
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId || "none", pageId: teamid });
 
   // Handle authorization and loading state
   useEffect(() => {
@@ -116,13 +119,6 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
 
   if (!isSignedIn) return <IsAuthorizedEdge />;
 
-
-  function DeleteTemplate(id: string) {
-    if (getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission))) {
-      confirm("Are you sure you want to delete this template? Removing this will clear any content") && TemplateRemove({ _id: id as any });
-    }
-  }
-
   const title = getPage?.title + " — Templates — Textuality";
   
   return (
@@ -175,10 +171,10 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                 {
                   filteredTemplates.length > 0 ? (
                   filteredTemplates.map((template, index) => (
-                    <TableRow className='cursor-pointer border-b-red-200' key={index} onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
-                    <TableCell>{template.title}</TableCell>
-                    <TableCell>{template.fields}</TableCell>
-                    <TableCell>
+                    <TableRow className='cursor-pointer border-b-red-200' key={index}>
+                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{template.title}</TableCell>
+                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{template.fields}</TableCell>
+                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
                       {userData.length > 0 ? (
                         <div className="flex flex-row items-center gap-2">
                           <Avatar className='h-7 w-7 border-2 p-0.5'>
@@ -202,12 +198,19 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
                         </div>
                       )}
                     </TableCell>
-                    <TableCell>{timeAgo(new Date(template._creationTime))}</TableCell>
+                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{timeAgo(new Date(template._creationTime))}</TableCell>
                     {
                       getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission)) && (
-                        <TableCell className='z-50'>
-                          <div className='flex'>
-                            <Trash2 className='hover:text-red-400 transition-all h-4' onClick={() => DeleteTemplate(template._id)} />
+                        <TableCell className="z-50">
+                          <div className="flex justify-end">
+                            <DeleteTemplate
+                              id={template._id}
+                              title={template.title}
+                              onDelete={async (id) => {
+                                await TemplateRemove({ _id: id as any});
+                              }}
+                              getRole={getRole}
+                            />
                           </div>
                         </TableCell>
                       )
@@ -240,4 +243,127 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
     </AuthWrapper>
     </body>
   );
+}
+interface DeleteTemplateProps {
+  id: any
+  title: string
+  onDelete: (id: string) => Promise<void>
+  getRole: { permissions: string[] }[]
+}
+
+function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [confirmTitle, setConfirmTitle] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  const [length, setLength] = useState(0)
+  const getContentSpecific = useQuery(api.template.getContentViaTemplate, { templateid: id as any});
+
+
+  const canDelete = getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission))
+
+    const handleDelete = async () => {
+      if (confirmTitle !== title) {
+        setError("The entered title doesn't match. Please try again.")
+        return
+      }
+      if (getContentSpecific?.length > 0){
+        setError("The template has content associated with it. Please delete the content items before deleting the template.")
+        return
+      }
+      setIsDeleting(true)
+      setError(null)
+  
+      try {
+        await onDelete(id)
+        setSuccess(true)
+        setTimeout(() => setIsOpen(false), 2000) // Close dialog after 2 seconds
+      } catch (err) {
+        setError("An error occurred while deleting the template. Please try again.")
+      } finally {
+        setIsDeleting(false)
+      }
+    }
+
+  if (!canDelete) return null
+
+  useEffect(() => {
+    const length = getContentSpecific?.length
+    setLength(length)
+  }, [getContentSpecific])
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="destructive" size="icon">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      {getContentSpecific && getContentSpecific?.length === 0 && (
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete Template</DialogTitle>
+          <DialogDescription>
+            This action cannot be undone. This will permanently delete the template, all content, and all its contents.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="py-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            To confirm, type <strong>{title}</strong> in the box below:
+          </p>
+          <Input
+            className="mt-2"
+            value={confirmTitle}
+            onChange={(e) => setConfirmTitle(e.target.value)}
+            placeholder="Enter template title"
+          />
+        </div>
+        {error && (
+          <Alert variant="destructive">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        {success && (
+          <Alert>
+            <AlertTitle>Success</AlertTitle>
+            <AlertDescription>The template has been successfully deleted.</AlertDescription>
+          </Alert>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+          <Button 
+            variant="destructive" 
+            onClick={handleDelete}
+            disabled={confirmTitle !== title || isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete Template"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+      )} {
+        // we will show an error if the template has content
+        getContentSpecific && getContentSpecific?.length > 0 && (
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Error Deleting Template</DialogTitle>
+              <DialogDescription>
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              You are <strong>unable to delete this template</strong> as it has content associated with it. 
+              We detected <strong>{length}</strong> content items associated with this template.
+              Please delete the content items before deleting the template.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsOpen(false)}>Okay, Got it.</Button>
+            </DialogFooter>
+          </DialogContent>
+        )
+      }
+    </Dialog>
+  )
 }

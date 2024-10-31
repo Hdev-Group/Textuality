@@ -17,11 +17,12 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
   const { _teamid } = React.use(params);
   const teamid = _teamid;
   const user = useUser();
+  const getPage = useQuery(api.page.getPage, { _id: teamid as any });
+
   const { userId, isLoaded, isSignedIn } = useAuth();
 
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const getPage = useQuery(api.page.getPage, { _id: teamid as any });
 
   useEffect(() => {
     if (getPage?.users?.includes(userId as string)) {
@@ -30,58 +31,49 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
       setIsAuthorized(false);
     }
   }, [getPage, userId]);
-  
-  if (!isLoaded) {
-    return (
-      <IsLoadedEdge />
-    );
-  }
-  if (!isAuthorized) {
-    return (
-      <IsAuthorizedEdge />
-    );
-  }
+
   const title = getPage?.title  + ' — Textuality'
 
   return (
     <>
-      <body className='overflow-hidden'>
+        <body className='overflow-hidden'>
         <title>{title}</title>
-      <AuthWrapper _teamid={teamid}>
-      <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
-        <AppHeader activesection="dashboard" teamid={teamid} />
-        <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
-          <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
-            <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
-              <div>
-                <h1 className="text-4xl font-bold">
-                  Welcome to {getPage?.title}.
-                </h1>
-                <p className="text-lg text-neutral-600 dark:text-neutral-400"></p>
-              </div>
-            </div>
 
-            <Card className="w-full">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Latest Blogs</CardTitle>
-                    <CardDescription>Manage and view your blogs</CardDescription>
-                  </div>
-                  <CreateBlog />
-                </div>
-              </CardHeader>
-              <CardContent>
-                {/* Your blog content here */}
-              </CardContent>
-            </Card>
-            <QuickStartGuide />
+          <AuthWrapper _teamid={teamid}>
+        <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
+          <AppHeader activesection="dashboard" teamid={teamid} />
+          <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
+            <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
+          <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
+            <div>
+              <h1 className="text-4xl font-bold">
+            Welcome to {getPage?.title}.
+              </h1>
+              <p className="text-lg text-neutral-600 dark:text-neutral-400"></p>
+            </div>
           </div>
-        </main>
-      </div>
-    </AuthWrapper>
-    </body>
-    </>
+
+          <Card className="w-full">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Latest Blogs</CardTitle>
+              <CardDescription>Manage and view your blogs</CardDescription>
+            </div>
+            <CreateBlog />
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Your blog content here */}
+            </CardContent>
+          </Card>
+          {/* {<QuickStartGuide />} */}
+            </div>
+          </main>
+        </div>
+          </AuthWrapper>
+        </body>
+      </>
   );
 }
 function QuickStartGuide(): JSX.Element {
@@ -125,10 +117,10 @@ function QuickStartGuide(): JSX.Element {
   return (
     <div className="mx-auto p-6 border rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-4"></div>
-        <h2 className="text-2xl font-bold text-gray-200">Your quick start guide</h2>
+        <h2 className="text-2xl font-bold text-neutral-900 dark:text-gray-200">Your quick start guide</h2>
         <div className="flex items-center"></div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-sm font-medium text-gray-200">Your quick start guide</h2>
+          <h2 className="text-sm font-medium text-neutral-900 dark:text-gray-200">Get started with Textuality in a few steps</h2>
           <div className="flex items-center">
             <span className="text-sm text-green-600 mr-2">All steps completed</span>
             <div className="w-24 h-2 bg-green-500 rounded-full"></div>

@@ -39,16 +39,19 @@ interface ProjectProps {
 }
 
 export default function Page() {
+  
   const { isSignedIn } = useAuth();
   const user = useUser();
+  const projects = useQuery(api.page.getPages);
+  const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id as string));
+  const getinvites = useQuery(api.page.getInvites, { externalId: user?.user?.id || "" });
+  const cancelInvite = useMutation(api.page.cancelInvite);
+  const acceptInvite = useMutation(api.page.acceptInvite);
   if (!isSignedIn) {
     return <IsAuthorizedEdge />;
   }
   // Fetch projects using useQuery
-  const projects = useQuery(api.page.getPages);
   // check if user can access projects
-  const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id as string));
-  const getinvites = useQuery(api.page.getInvites, { externalId: user?.user?.id || "" });
 
   const isLoading = !projects; 
   const error = projects === null; 
@@ -66,8 +69,7 @@ export default function Page() {
   } else if (hours >= 0 && hours < 5) {
     time = "night";
   }
-  const cancelInvite = useMutation(api.page.cancelInvite);
-  const acceptInvite = useMutation(api.page.acceptInvite);
+
 
   const CancelInvite = (inviteId: any) => {
       cancelInvite({ _id: inviteId.InviteDetails._id });
@@ -85,6 +87,9 @@ export default function Page() {
   
   return (
     <>
+    <title>
+      Textuality - Home
+    </title>
     <body className="overflow-hidden">
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
@@ -340,6 +345,7 @@ function CreatePage() {
               required
               maxLength={50}
             />
+            <span className="text-sm text-gray-500">{title.length}/50</span>
           </div>
           <div className="space-y-2">
             <Label htmlFor="content">Page Content</Label>
@@ -351,6 +357,7 @@ function CreatePage() {
               required
               maxLength={500}
             />
+            <span className="text-sm text-gray-500">{content.length}/500</span>
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>

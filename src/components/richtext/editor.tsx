@@ -25,6 +25,7 @@ const RichTextEditor = () => {
         theme="snow"
         value={value}
         onChange={setValue}
+        placeholder="Write something amazing..."
         modules={modules}
         className={styles.editor}
       />
