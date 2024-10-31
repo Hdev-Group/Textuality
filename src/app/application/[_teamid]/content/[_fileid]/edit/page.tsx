@@ -3,13 +3,25 @@ import AppHeader from '@/components/header/appheader'
 import AuthWrapper from '../../../withAuth'
 import { api } from '../../../../../../../convex/_generated/api'
 import { useQuery, useMutation } from 'convex/react'
-import React, { useEffect, useState } from 'react'
+import React, { act, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BotMessageSquare, ChevronLeft, LucideClipboardSignature, MessagesSquare, SidebarOpen, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/richtext/editor';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    SelectLabel,
+    SelectSeparator
+  } from "@/components/ui/select"
+import { AvatarImage } from '@radix-ui/react-avatar';
 
 export default function ContentEditPage({ params }: { params: Promise<{ _teamid: string, _fileid: string }> }) {
     const router = useRouter();
@@ -20,8 +32,28 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const [richTextValue, setRichTextValue] = useState('');
     console.log(getFields)
     const [isSideBarOpen, setIsSideBarOpen] = useState(false)
+    const [userData, setUserData] = useState([]);
+    const [dataLoaded, setDataLoaded] = useState(false);
     const [activeSidebar, setActiveSidebar] = useState<string | null>(null)
     const title = getPage?.title + ' — ' + getContent?.title + '— Textuality';
+    useEffect(() => {
+        async function fetchUserData() {
+            if (getContent?.authorid) {
+                try {
+                    const response = await fetch(`/api/secure/get-user?userId=${getContent?.authorid}`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    setUserData(data.users);
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                    setUserData([]);
+                } finally {
+                    setDataLoaded(true);
+                }
+            }
+        }
+        fetchUserData();
+    }, [getContent]);
     const handleSidebarClick = (sidebar: string) => {
         setActiveSidebar(sidebar);
         if (sidebar === activeSidebar) {
@@ -52,7 +84,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                 );
             case "Boolean":
                 return (
-                    <Switch defaultChecked={false} /> // Replace with a real handler for state
+                    <Switch defaultChecked={false} /> 
                 );
             case "Date and time":
                 return (
@@ -60,7 +92,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                 );
             case "Location":
                 return (
-                    <Input type="text" className='border rounded-md p-2 w-full' placeholder="Latitude, Longitude" />
+                    <Input type="text" className='border rounded-md p-2 w-full' placeholder='Enter location' />
                 );
             case "JSON object":
                 return (
@@ -74,7 +106,9 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                 return <Input type="text" className='border rounded-md p-2 w-full' placeholder="Unknown field type" />;
         }
     };
-
+    function setAuthor() {
+        console.log('Author set')
+    }
     return (
         <body className='overflow-y-hidden'>
             <title>{title}</title>
@@ -95,6 +129,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                     </div>
                                     <div className='container mx-auto px-5 py-5'>
                                         <div className='flex flex-col gap-5'>
+                                            <Author authordetails={userData} onValueChange={setAuthor} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1'>
                                                     <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
@@ -157,7 +192,35 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                 </div>
                             </div>
                         </div>
-                        <div className={`${isSideBarOpen && activeSidebar !== null  ? `${activeSidebar === "viewer" ? "w-1/2" : "w-[30rem]"}` : "w-[0rem]"} : "w-[0rem]"} flex flex-col gap-5 transition-all`}>
+                        <div className={`${isSideBarOpen && activeSidebar !== null  ? `${activeSidebar === "viewer" ? "w-[90%]" : "w-[30rem]"}` : "w-[0rem]"} : "w-[0rem]"} flex flex-col gap-5 transition-all`}>
+                        {
+                            activeSidebar === "viewer" ? (
+                                <div className='flex flex-col gap-5'>
+                                    <div className='border-b p-5'>
+                                        <h1 className='text-2xl font-bold'>Content Preview</h1>
+                                    </div>
+
+                                </div>
+                            ) : activeSidebar === "chat" ? (
+                                <div className='flex flex-col gap-5'>
+                                    <div className='border-b p-5'>
+                                        <h1 className='text-2xl font-bold'>Chat</h1>
+                                    </div>
+                                </div>
+                            ) : activeSidebar === "logs" ? (
+                                <div className='flex flex-col gap-5'>
+                                    <div className='border-b p-5'>
+                                        <h1 className='text-2xl font-bold'>Logs</h1>
+                                    </div>
+                                </div>
+                            ) : activeSidebar === "ai" ? (
+                                <div className='flex flex-col gap-5'>
+                                    <div className='border-b p-5'>
+                                        <h1 className='text-2xl font-bold'>AI</h1>
+                                    </div>
+                                </div>
+                            ) : null
+                        }
                         </div>
                     </div>
                 </div>
@@ -167,3 +230,70 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
 </body>
     )
 }
+interface Author {
+    id: string
+    firstName: string
+    lastName: string
+    imageUrl?: string
+  }
+  
+function Author({ authordetails, onValueChange }: { authordetails: any, onValueChange: (selectedAuthor) => void }) {
+    const mainAuthor = authordetails?.[0]
+    const [selectedAuthor, setSelectedAuthor] = useState<'mainAuthor' | 'hiddenAuthor'>('mainAuthor')
+
+    function SelectedAuthor(selectedAuthor) {
+        setSelectedAuthor(selectedAuthor)
+        onValueChange(selectedAuthor)
+    }
+  
+    if (!mainAuthor) {
+      return null
+    }
+  
+    return (
+      <Select value={selectedAuthor} onValueChange={(value: 'mainAuthor' | 'hiddenAuthor') => SelectedAuthor(value)}>
+        <SelectTrigger className="w-[250px]">
+          <SelectValue placeholder="Select author type" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Main Author</SelectLabel>
+            <SelectItem value="mainAuthor">
+              <AuthorOption
+                author={mainAuthor}
+                showImage={true}
+                label="Main Author"
+              />
+            </SelectItem>
+            <SelectSeparator />
+            <SelectLabel>Hidden Author / Company</SelectLabel>
+            <SelectItem value="hiddenAuthor">
+              <AuthorOption
+                author={"Hdev Group" as any}
+                showImage={false}
+                label="Hdev HQ"
+              />
+            </SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    )
+  }
+  
+  function AuthorOption({ author, showImage, label }: { author: Author, showImage: boolean, label: string }) {
+    return (
+      <div className="flex items-center cursor-pointer justify-start gap-2">
+        <Avatar>
+          {showImage && author.imageUrl ? (
+            <AvatarImage src={author.imageUrl} alt={`${author.firstName || author} ${author.lastName}`} />
+          ) : (
+            <AvatarFallback>{author.firstName || ""}</AvatarFallback>
+          )}
+        </Avatar>
+        <div className='flex flex-col items-start justify-center'>
+          <p className="text-sm font-medium">{author.firstName || author as any} {author.lastName}</p>
+          <p className="text-xs text-muted-foreground">{label}</p>
+        </div>
+      </div>
+    )
+  }

@@ -258,8 +258,6 @@ function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [length, setLength] = useState(0)
-  console.log(length)
-  const TemplateRemove = useMutation(api.template.remove);
   const getContentSpecific = useQuery(api.template.getContentViaTemplate, { templateid: id as any});
 
 

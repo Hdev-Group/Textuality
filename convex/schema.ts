@@ -86,4 +86,10 @@ componenteditor: defineTable({
     componentposition: v.any(),
     componentdata: v.any(),
 }).index("bytemplateid", ["templateid"]),
+departments: defineTable({
+    departmentname: v.string(),
+    departmentdescription: v.string(),
+    isLive: v.boolean(),
+    pageid: v.any(),
+}).index("bydepartmentname", ["departmentname"]),
 });

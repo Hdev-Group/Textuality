@@ -345,6 +345,7 @@ function CreatePage() {
               required
               maxLength={50}
             />
+            <span className="text-sm text-gray-500">{title.length}/50</span>
           </div>
           <div className="space-y-2">
             <Label htmlFor="content">Page Content</Label>
@@ -356,6 +357,7 @@ function CreatePage() {
               required
               maxLength={500}
             />
+            <span className="text-sm text-gray-500">{content.length}/500</span>
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>

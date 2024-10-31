@@ -110,7 +110,7 @@ export default function AppHeader({ teamid, activesection }: any) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Page Settings</DropdownMenuLabel>
-                <Link href={`/application/${teamid}/settings`}>
+                <Link href={`/application/${teamid}/settings?type=general`}>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                 </Link>
                 <Link href={`/application/${teamid}/settings/users`}>
