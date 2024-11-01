@@ -26,9 +26,11 @@ export default function ComponentCustomization() {
   })
 
   const [featureProps, setFeatureProps] = useState({
-    title: 'Amazing Feature',
-    description: 'This feature will revolutionize your workflow',
-    icon: <Star className="h-6 w-6" />
+    title: 'Cool Blog Name',
+    description: 'This blog is the best blog ever. It has all the best posts and the best content. You should definitely read it.',
+    totalposts: "3",
+    borderhovercolour: 'rgb(135, 135, 135)',
+    bordercolour: 'rgb(106, 106, 106)',
   })
 
   const [ctaProps, setCtaProps] = useState({
@@ -78,7 +80,6 @@ export default function ComponentCustomization() {
                 </div>
                 <div className='flex flex-row gap-4 w-full justify-between'>
                     {/* this will be for the colours */}
-
                     <div className='w-full flex flex-col gap-0.5'>
                     <Label htmlFor="boldText">Bold Text</Label>
                     <Input id="boldtext" type='color' value={blogpost.boldText} onChange={(e) => setblogpostProps({...blogpost, boldText: e.target.value})} />
@@ -102,12 +103,26 @@ export default function ComponentCustomization() {
               <h2 className="text-xl font-semibold mb-4 mt-4">Post Page Customization</h2>
               <div className="space-y-4">
                 <div>
+                  <Label htmlFor="numberofposts">Number of Posts</Label>
+                  <Input id="numberofposts" type="number" min={0} max={20} value={featureProps.totalposts} onChange={(e) => setFeatureProps({...featureProps, totalposts: e.target.value})} />
+                </div>
+                <div>
                   <Label htmlFor="featureTitle">Title</Label>
                   <Input id="featureTitle" value={featureProps.title} onChange={(e) => setFeatureProps({...featureProps, title: e.target.value})} />
                 </div>
                 <div>
                   <Label htmlFor="featureDescription">Description</Label>
                   <Input id="featureDescription" value={featureProps.description} onChange={(e) => setFeatureProps({...featureProps, description: e.target.value})} />
+                </div>
+                <div className='flex flex-row gap-4 w-full justify-between'>
+                <div className='w-full flex flex-col gap-0.5'>
+                  <Label htmlFor='diffsidesborder'>Border Colour</Label>
+                  <Input id='diffsidesborder' className='w-full' type='color' value={featureProps.bordercolour} onChange={(e) => setFeatureProps({...featureProps, bordercolour: e.target.value})} />
+                  </div>
+                  <div className='w-full flex flex-col gap-0.5'>
+                    <Label htmlFor='hoverborder'>Hover Border</Label>
+                    <Input id='hoverborder' className='w-full' type='color' value={featureProps.borderhovercolour} onChange={(e) => setFeatureProps({...featureProps, borderhovercolour: e.target.value})} />
+                  </div>
                 </div>
               </div>
             </div>
