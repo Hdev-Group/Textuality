@@ -232,61 +232,72 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                         <Droppable droppableId="fields">
                         {(provided) => (
                           <TableBody className='border-x border-b-2 border-gray-200 dark:border-neutral-800' {...provided.droppableProps} ref={provided.innerRef}>
-                            {fields
-                              .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))  
-                              .map((field, index) => (
-                                <Draggable  key={field._id} draggableId={field._id as string} index={index}>
-                                  {(provided) => (
-                                    <TableRow
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                    >
-                                      <TableCell>
-                                        <div className="flex items-center">
-                                          <span {...provided.dragHandleProps} className="mr-2 cursor-move">
-                                            <GripVertical className="h-4 w-4" />
-                                          </span>
-                                          {field?.fieldposition} {/* Display the field position */}
-                                        </div>
-                                      </TableCell>
-                                      <TableCell>{field.fieldname || field.name}</TableCell>
-                                      <TableCell>
-                                        <div className="flex items-center">
-                                          <div className="flex items-center">
-                                            {fieldTypes.find(ft => ft.name === field.type)?.icon && 
-                                              React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
-                                            }
-                                            {field.type}
-                                          </div>
-                                        </div>
-                                      </TableCell>
-                                      <TableCell>
-                                        <div className="flex items-center space-x-2">
-                                          <Button variant="ghost" size="sm" onClick={() => handleEdit(field._id as string)}>
-                                            <Edit className="h-4 w-4" />
-                                            <span className="sr-only">Edit {field.fieldname || field.name}</span>
-                                          </Button>
-                                          <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                              <Button variant="ghost" size="sm">
-                                                <MoreHorizontal className="h-4 w-4" />
-                                                <span className="sr-only">More options for {field.fieldname || field.name}</span>
+                            {
+                              fields.length > 0 ? (
+                                fields
+                                  .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))  
+                                  .map((field, index) => (
+                                    <Draggable  key={field._id} draggableId={field._id as string} index={index}>
+                                      {(provided) => (
+                                        <TableRow
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                        >
+                                          <TableCell>
+                                            <div className="flex items-center">
+                                              <span {...provided.dragHandleProps} className="mr-2 cursor-move">
+                                                <GripVertical className="h-4 w-4" />
+                                              </span>
+                                              {field?.fieldposition} {/* Display the field position */}
+                                            </div>
+                                          </TableCell>
+                                          <TableCell>{field.fieldname || field.name}</TableCell>
+                                          <TableCell>
+                                            <div className="flex items-center">
+                                              <div className="flex items-center">
+                                                {fieldTypes.find(ft => ft.name === field.type)?.icon && 
+                                                  React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
+                                                }
+                                                {field.type}
+                                              </div>
+                                            </div>
+                                          </TableCell>
+                                          <TableCell>
+                                            <div className="flex items-center space-x-2">
+                                              <Button variant="ghost" size="sm" onClick={() => handleEdit(field._id as string)}>
+                                                <Edit className="h-4 w-4" />
+                                                <span className="sr-only">Edit {field.fieldname || field.name}</span>
                                               </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                              <DropdownMenuItem onClick={() => handleDelete(field._id as string)}>
-                                                <Trash className="mr-2 h-4 w-4" />
-                                                Delete
-                                              </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                          </DropdownMenu>
-                                        </div>
-                                      </TableCell>
-                                    </TableRow>
-                                  )}
-                                </Draggable>
-                              ))}
+                                              <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                  <Button variant="ghost" size="sm">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">More options for {field.fieldname || field.name}</span>
+                                                  </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                  <DropdownMenuItem onClick={() => handleDelete(field._id as string)}>
+                                                    <Trash className="mr-2 h-4 w-4" />
+                                                    Delete
+                                                  </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                              </DropdownMenu>
+                                            </div>
+                                          </TableCell>
+                                        </TableRow>
+                                      )}
+                                    </Draggable>
+                                  ))
+                              ) : (
+                                <TableRow  className="text-center py-4 ">
+                                  <TableCell colSpan={4} className='flex-1 space-y-2'>
+                                    <p className='w-full'>No fields found. Click "Add Field" to create your first field.</p>
+                                    <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            }
                             {provided.placeholder}
                           </TableBody>
                         )}

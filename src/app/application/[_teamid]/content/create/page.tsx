@@ -101,7 +101,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                             <DialogFooter className='mt-5'>
                                 <div className="flex justify-between w-full">
                                     <Button variant="outline"  onClick={() => setOpen(false)}>Cancel</Button>
-                                    <Button type='submit'>Create Template</Button>
+                                    <Button type='submit'>Create Content</Button>
                                 </div>
                             </DialogFooter>
                         </form>

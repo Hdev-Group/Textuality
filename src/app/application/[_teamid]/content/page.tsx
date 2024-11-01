@@ -48,6 +48,10 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
     const [userData, setUserData] = useState<any[]>([]);
     const [dataloaded, setDataLoaded] = useState(false);
     const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
+
+    const departmentFilter = getDepartments?.filter((department) => department._id === getContent?.[0]?.authorid);
+    console.log(departmentFilter);
+
     useEffect(() => {
         setFilteredContentItems(getContent || []);
     }, [getContent]);
@@ -186,12 +190,12 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                                                                     </Avatar>
                                                                                     <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
                                                                                 </div>
-                                                                            ) : getDepartments?.length > 0 ? (
+                                                                            ) : departmentFilter?.length > 0 ? (
                                                                                 <div className="flex flex-row items-center gap-2 px-2.5 py-1 rounded-sm">
                                                                                     <Avatar className="h-7 w-7 border-2 p-0.5">
-                                                                                        <AvatarFallback>{getDepartments?.[0]?.departmentname.charAt(0)}</AvatarFallback>
+                                                                                        <AvatarFallback>{departmentFilter?.[0]?.departmentname.charAt(0)}</AvatarFallback>
                                                                                     </Avatar>
-                                                                                    <span>{getDepartments[0]?.departmentname}</span>
+                                                                                    <span>{departmentFilter?.[0]?.departmentname}</span>
                                                                                 </div>
                                                                             ) : (
                                                                                 <div className="flex flex-row items-center gap-2">
