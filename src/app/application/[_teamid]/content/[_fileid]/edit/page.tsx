@@ -395,8 +395,8 @@ function MessageList({ teamid, contentid }: any) {
     return (
 <div className='flex flex-col gap-3 px-2 flex-grow flex-shrink overflow-y-scroll overflow-x-hidden w-auto scrollbaredit'>
     <div className='flex flex-col gap-3 mb-28 flex-wrap'>
-        {
-            storedMessages?.map((message: any) => {
+        {storedMessages.length > 0 ? (
+            storedMessages.map((message: any) => {
                 const author = userData.find((user) => user.authorId === message.authorid);
                 return dataLoaded ? (
                     <div key={message._id} className='flex flex-col gap-3 px-1'>
@@ -430,9 +430,13 @@ function MessageList({ teamid, contentid }: any) {
                             <p className='text-sm font-medium w-20 h-1 dark:bg-neutral-500 bg-neutral-800 animate-pulse'></p>
                         </div>
                     </div>
-                )
+                );
             })
-        }
+        ) : (
+            <div className='flex items-center justify-center'>
+                <p className='text-md text-start font-semibold'>No messages have been sent yet. <br/> We are counting on you to be the first :).</p>
+            </div>
+        )}
     </div>
 </div>
     )
