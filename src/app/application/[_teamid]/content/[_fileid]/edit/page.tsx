@@ -5,6 +5,7 @@ import AuthWrapper from '../../../withAuth'
 import { api } from '../../../../../../../convex/_generated/api'
 import { useQuery, useMutation } from 'convex/react'
 import React, { act, useEffect, useState } from 'react'
+import { useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation'
 import { BotMessageSquare, ChevronLeft, LucideClipboardSignature, MessagesSquare, SidebarOpen, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -30,6 +31,7 @@ import { NotFoundError } from '@/components/edgecases/error';
 
 export default function ContentEditPage({ params }: { params: Promise<{ _teamid: string, _fileid: string }> }) {
     const router = useRouter();
+    const { userId } = useAuth();
     const { _teamid, _fileid } = React.use(params);
     const getPage = useQuery(api.page.getPage, { _id: _teamid as any });
     const getContent = useQuery(api.content.getContentSpecific, { _id: _fileid as any });
@@ -209,8 +211,8 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                         <h1 className='text-2xl font-bold'>Chat</h1>
                                     </div>
                                     <div className="flex flex-col h-full justify-between relative">
-                                        <MessageList />
-                                        <MessageInputter />
+                                        <MessageList contentid={_fileid} teamid={_teamid} />
+                                        <MessageInputter authorid={userId} teamid={_teamid} contentid={_fileid} />
                                     </div>
                                 </div>
                             ) : activeSidebar === "logs" ? (
@@ -349,34 +351,124 @@ function Author({ authordetails, onValueChange, teamid, getDepartments }: { auth
     );
   }
   
-function MessageList() {
+function MessageList({ teamid, contentid }: any) {
+    const messages = useQuery(api.message.getMessages, { pageid: teamid, contentid: contentid });
+    console.log(messages);
+    const [dataLoaded, setDataLoaded] = useState(false);
+    const [userData, setUserData] = useState([]);
+    const [storedMessages, setStoredMessages] = useState([]);
+
+    useEffect(() => {
+        async function fetchUserData() {
+            if (messages?.length > 0) {
+                const uniqueAuthorIds = [...new Set(messages.map((message: any) => message.authorid))];
+                try {
+                    const userDataPromises = uniqueAuthorIds.map(async (authorId) => {
+                        const response = await fetch(`/api/secure/get-user?userId=${authorId}`);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const data = await response.json();
+                        return { authorId, ...data.users[0] };
+                    });
+                    const usersData = await Promise.all(userDataPromises);
+                    setUserData(usersData);
+                } catch (error) {
+                    throw new Error(`HTTP error! status: ${error}`);
+                } finally {
+                    setDataLoaded(true);
+                }
+            }
+        }
+        fetchUserData();
+    }, [messages]);
+
+    useEffect(() => {
+        if (messages) {
+            setStoredMessages((prevMessages) => {
+                const newMessages = messages.filter(
+                    (message) => !prevMessages.some((prevMessage) => prevMessage._id === message._id)
+                );
+                return [...prevMessages, ...newMessages];
+            });
+        }
+    }, [messages]);
+
     return (
-        <div className='flex flex-col gap-3 px-2 flex-grow flex-shrink overflow-y-scroll scrollbaredit'>
-            <div className='flex flex-col gap-3 mb-28'>
-            <div className='flex flex-col gap-2'>
-                <div className='flex flex-row gap-2'>
-                    <Avatar>
-                        <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                    <div className='flex flex-col'>
-                        <p className='text-sm font-semibold'>User</p>
-                        <p className='text-xs text-muted-foreground'>1 min ago</p>
+<div className='flex flex-col gap-3 px-2 flex-grow flex-shrink overflow-y-scroll overflow-x-hidden w-auto scrollbaredit'>
+    <div className='flex flex-col gap-3 mb-28 flex-wrap'>
+        {
+            storedMessages?.map((message: any) => {
+                const author = userData.find((user) => user.authorId === message.authorid);
+                return dataLoaded ? (
+                    <div key={message._id} className='flex flex-col gap-3 px-1'>
+                        <div className='flex flex-row gap-2'>
+                            <Avatar>
+                                <AvatarImage src={author?.imageUrl} alt={author?.firstName} />
+                                <AvatarFallback>{author?.firstName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className='flex flex-col gap-1'>
+                                <p className='text-sm font-medium'>{author?.firstName} {author?.lastName}</p>
+                                <p className='text-xs text-muted-foreground'>{new Date(message.updated).toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div className='flex flex-col gap-1 px-12'>
+                            <p className='text-sm font-medium break-all'>{message.message}</p>
+                        </div>
                     </div>
-                </div>
-                <div className='flex flex-col gap-1 px-12'>
-                    <p className='text-sm'>Hello, how can I help you today?</p>
-                </div>
-            </div>
-        </div>
-        </div>
+                ) : (
+                    <div key={message._id} className='flex flex-col gap-3 px-1'>
+                        <div className='flex flex-row gap-2'>
+                            <Avatar className='dark:bg-neutral-500 bg-neutral-800 animate-pulse'>
+                                <AvatarImage src={author?.imageUrl} alt={author?.firstName} />
+                                <AvatarFallback>{author?.firstName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className='flex flex-col gap-1'>
+                                <p className='text-sm font-medium w-20 h-1 dark:bg-neutral-500 bg-neutral-800 animate-pulse'></p>
+                                <p className='text-sm font-medium w-20 h-1 dark:bg-neutral-500 bg-neutral-800 animate-pulse'></p>
+                            </div>
+                        </div>
+                        <div className='flex flex-col gap-1 px-12'>
+                            <p className='text-sm font-medium w-20 h-1 dark:bg-neutral-500 bg-neutral-800 animate-pulse'></p>
+                        </div>
+                    </div>
+                )
+            })
+        }
+    </div>
+</div>
     )
 }
-function MessageInputter() {
+
+function MessageInputter({authorid, contentid, teamid}: any) {
     const messageSender = useMutation(api.message.sendMessage);
+    function Subbmitter(event) {
+        event.preventDefault();
+        if (event.target[0].value.length === 0) {
+            return alert('Please type a message');
+        } else if (event.target[0].value.length > 500) {
+            return alert('Message must be less than 500 characters');
+        } 
+        // check if messages are being sent too fast we will have to implement a cooldown
+
+        const cooldown = 5000;
+        const lastMessage = new Date().getTime();
+        const timeDifference = lastMessage - cooldown;
+        const lastMessageSent = new Date().getTime();
+        if (lastMessageSent < timeDifference) {
+            return alert('Please wait before sending another message');
+        }
+
+
+        messageSender({ message: event.target[0].value as any, authorid: authorid as any, contentid: contentid as any, pageid: teamid as any, updated: Date.now() });
+        event.target[0].value = '';
+    }
     return (
         <div className='flex flex-row gap-2 px-2 pb-3  sticky bottom-0'>
-            <Input type='text' placeholder='Type a message' className='border rounded-md p-2 w-full' />
-            <Button>Send</Button>
+            <form onSubmit={(event) => {
+                Subbmitter(event)
+            }} className='flex flex-row gap-2 w-full'>
+                <Input type='text' placeholder='Type a message' maxLength={500} className='w-full' />
+                <Button type='submit'>Send</Button>
+            </form>
         </div>
     )
 }
