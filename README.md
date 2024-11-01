@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Textuality
 
-First, run the development server:
+Content managment system for the web, Used for blogs, event posts or anything alike. With custom components Textuality is a strong force in the CMS field.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Authors
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- [@CampbellHarry](https://github.com/CampbellHarry)
+- [@Hdev Group](https://github.com/Hdev-Group)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features
 
-## Learn More
+- Light/dark mode toggle
+- Live previews
+- Cross platform
+- Real time Communication
+- API transport to website.
+- Role Based authenticaiton.
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Screenshots
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+![App Screenshot](https://hdev.uk/textuality/textuality-1.png)
+![App Screenshot](https://hdev.uk/textuality/textuality-2.png)
+![App Screenshot](https://hdev.uk/textuality/textuality-3.png)
+![App Screenshot](https://hdev.uk/textuality/textuality-4.png)
+![App Screenshot](https://hdev.uk/textuality/textuality-5.png)
+![App Screenshot](https://hdev.uk/textuality/textuality-6.png)
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+[Custom](https://github.com/Hdev-Group/Textuality/blob/master/LICENSE.MD)
+
