@@ -417,11 +417,7 @@ function Prices() {
                 Get Started
               </Button>
             </CardFooter>
-            {plan.popular && (
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-bl-lg rounded-tr-lg">
-                Popular
-              </div>
-            )}
+
           </Card>
         ))}
       </div>

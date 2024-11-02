@@ -98,6 +98,14 @@ body {
 .pingpulseborderyellow {
   animation: pingpulseyellow 2s infinite;
 }
+.onzoomers:hover .zoomerfollow{
+  transition: all 0.3s ease-in-out;
+  transform: translateX(10px);
+}
+.zoomerfollow{
+  transition: all 0.3s ease-in-out;
+  transform: translateX(0px);
+}
 @keyframes pingpulseyellow {
   0%{
     border: yellow 2px solid;

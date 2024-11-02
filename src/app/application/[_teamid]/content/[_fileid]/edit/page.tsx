@@ -1,11 +1,13 @@
 "use client";
+
 import AppHeader from '@/components/header/appheader'
 import AuthWrapper from '../../../withAuth'
 import { api } from '../../../../../../../convex/_generated/api'
 import { useQuery, useMutation } from 'convex/react'
 import React, { act, useEffect, useState } from 'react'
+import { useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation'
-import { BotMessageSquare, ChevronLeft, LucideClipboardSignature, MessagesSquare, SidebarOpen, View } from 'lucide-react';
+import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronLeft, LucideClipboardSignature, MessagesSquare, SidebarOpen, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -22,103 +24,146 @@ import {
     SelectSeparator
   } from "@/components/ui/select"
 import { AvatarImage } from '@radix-ui/react-avatar';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { DoesExist } from '../../doesExist';
+import { NotFoundError } from '@/components/edgecases/error';
+import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function ContentEditPage({ params }: { params: Promise<{ _teamid: string, _fileid: string }> }) {
     const router = useRouter();
-    const { _teamid, _fileid } = React.use(params)
+    const { userId } = useAuth();
+    const { _teamid, _fileid } = React.use(params);
     const getPage = useQuery(api.page.getPage, { _id: _teamid as any });
     const getContent = useQuery(api.content.getContentSpecific, { _id: _fileid as any });
     const getFields = useQuery(api.content.getFields, { templateid: getContent?.templateid });
+    const changeAuthor = useMutation(api.content.changeAuthor);
+    const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid as any });
     const [richTextValue, setRichTextValue] = useState('');
-    console.log(getFields)
-    const [isSideBarOpen, setIsSideBarOpen] = useState(false)
+    const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+    const [fieldValues, setFieldValues] = useState({});
     const [userData, setUserData] = useState([]);
     const [dataLoaded, setDataLoaded] = useState(false);
-    const [activeSidebar, setActiveSidebar] = useState<string | null>(null)
-    const title = getPage?.title + ' — ' + getContent?.title + '— Textuality';
+    const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
+    const title = `${getPage?.title} — ${getContent?.title} — Textuality`;
+
     useEffect(() => {
         async function fetchUserData() {
             if (getContent?.authorid) {
+                console.log(getContent?.authorid);
                 try {
                     const response = await fetch(`/api/secure/get-user?userId=${getContent?.authorid}`);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
                     setUserData(data.users);
                 } catch (error) {
-                    console.error("Error fetching user data:", error);
-                    setUserData([]);
+                    if (getDepartments?.[0]?._id === getContent?.authorid) {
+                        setUserData(getDepartments.map(department => ({
+                            firstName: department.departmentname,
+                            lastName: '',
+                            imageUrl: '',
+                            authordescription: department.departmentdescription
+                        })));
+                    }
                 } finally {
                     setDataLoaded(true);
                 }
             }
         }
         fetchUserData();
-    }, [getContent]);
+    }, [getContent, getDepartments]);
+
     const handleSidebarClick = (sidebar: string) => {
         setActiveSidebar(sidebar);
         if (sidebar === activeSidebar) {
             setActiveSidebar(null);
         }
-        if (isSideBarOpen === false) {
-            setIsSideBarOpen(true)
+        if (!isSideBarOpen) {
+            setIsSideBarOpen(true);
         }
-        setActiveSidebar(sidebar);
     };
+
     function sidebardeployer() {
-        setIsSideBarOpen(!isSideBarOpen)
-        setActiveSidebar(null)
+        setIsSideBarOpen(!isSideBarOpen);
+        setActiveSidebar(null);
     }
-    const renderField = (field) => {
+
+    const renderLivePreviewFields = (field) => {
+        const fieldValue = fieldValues[field._id];
+    
         switch (field.type) {
             case "Rich text":
-                return (
-                    <RichTextEditor />
-                );
+            return <RichTextViewer content={fieldValue || 'No content'} />; 
             case "Short Text":
-                return (
-                    <Input type="text" className='border rounded-md p-2 w-full' placeholder={field.description} />
-                );
             case "Number":
-                return (
-                    <Input type="number" className='border rounded-md p-2 w-full' min={0} placeholder={field.description} />
-                );
             case "Boolean":
-                return (
-                    <Switch defaultChecked={false} /> 
-                );
             case "Date and time":
-                return (
-                    <Input type="datetime-local" className='border rounded-md p-2 w-full' />
-                );
             case "Location":
-                return (
-                    <Input type="text" className='border rounded-md p-2 w-full' placeholder='Enter location' />
-                );
             case "JSON object":
-                return (
-                    <textarea className='border rounded-md p-2 w-full' placeholder='Enter JSON here' />
-                );
             case "Media":
-                return (
-                    <Input type="file" className='border rounded-md p-2 w-full' />
-                );
+                return <p>{fieldValue || `No ${field.type} provided`}</p>;
             default:
-                return <Input type="text" className='border rounded-md p-2 w-full' placeholder="Unknown field type" />;
+                return <p>Unknown field type</p>;
         }
     };
-    function setAuthor() {
-        console.log('Author set')
+    const renderField = (field) => {
+        const handleChange = (e) => {
+            setFieldValues(prev => ({ ...prev, [field._id]: e.target.value }));
+        };
+    
+        switch (field.type) {
+            case "Rich text":
+                return <RichTextEditor value={fieldValues[field._id] || ''} onChange={(value) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
+            case "Short Text":
+                return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder={field.description} />;
+            case "Number":
+                return <Input type="number" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' min={0} placeholder={field.description} />;
+            case "Boolean":
+                return <Switch checked={fieldValues[field._id] || false} onChange={(value) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
+            case "Date and time":
+                return <Input type="datetime-local" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' />;
+            case "Location":
+                return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder='Enter location' />;
+            case "JSON object":
+                return <textarea value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder='Enter JSON here' />;
+            case "Media":
+                return <Input type="file" onChange={(e) => setFieldValues(prev => ({ ...prev, [field._id]: e.target.files[0] }))} className='border rounded-md p-2 w-full' />;
+            default:
+                return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder="Unknown field type" />;
+        }
+    };
+    const readtimecalc = (text: string) => {
+        const wordsPerMinute = 200;
+        const noOfWords = text.split(/\s/g).length;
+        const minutes = noOfWords / wordsPerMinute;
+        const readTime = Math.ceil(minutes);
+    
+        if (readTime < 1) {
+            return `${Math.ceil(minutes * 60)} seconds`;
+        } else if (readTime === 1) {
+            return `${readTime} minute`;
+        } else if (readTime < 60) {
+            return `${readTime} minutes`;
+        } else {
+            const hours = Math.floor(readTime / 60);
+            const remainingMinutes = readTime % 60;
+            return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes > 0 ? `and ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
+        }
+    }
+    async function setAuthor(selectedAuthor: string) {
+        await changeAuthor({ _id: _fileid as any, authorid: selectedAuthor, previousauthors: [...getContent?.previousauthors, getContent.authorid] });
     }
     return (
-        <body className='overflow-y-hidden'>
+        <body className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
             <title>{title}</title>
             <AuthWrapper _teamid={_teamid}>
-                <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
+                <DoesExist _fileid={_fileid}>
+                <div className="h-full">
                     <AppHeader activesection="content" teamid={_teamid} />
-                    <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
-                        <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg h-screen overflow-y-auto">
+                    <main className="md:mx-auto md:px-10 py-3 h-screen pb-20 transition-all">
+                        <div className="bg-white dark:bg-neutral-950 w-full h-full rounded-lg shadow-lg">
                             <div className={`flex flex-row w-full h-full`}>
-                                <div className={`${isSideBarOpen ? "md:w-full md:flex hidden" : "w-full flex"}  flex-col h-full`}>
+                                <div className={`${isSideBarOpen ? "md:w-full md:flex hidden" : "w-full flex"} flex-col h-full`}>
                                     <div className="border-b py-5 px-5 flex flex-row">
                                         <div className='flex flex-row gap-3'>
                                             <div onClick={() => router.push(`/application/${_teamid}/content`)} className='flex flex-row gap-2 border rounded-md hover:border-black hover:shadow-md cursor-pointer transition-all items-center'>
@@ -127,9 +172,9 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                             <h1 className='text-2xl font-bold'>{getContent?.title}</h1>
                                         </div>
                                     </div>
-                                    <div className='container mx-auto px-5 py-5'>
+                                    <div className='container mx-auto px-5 py-5 overflow-y-auto'>
                                         <div className='flex flex-col gap-5'>
-                                            <Author authordetails={userData} onValueChange={setAuthor} />
+                                            <Author authordetails={userData} getDepartments={getDepartments} onValueChange={setAuthor} teamid={_teamid} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1'>
                                                     <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
@@ -139,31 +184,31 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                         </div>
                                     </div>
                                 </div>
-                                <div className={`${isSideBarOpen ? "w-full md:w-[20rem]" : "w-[5rem]"} transition-all h-full justify-center flex border-x pt-5`}>
-                                    <div className='flex flex-col w-full gap-5 px-5'>
-                                        <div onClick={() => sidebardeployer()} className='border p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full'>
+                                <div className={`${isSideBarOpen ? "w-full md:w-[20rem]" : "w-[5rem]"} transition-all h-auto justify-center flex-1 border-x pt-5`}>
+                                    <div className='flex flex-col h-auto w-full gap-5 px-5'>
+                                        <div onClick={() => sidebardeployer()} className='border p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-full rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full'>
                                             <SidebarOpen className={`${isSideBarOpen ? '' : 'rotate-180'}`} />
-                                            {isSideBarOpen ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Close</p> : null}
+                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Close</p> : null}
                                         </div>
                                         <div className='h-0.5 w-full border-t' />
                                         <div onClick={() => handleSidebarClick("chat")} className={`${activeSidebar === "chat" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex  flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <MessagesSquare />
-                                            {isSideBarOpen ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Chat</p> : null}
+                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Chat</p> : null}
                                         </div>
                                         <div onClick={() => handleSidebarClick("logs")} className={`${activeSidebar === "logs" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <LucideClipboardSignature />
-                                            {isSideBarOpen ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide leading-tight flex-nowrap'>Logs</p> : null}
+                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide leading-tight flex-nowrap'>Logs</p> : null}
                                         </div>
                                         <div onClick={() => handleSidebarClick("ai")} className={`${activeSidebar === "ai" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <BotMessageSquare />
                                             {
-                                                isSideBarOpen ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>AI</p> : null
+                                                isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>AI</p> : null
                                             }
                                         </div>
                                         <div onClick={() => handleSidebarClick("viewer")} className={`${activeSidebar === "viewer" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <View />
                                             {
-                                                isSideBarOpen ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Viewer</p> : null
+                                                isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Viewer</p> : null
                                             }
                                         </div>
                                         <div>
@@ -175,9 +220,9 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                         `}>
                                         <div className='flex flex-col gap-0.5'>
                                             {
-                                                isSideBarOpen === true ? <span className='font-bold'>{getContent?.status}</span> : null
+                                                isSideBarOpen === true && activeSidebar === null ? <span className='font-bold'>{getContent?.status}</span> : null
                                             }
-                                            {isSideBarOpen &&  (
+                                            {isSideBarOpen && activeSidebar === null  && (
                                                 <>
                                                     {getContent?.status === "Published" && <span className='text-xs font-medium'>This content has been published.</span>}
                                                     {getContent?.status === "Draft" && <span className='text-xs font-medium'>This content is a draft. It has not been posted.</span>}
@@ -192,19 +237,113 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                 </div>
                             </div>
                         </div>
-                        <div className={`${isSideBarOpen && activeSidebar !== null  ? `${activeSidebar === "viewer" ? "w-[90%]" : "w-[30rem]"}` : "w-[0rem]"} : "w-[0rem]"} flex flex-col gap-5 transition-all`}>
+                        <div className={`${isSideBarOpen && activeSidebar !== null  ? `${activeSidebar === "viewer" ? "w-[90%]" : "w-[30rem]"}` : "w-[0rem]"} : "w-[0rem]"} flex h-auto flex-col gap-5 transition-all`}>
                         {
                             activeSidebar === "viewer" ? (
                                 <div className='flex flex-col gap-5'>
                                     <div className='border-b p-5'>
                                         <h1 className='text-2xl font-bold'>Content Preview</h1>
                                     </div>
-
+                                    <div className='flex px-5 flex-col justify-between'>
+                                        <a className={`flex flex-row items-center text-xs w-auto gap-1 cursor-pointer`}>
+                                            <ArrowLeft width={14} height={14} /> Back
+                                        </a>
+                                        
+                                        {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => {
+                                            if (field.type === "Rich text") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    {renderLivePreviewFields(field)}
+                                                </div>
+                                            } else if (field.fieldname === "Title" || field.fieldname === "Main Title") {
+                                                // check if its a department or a user
+                                                if (getDepartments.some(dept => dept._id === getContent?.authorid)) {
+                                                    const data= getDepartments.find(dept => dept._id === getContent?.authorid);
+                                                    return (
+                                                        <div key={index} className='flex font-bold text-3xl mt-2 dark:text-white text-black flex-col gap-1'>
+                                                            <p>{fieldValues[field._id]}</p>
+                                                            <div className="flex flex-row gap-2">
+                                                                <Avatar>
+                                                                    <AvatarFallback className="h-10 w-10 rounded-full">{data?.departmentname?.charAt(0)}</AvatarFallback>
+                                                                </Avatar>
+                                                                <div className="flex flex-col justify-between">
+                                                                    <p className="font-normal text-sm">
+                                                                        <span className='dark:text-gray-400'>By </span> 
+                                                                        <b>{data?.departmentname}</b>
+                                                                    </p>
+                                                                    <div className="flex flex-row gap-2 items-center">
+                                                                        <p className="font-normal text-xs dark:text-gray-400">2 Mins read</p>
+                                                                        <p>·</p>
+                                                                        <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
+                                                                            <CalendarDaysIcon height={18} /> {new Date().toDateString()}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ) 
+                                                } else {
+                                                return ( 
+                                                    <div key={index} className='flex font-bold text-3xl mt-2 dark:text-white text-black flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                    <div className="flex flex-row gap-2">
+                                                        <Avatar>
+                                                            <AvatarImage src={userData?.[0]?.imageUrl} alt={userData?.[0]?.firstName} />
+                                                            <AvatarFallback className="h-10 w-10 rounded-full">{userData?.[0]?.firstName?.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex flex-col justify-between">
+                                                            <p className="font-normal text-sm">
+                                                                <span className='dark:text-gray-400'>By </span> 
+                                                                <b>{userData?.[0]?.firstName} {userData?.[0]?.lastName}</b>
+                                                            </p>
+                                                            <div className="flex flex-row gap-2 items-center">
+                                                                <p className="font-normal text-xs dark:text-gray-400">2 Mins read</p>
+                                                                <p>·</p>
+                                                                <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
+                                                                    <CalendarDaysIcon height={18} /> {new Date().toDateString()}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                )
+                                                }
+                                            }  else if (field.type === "Short Text") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            }else if (field.type === "Number") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            } else if (field.type === "Boolean") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            } else if (field.type === "Date and time") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            } else if (field.type === "Location") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            } else if (field.type === "Media") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            }
+                                            return null;
+                                        })}
+                                    </div>
                                 </div>
                             ) : activeSidebar === "chat" ? (
-                                <div className='flex flex-col gap-5'>
+                                <div className='flex flex-col gap-5 h-full overflow-y-hidden'>
                                     <div className='border-b p-5'>
                                         <h1 className='text-2xl font-bold'>Chat</h1>
+                                    </div>
+                                    <div className="flex flex-col h-full justify-between relative">
+                                        <MessageList contentid={_fileid} teamid={_teamid} />
+                                        <MessageInputter authorid={userId} teamid={_teamid} contentid={_fileid} />
                                     </div>
                                 </div>
                             ) : activeSidebar === "logs" ? (
@@ -226,6 +365,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                 </div>
             </main>
         </div>
+        </DoesExist>
     </AuthWrapper>
 </body>
     )
@@ -235,13 +375,15 @@ interface Author {
     firstName: string
     lastName: string
     imageUrl?: string
+    authordescription: string
   }
   
-function Author({ authordetails, onValueChange }: { authordetails: any, onValueChange: (selectedAuthor) => void }) {
-    const mainAuthor = authordetails?.[0]
-    const [selectedAuthor, setSelectedAuthor] = useState<'mainAuthor' | 'hiddenAuthor'>('mainAuthor')
+function Author({ authordetails, onValueChange, teamid, getDepartments }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string, getDepartments: any }) {
 
-    function SelectedAuthor(selectedAuthor) {
+    const mainAuthor = authordetails?.[0]
+    const [selectedAuthor, setSelectedAuthor] = useState<string | undefined>()
+
+    function handleSelectedAuthor(selectedAuthor: string) {
         setSelectedAuthor(selectedAuthor)
         onValueChange(selectedAuthor)
     }
@@ -251,49 +393,225 @@ function Author({ authordetails, onValueChange }: { authordetails: any, onValueC
     }
   
     return (
-      <Select value={selectedAuthor} onValueChange={(value: 'mainAuthor' | 'hiddenAuthor') => SelectedAuthor(value)}>
-        <SelectTrigger className="w-[250px]">
-          <SelectValue placeholder="Select author type" />
+      <Select value={selectedAuthor} onValueChange={(value: string) => handleSelectedAuthor(value)}>
+        <SelectTrigger className="w-full py-2">
+          <SelectValue className='p-2'  />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Main Author</SelectLabel>
-            <SelectItem value="mainAuthor">
-              <AuthorOption
-                author={mainAuthor}
-                showImage={true}
-                label="Main Author"
-              />
-            </SelectItem>
+                {
+                    getDepartments.some(dept => dept._id === mainAuthor._id) ? (
+                        <SelectItem value={getDepartments?._id}>
+                            <DepartmentOption
+                                author={mainAuthor}
+                                showImage={true}
+                                label={mainAuthor.authordescription}
+                            />
+                        </SelectItem>
+                    ) : (
+                        <SelectItem value={mainAuthor._id}>
+                        <AuthorOption
+                            author={mainAuthor}
+                            showImage={true}
+                            label="Main author"
+                        />
+                        </SelectItem>
+                    )
+                }
             <SelectSeparator />
-            <SelectLabel>Hidden Author / Company</SelectLabel>
-            <SelectItem value="hiddenAuthor">
-              <AuthorOption
-                author={"Hdev Group" as any}
-                showImage={false}
-                label="Hdev HQ"
-              />
-            </SelectItem>
+            <SelectLabel>Departments</SelectLabel>
+            {
+                getDepartments.length > 0 ? getDepartments.map((department) => (
+                <SelectItem value={department._id} key={department._id}>
+                    <DepartmentOption
+                        author={department?.departmentname as any}
+                        showImage={false}
+                        label={department?.departmentdescription as any}
+                    />
+                </SelectItem>
+                )) : <Link href={`/application/${teamid}/settings?type=content`}>
+                    <Button className='w-full text-left'>Create a department</Button>
+                </Link>
+            }
           </SelectGroup>
         </SelectContent>
       </Select>
     )
   }
   
-  function AuthorOption({ author, showImage, label }: { author: Author, showImage: boolean, label: string }) {
+  function AuthorOption({ author, showImage, label }: { author: any, showImage: boolean, label: string }) {
+    const displayName = typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`;
+  
     return (
       <div className="flex items-center cursor-pointer justify-start gap-2">
         <Avatar>
           {showImage && author.imageUrl ? (
-            <AvatarImage src={author.imageUrl} alt={`${author.firstName || author} ${author.lastName}`} />
+            <AvatarImage src={author.imageUrl} alt={displayName} />
           ) : (
-            <AvatarFallback>{author.firstName || ""}</AvatarFallback>
+            <AvatarFallback>{displayName}</AvatarFallback>
           )}
         </Avatar>
         <div className='flex flex-col items-start justify-center'>
-          <p className="text-sm font-medium">{author.firstName || author as any} {author.lastName}</p>
+          <p className="text-sm font-medium">{displayName}</p>
           <p className="text-xs text-muted-foreground">{label}</p>
         </div>
       </div>
-    )
+    );
   }
+  
+  function DepartmentOption({ author, showImage, label }: { author: any, showImage: boolean, label: string }) {
+    const displayName = typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`;
+  
+    return (
+      <div className="flex items-center cursor-pointer justify-start gap-2">
+        <Avatar>
+          {showImage && author.imageUrl ? (
+            <AvatarImage src={author.imageUrl} alt={displayName} />
+          ) : (
+            <AvatarFallback>
+              {typeof displayName === 'string' ? displayName.split(' ').map(word => word[0]).join('') : ''}
+            </AvatarFallback>
+          )}
+        </Avatar>
+        <div className='flex flex-col items-start justify-center'>
+          <p className="text-sm font-semibold">{displayName}</p>
+          <p className="text-xs text-muted-foreground">{label}</p>
+        </div>
+      </div>
+    );
+  }
+  
+function MessageList({ teamid, contentid }: any) {
+    const messages = useQuery(api.message.getMessages, { pageid: teamid, contentid: contentid });
+    console.log(messages);
+    const [dataLoaded, setDataLoaded] = useState(false);
+    const [userData, setUserData] = useState([]);
+    const [storedMessages, setStoredMessages] = useState([]);
+
+    useEffect(() => {
+        async function fetchUserData() {
+            if (messages?.length > 0) {
+                const uniqueAuthorIds = [...new Set(messages.map((message: any) => message.authorid))];
+                try {
+                    const userDataPromises = uniqueAuthorIds.map(async (authorId) => {
+                        const response = await fetch(`/api/secure/get-user?userId=${authorId}`);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const data = await response.json();
+                        return { authorId, ...data.users[0] };
+                    });
+                    const usersData = await Promise.all(userDataPromises);
+                    setUserData(usersData);
+                } catch (error) {
+                    throw new Error(`HTTP error! status: ${error}`);
+                } finally {
+                    setDataLoaded(true);
+                }
+            }
+        }
+        fetchUserData();
+    }, [messages]);
+
+    useEffect(() => {
+        if (messages) {
+            setStoredMessages((prevMessages) => {
+                const newMessages = messages.filter(
+                    (message) => !prevMessages.some((prevMessage) => prevMessage._id === message._id)
+                );
+                return [...prevMessages, ...newMessages];
+            });
+        }
+    }, [messages]);
+
+    return (
+<div className='flex flex-col gap-3 px-2 flex-grow flex-shrink overflow-y-scroll overflow-x-hidden w-auto scrollbaredit'>
+    <div className='flex flex-col gap-3 mb-28 flex-wrap'>
+        {storedMessages.length > 0 ? (
+            storedMessages.map((message: any) => {
+                const author = userData.find((user) => user.authorId === message.authorid);
+                return dataLoaded ? (
+                    <div key={message._id} className='flex flex-col gap-3 px-1'>
+                        <div className='flex flex-row gap-2'>
+                            <Avatar>
+                                <AvatarImage src={author?.imageUrl} alt={author?.firstName} />
+                                <AvatarFallback>{author?.firstName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className='flex flex-col gap-1'>
+                                <p className='text-sm font-medium'>{author?.firstName} {author?.lastName}</p>
+                                <p className='text-xs text-muted-foreground'>{new Date(message.updated).toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div className='flex flex-col gap-1 px-12'>
+                            <p className='text-sm font-medium break-all'>{message.message}</p>
+                        </div>
+                    </div>
+                ) : (
+                    <div key={message._id} className='flex flex-col gap-3 px-1'>
+                        <div className='flex flex-row gap-2'>
+                            <Avatar className='dark:bg-neutral-500 bg-neutral-800 animate-pulse'>
+                                <AvatarImage src={author?.imageUrl} alt={author?.firstName} />
+                                <AvatarFallback>{author?.firstName.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className='flex flex-col gap-1'>
+                                <p className='text-sm font-medium w-20 h-1 dark:bg-neutral-500 bg-neutral-800 animate-pulse'></p>
+                                <p className='text-sm font-medium w-20 h-1 dark:bg-neutral-500 bg-neutral-800 animate-pulse'></p>
+                            </div>
+                        </div>
+                        <div className='flex flex-col gap-1 px-12'>
+                            <p className='text-sm font-medium w-20 h-1 dark:bg-neutral-500 bg-neutral-800 animate-pulse'></p>
+                        </div>
+                    </div>
+                );
+            })
+        ) : (
+            <div className='flex items-center justify-center'>
+                <p className='text-md text-start font-semibold'>No messages have been sent yet. <br/> We are counting on you to be the first :).</p>
+            </div>
+        )}
+    </div>
+</div>
+    )
+}
+
+function MessageInputter({authorid, contentid, teamid}: any) {
+    const messageSender = useMutation(api.message.sendMessage);
+    function Subbmitter(event) {
+        event.preventDefault();
+        if (event.target[0].value.length === 0) {
+            return alert('Please type a message');
+        } else if (event.target[0].value.length > 500) {
+            return alert('Message must be less than 500 characters');
+        } 
+        // check if messages are being sent too fast we will have to implement a cooldown
+
+        const cooldown = 5000;
+        const lastMessage = new Date().getTime();
+        const timeDifference = lastMessage - cooldown;
+        const lastMessageSent = new Date().getTime();
+        if (lastMessageSent < timeDifference) {
+            return alert('Please wait before sending another message');
+        }
+
+
+        messageSender({ message: event.target[0].value as any, authorid: authorid as any, contentid: contentid as any, pageid: teamid as any, updated: Date.now() });
+        event.target[0].value = '';
+    }
+    return (
+        <div className='flex flex-row gap-2 px-2 pb-3  sticky bottom-0'>
+            <form onSubmit={(event) => {
+                Subbmitter(event)
+            }} className='flex flex-row gap-2 w-full'>
+                <Input type='text' placeholder='Type a message' maxLength={500} className='w-full' />
+                <Button type='submit'>Send</Button>
+            </form>
+        </div>
+    )
+}
+
+function RichTextViewer({ content }: { content: string }) {
+    return (
+        <div className='flex flex-col gap-1 '>
+            <p className='text-sm font-medium break-all'>{content}</p>
+        </div>
+    )
+}

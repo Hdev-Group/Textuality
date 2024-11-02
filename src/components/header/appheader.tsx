@@ -25,7 +25,6 @@ export default function AppHeader({ teamid, activesection }: any) {
     { icon: Home, label: "Dashboard", route: `/application/${teamid}/dashboard`, activesection: "dashboard" },
     { icon: Wrench, label: "Templates", route: `/application/${teamid}/templates`, activesection: "templates" },
     { icon: FolderPen, label: "Content", route: `/application/${teamid}/content`, activesection: "content" },
-    { icon: ImageIcon, label: "Media", route: `/application/${teamid}/media`, activesection: "media" },
     { icon: Component, label: "Components", route: `/application/${teamid}/components`, activesection: "components" },
   ];
   

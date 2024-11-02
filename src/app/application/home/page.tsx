@@ -24,6 +24,7 @@ import { Toast } from "@radix-ui/react-toast";
 import { get } from "http";
 import { useAuth } from "@clerk/nextjs";
 import { IsAuthorizedEdge } from "@/components/edgecases/Auth";
+import Link from "next/link";
 
 interface ProjectProps {
   title: string;
@@ -282,11 +283,11 @@ function Project({
             </div>
           )}
         </div>
-        <a href={`/application/${_id}/dashboard`}>
+        <Link href={`/application/${_id}/dashboard`}>
           <Button variant="secondary" size="sm">
             View Project <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
-        </a>
+        </Link>
       </div>
     </div>
     </>

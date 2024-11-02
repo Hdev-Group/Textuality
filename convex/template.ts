@@ -5,14 +5,14 @@ export const create = mutation({
     args: {
         pageid: v.any(),
         title: v.string(),
-        apiref: v.string(),
+        description: v.string(),
         lastUpdatedBy: v.string(),
     },
-    handler: async (ctx, { pageid, title, apiref, lastUpdatedBy }) => {
+    handler: async (ctx, { pageid, title, description, lastUpdatedBy }) => {
         const page = await ctx.db.insert("templates", {
             pageid,
             title,
-            apiref,
+            description,
             lastUpdatedBy,
             fields: 0,
         });

@@ -65,9 +65,10 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         const returner = await sendContent({ pageid: _teamid as any, updated: new Date().getTime(), templateid: templateId as any, title: namevalue, apiref: apivalue, lastUpdatedBy: userId });
         router.push(`/application/${_teamid}/content/${returner}/edit`);
     }
-
+    const title = getPage?.title + ' — Create Content' + ' — Textuality'
     return (
         <body className='overflow-y-hidden'>
+            <title>{title}</title>
             <AuthWrapper _teamid={_teamid}>
             <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
                 <AppHeader activesection="content" teamid={_teamid} />
@@ -101,7 +102,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                             <DialogFooter className='mt-5'>
                                 <div className="flex justify-between w-full">
                                     <Button variant="outline"  onClick={() => setOpen(false)}>Cancel</Button>
-                                    <Button type='submit'>Create Template</Button>
+                                    <Button type='submit'>Create Content</Button>
                                 </div>
                             </DialogFooter>
                         </form>

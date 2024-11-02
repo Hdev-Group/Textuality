@@ -76,13 +76,6 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
 
   const { toast } = useToast();
 
-
-  useEffect(() => {
-    if (!getRole){
-      <IsAuthorizedEdge />
-    }
-  }, [isSignedIn, getRole]);
-
     // Return early if user is not authorized
     useEffect(() => {
       if (getPage?.users?.includes(userId as string)) {
@@ -110,14 +103,6 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
       }
       fetchUserData();
     }, [getPage]);
-    
-  if (!isLoaded) {
-    return <IsLoadedEdge />;
-  }
-  if (!isAuthorized) {
-    return <IsAuthorizedEdge />;
-  }
-
   
   const CancelInvite = (inviteId: any) => {
       cancelInvite({ _id: inviteId });
@@ -172,7 +157,7 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
   
     return (
       <body className='overflow-y-hidden'>
-              <AuthWrapper _teamid={teamid}>
+      <AuthWrapper _teamid={teamid}>
         <CheckpointAuthWrapper teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
         <AppHeader activesection="settings" teamid={teamid} />
