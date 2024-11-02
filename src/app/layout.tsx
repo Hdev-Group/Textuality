@@ -25,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <ConvexProvider client={new ConvexReactClient(convexUrl)}>
         <html lang="en" className="dark">
           <head>
+            <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"></link>
             <link rel="icon" href="/IMG_6128.png" />
             <title>Textuality</title>
             <meta name="description" content="Empowering your digital narrative." />

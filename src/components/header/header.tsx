@@ -19,11 +19,28 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const user = useUser()
   const { signOut } = useClerk()
+  const [hasScrolled, setHasScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setHasScrolled(true)
+      } else {
+        setHasScrolled(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
 
   return (
-    <header className="border-b w-full flex items-center justify-center fixed shadow-sm z-50 bg-background/10 backdrop-blur-lg">
-      <div className="container transition-all">
+    <header className={`sticky top-0 w-full z-50 ${hasScrolled ? "border-b bg-background " : ""} `}>
+      <div className="container mx-auto">
         <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
@@ -36,14 +53,14 @@ export default function Header() {
 
           <nav className="hidden md:flex items-center justify-center space-x-3">
             <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Blog
-                </Button>
+              <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Blog
+              </Button>
             </Link>
             <Link href="/tutorials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    Tutorials
-                </Button>
+              <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Tutorials
+              </Button>
             </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -51,7 +68,7 @@ export default function Header() {
                   Resources <ChevronDown className="ml-1 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent >
+              <DropdownMenuContent>
                 <DropdownMenuItem>
                   <Link href="/ebooks">eBooks</Link>
                 </DropdownMenuItem>
@@ -64,9 +81,9 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    About
-                </Button>
+              <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                About
+              </Button>
             </Link>
           </nav>
 
@@ -91,16 +108,16 @@ export default function Header() {
                     <Link href="/application/settings">Settings</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => signOut({ redirectUrl: '/' })}>
-                      Sign out
-                    </DropdownMenuItem>
+                    Sign out
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-            <Button variant='outline' asChild>
+              <Button variant='outline' asChild>
                 <Link href="/sign-in">
-                    Log in
+                  Log in
                 </Link>
-            </Button>
+              </Button>
             )}
           </div>
 
@@ -119,9 +136,9 @@ export default function Header() {
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 z-50 bg-background/80 backdrop-blur-sm transform ${
-          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        } transition-transform duration-300 ease-in-out md:hidden`}
+        className={`fixed w-full h-screen inset-0 z-50 bg-background/80 backdrop-blur-sm transform ${
+          isMenuOpen ? 'translate-x-0 flex' : 'translate-x-full hidden'
+        } transition-transform duration-300 ease-in-out `}
       >
         <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-background shadow-xl p-6 overflow-y-auto">
           <div className="flex items-center justify-between mb-8">
