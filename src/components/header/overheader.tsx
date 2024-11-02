@@ -7,14 +7,11 @@ export default function OverHeader() {
 
     return (
         <div className="overflow-hidden mainstopper border border-cyan-300 rounded-t-sm w-full py-2 bg-cyan-400/20">
-            <div className="flex animate-marquee whitespace-nowrap">
-                <div className="flex items-center">
-                    {values.map((value, index) => (
-                        <div key={index} className="flex hover:bg-cyan-800 bg-none rounded-sm px-4 transition-all items-center">
-                            <h1 className="text-xl">{value}</h1>
-                        </div>
-                    ))}
-                </div>
+            <div className="flex items-center justify-center space-x-2">
+                <p className="text-sm text-cyan-600">📢</p>
+                <p className="text-sm  font-semibold">
+                    {values[Math.floor(Math.random() * values.length)]}
+                </p>
             </div>
         </div>
     );

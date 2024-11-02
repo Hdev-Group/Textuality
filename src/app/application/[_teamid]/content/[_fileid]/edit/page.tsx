@@ -113,7 +113,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     
         switch (field.type) {
             case "Rich text":
-                return <RichTextEditor value={fieldValues[field._id] || ''} onChange={(value) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
+                return <RichTextEditor sendValue={fieldValues[field._id] || ''} onChange={(value) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
             case "Short Text":
                 return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder={field.description} />;
             case "Number":
@@ -254,7 +254,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                 return <div key={index} className='flex flex-col gap-1'>
                                                     {renderLivePreviewFields(field)}
                                                 </div>
-                                            } else if (field.fieldname === "Title" || field.fieldname === "Main Title") {
+                                            } else if (field.fieldname === "Title" || field.fieldname === "Main Title" || field.fieldname === "Heading" || field.fieldname === "Event Name" || field.fieldname === "Name" || field.fieldname === "Subject" || field.fieldname === "Event Title") {
                                                 // check if its a department or a user
                                                 if (getDepartments.some(dept => dept._id === getContent?.authorid)) {
                                                     const data= getDepartments.find(dept => dept._id === getContent?.authorid);
@@ -320,12 +320,29 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                     <p>{fieldValues[field._id]}</p>
                                                 </div>
                                             } else if (field.type === "Date and time") {
-                                                return <div key={index} className='flex flex-col gap-1'>
-                                                    <p>{fieldValues[field._id]}</p>
+                                                return (
+                                                    <div key={index} className='flex flex-row gap-1'>
+                                                    {
+                                                        fieldValues[field._id] ? (
+                                                            <p>
+                                                                {field.fieldname}:&nbsp; 
+                                                                <span className='font-semibold'>
+                                                                    {new Date(fieldValues[field._id]).toLocaleString([], { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                                </span>
+                                                            </p>
+                                                        ) : null
+                                                    }
                                                 </div>
+                                                )
                                             } else if (field.type === "Location") {
                                                 return <div key={index} className='flex flex-col gap-1'>
-                                                    <p>{fieldValues[field._id]}</p>
+                                                   {
+                                                         fieldValues[field._id] ? (
+                                                          <p>
+                                                                At <span className='font-semibold'>{fieldValues[field._id]}</span>
+                                                          </p>
+                                                         ) : null
+                                                   }
                                                 </div>
                                             } else if (field.type === "Media") {
                                                 return <div key={index} className='flex flex-col gap-1'>
@@ -610,8 +627,12 @@ function MessageInputter({authorid, contentid, teamid}: any) {
 
 function RichTextViewer({ content }: { content: string }) {
     return (
-        <div className='flex flex-col gap-1 '>
-            <p className='text-sm font-medium break-all'>{content}</p>
+        <div className='flex flex-col gap-1'>
+            <div className='prose prose-headings:text-blue-600 prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg text-sm font-medium break-all'>
+                <div className='content prose' dangerouslySetInnerHTML={{ __html: content }} />
+            </div>
         </div>
-    )
+    );
 }
+
+

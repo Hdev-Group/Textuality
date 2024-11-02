@@ -18,13 +18,53 @@ body {
   font-weight: 400;
   font-style: normal;
 }
-
+.space-grotesk-800 {
+  font-family: "Space Grotesk", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
+.ql-code-block-container{
+  background-color: #23241f;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+.ql-code-block{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
 
+.content {
+  font-size: 0.875rem;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.content h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -162,6 +202,9 @@ body {
   width: 100%;
   overflow: hidden;
   position: relative;
+}
+.mainstopper:hover .animate-marquee {
+  animation-play-state: paused;
 }
 
 .mainstopper > div {

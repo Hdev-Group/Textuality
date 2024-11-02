@@ -4,9 +4,21 @@ import "react-quill-new/dist/quill.snow.css";
 import styles from "./RichTextEditor.css";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
-
-const RichTextEditor = () => {
+const RichTextEditor = ({ sendValue, onChange }) => {
   const [value, setValue] = useState("");
+
+  const handleChange = (content, delta, source, editor) => {
+    setValue(content);
+    if (onChange) {
+      onChange(content);
+    }
+  };
+
+  const handleBlur = () => {
+    if (sendValue) {
+      sendValue(value);
+    }
+  };
 
   const modules = {
     toolbar: [
@@ -24,7 +36,8 @@ const RichTextEditor = () => {
       <ReactQuill
         theme="snow"
         value={value}
-        onChange={setValue}
+        onChange={handleChange}
+        onBlur={handleBlur}
         placeholder="Write something amazing..."
         modules={modules}
         className={styles.editor}
