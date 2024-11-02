@@ -24,11 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY} dynamic>
       <ConvexProvider client={new ConvexReactClient(convexUrl)}>
         <html lang="en" className="dark">
-          <Head>
+          <head>
             <link rel="icon" href="/IMG_6128.png" />
             <title>Textuality</title>
             <meta name="description" content="Empowering your digital narrative." />
-          </Head>
+          </head>
           <ConvexClientProvider>
             {children}
             <Toaster />

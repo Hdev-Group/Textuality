@@ -11,6 +11,7 @@ import CallToActionComponent from './components/cta'
 import { Star } from 'lucide-react'
 import { useUser } from '@clerk/clerk-react'
 import { Textarea } from '../ui/textarea'
+import PremiumContentLock from '../premium/contentlock/contentlock'
 
 export default function ComponentCustomization() {
     const { user } = useUser()
@@ -29,15 +30,15 @@ export default function ComponentCustomization() {
     title: 'Cool Blog Name',
     description: 'This blog is the best blog ever. It has all the best posts and the best content. You should definitely read it.',
     totalposts: "3",
-    borderhovercolour: 'rgb(135, 135, 135)',
-    bordercolour: 'rgb(106, 106, 106)',
+    borderhovercolour: '#878787',
+    bordercolour: '#6a6a6a',
   })
 
   const [ctaProps, setCtaProps] = useState({
-    title: 'Ready to get started?',
-    description: 'Join thousands of satisfied customers today.',
-    buttonText: 'Sign Up Now',
-    backgroundColor: '#4F46E5'
+    title: 'Share this blog post',
+    description: 'If you liked this blog post, share it with your friends and family. They will love it too!',
+    buttonText: 'Share',
+    backgroundColor: '#1a272c'
   })
 
   return (
@@ -47,37 +48,40 @@ export default function ComponentCustomization() {
         <TabsList>
           <TabsTrigger value="blogpost">Blog Post</TabsTrigger>
           <TabsTrigger value="postsection">Post Section</TabsTrigger>
-          <TabsTrigger value="cta">Reviews</TabsTrigger>
           <TabsTrigger value='share'>Share</TabsTrigger>
           <TabsTrigger value='comment'>Comment</TabsTrigger>
-          <TabsTrigger value='articlecard'>Article Card</TabsTrigger>
-          <TabsTrigger value='newsletter'>Newsletter</TabsTrigger>
+          <TabsTrigger value='newsletter' className='p-0'>
+            <PremiumContentLock text="Newsletter Sign Up"/>
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="blogpost">
           <div className="grid grid-cols-2 gap-6">
             <div>
               <h2 className="text-xl font-semibold mb-4 mt-4">Blog Post Customization</h2>
-              <div className="space-y-4">
-                <div>
-                    <Label htmlFor="heroBackgroundImage">Banner Image</Label>
-                    <Input id="heroBackgroundImage" value={blogpost.bannerimage} onChange={(e) => setblogpostProps({...blogpost, bannerimage: e.target.value})} />
+                <Label>Preview only</Label>
+                <div className='border p-5 flex flex-col space-y-4 rounded-md'>
+                  <div>
+                      <Label htmlFor="heroBackgroundImage">Banner Image</Label>
+                      <Input id="heroBackgroundImage" value={blogpost.bannerimage} onChange={(e) => setblogpostProps({...blogpost, bannerimage: e.target.value})} />
+                  </div>
+                  <div>
+                    <Label htmlFor="heroTitle">Title</Label>
+                    <Input id="heroTitle" maxLength={150} value={blogpost.title} onChange={(e) => setblogpostProps({...blogpost, title: e.target.value})} />
+                  </div>
+                  <div>
+                    <Label htmlFor="heroSubtitle">Author</Label>
+                    <Input id="heroSubtitle" value={blogpost.Author} onChange={(e) => setblogpostProps({...blogpost, Author: e.target.value})} />
+                  </div>
+                  <div>
+                    <Label htmlFor="heroCtaText">Body Text</Label>
+                    <Textarea id="heroCtaText" maxLength={2000} value={blogpost.bodytext} onChange={(e) => setblogpostProps({...blogpost, bodytext: e.target.value})} />
+                  </div>
+                  <div>
+                    <Label htmlFor="heroBackgroundImage">Tags</Label>
+                      <Input id="heroBackgroundImage" value={blogpost.tags.join(', ')} onChange={(e) => setblogpostProps({...blogpost, tags: e.target.value.split(', ')})} />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="heroTitle">Title</Label>
-                  <Input id="heroTitle" maxLength={150} value={blogpost.title} onChange={(e) => setblogpostProps({...blogpost, title: e.target.value})} />
-                </div>
-                <div>
-                  <Label htmlFor="heroSubtitle">Author</Label>
-                  <Input id="heroSubtitle" value={blogpost.Author} onChange={(e) => setblogpostProps({...blogpost, Author: e.target.value})} />
-                </div>
-                <div>
-                  <Label htmlFor="heroCtaText">Body Text</Label>
-                  <Textarea id="heroCtaText" maxLength={2000} value={blogpost.bodytext} onChange={(e) => setblogpostProps({...blogpost, bodytext: e.target.value})} />
-                </div>
-                <div>
-                  <Label htmlFor="heroBackgroundImage">Tags</Label>
-                    <Input id="heroBackgroundImage" value={blogpost.tags.join(', ')} onChange={(e) => setblogpostProps({...blogpost, tags: e.target.value.split(', ')})} />
-                </div>
+              <div className="space-y-4 mt-5">
                 <div className='flex flex-row gap-4 w-full justify-between'>
                     {/* this will be for the colours */}
                     <div className='w-full flex flex-col gap-0.5'>
@@ -101,7 +105,8 @@ export default function ComponentCustomization() {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <h2 className="text-xl font-semibold mb-4 mt-4">Post Page Customization</h2>
-              <div className="space-y-4">
+              <Label>Preview only</Label>
+              <div className='border p-5 flex flex-col space-y-4 rounded-md'>
                 <div>
                   <Label htmlFor="numberofposts">Number of Posts</Label>
                   <Input id="numberofposts" type="number" min={0} max={20} value={featureProps.totalposts} onChange={(e) => setFeatureProps({...featureProps, totalposts: e.target.value})} />
@@ -114,7 +119,8 @@ export default function ComponentCustomization() {
                   <Label htmlFor="featureDescription">Description</Label>
                   <Input id="featureDescription" value={featureProps.description} onChange={(e) => setFeatureProps({...featureProps, description: e.target.value})} />
                 </div>
-                <div className='flex flex-row gap-4 w-full justify-between'>
+              </div>
+                <div className='flex flex-row mt-5 gap-4 w-full justify-between'>
                 <div className='w-full flex flex-col gap-0.5'>
                   <Label htmlFor='diffsidesborder'>Border Colour</Label>
                   <Input id='diffsidesborder' className='w-full' type='color' value={featureProps.bordercolour} onChange={(e) => setFeatureProps({...featureProps, bordercolour: e.target.value})} />
@@ -125,17 +131,16 @@ export default function ComponentCustomization() {
                   </div>
                 </div>
               </div>
-            </div>
             <div>
               <h2 className="text-xl font-semibold mb-4">Preview</h2>
               <FeatureCardComponent {...featureProps} />
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="cta">
+        <TabsContent value="share">
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <h2 className="text-xl font-semibold mb-4">Call to Action Customization</h2>
+              <h2 className="text-xl font-semibold mb-4 mt-4">Share Customization</h2>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="ctaTitle">Title</Label>
