@@ -7,7 +7,7 @@ import { useQuery, useMutation } from 'convex/react'
 import React, { act, useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation'
-import { BotMessageSquare, ChevronLeft, LucideClipboardSignature, MessagesSquare, SidebarOpen, View } from 'lucide-react';
+import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronLeft, LucideClipboardSignature, MessagesSquare, SidebarOpen, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { DoesExist } from '../../doesExist';
 import { NotFoundError } from '@/components/edgecases/error';
+import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function ContentEditPage({ params }: { params: Promise<{ _teamid: string, _fileid: string }> }) {
     const router = useRouter();
@@ -40,6 +41,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid as any });
     const [richTextValue, setRichTextValue] = useState('');
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+    const [fieldValues, setFieldValues] = useState({});
     const [userData, setUserData] = useState([]);
     const [dataLoaded, setDataLoaded] = useState(false);
     const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
@@ -86,29 +88,68 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
         setActiveSidebar(null);
     }
 
-    const renderField = (field) => {
+    const renderLivePreviewFields = (field) => {
+        const fieldValue = fieldValues[field._id];
+    
         switch (field.type) {
             case "Rich text":
-                return <RichTextEditor />;
+            return <RichTextViewer content={fieldValue || 'No content'} />; 
             case "Short Text":
-                return <Input type="text" className='border rounded-md p-2 w-full' placeholder={field.description} />;
             case "Number":
-                return <Input type="number" className='border rounded-md p-2 w-full' min={0} placeholder={field.description} />;
             case "Boolean":
-                return <Switch defaultChecked={false} />;
             case "Date and time":
-                return <Input type="datetime-local" className='border rounded-md p-2 w-full' />;
             case "Location":
-                return <Input type="text" className='border rounded-md p-2 w-full' placeholder='Enter location' />;
             case "JSON object":
-                return <textarea className='border rounded-md p-2 w-full' placeholder='Enter JSON here' />;
             case "Media":
-                return <Input type="file" className='border rounded-md p-2 w-full' />;
+                return <p>{fieldValue || `No ${field.type} provided`}</p>;
             default:
-                return <Input type="text" className='border rounded-md p-2 w-full' placeholder="Unknown field type" />;
+                return <p>Unknown field type</p>;
         }
     };
-
+    const renderField = (field) => {
+        const handleChange = (e) => {
+            setFieldValues(prev => ({ ...prev, [field._id]: e.target.value }));
+        };
+    
+        switch (field.type) {
+            case "Rich text":
+                return <RichTextEditor value={fieldValues[field._id] || ''} onChange={(value) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
+            case "Short Text":
+                return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder={field.description} />;
+            case "Number":
+                return <Input type="number" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' min={0} placeholder={field.description} />;
+            case "Boolean":
+                return <Switch checked={fieldValues[field._id] || false} onChange={(value) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
+            case "Date and time":
+                return <Input type="datetime-local" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' />;
+            case "Location":
+                return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder='Enter location' />;
+            case "JSON object":
+                return <textarea value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder='Enter JSON here' />;
+            case "Media":
+                return <Input type="file" onChange={(e) => setFieldValues(prev => ({ ...prev, [field._id]: e.target.files[0] }))} className='border rounded-md p-2 w-full' />;
+            default:
+                return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder="Unknown field type" />;
+        }
+    };
+    const readtimecalc = (text: string) => {
+        const wordsPerMinute = 200;
+        const noOfWords = text.split(/\s/g).length;
+        const minutes = noOfWords / wordsPerMinute;
+        const readTime = Math.ceil(minutes);
+    
+        if (readTime < 1) {
+            return `${Math.ceil(minutes * 60)} seconds`;
+        } else if (readTime === 1) {
+            return `${readTime} minute`;
+        } else if (readTime < 60) {
+            return `${readTime} minutes`;
+        } else {
+            const hours = Math.floor(readTime / 60);
+            const remainingMinutes = readTime % 60;
+            return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes > 0 ? `and ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
+        }
+    }
     async function setAuthor(selectedAuthor: string) {
         await changeAuthor({ _id: _fileid as any, authorid: selectedAuthor, previousauthors: [...getContent?.previousauthors, getContent.authorid] });
     }
@@ -203,7 +244,97 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                     <div className='border-b p-5'>
                                         <h1 className='text-2xl font-bold'>Content Preview</h1>
                                     </div>
-
+                                    <div className='flex px-5 flex-col justify-between'>
+                                        <a className={`flex flex-row items-center text-xs w-auto gap-1 cursor-pointer`}>
+                                            <ArrowLeft width={14} height={14} /> Back
+                                        </a>
+                                        
+                                        {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => {
+                                            if (field.type === "Rich text") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    {renderLivePreviewFields(field)}
+                                                </div>
+                                            } else if (field.fieldname === "Title" || field.fieldname === "Main Title") {
+                                                // check if its a department or a user
+                                                if (getDepartments.some(dept => dept._id === getContent?.authorid)) {
+                                                    const data= getDepartments.find(dept => dept._id === getContent?.authorid);
+                                                    return (
+                                                        <div key={index} className='flex font-bold text-3xl mt-2 dark:text-white text-black flex-col gap-1'>
+                                                            <p>{fieldValues[field._id]}</p>
+                                                            <div className="flex flex-row gap-2">
+                                                                <Avatar>
+                                                                    <AvatarFallback className="h-10 w-10 rounded-full">{data?.departmentname?.charAt(0)}</AvatarFallback>
+                                                                </Avatar>
+                                                                <div className="flex flex-col justify-between">
+                                                                    <p className="font-normal text-sm">
+                                                                        <span className='dark:text-gray-400'>By </span> 
+                                                                        <b>{data?.departmentname}</b>
+                                                                    </p>
+                                                                    <div className="flex flex-row gap-2 items-center">
+                                                                        <p className="font-normal text-xs dark:text-gray-400">2 Mins read</p>
+                                                                        <p>·</p>
+                                                                        <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
+                                                                            <CalendarDaysIcon height={18} /> {new Date().toDateString()}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ) 
+                                                } else {
+                                                return ( 
+                                                    <div key={index} className='flex font-bold text-3xl mt-2 dark:text-white text-black flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                    <div className="flex flex-row gap-2">
+                                                        <Avatar>
+                                                            <AvatarImage src={userData?.[0]?.imageUrl} alt={userData?.[0]?.firstName} />
+                                                            <AvatarFallback className="h-10 w-10 rounded-full">{userData?.[0]?.firstName?.charAt(0)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className="flex flex-col justify-between">
+                                                            <p className="font-normal text-sm">
+                                                                <span className='dark:text-gray-400'>By </span> 
+                                                                <b>{userData?.[0]?.firstName} {userData?.[0]?.lastName}</b>
+                                                            </p>
+                                                            <div className="flex flex-row gap-2 items-center">
+                                                                <p className="font-normal text-xs dark:text-gray-400">2 Mins read</p>
+                                                                <p>·</p>
+                                                                <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
+                                                                    <CalendarDaysIcon height={18} /> {new Date().toDateString()}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                )
+                                                }
+                                            }  else if (field.type === "Short Text") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            }else if (field.type === "Number") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            } else if (field.type === "Boolean") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            } else if (field.type === "Date and time") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            } else if (field.type === "Location") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            } else if (field.type === "Media") {
+                                                return <div key={index} className='flex flex-col gap-1'>
+                                                    <p>{fieldValues[field._id]}</p>
+                                                </div>
+                                            }
+                                            return null;
+                                        })}
+                                    </div>
                                 </div>
                             ) : activeSidebar === "chat" ? (
                                 <div className='flex flex-col gap-5 h-full overflow-y-hidden'>
@@ -473,6 +604,14 @@ function MessageInputter({authorid, contentid, teamid}: any) {
                 <Input type='text' placeholder='Type a message' maxLength={500} className='w-full' />
                 <Button type='submit'>Send</Button>
             </form>
+        </div>
+    )
+}
+
+function RichTextViewer({ content }: { content: string }) {
+    return (
+        <div className='flex flex-col gap-1 '>
+            <p className='text-sm font-medium break-all'>{content}</p>
         </div>
     )
 }
