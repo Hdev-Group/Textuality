@@ -46,6 +46,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
     const DeleteContenta = useMutation(api.content.deleteContent);
     const getContent = useQuery(api.content.getContent, { pageid: _teamid });
     const [userData, setUserData] = useState<any[]>([]);
+    console.log(userData);
     const [dataloaded, setDataLoaded] = useState(false);
     const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
 
@@ -63,30 +64,33 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
         }
     }, [userId, getPage, getPage?.users]);
 
+
     useEffect(() => {
-        async function fetchUserData() {
-            if (getContent?.[0]?.authorid) {
+        async function fetchAllUserData() {
+            if (getContent && getContent.length > 0) {
+                const authorIds = [...new Set(getContent.map((item) => item.authorid))];
+
                 try {
-                    const response = await fetch(`/api/secure/get-user?userId=${getContent?.[0]?.authorid}`);
-                    if (!response.ok) {
-                        getDepartments?.length > 0 ? setUserData(getDepartments) : setUserData([]);
-                        if (!getDepartments) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                    }
-                    const data = await response.json();
-                    setUserData(data.users);
+                    const usersData = await Promise.all(
+                        authorIds.map(async (authorId) => {
+                            const response = await fetch(`/api/secure/get-user?userId=${authorId}`);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            const data = await response.json();
+                            return data.user;
+                        })
+                    );
+                    setUserData(usersData);
                 } catch (error) {
                     console.error("Error fetching user data:", error);
-                    setUserData([]);
                 } finally {
                     setDataLoaded(true);
                 }
             }
         }
-        fetchUserData();
+        fetchAllUserData();
     }, [getContent]);
-
     function filterContentItem(selectedItemId: string) {
         if (selectedItemId === "all") {
             setFilteredContentItems(getContent || []); // Show all content

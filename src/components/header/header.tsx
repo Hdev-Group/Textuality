@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, PenSquare, Search, ChevronDown } from 'lucide-react'
+import { Menu, X, PenSquare, Search, ChevronDown, Columns3Icon, GraduationCap, Book, ShapesIcon, Boxes } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,13 +13,14 @@ import {
 import { useUser } from '@clerk/clerk-react'
 import { Input } from "@/components/ui/input"
 import { useClerk } from '@clerk/nextjs'
-import Image from 'next/image'
+
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const user = useUser()
   const { signOut } = useClerk()
   const [hasScrolled, setHasScrolled] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,44 +52,30 @@ export default function Header() {
             </Link>
           </div>
 
-          <nav className="hidden md:flex items-center justify-center space-x-3">
-            <Link href="/blog" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Blog
-              </Button>
-            </Link>
-            <Link href="/tutorials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Tutorials
-              </Button>
-            </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Resources <ChevronDown className="ml-1 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Link href="/ebooks">eBooks</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="/webinars">Webinars</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="/podcasts">Podcasts</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              <Button variant="ghost" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                About
-              </Button>
-            </Link>
+          <nav className="hidden lg:flex items-center justify-center space-x-3">
+              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <ShapesIcon size={18} /> Product <ChevronDown size={12} />
+              </button>
+              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <Boxes size={18} /> Use Cases <ChevronDown size={12} />
+              </button>
+              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <Book size={18} /> Blog <ChevronDown size={12} />
+              </button>
+              <Link href="/tutorials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <GraduationCap size={18} />  Tutorials
+              </button>
+              </Link>
+              <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <Columns3Icon size={18} />  Pricing
+              </button>
+              </Link>
           </nav>
 
           <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0 space-x-4">
-            <Button asChild>
+            <Button asChild className='hidden lg:flex'>
               <Link href="/create">
                 Create Content
               </Link>

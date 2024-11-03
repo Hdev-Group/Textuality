@@ -50,15 +50,17 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     useEffect(() => {
         async function fetchUserData() {
             if (getContent?.authorid) {
-                console.log(getContent?.authorid);
                 try {
                     const response = await fetch(`/api/secure/get-user?userId=${getContent?.authorid}`);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     const data = await response.json();
                     setUserData(data.users);
                 } catch (error) {
-                    if (getDepartments?.[0]?._id === getContent?.authorid) {
+                    // see if the author is a department
+                    const department = getDepartments?.find(dept => dept._id === getContent?.authorid);
+                    if (department && department._id) {
                         setUserData(getDepartments.map(department => ({
+                            _id: department._id,
                             firstName: department.departmentname,
                             lastName: '',
                             imageUrl: '',
@@ -174,7 +176,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                     </div>
                                     <div className='container mx-auto px-5 py-5 overflow-y-auto'>
                                         <div className='flex flex-col gap-5'>
-                                            <Author authordetails={userData} getDepartments={getDepartments} onValueChange={setAuthor} teamid={_teamid} />
+                                            <Author authordetails={userData} getDepartments={getDepartments} getAuthorid={getContent?.authorid} onValueChange={setAuthor} teamid={_teamid} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1'>
                                                     <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
@@ -251,7 +253,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                         
                                         {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => {
                                             if (field.type === "Rich text") {
-                                                return <div key={index} className='flex flex-col gap-1'>
+                                                return <div key={index} id='richtext' className='flex flex-col gap-1'>
                                                     {renderLivePreviewFields(field)}
                                                 </div>
                                             } else if (field.fieldname === "Title" || field.fieldname === "Main Title" || field.fieldname === "Heading" || field.fieldname === "Event Name" || field.fieldname === "Name" || field.fieldname === "Subject" || field.fieldname === "Event Title") {
@@ -271,7 +273,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                                         <b>{data?.departmentname}</b>
                                                                     </p>
                                                                     <div className="flex flex-row gap-2 items-center">
-                                                                        <p className="font-normal text-xs dark:text-gray-400">2 Mins read</p>
+                                                                        <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextValue)} read</p>
                                                                         <p>·</p>
                                                                         <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
                                                                             <CalendarDaysIcon height={18} /> {new Date().toDateString()}
@@ -296,7 +298,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                                 <b>{userData?.[0]?.firstName} {userData?.[0]?.lastName}</b>
                                                             </p>
                                                             <div className="flex flex-row gap-2 items-center">
-                                                                <p className="font-normal text-xs dark:text-gray-400">2 Mins read</p>
+                                                                <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextValue)} read</p>
                                                                 <p>·</p>
                                                                 <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
                                                                     <CalendarDaysIcon height={18} /> {new Date().toDateString()}
@@ -395,22 +397,30 @@ interface Author {
     authordescription: string
   }
   
-function Author({ authordetails, onValueChange, teamid, getDepartments }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string, getDepartments: any }) {
+function Author({ authordetails, onValueChange, teamid, getDepartments, getAuthorid }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string, getDepartments: any, getAuthorid: string }) {
 
-    const mainAuthor = authordetails?.[0]
-    const [selectedAuthor, setSelectedAuthor] = useState<string | undefined>()
+    const mainAuthor = authordetails.find((author) => author._id === getAuthorid);
+    const [selectedAuthor, setSelectedAuthor] = useState<string | undefined>(mainAuthor?._id);
 
     function handleSelectedAuthor(selectedAuthor: string) {
         setSelectedAuthor(selectedAuthor)
         onValueChange(selectedAuthor)
     }
-  
+    useEffect(() => {
+        if (getDepartments && mainAuthor) {
+          setSelectedAuthor(mainAuthor._id);
+        }
+      }, [getDepartments, mainAuthor]);
+      
     if (!mainAuthor) {
       return null
     }
   
     return (
-      <Select value={selectedAuthor} onValueChange={(value: string) => handleSelectedAuthor(value)}>
+        <Select
+        value={selectedAuthor || mainAuthor?._id} 
+        onValueChange={(value: string) => handleSelectedAuthor(value)}
+        >        
         <SelectTrigger className="w-full py-2">
           <SelectValue className='p-2'  />
         </SelectTrigger>
@@ -438,19 +448,21 @@ function Author({ authordetails, onValueChange, teamid, getDepartments }: { auth
                 }
             <SelectSeparator />
             <SelectLabel>Departments</SelectLabel>
-            {
-                getDepartments.length > 0 ? getDepartments.map((department) => (
-                <SelectItem value={department._id} key={department._id}>
+            {(getDepartments && getDepartments.length > 0) ? (
+                getDepartments.map((department) => (
+                    <SelectItem value={department._id} key={department._id}>
                     <DepartmentOption
-                        author={department?.departmentname as any}
+                        author={department.departmentname}
                         showImage={false}
-                        label={department?.departmentdescription as any}
+                        label={department.departmentdescription}
                     />
-                </SelectItem>
-                )) : <Link href={`/application/${teamid}/settings?type=content`}>
+                    </SelectItem>
+                ))
+                ) : (
+                <Link href={`/application/${teamid}/settings?type=content`}>
                     <Button className='w-full text-left'>Create a department</Button>
                 </Link>
-            }
+                )}
           </SelectGroup>
         </SelectContent>
       </Select>
@@ -501,7 +513,6 @@ function Author({ authordetails, onValueChange, teamid, getDepartments }: { auth
   
 function MessageList({ teamid, contentid }: any) {
     const messages = useQuery(api.message.getMessages, { pageid: teamid, contentid: contentid });
-    console.log(messages);
     const [dataLoaded, setDataLoaded] = useState(false);
     const [userData, setUserData] = useState([]);
     const [storedMessages, setStoredMessages] = useState([]);
