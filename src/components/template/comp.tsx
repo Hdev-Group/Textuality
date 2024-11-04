@@ -120,11 +120,12 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
           type: field.type,
           fieldname: field.name,
           reference: `${template.name.toLowerCase().replace(/\s+/g, '_')}_${field.name.toLowerCase().replace(/\s+/g, '_')}`,
-          position: index,
+          position: index + 1,  // Increment position by index + 1 to ensure unique values starting from 1
         };
       });
     
-      newFields.forEach((field) => onAddField(field));
+      // Confirm if `onAddField` doesn’t modify the `position` value
+      newFields.forEach((field) => onAddField({ ...field, position: field.position }));
       handleClose();
     };
     

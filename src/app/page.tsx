@@ -165,7 +165,7 @@ export default function Home() {
                         <div className="flex flex-col">
                           <div className="flex flex-row gap-8">
                             {/* Main Feature Section */}
-                            <div className="flex flex-col gap-6 w-1/3">
+                            <div className="flex flex-col gap-6 w-full md:w-1/3">
                               <h1 className="text-3xl text-pink-300 font-medium leading-tight">
                                 Enterprise-grade security and privacy compliance for you.
                               </h1>
@@ -186,18 +186,38 @@ export default function Home() {
                                 </p>
                               </div>
                             </div>
-                            <div className="flex flex-col w-1/2 h-full">
+                            <div className="hidden md:flex flex-col  md:w-1/2 h-full">
                               <img src="/IMG_6128.png" alt="Textuality" className="object-cover" />
                             </div>
                           </div>
                           </div>
                           </div>
-                          <div className="my-10 mt-24 border-y flex items-start justify-start py-10 border-dashed w-full">
+                          <div className="mt-24 border-y flex items-start justify-start py-10 border-dashed w-full">
                             <div className="container mx-auto w-full px-4 sm:px-6 lg:px-8 flex ">
                               <h1 className="text-6xl space-grotesk-800  text-start bg-gradient-to-r from-black to-black dark:bg-gradient-to-r dark:from-accent-foreground dark:via-pink-500 dark:to-pink-50 bg-clip-text text-transparent">Ready to transform your content?
                               </h1>
                             </div>
-                            
+                          </div>
+                          <div className="mb-10 border-y flex items-center justify-center border-dashed w-full">
+                            <div className="md:container md:mx-auto justify-center items-center w-full lg:px-8 flex ">
+                              <div className="flex flex-col md:flex-row w-full gap-4">
+                                <div className="flex flex-col px-8 md:items-end py-10 border-b md:border-r md:px-4 border-dashed h-full gap-4 w-full">
+                                  <div className="flex flex-col items-start">
+                                  <h2 className="text-3xl space-grotesk-800 text-start">Getting started in a few clicks</h2>
+                                  <p className="text-lg text-pink-300 w-[80%]">Setup and connect Textuality to your website and start to make great things</p>
+                                  <a href="/application/home" className="w-full">
+                                    <Button className="font-semibold w-full mt-4 text-lg" size="lg" >Get Started</Button>
+                                  </a>
+                                </div>
+                                </div>
+                                <div className="flex flex-col px-8 gap-4 items-start w-full py-10">
+                                  <h2 className="text-lg space-grotesk-400 text-start">Need some more power? Check out our plans to fit with you, your team or organization.</h2>
+                                  <a href="/pricing" className="md:w-auto w-full">
+                                    <Button className="font-semibold"  variant="outline">View Pricing</Button>
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                     </section>
                   <Footer />

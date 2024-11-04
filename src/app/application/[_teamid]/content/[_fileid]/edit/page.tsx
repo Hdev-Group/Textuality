@@ -129,7 +129,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
             case "JSON object":
                 return <textarea value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder='Enter JSON here' />;
             case "Media":
-                return <Input type="file" onChange={(e) => setFieldValues(prev => ({ ...prev, [field._id]: e.target.files[0] }))} className='border rounded-md p-2 w-full' />;
+                return <Input type="input" value={fieldValues[field._id] || ''} onChange={handleChange}  className='border rounded-md p-2 w-full' />;
             default:
                 return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder="Unknown field type" />;
         }
@@ -193,13 +193,15 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                             {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Close</p> : null}
                                         </div>
                                         <div className='h-0.5 w-full border-t' />
+                                        <div onClick={() => handleSidebarClick("viewer")} className={`${activeSidebar === "viewer" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
+                                            <View />
+                                            {
+                                                isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Viewer</p> : null
+                                            }
+                                        </div>
                                         <div onClick={() => handleSidebarClick("chat")} className={`${activeSidebar === "chat" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex  flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <MessagesSquare />
                                             {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Chat</p> : null}
-                                        </div>
-                                        <div onClick={() => handleSidebarClick("logs")} className={`${activeSidebar === "logs" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
-                                            <LucideClipboardSignature />
-                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide leading-tight flex-nowrap'>Logs</p> : null}
                                         </div>
                                         <div onClick={() => handleSidebarClick("ai")} className={`${activeSidebar === "ai" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <BotMessageSquare />
@@ -207,11 +209,9 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                 isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>AI</p> : null
                                             }
                                         </div>
-                                        <div onClick={() => handleSidebarClick("viewer")} className={`${activeSidebar === "viewer" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
-                                            <View />
-                                            {
-                                                isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Viewer</p> : null
-                                            }
+                                        <div onClick={() => handleSidebarClick("logs")} className={`${activeSidebar === "logs" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
+                                            <LucideClipboardSignature />
+                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide leading-tight flex-nowrap'>Logs</p> : null}
                                         </div>
                                         <div>
                                             <div className={`
@@ -336,19 +336,28 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                     }
                                                 </div>
                                                 )
-                                            } else if (field.type === "Location") {
+                                            }else if (field.type === "Location") {
+                                                return (
+                                                    <div key={index} className='flex flex-col gap-1'>
+                                                        {fieldValues[field._id] ? (
+                                                            <p>
+                                                                At{" "}
+                                                                <a
+                                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fieldValues[field._id])}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="font-semibold text-blue-600 underline"
+                                                                >
+                                                                    {fieldValues[field._id]}
+                                                                </a>
+                                                            </p>
+                                                        ) : null}
+                                                    </div>
+                                                );
+                                            }
+                                            else if (field.type === "Media") {
                                                 return <div key={index} className='flex flex-col gap-1'>
-                                                   {
-                                                         fieldValues[field._id] ? (
-                                                          <p>
-                                                                At <span className='font-semibold'>{fieldValues[field._id]}</span>
-                                                          </p>
-                                                         ) : null
-                                                   }
-                                                </div>
-                                            } else if (field.type === "Media") {
-                                                return <div key={index} className='flex flex-col gap-1'>
-                                                    <p>{fieldValues[field._id]}</p>
+                                                    <img src={`${fieldValues[field._id]}`} alt={field.fieldname} className='max-h-[200px] w-[100%] object-cover rounded-md' />
                                                 </div>
                                             }
                                             return null;
