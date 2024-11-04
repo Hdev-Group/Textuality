@@ -30,6 +30,21 @@ import { DoesExist } from '../../doesExist';
 import { NotFoundError } from '@/components/edgecases/error';
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
+const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+};
 export default function ContentEditPage({ params }: { params: Promise<{ _teamid: string, _fileid: string }> }) {
     const router = useRouter();
     const { userId } = useAuth();
@@ -43,7 +58,21 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
     const [fieldValues, setFieldValues] = useState({});
     const [userData, setUserData] = useState([]);
+    const updateContent = useMutation(api.fields.updateField);
     const [dataLoaded, setDataLoaded] = useState(false);
+    const [autosaveTimer, setAutosaveTimer] = useState(null);
+    const debouncedFieldValues = useDebounce(fieldValues, 1000); 
+    console.log(fieldValues);
+    console.log(debouncedFieldValues);
+    const structureFieldValues = (fieldValues) => {
+        return Object.entries(fieldValues).map(([fieldid, value]) => ({
+            fieldid,
+            value
+        }));
+    };
+    
+    // Usage
+    const structuredFieldValues = structureFieldValues(fieldValues);
     const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
     const title = `${getPage?.title} — ${getContent?.title} — Textuality`;
 
@@ -89,6 +118,15 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
         setIsSideBarOpen(!isSideBarOpen);
         setActiveSidebar(null);
     }
+    useEffect(() => {
+        if (Object.keys(structuredFieldValues).length > 0) {
+            const saveContent = async () => {
+                console.log(structuredFieldValues);
+                await updateContent({ fieldid: structuredFieldValues?.[0]?.fieldid, value: structuredFieldValues?.[0]?.value as string, fileid: _fileid, externalId: userId, teamid: _teamid });
+            };
+            saveContent();
+        }
+    }, [debouncedFieldValues]);
 
     const renderLivePreviewFields = (field) => {
         const fieldValue = fieldValues[field._id];
@@ -109,9 +147,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
         }
     };
     const renderField = (field) => {
-        const handleChange = (e) => {
-            setFieldValues(prev => ({ ...prev, [field._id]: e.target.value }));
-        };
+        const handleChange = (e) => setFieldValues(prev => ({ ...prev, [field._id]: e.target.value }));
     
         switch (field.type) {
             case "Rich text":
@@ -341,12 +377,12 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                     <div key={index} className='flex flex-col gap-1'>
                                                         {fieldValues[field._id] ? (
                                                             <p>
-                                                                At{" "}
+                                                                At:{" "}
                                                                 <a
                                                                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fieldValues[field._id])}`}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="font-semibold text-blue-600 underline"
+                                                                    className="font-semibold  underline"
                                                                 >
                                                                     {fieldValues[field._id]}
                                                                 </a>

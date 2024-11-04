@@ -50,9 +50,10 @@ fields: defineTable({
 }).index("bytemplateid", ["templateid"]),
 fieldvalues: defineTable({
     fieldid: v.string(),
-    fieldname: v.string(),
     value: v.any(),
     externalId: v.string(),
+    teamid: v.string(),
+    fileid: v.string(),
 }).index("byfieldid", ["fieldid"]),
 content: defineTable({
     pageid: v.string(),
