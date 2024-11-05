@@ -53,6 +53,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const getContent = useQuery(api.content.getContentSpecific, { _id: _fileid as any });
     const getFields = useQuery(api.content.getFields, { templateid: getContent?.templateid });
     const changeAuthor = useMutation(api.content.changeAuthor);
+    const getFieldValues = useQuery(api.fields.getFieldValues, { fileid: _fileid as string  });
     const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid as any });
     const [richTextValue, setRichTextValue] = useState('');
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
@@ -61,9 +62,8 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const updateContent = useMutation(api.fields.updateField);
     const [dataLoaded, setDataLoaded] = useState(false);
     const [autosaveTimer, setAutosaveTimer] = useState(null);
-    const debouncedFieldValues = useDebounce(fieldValues, 1000); 
-    console.log(fieldValues);
-    console.log(debouncedFieldValues);
+    const [updated, setUpdated] = useState("true");
+    const debouncedFieldValues = useDebounce(fieldValues, 2000); 
     const structureFieldValues = (fieldValues) => {
         return Object.entries(fieldValues).map(([fieldid, value]) => ({
             fieldid,
@@ -76,6 +76,17 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
     const title = `${getPage?.title} — ${getContent?.title} — Textuality`;
 
+    // now we need to get the field values and populate the fields correctly
+    useEffect(() => {
+        if (getFieldValues?.length) {
+            const initialFieldValues = getFieldValues.reduce((acc, field) => {
+                acc[field.fieldid] = field.value;
+                return acc;
+            }, {});
+            setFieldValues(initialFieldValues);
+        }
+    }, [getFieldValues]);
+    
     useEffect(() => {
         async function fetchUserData() {
             if (getContent?.authorid) {
@@ -119,14 +130,32 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
         setActiveSidebar(null);
     }
     useEffect(() => {
-        if (Object.keys(structuredFieldValues).length > 0) {
-            const saveContent = async () => {
-                console.log(structuredFieldValues);
-                await updateContent({ fieldid: structuredFieldValues?.[0]?.fieldid, value: structuredFieldValues?.[0]?.value as string, fileid: _fileid, externalId: userId, teamid: _teamid });
-            };
+        const saveContent = async () => {
+            setUpdated("pending")
+            for (const field of structuredFieldValues) {
+                try {
+                    const updated = await updateContent({
+                        fieldid: field.fieldid,
+                        value: field.value as string,
+                        fileid: _fileid,
+                        externalId: userId,
+                        teamid: _teamid,
+                    });
+                    if (updated) {
+                        setUpdated("true");
+                    }
+                } catch (error) {
+                    console.error("Error updating field:", field.fieldid, error);
+                    setUpdated("false");
+                }
+            }
+        };
+    
+        if (Object.keys(debouncedFieldValues).length > 0) {
             saveContent();
         }
     }, [debouncedFieldValues]);
+    
 
     const renderLivePreviewFields = (field) => {
         const fieldValue = fieldValues[field._id];
@@ -147,7 +176,8 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
         }
     };
     const renderField = (field) => {
-        const handleChange = (e) => setFieldValues(prev => ({ ...prev, [field._id]: e.target.value }));
+        const handleChange = (e) =>
+            setFieldValues((prev) => ({ ...prev, [field._id]: e.target.value }));
     
         switch (field.type) {
             case "Rich text":
@@ -269,9 +299,26 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                             )}
                                         </div>
                                     </div>
-                                    <div className='h-0.5 w-full border-t' />
+                                    <div className='h-0.5 my-3 w-full border-t' />
                                     {/* autosave sector */}
-                                    
+                                    <div className={`
+                                            ${updated === "true" ? "bg-green-300 text-green-700 dark:bg-green-700 dark:text-green-300" : ""}
+                                            ${updated === "pending" ? "bg-yellow-300 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""}
+                                            ${updated === "false" ? "bg-red-300 text-red-700 dark:bg-red-700 dark:text-red-300" : ""}
+                                            px-2.5 py-1 h-auto min-h-8 rounded-sm w-full flex items-center`}>
+                                            <div className='flex flex-col gap-0.5'>
+                                                {
+                                                    isSideBarOpen === true && activeSidebar === null ? <span className='font-bold'>Autosave</span> : null
+                                                }
+                                                {isSideBarOpen && activeSidebar === null && (
+                                                    <>
+                                                        {updated === "true" && <span className='text-xs font-medium'>Content has been saved.</span>}
+                                                        {updated === "pending" && <span className='text-xs font-medium'>Content is being saved.</span>}
+                                                        {updated === "false" && <span className='text-xs font-medium'>Content could not be saved.</span>}
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
                                 </div>
                             </div>
                         </div>

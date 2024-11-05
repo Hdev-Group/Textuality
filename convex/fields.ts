@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 export const updateField = mutation({
     args: {
@@ -16,7 +16,6 @@ export const updateField = mutation({
                 q.eq(q.field("teamid"), teamid)
             ))
             .first();
-
         if (existingRecord) {
             await ctx.db.patch(existingRecord._id, {
                 value,
@@ -35,5 +34,20 @@ export const updateField = mutation({
             const insertedRecord = await ctx.db.insert("fieldvalues", newRecord);
             return insertedRecord;
         }
+    }
+});
+
+export const getFieldValues = query({
+    args: {
+        fileid: v.any()
+    },
+    handler: async (ctx, { fileid }) => {
+        const results = await ctx.db.query("fieldvalues")
+        .filter(
+            q => q.and(
+                q.eq(q.field("fileid"), fileid)
+            )
+        ).collect();
+        return results;
     }
 });
