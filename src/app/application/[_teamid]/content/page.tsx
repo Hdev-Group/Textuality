@@ -46,7 +46,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
     const DeleteContenta = useMutation(api.content.deleteContent);
     const getContent = useQuery(api.content.getContent, { pageid: _teamid });
     const [userData, setUserData] = useState<any[]>([]);
-    console.log(userData);
+    console.log(userData)
     const [dataloaded, setDataLoaded] = useState(false);
     const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
 
@@ -68,20 +68,19 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
     useEffect(() => {
         async function fetchAllUserData() {
             if (getContent && getContent.length > 0) {
-                const authorIds = [...new Set(getContent.map((item) => item.authorid))];
-
                 try {
-                    const usersData = await Promise.all(
-                        authorIds.map(async (authorId) => {
-                            const response = await fetch(`/api/secure/get-user?userId=${authorId}`);
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            }
-                            const data = await response.json();
-                            return data.user;
-                        })
-                    );
-                    setUserData(usersData);
+                    // map out all the author ids then find those that dont have user_ in them
+                    const authorIds = getContent.map((item) => item.authorid);
+                    const uniqueAuthorIds = [...new Set(authorIds)];
+                    const userAuthorIds = uniqueAuthorIds.filter((id) => id.includes("user_"));
+                    console.log(userAuthorIds);
+                    const response = await fetch(`/api/secure/get-user?userId=${userAuthorIds.join(",")}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    setUserData(data.users);
+                    setDataLoaded(true);
                 } catch (error) {
                     console.error("Error fetching user data:", error);
                 } finally {
@@ -91,6 +90,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
         }
         fetchAllUserData();
     }, [getContent]);
+
     function filterContentItem(selectedItemId: string) {
         if (selectedItemId === "all") {
             setFilteredContentItems(getContent || []); // Show all content
@@ -145,8 +145,11 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                                             <SelectLabel>All Authors</SelectLabel>
                                                             <SelectItem value="all">All</SelectItem> {/* Option to show all */}
                                                             {userData?.map((user) => (
-                                                                <SelectItem value={user._id} key={user._id}>{user.firstName} {user.lastName}</SelectItem>
+                                                                <SelectItem value={user.id} key={user.id}>
+                                                                    {user.firstName} {user.lastName}
+                                                                </SelectItem>
                                                             ))}
+
                                                             <SelectSeparator />
                                                             <SelectLabel>All Departments</SelectLabel>
                                                             {getDepartments?.map((department) => (
@@ -185,33 +188,34 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>{getTemplateName(item._id)}</TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>{timeAgo(new Date(item.updated))}</TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>
-                                                                        {dataloaded ? (
-                                                                            userData?.length > 0 ? (
-                                                                                <div className="flex flex-row items-center gap-2">
-                                                                                    <Avatar className="h-7 w-7 border-2 p-0.5">
-                                                                                        <AvatarImage className="rounded-full" src={userData[0]?.imageUrl} />
-                                                                                        <AvatarFallback>{userData?.[0]?.firstName.charAt(0)}</AvatarFallback>
-                                                                                    </Avatar>
-                                                                                    <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
-                                                                                </div>
-                                                                            ) : departmentFilter?.length > 0 ? (
-                                                                                <div className="flex flex-row items-center gap-2 px-2.5 py-1 rounded-sm">
-                                                                                    <Avatar className="h-7 w-7 border-2 p-0.5">
-                                                                                        <AvatarFallback>{departmentFilter?.[0]?.departmentname.charAt(0)}</AvatarFallback>
-                                                                                    </Avatar>
-                                                                                    <span>{departmentFilter?.[0]?.departmentname}</span>
-                                                                                </div>
-                                                                            ) : (
-                                                                                <div className="flex flex-row items-center gap-2">
-                                                                                    <Avatar>
-                                                                                        <AvatarImage>
-                                                                                            <div className="w-20 h-5 bg-gray-200 dark:bg-neutral-800 rounded-md animate-pulse"></div>
-                                                                                        </AvatarImage>
-                                                                                    </Avatar>
-                                                                                    <div className="w-20 h-5 bg-gray-200 dark:bg-neutral-800 rounded-md animate-pulse"></div>
-                                                                                </div>
-                                                                            )
-                                                                        ) : null}
+                                                                            {userData?.map((user) => {
+                                                                                if (user.id === item.authorid) {
+                                                                                    return (
+                                                                                        <div className="flex flex-row items-center gap-2" key={user.id}>
+                                                                                            <Avatar>
+                                                                                                <AvatarImage src={user.profilePicture} alt={user.firstName} />
+                                                                                                <AvatarFallback>{user.firstName.charAt(0)}{user.lastName.charAt(0)}</AvatarFallback>
+                                                                                            </Avatar>
+                                                                                            <p>{user.firstName} {user.lastName}</p>
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                                return null;
+                                                                            })}
+                                                                            {departmentFilter?.map((department) => {
+                                                                                if (department._id === item.authorid) {
+                                                                                    return (
+                                                                                        <div className="flex flex-row items-center gap-2" key={department._id}>
+                                                                                            <Avatar>
+                                                                                                <AvatarImage src={department.profilePicture} alt={department.departmentname} />
+                                                                                                <AvatarFallback>{department.departmentname.charAt(0)}</AvatarFallback>
+                                                                                            </Avatar>
+                                                                                            <p>{department.departmentname}</p>
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                                return null;
+                                                                            })}
                                                                     </TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>
                                                                         <div>
