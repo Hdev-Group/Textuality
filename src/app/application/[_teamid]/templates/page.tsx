@@ -81,7 +81,6 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
     fetchUserData();
   }, [getTemplates]);
 
-  // Filter templates based on search terms and sorting options
   const filteredTemplates = useMemo(() => {
     if (!getTemplates) return [];
 
@@ -117,7 +116,6 @@ export default function Page({ params }: { params: Promise<{ _teamid: string}> }
     return "a few seconds ago";
   }
 
-  if (!isSignedIn) return <IsAuthorizedEdge />;
 
   const title = getPage?.title + " — Templates — Textuality";
   

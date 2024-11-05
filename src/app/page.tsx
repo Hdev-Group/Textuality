@@ -6,7 +6,6 @@ import OverHeader from "@/components/header/overheader"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import Footer from "@/components/footer/footer"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, ChartArea, Clock10Icon, FileLock} from "lucide-react"
 import { motion } from 'framer-motion'
 import { Separator } from "@/components/ui/separator"
@@ -22,7 +21,7 @@ export default function Home() {
     </title>
       <body className="flex bg flex-col min-h-screen w-full items-center justify-center">
         <div className="flex items-center justify-center ">
-          <div className="border-x bg-background border-neutral-600 max-w-[2000px] w-full z-50  dark:border-white/50 rounded-sm lg:mx-10 lg:my-10 border-y">
+          <div className="border-x bg-background border-neutral-600 max-w-[2000px] w-full z-30  dark:border-white/50 rounded-sm lg:mx-10 lg:mb-10 border-y">
             <OverHeader />
             <Header />
               <main className="flex-grow relative z-40 overflow-x-hidden">
@@ -49,9 +48,11 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
+                    <motion.div initial={{ opacity: 0, translateY: 50 }} whileInView={{ opacity: 1, translateY: 0 }} transition={{ duration: 1 }} className="flex flex-col items-center mt-10 justify-center">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8 justify-center flex mt-32">
                       <img src="https://hdev.uk/textuality/textuality-6.png" alt="Textuality" className="object-cover border overflow-hidden rounded-xl w-full" />
                     </div>
+                    </motion.div>
                     <div className="my-10 mt-24 border-y  flex items-start justify-start py-10 border-dashed w-full">
                         <div className="container mx-auto  w-full px-4 sm:px-6 lg:px-8 flex ">
                         <h1 className="text-6xl space-grotesk-800 text-start bg-gradient-to-r from-black to-black dark:bg-gradient-to-r dark:from-accent-foreground dark:via-pink-500 dark:to-pink-500 bg-clip-text text-transparent">All the features you need to manage your content, <br/>
@@ -61,7 +62,7 @@ export default function Home() {
                     <div className=" mx-auto w-full px-4 sm:px-6 lg:px-8 flex mt-12">
                       <div className="flex flex-col">
                         <div className="flex flex-col gap-20">
-                        <div className="flex flex-col lg:flex-row items-center gap-8">
+                        <div className="flex flex-col lg:flex-row gap-8">
                           {/* Main Feature Section */}
                           <div className="flex flex-col gap-6 w-full lg:w-1/3">
                             <FileSpreadsheetIcon size={50} />
@@ -72,15 +73,15 @@ export default function Home() {
                               Create, edit, and publish content with your team in real-time. With Textuality, you can collaborate visually and seamlessly.
                             </p>
                           </div>
-                          <div className="flex flex-col w-full h-full">
-                            <img src="/textuality-7.png" alt="Textuality" className="object-cover border overflow-hidden rounded-xl w-full" />
-                          </div>
+                          <motion.div initial={{ opacity: 0, translateY: -50 }} whileInView={{ opacity: 1, translateY: 0 }} transition={{ duration: 1 }}  className="flex flex-col w-full h-full">
+                          <img src="https://hdev.uk/textuality/textuality-5.png" alt="Textuality" className="object-cover border overflow-hidden rounded-xl w-full" />
+                          </motion.div>
                         </div>
-                        <div className="flex flex-col lg:flex-row items-center gap-8 mb-10">
+                        <div className="flex flex-col lg:flex-row items-end gap-8 mb-10">
                           {/* Main Feature Section */}
-                          <div className="lg:flex hidden flex-col w-full h-full">
+                          <motion.div initial={{ opacity: 0, translateY: 50 }} whileInView={{ opacity: 1, translateY: 0 }} transition={{ duration: 1 }}  className="lg:flex hidden flex-col w-full h-full">
                             <img src="https://hdev.uk/textuality/textuality-2.png" alt="Textuality" className="object-cover border overflow-hidden rounded-xl w-full" />
-                          </div>
+                          </motion.div>
                           <div className="flex flex-col gap-6 w-full lg:w-1/3">
                             <FileSpreadsheetIcon size={50} />
                             <h1 className="text-xl sm:text-6xl space-grotesk-600 font-bold leading-tight">
