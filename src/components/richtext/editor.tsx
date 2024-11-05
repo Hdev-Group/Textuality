@@ -5,7 +5,7 @@ import styles from "./RichTextEditor.css";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 const RichTextEditor = ({ sendValue, onChange }) => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(sendValue);
 
   const handleChange = (content, delta, source, editor) => {
     setValue(content);

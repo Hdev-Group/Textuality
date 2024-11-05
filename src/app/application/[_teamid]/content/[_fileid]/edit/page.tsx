@@ -61,7 +61,6 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const [userData, setUserData] = useState([]);
     const updateContent = useMutation(api.fields.updateField);
     const [dataLoaded, setDataLoaded] = useState(false);
-    const [autosaveTimer, setAutosaveTimer] = useState(null);
     const [updated, setUpdated] = useState("true");
     const debouncedFieldValues = useDebounce(fieldValues, 2000); 
     const structureFieldValues = (fieldValues) => {
@@ -76,7 +75,6 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
     const title = `${getPage?.title} — ${getContent?.title} — Textuality`;
 
-    // now we need to get the field values and populate the fields correctly
     useEffect(() => {
         if (getFieldValues?.length) {
             const initialFieldValues = getFieldValues.reduce((acc, field) => {
@@ -96,7 +94,6 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                     const data = await response.json();
                     setUserData(data.users);
                 } catch (error) {
-                    // see if the author is a department
                     const department = getDepartments?.find(dept => dept._id === getContent?.authorid);
                     if (department && department._id) {
                         setUserData(getDepartments.map(department => ({
