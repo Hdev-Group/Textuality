@@ -46,6 +46,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
     const DeleteContenta = useMutation(api.content.deleteContent);
     const getContent = useQuery(api.content.getContent, { pageid: _teamid });
     const [userData, setUserData] = useState<any[]>([]);
+    console.log(userData)
     const [dataloaded, setDataLoaded] = useState(false);
     const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
 
@@ -63,28 +64,31 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
         }
     }, [userId, getPage, getPage?.users]);
 
+
     useEffect(() => {
-        async function fetchUserData() {
-            if (getContent?.[0]?.authorid) {
+        async function fetchAllUserData() {
+            if (getContent && getContent.length > 0) {
                 try {
-                    const response = await fetch(`/api/secure/get-user?userId=${getContent?.[0]?.authorid}`);
+                    // map out all the author ids then find those that dont have user_ in them
+                    const authorIds = getContent.map((item) => item.authorid);
+                    const uniqueAuthorIds = [...new Set(authorIds)];
+                    const userAuthorIds = uniqueAuthorIds.filter((id) => id.includes("user_"));
+                    console.log(userAuthorIds);
+                    const response = await fetch(`/api/secure/get-user?userId=${userAuthorIds.join(",")}`);
                     if (!response.ok) {
-                        getDepartments?.length > 0 ? setUserData(getDepartments) : setUserData([]);
-                        if (!getDepartments) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     const data = await response.json();
                     setUserData(data.users);
+                    setDataLoaded(true);
                 } catch (error) {
                     console.error("Error fetching user data:", error);
-                    setUserData([]);
                 } finally {
                     setDataLoaded(true);
                 }
             }
         }
-        fetchUserData();
+        fetchAllUserData();
     }, [getContent]);
 
     function filterContentItem(selectedItemId: string) {
@@ -141,8 +145,11 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                                             <SelectLabel>All Authors</SelectLabel>
                                                             <SelectItem value="all">All</SelectItem> {/* Option to show all */}
                                                             {userData?.map((user) => (
-                                                                <SelectItem value={user._id} key={user._id}>{user.firstName} {user.lastName}</SelectItem>
+                                                                <SelectItem value={user.id} key={user.id}>
+                                                                    {user.firstName} {user.lastName}
+                                                                </SelectItem>
                                                             ))}
+
                                                             <SelectSeparator />
                                                             <SelectLabel>All Departments</SelectLabel>
                                                             {getDepartments?.map((department) => (
@@ -181,33 +188,33 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>{getTemplateName(item._id)}</TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>{timeAgo(new Date(item.updated))}</TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>
-                                                                        {dataloaded ? (
-                                                                            userData?.length > 0 ? (
-                                                                                <div className="flex flex-row items-center gap-2">
-                                                                                    <Avatar className="h-7 w-7 border-2 p-0.5">
-                                                                                        <AvatarImage className="rounded-full" src={userData[0]?.imageUrl} />
-                                                                                        <AvatarFallback>{userData?.[0]?.firstName.charAt(0)}</AvatarFallback>
-                                                                                    </Avatar>
-                                                                                    <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
-                                                                                </div>
-                                                                            ) : departmentFilter?.length > 0 ? (
-                                                                                <div className="flex flex-row items-center gap-2 px-2.5 py-1 rounded-sm">
-                                                                                    <Avatar className="h-7 w-7 border-2 p-0.5">
-                                                                                        <AvatarFallback>{departmentFilter?.[0]?.departmentname.charAt(0)}</AvatarFallback>
-                                                                                    </Avatar>
-                                                                                    <span>{departmentFilter?.[0]?.departmentname}</span>
-                                                                                </div>
-                                                                            ) : (
-                                                                                <div className="flex flex-row items-center gap-2">
-                                                                                    <Avatar>
-                                                                                        <AvatarImage>
-                                                                                            <div className="w-20 h-5 bg-gray-200 dark:bg-neutral-800 rounded-md animate-pulse"></div>
-                                                                                        </AvatarImage>
-                                                                                    </Avatar>
-                                                                                    <div className="w-20 h-5 bg-gray-200 dark:bg-neutral-800 rounded-md animate-pulse"></div>
-                                                                                </div>
-                                                                            )
-                                                                        ) : null}
+                                                                            {userData?.map((user) => {
+                                                                                if (user.id === item.authorid) {
+                                                                                    return (
+                                                                                        <div className="flex flex-row items-center gap-2" key={user.id}>
+                                                                                            <Avatar className='w-7 h-7'>
+                                                                                                <AvatarImage src={user.imageUrl} alt={user.firstName} />
+                                                                                                <AvatarFallback>{user.firstName.charAt(0)}{user.lastName.charAt(0)}</AvatarFallback>
+                                                                                            </Avatar>
+                                                                                            <p>{user.firstName} {user.lastName}</p>
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                                return null;
+                                                                            })}
+                                                                            {departmentFilter?.map((department) => {
+                                                                                if (department._id === item.authorid) {
+                                                                                    return (
+                                                                                        <div className="flex flex-row items-center gap-2" key={department._id}>
+                                                                                            <Avatar className='w-7 h-7'>
+                                                                                                <AvatarFallback>{department.departmentname.charAt(0)}</AvatarFallback>
+                                                                                            </Avatar>
+                                                                                            <p>{department.departmentname}</p>
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                                return null;
+                                                                            })}
                                                                     </TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>
                                                                         <div>

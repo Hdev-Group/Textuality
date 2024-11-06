@@ -104,8 +104,10 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
       templateid: _templateid,
       reference: field.reference,
       name: field.fieldname as string,
-    }
-    setFields((prevFields) => [...prevFields, newField])
+    };
+    setFields((prevFields) => [...prevFields, newField]);
+    
+    // Persist new field to backend
     await templateaddfield({
       templateid: _templateid, 
       fieldname: newField.name, 
@@ -113,8 +115,8 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
       type: field.name, 
       reference: newField.reference,
       fieldposition: fields.length + 1
-    })
-  }
+    });
+  };
 
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
@@ -123,29 +125,28 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     const [reorderedItem] = newFields.splice(result.source.index, 1);
     newFields.splice(result.destination.index, 0, reorderedItem);
   
+    // Update positions based on new order
     const updatedFields = newFields.map((field, index) => ({
       ...field,
-      fieldposition: index + 1, // Update to match your field's property
+      fieldposition: index + 1,
     }));
   
-    // Set new field order in state
-    setFields(null)
+    // Update state
     setFields(updatedFields);
   
-    // Prepare data for batch update
-    updatedFields.map((field) => ({
-      fieldid: field._id as any,
-      templateid: _templateid as any,
-      fieldname: field.fieldname as string,
-      type: field.type as string,
-      description: field.description,
-      reference: field.reference,
-      fieldposition: field.fieldposition,
-      lastUpdatedBy: userId as string,
-    }));
-  
-    // Save the updated positions in a single API call
-
+    // Batch update the new positions in backend
+    await Promise.all(updatedFields.map((field) =>
+      saveField({
+        fieldid: field._id as any, 
+        templateid: _templateid as any,
+        fieldname: field.fieldname as string,
+        type: field.type as string,
+        description: field.description,
+        reference: field.reference,
+        fieldposition: field.fieldposition,
+        lastUpdatedBy: userId as string,
+      })
+    ));
   };
   const handleEdit = (fieldId: string) => {
     const fieldToEdit = fields.find(field => field._id === fieldId);
@@ -178,11 +179,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         lastUpdatedBy: userId as string
       })
     }
-  }
-
-
-  if (!getPage?.users?.includes(userId as string)) {
-    return <div className="flex items-center justify-center h-screen">Not authorized</div>
   }
   const title = getTemplates?.[0]?.title + ' — Templates' + ' — Textuality'
   return (
@@ -217,10 +213,10 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                   </div>
                 </aside>
                 <div className='w-full pb-6 ml-6'>
-                  {
+                {
                     type === "" ? (
                       <DragDropContext onDragEnd={onDragEnd}>
-                      <Table className='mt-4 mx-auto container py-6'>
+                      <Table className='mt-4 mx-auto  py-6'>
                         <TableHeader className='border rounded-t-md'>
                           <TableRow>
                             <TableHead>Position</TableHead>

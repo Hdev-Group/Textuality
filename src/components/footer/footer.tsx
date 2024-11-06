@@ -10,14 +10,14 @@ export default function Footer() {
     useEffect(() => {
       const themesetter = document.getElementById('themesetter');
 
-      if (localStorage.getItem('theme') === 'dark') {
-        setDark(true);
-        document.documentElement.classList.add('dark');
-        setImage("/IMG_6128.png")
-      } else {
+      if (localStorage.getItem('theme') === 'light') {
         setDark(false);
-        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
         setImage("/IMG_6129.png")
+      } else {
+        setDark(true);
+        document.documentElement.classList.remove('light');
+        setImage("/IMG_6128.png")
       }
 
       themesetter?.addEventListener('click', () => {
@@ -41,7 +41,7 @@ export default function Footer() {
 
 
     return(
-      <footer className="bg-background border-t">
+      <footer className="bg-background border-t mx-0 w-full">
       <div className="container mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
