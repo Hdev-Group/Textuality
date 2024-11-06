@@ -193,7 +193,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                                                                     return (
                                                                                         <div className="flex flex-row items-center gap-2" key={user.id}>
                                                                                             <Avatar className='w-7 h-7'>
-                                                                                                <AvatarImage  src={user.imageUrl} alt={user.firstName} />
+                                                                                                <AvatarImage src={user.imageUrl} alt={user.firstName} />
                                                                                                 <AvatarFallback>{user.firstName.charAt(0)}{user.lastName.charAt(0)}</AvatarFallback>
                                                                                             </Avatar>
                                                                                             <p>{user.firstName} {user.lastName}</p>
@@ -207,7 +207,7 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                                                                                     return (
                                                                                         <div className="flex flex-row items-center gap-2" key={department._id}>
                                                                                             <Avatar className='w-7 h-7'>
-                                                                                                <AvatarImage>{department.departmentname.charAt(0)}</AvatarImage>
+                                                                                                <AvatarFallback>{department.departmentname.charAt(0)}</AvatarFallback>
                                                                                             </Avatar>
                                                                                             <p>{department.departmentname}</p>
                                                                                         </div>

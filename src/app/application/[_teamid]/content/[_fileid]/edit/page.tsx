@@ -4,7 +4,7 @@ import AppHeader from '@/components/header/appheader'
 import AuthWrapper from '../../../withAuth'
 import { api } from '../../../../../../../convex/_generated/api'
 import { useQuery, useMutation } from 'convex/react'
-import React, { act, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronLeft, LucideClipboardSignature, MessagesSquare, Save, SidebarOpen, View } from 'lucide-react';
@@ -27,10 +27,11 @@ import { AvatarImage } from '@radix-ui/react-avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { DoesExist } from '../../doesExist';
-import { NotFoundError } from '@/components/edgecases/error';
-import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { set } from 'zod';
+// import { NotFoundError } from '@/components/edgecases/error';
+// import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-const useDebounce = (value, delay) => {
+const useDebounce = (value: any, delay: number) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
     useEffect(() => {
@@ -55,15 +56,15 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const changeAuthor = useMutation(api.content.changeAuthor);
     const getFieldValues = useQuery(api.fields.getFieldValues, { fileid: _fileid as string  });
     const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid as any });
-    const [richTextValue, setRichTextValue] = useState('');
+    const [richTextValue] = useState('');
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
     const [fieldValues, setFieldValues] = useState({});
     const [userData, setUserData] = useState([]);
     const updateContent = useMutation(api.fields.updateField);
-    const [dataLoaded, setDataLoaded] = useState(false);
+    const [, setDataLoaded] = useState(false);
     const [updated, setUpdated] = useState("true");
     const debouncedFieldValues = useDebounce(fieldValues, 2000); 
-    const structureFieldValues = (fieldValues) => {
+    const structureFieldValues = (fieldValues: any) => {
         return Object.entries(fieldValues).map(([fieldid, value]) => ({
             fieldid,
             value
@@ -154,7 +155,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     }, [debouncedFieldValues]);
     
 
-    const renderLivePreviewFields = (field) => {
+    const renderLivePreviewFields = (field: any) => {
         const fieldValue = fieldValues[field._id];
     
         switch (field.type) {
@@ -172,13 +173,13 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                 return <p>Unknown field type</p>;
         }
     };
-    const renderField = (field) => {
-        const handleChange = (e) =>
+    const renderField = (field: any) => {
+        const handleChange = (e: any) =>
             setFieldValues((prev) => ({ ...prev, [field._id]: e.target.value }));
     
         switch (field.type) {
             case "Rich text":
-                return <RichTextEditor sendValue={fieldValues[field._id] || ''} onChange={(value) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
+                return <RichTextEditor sendValue={fieldValues[field._id] || ''} onChange={(value: any) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
             case "Short Text":
                 return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder={field.description} />;
             case "Number":
@@ -488,8 +489,12 @@ interface Author {
   
 function Author({ authordetails, onValueChange, teamid, getDepartments, getAuthorid }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string, getDepartments: any, getAuthorid: string }) {
 
-    const mainAuthor = authordetails.find((author) => author._id === getAuthorid);
+    const mainAuthor = authordetails.find((author: any) => author.id === getAuthorid);
+    const maindepartment = getDepartments.find((dept: any) => dept._id === getAuthorid);
+    console.log(mainAuthor, authordetails)
+
     const [selectedAuthor, setSelectedAuthor] = useState<string | undefined>(mainAuthor?._id);
+    const [isMainAuthor, setMainAuthor] = useState(false);
 
     function handleSelectedAuthor(selectedAuthor: string) {
         setSelectedAuthor(selectedAuthor)
@@ -500,14 +505,20 @@ function Author({ authordetails, onValueChange, teamid, getDepartments, getAutho
           setSelectedAuthor(mainAuthor._id);
         }
       }, [getDepartments, mainAuthor]);
-      
-    if (!mainAuthor) {
-      return null
-    }
+      useEffect(() => {            
+        if (!mainAuthor && !maindepartment) {
+            return;
+        } if (maindepartment) {
+            setSelectedAuthor(maindepartment._id)
+        } else if (mainAuthor) {
+            setSelectedAuthor(mainAuthor._id)
+        }
+    }, [mainAuthor, maindepartment]);
   
     return (
         <Select
         value={selectedAuthor || mainAuthor?._id} 
+        disabled={isMainAuthor}
         onValueChange={(value: string) => handleSelectedAuthor(value)}
         >        
         <SelectTrigger className="w-full py-2">
@@ -517,7 +528,7 @@ function Author({ authordetails, onValueChange, teamid, getDepartments, getAutho
           <SelectGroup>
             <SelectLabel>Main Author</SelectLabel>
                 {
-                    getDepartments.some(dept => dept._id === mainAuthor._id) ? (
+                    getDepartments.some((dept: any) => dept?._id === mainAuthor?._id) ? (
                         <SelectItem value={getDepartments?._id}>
                             <DepartmentOption
                                 author={mainAuthor}
@@ -526,7 +537,7 @@ function Author({ authordetails, onValueChange, teamid, getDepartments, getAutho
                             />
                         </SelectItem>
                     ) : (
-                        <SelectItem value={mainAuthor._id}>
+                        <SelectItem value={mainAuthor?._id}>
                         <AuthorOption
                             author={mainAuthor}
                             showImage={true}
@@ -538,7 +549,7 @@ function Author({ authordetails, onValueChange, teamid, getDepartments, getAutho
             <SelectSeparator />
             <SelectLabel>Departments</SelectLabel>
             {(getDepartments && getDepartments.length > 0) ? (
-                getDepartments.map((department) => (
+                getDepartments.map((department: any) => (
                     <SelectItem value={department._id} key={department._id}>
                     <DepartmentOption
                         author={department.departmentname}
@@ -559,12 +570,13 @@ function Author({ authordetails, onValueChange, teamid, getDepartments, getAutho
   }
   
   function AuthorOption({ author, showImage, label }: { author: any, showImage: boolean, label: string }) {
-    const displayName = typeof author === 'string' ? author : `${author.firstName || ''} ${author.lastName || ''}`;
+    console.log(author)
+    const displayName = typeof author === 'string' ? author : `${author?.firstName || ''} ${author?.lastName || ''}`;
   
     return (
       <div className="flex items-center cursor-pointer justify-start gap-2">
         <Avatar>
-          {showImage && author.imageUrl ? (
+          {showImage && author?.imageUrl ? (
             <AvatarImage src={author.imageUrl} alt={displayName} />
           ) : (
             <AvatarFallback>{displayName}</AvatarFallback>
@@ -692,7 +704,7 @@ function MessageList({ teamid, contentid }: any) {
 
 function MessageInputter({authorid, contentid, teamid}: any) {
     const messageSender = useMutation(api.message.sendMessage);
-    function Subbmitter(event) {
+    function Subbmitter(event: any) {
         event.preventDefault();
         if (event.target[0].value.length === 0) {
             return alert('Please type a message');
