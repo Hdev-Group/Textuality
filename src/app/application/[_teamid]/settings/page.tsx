@@ -185,6 +185,11 @@ function Sidebar({ activeTab, setActiveTab, teamid }) {
                 >
                     <span>Content</span>
                 </Link>
+                <Link href={`/application/${teamid}/settings?type=security`}
+                    className={`flex items-center justify-between cursor-pointer w-full px-8 py-2 text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "content" ? "bg-gray-100 dark:bg-neutral-900 font-semibold" : "hover:bg-neutral-400/20"}`}
+                >
+                    <span>Security</span>
+                </Link>
                 <Link href={`/application/${teamid}/settings?type=billing`}
                     className={`flex items-center justify-between cursor-pointer w-full px-8 py-2 text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "billing" ? "bg-gray-100 dark:bg-neutral-900 font-semibold" : "hover:bg-neutral-400/20"}`}
                 >

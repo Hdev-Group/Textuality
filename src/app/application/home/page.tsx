@@ -48,9 +48,7 @@ export default function Page() {
   const getinvites = useQuery(api.page.getInvites, { externalId: user?.user?.id || "" });
   const cancelInvite = useMutation(api.page.cancelInvite);
   const acceptInvite = useMutation(api.page.acceptInvite);
-  if (!isSignedIn) {
-    return <IsAuthorizedEdge />;
-  }
+
   // Fetch projects using useQuery
   // check if user can access projects
 
@@ -70,8 +68,6 @@ export default function Page() {
   } else if (hours >= 0 && hours < 5) {
     time = "night";
   }
-
-
   const CancelInvite = (inviteId: any) => {
       cancelInvite({ _id: inviteId.InviteDetails._id });
   }
