@@ -138,6 +138,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                         fileid: _fileid,
                         externalId: userId,
                         teamid: _teamid,
+                        updated: new Date().getTime()
                     });
                     if (updated) {
                         setUpdated("true");

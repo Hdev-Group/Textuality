@@ -4,14 +4,10 @@ import { useState } from "react"
 import Header from "@/components/header/header"
 import OverHeader from "@/components/header/overheader"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import Footer from "@/components/footer/footer"
 import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, ChartArea, Clock10Icon, FileLock} from "lucide-react"
 import { motion } from 'framer-motion'
-import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Link from "next/link"
-import NiceButton from "@/components/buttons/nicebutton"
+
 
 export default function Home() {
   return (
@@ -30,7 +26,7 @@ export default function Home() {
                     <div className="flex flex-col lg:flex-row items-end container mx-auto px-4 sm:px-6 lg:px-8 justify-center gap-14 md:gap-24">
                       <div className="flex relative">
                       <h1 className="font-bold flex  flex-row flex-wrap text-center lg:flex-col sm:text-start md:text-7xl sm:text-5xl text-5xl gap-2 lg:gap-0 lg:text-8xl space-grotesk-600 bg-gradient-to-r from-neutral-900 dark:from-pink-100 to-cyan-700 dark:to-cyan-200 bg-clip-text text-transparent"><span>Content</span> <span>management</span> <span>that brings</span> <span>everyone</span>  together</h1>
-                      <div className="absolute right-[-30px] md:right-[220px] md:block hidden md:top-[60px] lg:top-[85px]">
+                      <div className="absolute right-[230px] lg:right-[-30px] md:block hidden md:top-[60px] lg:top-[85px]">
                       <svg xmlns="http://www.w3.org/2000/svg" className="-rotate-90" width="50" height="50" fill="none"><g stroke="#fff" strokeMiterlimit="10" strokeOpacity="0.9"><path d="M11.758 29.852 1.052 40.382M21.514 33.9l-.82 14.893M30.636 30.011l10.531 10.706M34.574 20.843l15.115-.358M30.791 11.13 41.497.598"></path></g></svg>
                       </div>
                       </div>

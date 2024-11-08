@@ -79,7 +79,7 @@ export default function AppHeader({ teamid, activesection }: any) {
             </Link>
             <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (
-            <a href={item.route} key={item.label} >
+            <Link href={item.route} key={item.label} >
               <Button
                 variant="ghost"
                 className={`font-semibold ${activesection === item.activesection ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''}`}
@@ -87,7 +87,7 @@ export default function AppHeader({ teamid, activesection }: any) {
                 <item.icon className="mr-2 h-4 w-4" />
                 {item.label}
               </Button>
-            </a>
+            </Link>
 ))}
 
             </nav>

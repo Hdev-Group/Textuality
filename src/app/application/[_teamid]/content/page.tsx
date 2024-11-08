@@ -31,6 +31,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { SelectSeparator } from '@radix-ui/react-select';
+import Link from 'next/link';
 
 export default function Page({ params }: { params: Promise<{ _teamid: string }> }) {
     const { _teamid } = React.use(params);
@@ -327,12 +328,16 @@ function ContentCreateButton({getTemplates, _teamid}: any) {
             {
                 getTemplates?.length > 0 ? (
                     getTemplates?.map((template: any) => (
-                        <DropdownMenuItem key={template._id} onClick={() => router.push(`/application/${_teamid}/content/create?templateid=${template._id}`)} >{template.title}</DropdownMenuItem>
+                    <Link href={`/application/${_teamid}/content/create?templateid=${template._id}`} key={template._id}>
+                        <DropdownMenuItem key={template._id} >{template.title}</DropdownMenuItem>
+                    </Link>
                     ))
                 ) : (
                     <>
                         <DropdownMenuLabel>No templates found.</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => router.push(`/application/${_teamid}/templates/new`)}>Create a new template</DropdownMenuItem>
+                        <Link href={`/application/${_teamid}/templates/new`}>
+                        <DropdownMenuItem >Create a new template</DropdownMenuItem>
+                        </Link>
                     </>
                 )
             }
