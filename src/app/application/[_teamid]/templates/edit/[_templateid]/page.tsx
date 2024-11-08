@@ -75,18 +75,22 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   
   useEffect(() => {
     if (getFields) {
-      setFields(getFields?.map((field: any, index: number) => ({
-        ...field,
-        fieldposition: index + 1,
-        icon: fieldTypes.find(ft => ft.name === field.type)?.icon || AlignLeft,
-        name: field.fieldname || field.name,
-        description: field.description || '',
-        position: field.position || 0,
-        templateid: field.templateid,
-        reference: field.reference,
-      })))
+      setFields(
+        getFields
+          ?.sort((a: any, b: any) => a.fieldposition - b.fieldposition)
+          .map((field: any, index: number) => ({
+            ...field,
+            fieldposition: index + 1,
+            icon: fieldTypes.find(ft => ft.name === field.type)?.icon || AlignLeft,
+            name: field.fieldname || field.name,
+            description: field.description || '',
+            position: field.position || 0,
+            templateid: field.templateid,
+            reference: field.reference,
+          }))
+      );
     }
-  }, [getFields])
+  }, [getFields]);
 
   useEffect(() => {
     if (getTemplates && getTemplates[0]?.description === '') {
