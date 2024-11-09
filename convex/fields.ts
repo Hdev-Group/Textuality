@@ -55,3 +55,58 @@ export const getFieldValues = query({
         return results;
     }
 });
+
+export const lockField = mutation({
+    args:{
+        teamid: v.string(),
+        fileid: v.string(),
+        fieldid: v.string(),
+        locked: v.boolean(),
+        userid: v.string()
+    }, 
+    handler: async (ctx, {teamid, fileid, fieldid, locked, userid}) => {
+        const existingRecord = await ctx.db.query("lockedfields")
+            .filter(q => q.and(
+                q.eq(q.field("fieldid"), fieldid),
+                q.eq(q.field("teamid"), teamid)
+            ))
+            .first();
+        if (existingRecord) {
+            if (locked) {
+                await ctx.db.patch(existingRecord._id, {
+                    locked,
+                    userid,
+                });
+                return { ...existingRecord, locked, userid };
+            } else {
+                await ctx.db.delete(existingRecord._id);
+                return null;
+            }
+        } else {
+            const newRecord = {
+                fieldid,
+                fileid,
+                teamid,
+                locked,
+                userid,
+            };
+            const insertedRecord = await ctx.db.insert("lockedfields", newRecord);
+            return insertedRecord;
+        }
+    }
+});
+
+export const getLockedFields = query({
+    args: {
+        fileid: v.any()
+    },
+    handler: async (ctx, { fileid }) => {
+        const results = await ctx.db.query("lockedfields")
+        .filter(
+            q => q.and(
+                q.eq(q.field("fileid"), fileid)
+            )
+        ).collect();
+        return results;
+    }
+});

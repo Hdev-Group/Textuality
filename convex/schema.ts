@@ -101,4 +101,11 @@ messages: defineTable({
     pageid: v.string(),
     updated: v.any(),
 }),
+lockedfields: defineTable({
+    fieldid: v.string(),
+    fileid: v.string(),
+    teamid: v.string(),
+    locked: v.boolean(),
+    userid: v.string(),
+}).index("byfieldid", ["fieldid"]),
 });

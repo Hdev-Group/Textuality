@@ -53,7 +53,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const templateid = _templateid; 
   const { userId } = useAuth()
   const [fields, setFields] = useState<FieldType[]>([])
-  console.log(fields)
   const [isAddFieldOpen, setIsAddFieldOpen] = useState(false)
   const [isEditFieldOpen, setIsEditFieldOpen] = useState(false)
   const [type, setType] = useState("")

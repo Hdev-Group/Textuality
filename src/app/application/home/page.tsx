@@ -55,7 +55,6 @@ export default function Page() {
   const isLoading = !projects; 
   const error = projects === null; 
 
-  console.log(projects);
 
   // Calculate time of day greeting
   const date = new Date();
@@ -73,9 +72,7 @@ export default function Page() {
   }
 
   function AcceptInvite(InviteDetails: any) {
-    console.log(InviteDetails.InviteDetails, "ae");
     if (user?.user?.id === InviteDetails.InviteDetails.externalId) {
-      console.log(InviteDetails.InviteDetails._id);
       acceptInvite({ _id: InviteDetails.InviteDetails._id, pageId: InviteDetails.InviteDetails.pageId, role: InviteDetails.InviteDetails.role, externalId: InviteDetails.InviteDetails.externalId });
     }
   }

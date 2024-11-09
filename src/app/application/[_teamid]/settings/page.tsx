@@ -265,7 +265,6 @@ function AddDepartment({ teamid }) {
       e.preventDefault()
       if (validateForm()) {
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        console.log(formData)
         createDepartment({departmentname: formData.name, departmentdescription: formData.description, isLive: formData.isLive, pageid: teamid})
         setIsOpen(false)
         setFormData({ name: "", description: "", isLive: false })

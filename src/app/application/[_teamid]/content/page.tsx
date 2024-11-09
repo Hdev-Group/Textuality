@@ -47,12 +47,10 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
     const DeleteContenta = useMutation(api.content.deleteContent);
     const getContent = useQuery(api.content.getContent, { pageid: _teamid });
     const [userData, setUserData] = useState<any[]>([]);
-    console.log(userData)
     const [dataloaded, setDataLoaded] = useState(false);
     const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
 
     const departmentFilter = getDepartments?.filter((department) => department._id === getContent?.[0]?.authorid);
-    console.log(departmentFilter);
 
     useEffect(() => {
         setFilteredContentItems(getContent || []);
@@ -74,7 +72,6 @@ export default function Page({ params }: { params: Promise<{ _teamid: string }> 
                     const authorIds = getContent.map((item) => item.authorid);
                     const uniqueAuthorIds = [...new Set(authorIds)];
                     const userAuthorIds = uniqueAuthorIds.filter((id) => id.includes("user_"));
-                    console.log(userAuthorIds);
                     const response = await fetch(`/api/secure/get-user?userId=${userAuthorIds.join(",")}`);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);

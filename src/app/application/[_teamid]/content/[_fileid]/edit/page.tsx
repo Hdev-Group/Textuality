@@ -56,7 +56,9 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const changeAuthor = useMutation(api.content.changeAuthor);
     const getFieldValues = useQuery(api.fields.getFieldValues, { fileid: _fileid as string  });
     const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid as any });
-    const [richTextValue] = useState('');
+    const lockedinput = useMutation(api.fields.lockField);
+    const getlockedinputs = useQuery(api.fields.getLockedFields, { fileid: _fileid as string });
+    const [islocked, setIsLocked] = useState<any[]>(getlockedinputs || []);
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
     const [fieldValues, setFieldValues] = useState({});
     const [userData, setUserData] = useState([]);
@@ -155,6 +157,41 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
         }
     }, [debouncedFieldValues]);
     
+    const removeLock = (fieldid: string, userid: string) => {
+        // first check to see if the same user is trying to remove the lock
+        const isuser = islocked.find((lock) => lock.fieldid === fieldid && lock.userid === userid);
+        // then if thats true remove the lock 
+        if (isuser) {
+            if (updated === "pending") {
+            const interval = setInterval(() => {
+                if (updated === "true" as any) {
+                clearInterval(interval);
+                setIsLocked((prev) => prev.filter((lock) => lock.fieldid !== fieldid));
+                lockedinput({fieldid: fieldid, fileid: _fileid, teamid: _teamid, locked: false, userid: userid});
+                }
+            }, 100);
+            return;
+            }
+            setIsLocked((prev) => prev.filter((lock) => lock.fieldid !== fieldid));
+            lockedinput({fieldid: fieldid, fileid: _fileid, teamid: _teamid, locked: false, userid: userid});
+        } else {
+            console.log('You are not the user who locked this field');
+            console.log(islocked);
+            console.log(fieldid);
+            console.log(userid);
+        }
+    };
+    
+    const lockSet = (lock: { fieldid: string; userid: string }) => {
+        const islockedalready = islocked.find((lock) => lock.fieldid === lock.fieldid);
+
+        if (islockedalready) {
+            console.log('Field is already locked');
+        } else {
+            setIsLocked((prev) => [...prev, lock]);
+            lockedinput({fieldid: lock.fieldid, fileid: _fileid, teamid: _teamid, locked: true, userid: lock.userid});
+        }
+    };
 
     const renderLivePreviewFields = (field: any) => {
         const fieldValue = fieldValues[field._id];
@@ -177,12 +214,27 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     const renderField = (field: any) => {
         const handleChange = (e: any) =>
             setFieldValues((prev) => ({ ...prev, [field._id]: e.target.value }));
+
+        // as this is a collaborative editor we need to lock down inputs to prevent multiple users from editing the same field do when its clicked and then we will show the pfp n shit.
     
         switch (field.type) {
             case "Rich text":
-                return <RichTextEditor sendValue={fieldValues[field._id] || ''} onChange={(value: any) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
+                return(
+                    <RichTextEditor
+                    sendValue={fieldValues[field._id] || ''} 
+                    onChange={(value: any) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} 
+                    />
+                );
             case "Short Text":
-                return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder={field.description} />;
+                return <Input 
+                type="text" 
+                value={fieldValues[field._id] || ''} 
+                onChange={handleChange} 
+                className='border rounded-md p-2 w-full' 
+                placeholder={field.description} 
+                onFocus={() => lockSet({fieldid: field._id, userid: userId})}
+                onBlur={() => removeLock(field._id, userId)}
+                />;
             case "Number":
                 return <Input type="number" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' min={0} placeholder={field.description} />;
             case "Boolean":
@@ -220,6 +272,8 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
     async function setAuthor(selectedAuthor: string) {
         await changeAuthor({ _id: _fileid as any, authorid: selectedAuthor, previousauthors: [...getContent?.previousauthors, getContent.authorid] });
     }
+    console.log(islocked)
+
     return (
         <body className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
             <title>{title}</title>
@@ -244,7 +298,29 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                             <Author authordetails={userData} getDepartments={getDepartments} getAuthorid={getContent?.authorid} onValueChange={setAuthor} teamid={_teamid} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1'>
-                                                    <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
+                                                    <div className='flex flex-row justify-between'>
+                                                        <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
+                                                        {
+                                                            // check to see if the field is currently being edited by another user and if so show the pfp of the user
+                                                            getlockedinputs.find(lock => lock.fieldid === field._id) ? (
+                                                                getlockedinputs.find(lock => lock.fieldid === field._id && lock.userid === userId) ? (
+                                                                    <div className='flex flex-row gap-2 items-center'>
+                                                                    <Avatar className='w-5 h-5 mb-2'>
+                                                                        <AvatarImage src={userData?.[0]?.imageUrl} alt={userData?.[0]?.firstName} />
+                                                                    </Avatar>
+                                                                    <p className='text-xs text-gray-700 dark:text-gray-100'></p>
+                                                                </div>
+                                                                ) : (
+                                                                    <div className='flex flex-row gap-2 items-center'>
+                                                                    <Avatar className='w-5 h-5 mb-2'>
+                                                                        <AvatarImage src={userData?.[0]?.imageUrl} alt={userData?.[0]?.firstName} />
+                                                                    </Avatar>
+                                                                    <p className='text-xs text-gray-700 dark:text-gray-100'>Locked by another user</p>
+                                                                </div>
+                                                                )
+                                                            ) : null
+                                                        }
+                                                    </div>
                                                     {renderField(field)}
                                                 </div>
                                             ))}
@@ -355,8 +431,14 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                                         <b>{data?.departmentname}</b>
                                                                     </p>
                                                                     <div className="flex flex-row gap-2 items-center">
-                                                                        <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextValue)} read</p>
-                                                                        <p>·</p>
+                                                                        {
+                                                                            field.type === "Rich text" ? (
+                                                                                <>
+                                                                                    <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(fieldValues[field._id] || '')} read</p>
+                                                                                    <p>·</p>
+                                                                                </>
+                                                                            ) : null
+                                                                        }
                                                                         <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
                                                                             <CalendarDaysIcon height={18} /> {new Date().toDateString()}
                                                                         </p>
@@ -380,7 +462,7 @@ export default function ContentEditPage({ params }: { params: Promise<{ _teamid:
                                                                 <b>{userData?.[0]?.firstName} {userData?.[0]?.lastName}</b>
                                                             </p>
                                                             <div className="flex flex-row gap-2 items-center">
-                                                                <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextValue)} read</p>
+                                                                <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(fieldValues[field.description] || '')} read</p>
                                                                 <p>·</p>
                                                                 <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
                                                                     <CalendarDaysIcon height={18} /> {new Date().toDateString()}
@@ -492,7 +574,6 @@ function Author({ authordetails, onValueChange, teamid, getDepartments, getAutho
 
     const mainAuthor = authordetails.find((author: any) => author.id === getAuthorid);
     const maindepartment = getDepartments.find((dept: any) => dept._id === getAuthorid);
-    console.log(mainAuthor, authordetails)
 
     const [selectedAuthor, setSelectedAuthor] = useState<string | undefined>(mainAuthor?._id);
     const [isMainAuthor, setMainAuthor] = useState(false);
@@ -571,7 +652,6 @@ function Author({ authordetails, onValueChange, teamid, getDepartments, getAutho
   }
   
   function AuthorOption({ author, showImage, label }: { author: any, showImage: boolean, label: string }) {
-    console.log(author)
     const displayName = typeof author === 'string' ? author : `${author?.firstName || ''} ${author?.lastName || ''}`;
   
     return (

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
-import styles from "./RichTextEditor.css";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 const RichTextEditor = ({ sendValue, onChange }) => {
@@ -40,7 +39,6 @@ const RichTextEditor = ({ sendValue, onChange }) => {
         onBlur={handleBlur}
         placeholder="Write something amazing..."
         modules={modules}
-        className={styles.editor}
       />
     </div>
   );

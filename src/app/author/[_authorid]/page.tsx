@@ -30,7 +30,6 @@ export default function Page({ params }: { params: Promise<{ _authorid: string}>
     const [isLoading, setIsLoading] = useState(true);
     
     const getuserdata = useQuery(api.users.getUserById, { id: authorid });
-    console.log(getuserdata)
     const getblogs = useQuery(api.blogs.getBlogs, { authorid: authorid });
 
   useEffect(() => {
