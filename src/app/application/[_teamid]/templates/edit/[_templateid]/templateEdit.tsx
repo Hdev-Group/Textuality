@@ -65,8 +65,6 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   const templateaddfield = useMutation(api.template.addField)
   const saveField = useMutation(api.template.updateField)
   const deleteField = useMutation(api.template.deleteField)
-
-  // Check the URL params if ?settings or ?preview is present
   useEffect(() => {
     const currentType = searchParams.get('type');
     setType(currentType === 'settings' || currentType === 'preview' ? currentType : '');
