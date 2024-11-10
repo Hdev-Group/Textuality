@@ -62,9 +62,10 @@ export const lockField = mutation({
         fileid: v.string(),
         fieldid: v.string(),
         locked: v.boolean(),
+        userpfp: v.any(),
         userid: v.string()
     }, 
-    handler: async (ctx, {teamid, fileid, fieldid, locked, userid}) => {
+    handler: async (ctx, {teamid, fileid, fieldid, locked, userid, userpfp}) => {
         const existingRecord = await ctx.db.query("lockedfields")
             .filter(q => q.and(
                 q.eq(q.field("fieldid"), fieldid),
@@ -89,6 +90,7 @@ export const lockField = mutation({
                 teamid,
                 locked,
                 userid,
+                userpfp,
             };
             const insertedRecord = await ctx.db.insert("lockedfields", newRecord);
             return insertedRecord;

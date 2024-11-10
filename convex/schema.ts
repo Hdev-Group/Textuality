@@ -106,6 +106,7 @@ lockedfields: defineTable({
     fileid: v.string(),
     teamid: v.string(),
     locked: v.boolean(),
+    userpfp: v.any(),
     userid: v.string(),
 }).index("byfieldid", ["fieldid"]),
 });

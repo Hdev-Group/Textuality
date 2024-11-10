@@ -1,28 +1,43 @@
-"use client"
-import AppHeader from "@/components/header/appheader"
-import AuthWrapper from '../withAuth'
-import React from 'react'
-import {api} from '../../../../../convex/_generated/api'
-import { useQuery } from "convex/react"
-import ComponentCustomization from '@/components/customisation/Componentcust'
+import React from 'react';
+import Page from './componentEditor';
+import { api } from '../../../../../convex/_generated/api';
+import { preloadQuery } from "convex/nextjs";
 
-export default function Page({ params }: { params: Promise<{ _teamid: string}> }) {
-    const { _teamid: teamid } = React.use(params)
-    const getPage = useQuery(api.page.getPage, { _id: teamid as any })
-    const title = getPage?.title + ' — Components' + ' — Textuality'
-    return (
-      <body className='overflow-y-hidden'>
-        <title>{title}</title>
-        <AuthWrapper _teamid={teamid}>
-          <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
-            <AppHeader activesection="components" teamid={teamid} />
-            <main className="md:mx-auto md:px-10 py-3 transition-all ">
-              <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg h-screen scrollbaredit overflow-y-scroll">
-                <ComponentCustomization />
-              </div>
-            </main>
-            </div>
-        </AuthWrapper>
-        </body>
-  );
+export async function generateMetadata({ params }) {
+    const { _teamid } = params;
+
+    const pageResponse = await preloadQuery(api.page.getPage, { _id: _teamid });
+    
+    const pageData = pageResponse._valueJSON as any;
+    
+    return {
+        title: `Component Editor | ${pageData.title} | Textuality`,
+        description: `Component Editor of the ${pageData.title} project on Textuality. Join ${pageData.title} to create, manage, and explore new ideas seamlessly.`,
+        keywords: [
+          pageData.title,
+          "Textuality",
+          "create",
+          "components",
+          "component editing",
+          "content",
+          "content editing",
+          "collaboration",
+          "digital content",
+          "team blogs",
+        ].join(", "),
+        openGraph: {
+          title: `Textuality`,
+          description: `Currently editing the components as part of ${pageData.title} using Textuality's collaborative tools. Perfect for content teams.`,
+          url: `https://textuality.hdev.uk/`,
+          type: "article",
+        },
+    };
+}
+
+  
+export default function ProductWrapper({ params }) {
+    const { _teamid, _fileid } = params;
+    console.log(_teamid, _fileid);
+
+    return <Page params={{_teamid: _teamid}} />;
 }

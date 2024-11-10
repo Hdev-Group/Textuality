@@ -79,6 +79,15 @@ export default function Page() {
   if (!getinvites) {
   }
   
+function PageGetter({ pageid }: { pageid: any }) {
+  const page = useQuery(api.page.getExactPage, { _id: pageid });
+
+  if (!page) {
+    return <p>Loading...</p>;
+  }
+
+  return <>{page.title}</>;
+}
   return (
     <>
     <title>
@@ -150,7 +159,9 @@ export default function Page() {
                     <div className="flex justify-between items-start">
                     <PageName type="title" pageid={invite.pageId} />
                     </div>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300 flex flex-row">You have been invited to join <PageNameDefault type="content" pageid={invite.pageId}/> with the role of {invite.role}.</p>
+                    <div className="text-sm text-neutral-600 dark:text-neutral-300 flex flex-row gap-0">
+                      <p className="w-full flex flex-row">You have been invited to join with the role of {invite.role}.</p>
+                    </div>
                   </div>
                   <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
                     <Button variant="secondary" size="sm" onClick={() => AcceptInvite({InviteDetails: invite})}>
@@ -385,13 +396,4 @@ function PageName({ pageid, type }: { pageid: any, type: any }) {
   }
 
   return <h1 className={`font-semibold text-lg`}>{page.title ? page.title : "Unknown Page"}</h1>;
-}
-function PageNameDefault({ pageid, type }: { pageid: any, type: string }) {
-  const page = useQuery(api.page.getExactPage, { _id: pageid });
-
-  if (!page) {
-    return <p>Loading...</p>;
-  }
-
-  return <h1 className="mx-1"> {page.title ? page.title : "Unknown Page"} </h1>;
 }
