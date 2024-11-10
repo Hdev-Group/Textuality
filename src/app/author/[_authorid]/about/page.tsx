@@ -26,7 +26,6 @@ export default function Page({ params: { _authorid } }: any) {
     const [isLoading, setIsLoading] = useState(true);
 
     const getuserdata = useQuery(api.users.getUserById, { id: authorid });
-    console.log(getuserdata)
 
     useEffect(() => {
         async function fetchUserData() {

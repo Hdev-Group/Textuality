@@ -48,16 +48,13 @@ export default function Page() {
   const getinvites = useQuery(api.page.getInvites, { externalId: user?.user?.id || "" });
   const cancelInvite = useMutation(api.page.cancelInvite);
   const acceptInvite = useMutation(api.page.acceptInvite);
-  if (!isSignedIn) {
-    return <IsAuthorizedEdge />;
-  }
+
   // Fetch projects using useQuery
   // check if user can access projects
 
   const isLoading = !projects; 
   const error = projects === null; 
 
-  console.log(projects);
 
   // Calculate time of day greeting
   const date = new Date();
@@ -70,22 +67,27 @@ export default function Page() {
   } else if (hours >= 0 && hours < 5) {
     time = "night";
   }
-
-
   const CancelInvite = (inviteId: any) => {
       cancelInvite({ _id: inviteId.InviteDetails._id });
   }
 
   function AcceptInvite(InviteDetails: any) {
-    console.log(InviteDetails.InviteDetails, "ae");
     if (user?.user?.id === InviteDetails.InviteDetails.externalId) {
-      console.log(InviteDetails.InviteDetails._id);
       acceptInvite({ _id: InviteDetails.InviteDetails._id, pageId: InviteDetails.InviteDetails.pageId, role: InviteDetails.InviteDetails.role, externalId: InviteDetails.InviteDetails.externalId });
     }
   }
   if (!getinvites) {
   }
   
+function PageGetter({ pageid }: { pageid: any }) {
+  const page = useQuery(api.page.getExactPage, { _id: pageid });
+
+  if (!page) {
+    return <p>Loading...</p>;
+  }
+
+  return <>{page.title}</>;
+}
   return (
     <>
     <title>
@@ -157,7 +159,9 @@ export default function Page() {
                     <div className="flex justify-between items-start">
                     <PageName type="title" pageid={invite.pageId} />
                     </div>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-300 flex flex-row">You have been invited to join <PageNameDefault type="content" pageid={invite.pageId}/> with the role of {invite.role}.</p>
+                    <div className="text-sm text-neutral-600 dark:text-neutral-300 flex flex-row gap-0">
+                      <p className="w-full flex flex-row">You have been invited to join with the role of {invite.role}.</p>
+                    </div>
                   </div>
                   <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
                     <Button variant="secondary" size="sm" onClick={() => AcceptInvite({InviteDetails: invite})}>
@@ -392,13 +396,4 @@ function PageName({ pageid, type }: { pageid: any, type: any }) {
   }
 
   return <h1 className={`font-semibold text-lg`}>{page.title ? page.title : "Unknown Page"}</h1>;
-}
-function PageNameDefault({ pageid, type }: { pageid: any, type: string }) {
-  const page = useQuery(api.page.getExactPage, { _id: pageid });
-
-  if (!page) {
-    return <p>Loading...</p>;
-  }
-
-  return <h1 className="mx-1"> {page.title ? page.title : "Unknown Page"} </h1>;
 }

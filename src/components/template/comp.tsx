@@ -17,7 +17,6 @@ type FieldType = {
     placeholder?: string;
     _id?: string;
     isRequired?: boolean;
-    position: number;
     templateid: string;
     reference: string;
     fieldposition?: number;
@@ -26,15 +25,15 @@ type FieldType = {
 import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, MessageCircleQuestionIcon, Frown } from "lucide-react"
 
   const fieldTypes: FieldType[] = [
-    { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", position: 0, templateid: '', reference: '' },
-    { icon: Type, name: "Short Text", description: "Titles, names, paragraphs, list of names", position: 0, templateid: '', reference: '' },
-    { icon: Hash, name: "Number", description: "ID, order number, rating, quantity", position: 0, templateid: '', reference: '' },
-    { icon: Calendar, name: "Date and time", description: "Event dates", position: 0, templateid: '', reference: '' },
-    { icon: MapPin, name: "Location", description: "Coordinates: latitude and longitude", position: 0, templateid: '', reference: '' },
-    { icon: Image, name: "Media", description: "Images, videos, PDFs and other files", position: 0, templateid: '', reference: '' },
-    { icon: ToggleLeft, name: "Boolean", description: "Yes or no, 1 or 0, true or false", position: 0, templateid: '', reference: '' },
-    { icon: Braces, name: "JSON object", description: "Data in JSON format", position: 0, templateid: '', reference: '' },
-    { icon: Frown, name: "Unsure", description: "Not sure what to choose? Click here", position: 0, templateid: '', reference: '' },
+    { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", templateid: '', reference: '' },
+    { icon: Type, name: "Short Text", description: "Titles, names, paragraphs, list of names", templateid: '', reference: '' },
+    { icon: Hash, name: "Number", description: "ID, order number, rating, quantity", templateid: '', reference: '' },
+    { icon: Calendar, name: "Date and time", description: "Event dates", templateid: '', reference: '' },
+    { icon: MapPin, name: "Location", description: "Coordinates: latitude and longitude", templateid: '', reference: '' },
+    { icon: Image, name: "Media", description: "Images, videos, PDFs and other files", templateid: '', reference: '' },
+    { icon: ToggleLeft, name: "Boolean", description: "Yes or no, 1 or 0, true or false", templateid: '', reference: '' },
+    { icon: Braces, name: "JSON object", description: "Data in JSON format", templateid: '', reference: '' },
+    { icon: Frown, name: "Unsure", description: "Not sure what to choose? Click here", templateid: '', reference: '' },
   ]
   const unsureTemplates = [
     { 
@@ -68,7 +67,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     }
   ];  
   
-  function UnsureFieldTemplates({ onSelectTemplate }: { onSelectTemplate: (template: { name: string, fields: string[] }) => void }) {
+  function UnsureFieldTemplates({ onSelectTemplate }: { onSelectTemplate: (template: { name: string, fields: string[], fieldposition: string }) => void }) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
         {unsureTemplates.map((template, index) => (
@@ -120,12 +119,11 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
           type: field.type,
           fieldname: field.name,
           reference: `${template.name.toLowerCase().replace(/\s+/g, '_')}_${field.name.toLowerCase().replace(/\s+/g, '_')}`,
-          position: index + 1,  // Increment position by index + 1 to ensure unique values starting from 1
         };
       });
     
       // Confirm if `onAddField` doesn’t modify the `position` value
-      newFields.forEach((field) => onAddField({ ...field, position: field.position }));
+      newFields.forEach((field) => onAddField({ ...field, position: field.fieldposition }));
       handleClose();
     };
     
