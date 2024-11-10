@@ -69,6 +69,8 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const [userData, setUserData] = useState([]);
     const updateContent = useMutation(api.fields.updateField);
     const [, setDataLoaded] = useState(false);
+    const [lastSavedValues, setLastSavedValues] = useState({});
+    const [hasChanges, setHasChanges] = useState(false);
     const [updated, setUpdated] = useState("true");
     const debouncedFieldValues = useDebounce(fieldValues, 2000); 
     const structureFieldValues = (fieldValues: any) => {
@@ -77,6 +79,14 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             value
         }));
     };
+    useEffect(() => {
+        // Compare current fieldValues with the last saved ones to check for changes
+        const changesDetected = Object.entries(debouncedFieldValues).some(([fieldid, value]) => {
+            return lastSavedValues[fieldid] !== value;
+        });
+    
+        setHasChanges(changesDetected);
+    }, [debouncedFieldValues, lastSavedValues]);
     useEffect(() => {
         async function fetchUserData() {
             if (getContent?.authorid && !userData.some(user => user._id === getContent.authorid)) {
@@ -137,34 +147,41 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     }
     
     useEffect(() => {
-        const saveContent = async () => {
-            console.log("Saving content...");
-            setUpdated("pending")
-            for (const field of structuredFieldValues) {
-                try {
-                    const updated = await updateContent({
-                        fieldid: field.fieldid,
-                        value: field.value as string,
-                        fileid: _fileid,
-                        externalId: userId,
-                        teamid: _teamid,
-                        updated: new Date().getTime()
-                    });
-                    if (updated) {
-                        setUpdated("true");
-                    }
-                } catch (error) {
-                    console.error("Error updating field:", field.fieldid, error);
-                    setUpdated("false");
-                }
-            }
-        };
-        // todo MAJOR ISSUE MASS PING DETECTED HERE INSTANT FIX REQUIRED
+        if (hasChanges) {
+            const saveContent = async () => {
+                console.log("Saving content...");
+                setUpdated("pending");
     
-        // if (Object.keys(debouncedFieldValues).length > 0) {
-        //     saveContent();
-        // }
-    }, [debouncedFieldValues]);
+                // Save updated fields
+                for (const field of structuredFieldValues) {
+                    try {
+                        const updated = await updateContent({
+                            fieldid: field.fieldid,
+                            value: field.value as string,
+                            fileid: _fileid,
+                            externalId: userId,
+                            teamid: _teamid,
+                            updated: new Date().getTime()
+                        });
+                        if (updated) {
+                            setUpdated("true");
+                        }
+                    } catch (error) {
+                        console.error("Error updating field:", field.fieldid, error);
+                        setUpdated("false");
+                    }
+                }
+    
+                // After saving, update lastSavedValues to the current fieldValues
+                setLastSavedValues(debouncedFieldValues);
+    
+                // Reset hasChanges after saving
+                setHasChanges(false);
+            };
+    
+            saveContent();
+        }
+    }, [hasChanges, debouncedFieldValues, lastSavedValues, _fileid, _teamid, userId, structuredFieldValues]);
 
     useEffect(() => {
         // check if a user has closed the page then remove any locks they have
