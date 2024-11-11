@@ -95,12 +95,13 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         }, 100);
       });
     }
-  };
-
+  }
+  const title = `New Template | Textuality`
 
   return (
   <>
   <body className='overflow-hidden'>
+    <title>{title}</title>
     <AuthWrapper _teamid={_teamid}>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
@@ -118,7 +119,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                 <DialogTitle>Create Template</DialogTitle>
                 <DialogDescription>Use this form to create a new template</DialogDescription>
               </DialogHeader>
-              <form id='newtemplate' onSubmit={handleSubmit} className='gap-2 flex flex-col'>
+              <form id='newtemplate' onSubmit={handleSubmit} className='flex flex-col'>
               <div className="flex flex-col gap-4">
                 <Label htmlFor="name" className="font-semibold text-sm">
                   Name

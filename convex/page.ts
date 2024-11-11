@@ -129,6 +129,16 @@ export const getRoledetail = query({
     .collect();
   },
 });
+export const getPageRoles = query({
+  args: {
+    pageId: v.id("pages"),
+  },
+  handler: async (ctx, { pageId }) => {
+    return ctx.db.query("roles")
+    .withIndex("bypageid", q => q.eq("pageid", pageId))
+    .collect();
+  },
+});
 export const removeUser = mutation({
   args: {
     externalId: v.string(),

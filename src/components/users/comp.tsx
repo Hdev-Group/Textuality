@@ -28,10 +28,11 @@ export function Role({ onValueChange, userid, teamid }: RoleProps) {
   const role = getRole?.[0]?.permissions[0] || ''; // Ensure there's a fallback
   const { user } = useUser();
 
-  const { data: getUser } = useQuery<any>(api.users.getUsersAndRoles, {
+  const getUserQuery = useQuery<any>(api.users.getUsersAndRoles, {
       pageId: teamid,
       externalId: user?.id,
   });
+  const getUser = getUserQuery?.data;
 
   const updatingUserRole = getUser?.roles?.[0]?.permissions[0];
 

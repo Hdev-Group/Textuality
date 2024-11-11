@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
-import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, ArrowUp, Home } from "lucide-react"
+import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, ArrowUp, Home, ChevronRight } from "lucide-react"
 import { useUser } from "@clerk/clerk-react"
 import { useState, useEffect } from "react"
 import { useClerk } from '@clerk/nextjs'
@@ -80,30 +80,27 @@ export default function AppHeader({ teamid, activesection }: any) {
             <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (
             <Link href={item.route} key={item.label} >
-              <Button
-                variant="ghost"
-                className={`font-semibold ${activesection === item.activesection ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''}`}
+              <button
+                className={`font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm  ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 py-1 px-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-neutral-900/5 hover:text-accent-background dark:hover:bg-accent ${activesection === item.activesection ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''}`}
               >
                 <item.icon className="mr-2 h-4 w-4" />
                 {item.label}
-              </Button>
+              </button>
             </Link>
 ))}
 
             </nav>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" className="hidden sm:flex items-center gap-1.5 mr-2">
-              <ArrowUp className="h-4 w-4" />
-              <span>Upgrade plan</span>
-            </Button>
+            <PlanUpgrade />
+            <CurrentlyIn whereat={activesection as any} information={teamid as any} />
             <Button size="icon" variant="ghost" aria-label="Search">
               <Search className="h-4 w-4" />
             </Button>
             <Button size="sm" variant='outline' id="themesetter"> {isdark ? <Moon size={16} /> : <Sun size={16} />} </Button>
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className={`${activesection === "settings" ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''} p-2 rounded-md hover:bg-neutral-900/5 hover:text-accent-background dark:hover:bg-accent`}>
+                <div className={`${activesection === "settings" ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''} p-1 rounded-md hover:bg-neutral-900/5 hover:text-accent-background dark:hover:bg-accent`}>
                   <Settings className="h-4 w-4" />
                 </div>
               </DropdownMenuTrigger>
@@ -166,5 +163,36 @@ export default function AppHeader({ teamid, activesection }: any) {
         </nav>
       )}
     </header>
+  )
+}
+
+function PlanUpgrade() {
+  return (
+    <>
+      <Button variant="ghost" className="hidden sm:flex items-center gap-1.5 mr-2">
+        <ArrowUp className="h-4 w-4" />
+        <span>Upgrade plan</span>
+      </Button>
+      <div className='absolute hidden bg-gradient-to-tr p-0.5 from-purple-300 to-cyan-300 hover:from-purple-600 rounded-lg hover:to-cyan-500 transition-all top-12 border-accent h-96 w-80 right-[22rem]'>
+        <div className='bg-background flex flex-col rounded-lg h-full w-full '>
+        <div className='flex items-center border-b w-full py-2.5 text-xs bg-gray-100/40 px-2 font-semibold text-accent-foreground'>
+          You're currently on the Free plan
+        </div>
+        <div className='px-2 py-1.5 flex flex-col gap-1.5'>
+          <h2 className='font-semibold text-md'>Experience more with paid plans</h2>
+          <p className='text-sm'>Some examples</p>
+        </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function CurrentlyIn({ information, whereat }: { information: any, whereat: any }) {
+  const whereatcapitalized = whereat.charAt(0).toUpperCase() + whereat.slice(1);
+  return (
+    <div className='border-green-500 hidden lg:flex border-l-8 border bg-green-500/20 p-2 rounded-md'>
+      <p className='text-xs font-semibold flex flex-row items-center justify-center'>{information} <ChevronRight height={16} width={16} /> {whereatcapitalized}</p>
+    </div>
   )
 }

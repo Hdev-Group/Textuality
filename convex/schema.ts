@@ -17,7 +17,7 @@ roles: defineTable({
     externalId: v.string(),
     pageid: v.string(),
     permissions: v.array(v.string()),
-}).index("byexternalandpageid", ["externalId", "pageid"]).index("byexternalId", ["externalId"]),
+}).index("byexternalandpageid", ["externalId", "pageid"]).index("byexternalId", ["externalId"]).index("bypageid", ["pageid"]),
 blogs: defineTable({
     title: v.string(),
     content: v.string(),

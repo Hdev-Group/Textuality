@@ -66,7 +66,7 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
   const updateRole = useMutation(api.users.updateRole);
   const RemoveUserString = useMutation(api.page.removeUser);
   const getRole = useQuery(api.page.getRoledetail, { externalId: userId ?? 'none', pageId: teamid });
-  // States
+  const getPageRoles = useQuery(api.page.getPageRoles, {pageId: teamid});
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [userData, setUserData] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -110,6 +110,16 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
   };
 
   const UpdateUserRole = ({ role, userupdate }: { role: string; userupdate: string }) => {
+    // check if user is owner or admin
+    if (userrole !== 'owner' && userrole !== 'admin') {
+      toast({ title: "Error", description: "You do not have permission to update user role" });
+      return;
+    }
+    // also check if user is updating their own role
+    if (userupdate === userId) {
+      toast({ title: "Error", description: "You cannot update your own role" });
+      return;
+    }
       updateRole({ externalId: userupdate, pageid: teamid, permissions: [role] });
       toast({ title: "Success", description: "Role has been updated" });
   };
@@ -122,7 +132,7 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
     };
   
     const currentUserRole = getRole?.[0]?.permissions[0];  // Get current user's role
-    const targetUserRole = userData.find((user) => user.id === userid)?.role;  // Get target user's role
+    const targetUserRole = getPageRoles.find((user) => user.externalId === userid)?.permissions;  // Get target user's role
     
     // Set user role as a string, default to empty if undefined
     setUserRole(currentUserRole ? currentUserRole.toString() : "");
@@ -131,6 +141,11 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
       toast({ title: "Error", description: "You cannot remove yourself" });
       return;
     } 
+    // if they are attempting to remove a owner
+    if (targetUserRole.includes('owner')) {
+      toast({ title: "Error", description: "You cannot remove an owner" });
+      return;
+    }
     if (getPage?.users?.length === 1) {
       toast({ title: "Error", description: "You cannot remove the last user" });
       return;
@@ -139,7 +154,6 @@ export default function TeamManagement({ params }: { params: Promise<{ _teamid: 
       toast({ title: "Error", description: `You cannot remove a ${targetUserRole}` });
       return;
     }
-
     RemoveUserString({ externalId: userid, pageId: teamid });
     toast({ title: "Success", description: "User has been removed" });
   }
@@ -333,6 +347,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast"
 import { ToastAction } from "@/components/ui/toast"
+import { userAgent } from 'next/server';
 
 
 

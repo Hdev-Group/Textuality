@@ -47,7 +47,6 @@ export default function Page({ params }: { params: { _teamid: string}}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [nameFilter, setNameFilter] = useState("asc");
   const [lastUpdatedFilter, setLastUpdatedFilter] = useState("");
-  const TemplateRemove = useMutation(api.template.remove);
 
   // Fetch data using hooks at the top level to avoid inconsistencies
   const getPage = useQuery(api.page.getPage, { _id: teamid as any });
@@ -157,11 +156,6 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                   <TableHead>Fields</TableHead>
                   <TableHead>Last Updated By</TableHead>
                   <TableHead>Updated</TableHead>
-                  {
-                    getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
-                      <TableHead>Actions</TableHead>
-                    )
-                  }
                 </TableRow>
               </TableHeader>
                 <TableBody>
@@ -201,22 +195,6 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                       )}
                     </TableCell>
                     <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{timeAgo(new Date(template._creationTime))}</TableCell>
-                    {
-                      getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission)) && (
-                        <TableCell className="z-50">
-                          <div className="flex justify-end">
-                            <DeleteTemplate
-                              id={template._id}
-                              title={template.title}
-                              onDelete={async (id) => {
-                                await TemplateRemove({ _id: id as any});
-                              }}
-                              getRole={getRole}
-                            />
-                          </div>
-                        </TableCell>
-                      )
-                    }
                     </TableRow>
                   ))
                   ) : (
@@ -299,7 +277,7 @@ function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="destructive" size="icon">
-          <Trash2 className="h-4 w-4" />
+          Delete
         </Button>
       </DialogTrigger>
       {getContentSpecific && getContentSpecific?.length === 0 && (
