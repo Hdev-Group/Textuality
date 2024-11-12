@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
-import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, ArrowUp, Home, ChevronRight } from "lucide-react"
+import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, ArrowUp, Home, ChevronRight, Check } from "lucide-react"
 import { useUser } from "@clerk/clerk-react"
 import { useState, useEffect } from "react"
 import { useClerk } from '@clerk/nextjs'
@@ -19,6 +19,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useSelectedLayoutSegment } from 'next/navigation'
 import { Moon, Sun } from "lucide-react"
+import { useQuery } from 'convex/react'
+import { api } from '../../../convex/_generated/api'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
+
 
 export default function AppHeader({ teamid, activesection }: any) {
   const navItems = [
@@ -27,7 +35,7 @@ export default function AppHeader({ teamid, activesection }: any) {
     { icon: FolderPen, label: "Content", route: `/application/${teamid}/content`, activesection: "content" },
     { icon: Component, label: "Components", route: `/application/${teamid}/components`, activesection: "components" },
   ];
-  
+  const teamname = useQuery(api.page.getExactPage, { _id: teamid })?.title;
   const { signOut } = useClerk()
   const [isdark, setDark] = useState(true);
   const [image, setImage] = useState("/IMG_6128.png");
@@ -93,7 +101,7 @@ export default function AppHeader({ teamid, activesection }: any) {
           </div>
           <div className="flex items-center gap-2">
             <PlanUpgrade />
-            <CurrentlyIn whereat={activesection as any} information={teamid as any} />
+            <CurrentlyIn whereat={activesection as any} information={teamname as any} />
             <Button size="icon" variant="ghost" aria-label="Search">
               <Search className="h-4 w-4" />
             </Button>
@@ -168,24 +176,81 @@ export default function AppHeader({ teamid, activesection }: any) {
 
 function PlanUpgrade() {
   return (
-    <>
-      <Button variant="ghost" className="hidden sm:flex items-center gap-1.5 mr-2">
-        <ArrowUp className="h-4 w-4" />
-        <span>Upgrade plan</span>
-      </Button>
-      <div className='absolute hidden bg-gradient-to-tr p-0.5 from-purple-300 to-cyan-300 hover:from-purple-600 rounded-lg hover:to-cyan-500 transition-all top-12 border-accent h-96 w-80 right-[22rem]'>
-        <div className='bg-background flex flex-col rounded-lg h-full w-full '>
-        <div className='flex items-center border-b w-full py-2.5 text-xs bg-gray-100/40 px-2 font-semibold text-accent-foreground'>
-          You're currently on the Free plan
+    <HoverCard openDelay={200}>
+      <HoverCardTrigger asChild>
+        <Button variant="ghost" className="hidden sm:flex items-center gap-1.5">
+          <ArrowUp className="h-4 w-4" />
+          <span>Upgrade Plan</span>
+        </Button>
+      </HoverCardTrigger>
+      
+      <HoverCardContent className="w-80 p-4 bg-background rounded-lg shadow-md">
+        <div className="flex flex-col space-y-3">
+          <h3 className="font-semibold text-lg">Upgrade Your Experience</h3>
+          <p className="text-sm text-muted-foreground">
+            You’re currently on the <strong>Free</strong> plan
+          </p>
+          
+          <div className="grid gap-4 mt-4">
+            <PlanOption
+              name="Pro"
+              price="£16.55"
+              everythingin="Free"
+              features={[
+                "Advanced analytics",
+                "Unlimited projects",
+                "Content approval",
+                "AI-powered tools",
+                "Webhooks",
+                "Priority support (In-App)",
+                "Increased Members"
+              ]}
+            />
+            <PlanOption
+              name="Enterprise"
+              everythingin="Pro"
+              price="£80"
+              features={[
+                "Custom integrations",
+                "Subscription & Paywall",
+                "Social media scheduling",
+                "Custom domains",
+                "Custom branding"
+              ]}
+            />
+          </div>
+          <a href="/plans" className="w-full">
+          <Button className="w-full mt-4">View All Plans</Button>
+          </a>
         </div>
-        <div className='px-2 py-1.5 flex flex-col gap-1.5'>
-          <h2 className='font-semibold text-md'>Experience more with paid plans</h2>
-          <p className='text-sm'>Some examples</p>
-        </div>
-        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
+function PlanOption({ name, price, features, everythingin }) {
+  return (
+    <div className="flex items-start flex-col space-x-4 p-3 bg-muted rounded-lg shadow-sm">
+      <div className="flex-shrink-0">
+        <h4 className="font-semibold text-base">{name}</h4>
+        <p className="text-sm text-muted-foreground">
+          Starting at {price}/mo
+        </p>
+        <p className="text-muted-foreground text-xs mt-1">
+          Everything in {everythingin} and
+        </p>
       </div>
-    </>
-  )
+      
+      <ul className="space-y-1 mt-2 text-sm">
+        {features.map((feature, index) => (
+          <li key={index} className="flex items-center">
+            <Check className="h-4 w-4 mr-2 text-primary" />
+            {feature}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function CurrentlyIn({ information, whereat }: { information: any, whereat: any }) {

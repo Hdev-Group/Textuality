@@ -67,7 +67,7 @@ export default function Header() {
                 <GraduationCap size={18} />  Tutorials
               </button>
               </Link>
-              <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/plans" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
                 <Columns3Icon size={18} />  Pricing
               </button>
@@ -76,7 +76,7 @@ export default function Header() {
 
           <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0 space-x-4">
             <Button asChild className='hidden lg:flex'>
-              <Link href="/create">
+              <Link href="/application/home">
                 Create Content
               </Link>
             </Button>
