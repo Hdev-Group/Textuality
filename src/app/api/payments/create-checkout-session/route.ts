@@ -18,12 +18,17 @@ export async function POST(req: NextRequest) {
       throw new Error("Email is required");
     }
 
+    const { userid } = bundel;
+    if (!userid) {
+      throw new Error("User ID is required");
+    }
+
     const session = await stripe.checkout.sessions.create({
       line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
+      {
+        price: priceId,
+        quantity: 1,
+      },
       ],
       mode: 'subscription',
       customer_email: mainemail,
@@ -31,6 +36,9 @@ export async function POST(req: NextRequest) {
       cancel_url: `${process.env.YOUR_DOMAIN}/plans?canceled=true`,
       allow_promotion_codes: true,
       automatic_tax: { enabled: true },
+      metadata: {
+      userid: userid,
+      },
     });
 
     return NextResponse.json({ url: session.url });

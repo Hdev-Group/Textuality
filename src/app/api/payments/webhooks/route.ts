@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { Query, MutationBuilder } from 'convex/server';
+import { api} from '../../../../../convex/_generated/api';
+import { fetchMutation } from "convex/nextjs";
 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -30,6 +31,24 @@ export async function POST(req: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session;
       if (session.payment_status === 'paid') {
         console.log('Payment successful:', session);
+        // Check if customer exists, if not, fetch customer details based on the payment intent
+        if (session.customer || session.payment_intent) {
+          const customerId = session.customer as string
+          if (customerId && session.id) {
+            await fetchMutation(api.payments.successfulPayment, {
+              userid: session.metadata.userid as any,
+              sessionId: session.id,
+              stripeid: customerId,
+              subscriptionid: session.subscription as any,
+              membershiptype: session.mode,
+              status: session.payment_status
+            });
+          } else {
+            console.error('Unable to retrieve customer ID for session:', session.id);
+          }
+        } else {
+          console.error('Customer ID is null for session:', session.id);
+        }
       }
       break;
     }

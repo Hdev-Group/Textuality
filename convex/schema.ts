@@ -109,9 +109,12 @@ lockedfields: defineTable({
     userpfp: v.any(),
     userid: v.string(),
 }).index("byfieldid", ["fieldid"]),
-premiumandmemberships: defineTable({
-    pageid: v.string(),
-    premium: v.boolean(),
-    members: v.array(v.string()),
-}).index("bypageid", ["pageid"]),
+memberships: defineTable({
+    userid: v.string(),
+    membershiptype: v.string(),
+    sessionId: v.string(),
+    stripeid: v.string(),
+    subscriptionid: v.string(),
+    status: v.string(),
+}).index("bystripeid", ["stripeid"])
 });
