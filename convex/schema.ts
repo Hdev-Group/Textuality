@@ -115,6 +115,8 @@ memberships: defineTable({
     sessionId: v.string(),
     stripeid: v.string(),
     subscriptionid: v.string(),
+    subscriptionStatus: v.string(),
+    cancellationDate: v.any(),
     status: v.string(),
 }).index("bystripeid", ["stripeid"])
 });

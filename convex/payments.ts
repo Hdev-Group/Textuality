@@ -8,15 +8,18 @@ export const successfulPayment = mutation({
         stripeid: v.string(),
         subscriptionid: v.string(),
         membershiptype: v.string(),
+        subscriptionStatus: v.string(),
         status: v.string(),
     },
-    handler: async (ctx, { userid, sessionId, stripeid, subscriptionid, status, membershiptype }) => {
+    handler: async (ctx, { userid, sessionId, subscriptionStatus, stripeid, subscriptionid, status, membershiptype }) => {
         const membership = await ctx.db.insert("memberships", {
             userid,
             sessionId,
             stripeid,
             subscriptionid,
             membershiptype,
+            subscriptionStatus,
+            cancellationDate: null,
             status
         });
         return membership;
