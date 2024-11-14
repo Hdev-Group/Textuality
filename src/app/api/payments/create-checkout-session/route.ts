@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     const { bundel } = await req.json();
     const priceId = bundel.priceId;
     const mainemail = bundel.mainemail;
+    const userid = bundel.userid;
     if (!priceId) {
       throw new Error("Price ID is required");
     }
@@ -18,7 +19,6 @@ export async function POST(req: NextRequest) {
       throw new Error("Email is required");
     }
 
-    const { userid } = bundel;
     if (!userid) {
       throw new Error("User ID is required");
     }
