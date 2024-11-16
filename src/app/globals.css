@@ -182,6 +182,27 @@ body {
     background-image: linear-gradient(rgba(245, 192, 192, 0.15) 1px, transparent 1px), linear-gradient(to right, rgba(245, 192, 192, 0.15) 1px, transparent 1px);
     background-size: 40px 40px;
 }
+nav a {
+  position: relative;
+}
+
+nav a span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: var(--primary-color);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+nav a:hover span,
+nav a.active span {
+  transform: scaleX(1);
+}
+
 .bgfader {
   content: "";
   display: block;

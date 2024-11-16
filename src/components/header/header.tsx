@@ -20,8 +20,8 @@ export default function Header() {
   const user = useUser()
   const { signOut } = useClerk()
   const [hasScrolled, setHasScrolled] = useState(false)
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-
+  const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 })
+  const [activeNav, setActiveNav] = useState<string | null>(null)
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -37,8 +37,18 @@ export default function Header() {
       window.removeEventListener('scroll', handleScroll)
     }
   }, [])
-
-
+  const handleMouseEnter = (e: React.MouseEvent, href: string) => {
+    setActiveNav(href)
+    const target = e.currentTarget as HTMLElement
+    const { offsetLeft, offsetWidth } = target
+    setUnderlineStyle({
+      left: offsetLeft,
+      width: offsetWidth,
+    })
+  }
+  const handleMouseLeave = () => {
+    setActiveNav(null)
+  }
   return (
     <header className={`sticky top-0 w-full z-50 ${hasScrolled ? "border-b bg-background" : ""} `}>
       <div className="container mx-auto">
@@ -52,30 +62,34 @@ export default function Header() {
             </Link>
           </div>
 
-          <nav className="hidden lg:flex items-center justify-center space-x-3">
-
-              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Boxes size={18} /> Use Cases <ChevronDown size={12} />
-              </button>
-              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Book size={18} /> Blog <ChevronDown size={12} />
-              </button>
-              <Link href="/tutorials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <GraduationCap size={18} />  Tutorials
-              </button>
+            <nav className="hidden lg:flex z-20 items-center space-x-8 relative">
+            {[
+              { label: "Use Cases", icon: <Boxes size={18} />, href: "/use-cases" },
+              { label: "Blog", icon: <Book size={18} />, href: "/blog" },
+              { label: "Tutorials", icon: <GraduationCap size={18} />, href: "/tutorials" },
+              { label: "Support", icon: <Hand size={18} />, href: "/support" },
+              { label: "Pricing", icon: <Columns3Icon size={18} />, href: "/plans" },
+            ].map((item) => (
+              <Link
+              key={item.href}
+              href={item.href}
+              className="relative z-10 text-sm font-medium flex items-center gap-1.5 transition-colors text-muted-foreground hover:text-primary"
+              onMouseEnter={(e) => handleMouseEnter(e, item.href)}
+              onMouseLeave={handleMouseLeave}
+              >
+              {item.icon}
+              {item.label}
               </Link>
-              <Link href="/support" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  <Hand size={18} />  Support
-                </button>
-              </Link>
-              <Link href="/plans" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <Columns3Icon size={18} />  Pricing
-              </button>
-              </Link>
-          </nav>
+            ))}
+            <span
+              className="absolute bottom-0 rounded-sm border-accent h-[30px] z-0 bg-muted-foreground/20 transition-all duration-300"
+              style={{
+              left: `${underlineStyle.left}px`,
+              width: `${underlineStyle.width + 20}px`,
+              transform: `translate(-40px, 5px)`, 
+              }}
+            />
+            </nav>
 
           <div className="hidden lg:flex items-center justify-end flex-1 lg:w-0 space-x-4">
             <Button asChild className='hidden lg:flex'>
