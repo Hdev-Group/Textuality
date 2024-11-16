@@ -122,7 +122,7 @@ memberships: defineTable({
 supporttickets: defineTable({
     title: v.string(),
     content: v.string(),
-    authorid: v.string(),
+    userId: v.string(),
     status: v.string(),
     updated: v.any(),
     department: v.string(),
@@ -132,7 +132,7 @@ supporttickets: defineTable({
 supportmessages: defineTable({
     ticketid: v.string(),
     message: v.string(),
-    authorid: v.string(),
+    userId: v.string(),
     isstaff: v.boolean(),
     updated: v.any(),
 }),

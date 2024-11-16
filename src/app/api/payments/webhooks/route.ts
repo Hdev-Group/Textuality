@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { api} from '../../../../../convex/_generated/api';
+import { api } from '../../../../../convex/_generated/api';
 import { fetchMutation } from "convex/nextjs";
-
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: '2024-10-28.acacia',
@@ -25,53 +24,88 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Handle different event types
-  switch (event.type) {
-    case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session;
-      if (session.payment_status === 'paid') {
-        console.log('Payment successful:', session);
-          const customerId = session.customer as string
-            await fetchMutation(api.payments.successfulPayment, {
-              userid: session.metadata.userid as any,
-              sessionId: session.id,
-              stripeid: customerId,
-              subscriptionid: session.subscription as any,
-              membershiptype: session.mode,
-              status: session.payment_status,
-              subscriptionStatus: "active",
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+
+        if (session.payment_status === 'paid') {
+          if (!session.customer || !session.metadata) {
+            console.error('Missing customer or metadata in session:', session.id);
+            return NextResponse.json({ error: 'Missing data' }, { status: 400 });
+          }
+
+          // Ensure metadata is attached to the customer
+          const customer = await stripe.customers.retrieve(session.customer as string);
+
+          if (session.metadata.userid) {
+            console.log(`Updating Stripe customer metadata with userid: ${session.metadata.userid}`);
+            await stripe.customers.update(session.customer as string, {
+              metadata: { userid: session.metadata.userid }
             });
+          }
+
+          console.log('Payment successful:', session);
+          await fetchMutation(api.payments.successfulPayment, {
+            userid: session.metadata.userid as any,
+            sessionId: session.id,
+            stripeid: session.customer as string,
+            subscriptionid: session.subscription as any,
+            membershiptype: session.mode,
+            status: session.payment_status,
+            subscriptionStatus: 'active',
+          });
+        }
+        break;
       }
-      break;
-    }
 
-    case 'customer.subscription.updated': {
-      const subscription = event.data.object as Stripe.Subscription;
-      if (subscription.status === 'canceled') {
-        console.log(`Subscription was canceled: ${subscription.id}`);
+      // Handle subscription status updates
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+
+        if (subscription.status === 'canceled') {
+          console.log(`Subscription was canceled: ${subscription.id}`);
+          await fetchMutation(api.payments.subscriptionCanceled, {
+            subscriptionId: subscription.id,
+            status: subscription.status,
+          });
+        }
+        if (subscription.status === 'incomplete_expired') {
+          console.log(`Subscription ended or was deleted: ${subscription.id}`);
+          await fetchMutation(api.payments.subscriptionExpired, {
+            subscriptionId: subscription.id,
+            status: subscription.status,
+          });
+        }
+        break;
       }
-      if (subscription.status === 'incomplete_expired') {
-        console.log(`Subscription ended or was deleted: ${subscription.id}`);
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        console.log(`Subscription was deleted: ${subscription.id}`);
+        await fetchMutation(api.payments.subscriptionDeleted, {
+          subscriptionId: subscription.id,
+        });
+        break;
       }
-      break;
-    }
 
-    case 'customer.subscription.deleted': {
-      const subscription = event.data.object as Stripe.Subscription;
-      console.log(`Subscription was canceled: ${subscription.id}`);
-      break;
-    }
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log(`Invoice payment failed for subscription: ${invoice.subscription}`);
+        await fetchMutation(api.payments.paymentFailed, {
+          subscriptionId: invoice.subscription as string,
+          invoiceId: invoice.id,
+        });
+        break;
+      }
 
-    case 'invoice.payment_failed': {
-      const invoice = event.data.object as Stripe.Invoice;
-      console.log(`Invoice payment failed for subscription: ${invoice.subscription}`);
-      break;
+      default:
+        console.log(`Ignoring unhandled event type: ${event.type}`);
     }
-
-    default:
-      console.log(`Unhandled event type: ${event.type}`);
+  } catch (err) {
+    console.error('Error processing event:', err.message);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 
-  // Respond with a 200 status to acknowledge receipt of the event
   return NextResponse.json({ message: 'Event received' }, { status: 200 });
 }

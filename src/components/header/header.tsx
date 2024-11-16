@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, PenSquare, Search, ChevronDown, Columns3Icon, GraduationCap, Book, ShapesIcon, Boxes } from 'lucide-react'
+import { Menu, X, PenSquare, Search, ChevronDown, Columns3Icon, GraduationCap, Book, ShapesIcon, Boxes, Hand } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -42,7 +42,7 @@ export default function Header() {
   return (
     <header className={`sticky top-0 w-full z-50 ${hasScrolled ? "border-b bg-background" : ""} `}>
       <div className="container mx-auto">
-        <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
+        <div className="flex justify-between items-center py-4 lg:justify-start md:space-x-10">
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
               <img src="/IMG_6128.png" alt="Textuality Logo" className="h-8 w-8 dark:flex hidden" />
@@ -53,9 +53,7 @@ export default function Header() {
           </div>
 
           <nav className="hidden lg:flex items-center justify-center space-x-3">
-              <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
-                <ShapesIcon size={18} /> Product <ChevronDown size={12} />
-              </button>
+
               <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
                 <Boxes size={18} /> Use Cases <ChevronDown size={12} />
               </button>
@@ -67,6 +65,11 @@ export default function Header() {
                 <GraduationCap size={18} />  Tutorials
               </button>
               </Link>
+              <Link href="/support" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  <Hand size={18} />  Support
+                </button>
+              </Link>
               <Link href="/plans" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               <button className="text-sm flex items-center hover:border-input hover:shadow-md px-4 py-2 border-background border flex-row gap-1.5 font-medium text-muted-foreground hover:text-foreground transition-colors">
                 <Columns3Icon size={18} />  Pricing
@@ -74,7 +77,7 @@ export default function Header() {
               </Link>
           </nav>
 
-          <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0 space-x-4">
+          <div className="hidden lg:flex items-center justify-end flex-1 lg:w-0 space-x-4">
             <Button asChild className='hidden lg:flex'>
               <Link href="/application/home">
                 Create Content
@@ -108,7 +111,7 @@ export default function Header() {
             )}
           </div>
 
-          <div className="flex md:hidden">
+          <div className="flex lg:hidden">
             <Button
               variant="ghost"
               size="icon"
