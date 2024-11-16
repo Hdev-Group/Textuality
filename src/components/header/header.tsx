@@ -19,8 +19,9 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const user = useUser()
   const { signOut } = useClerk()
+  const [mainlocation, setMainLocation] = useState({left: 0, width: 0})
   const [hasScrolled, setHasScrolled] = useState(false)
-  const [underlineStyle, setUnderlineStyle] = useState({ left: 0, width: 0 })
+  const [underlineStyle, setUnderlineStyle] = useState({ left: mainlocation.left, width: mainlocation.width })
   const [activeNav, setActiveNav] = useState<string | null>(null)
   useEffect(() => {
     const handleScroll = () => {
@@ -37,6 +38,39 @@ export default function Header() {
       window.removeEventListener('scroll', handleScroll)
     }
   }, [])
+
+  // auto set underline based on URL
+  useEffect(() => {
+    const path = window.location.pathname
+    switch (path) {
+      case '/use-cases':
+        setUnderlineStyle({ left: 0, width: 92 })
+        setMainLocation({ left: 0, width: 92 })
+        break
+      case '/blog':
+        setUnderlineStyle({ left: 92, width: 44 })
+        setMainLocation({ left: 92, width: 44 })
+        break
+      case '/tutorials':
+        setUnderlineStyle({ left: 124, width: 52 })
+        setMainLocation({ left: 124, width: 52 })
+        break
+      case '/support':
+        setUnderlineStyle({ left: 206, width: 77 })
+        setMainLocation({ left: 206, width: 77 })
+        break
+      case '/plans':
+        setUnderlineStyle({ left: 318, width: 73 })
+        setMainLocation({ left: 318, width: 73 })
+        break
+      default:
+        setUnderlineStyle({ left: 0, width: 0 })
+        break
+    }
+  }, [])
+
+  // 0 92 44 124 52 209 77 318 73 423 67
+
   const handleMouseEnter = (e: React.MouseEvent, href: string) => {
     setActiveNav(href)
     const target = e.currentTarget as HTMLElement
@@ -47,7 +81,7 @@ export default function Header() {
     })
   }
   const handleMouseLeave = () => {
-    setActiveNav(null)
+    setUnderlineStyle({width: mainlocation.width, left: mainlocation.left})
   }
   return (
     <header className={`sticky top-0 w-full z-50 ${hasScrolled ? "border-b bg-background" : ""} `}>
