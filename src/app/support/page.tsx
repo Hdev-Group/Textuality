@@ -28,6 +28,6 @@ export async function generateMetadata() {
 }
 
   
-export default function ProductWrapper() {
+export default function SupportWrap() {
     return <SupportPage />;
 }

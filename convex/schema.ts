@@ -118,5 +118,22 @@ memberships: defineTable({
     subscriptionStatus: v.string(),
     cancellationDate: v.any(),
     status: v.string(),
-}).index("bystripeid", ["stripeid"])
+}).index("bystripeid", ["stripeid"]),
+supporttickets: defineTable({
+    title: v.string(),
+    content: v.string(),
+    authorid: v.string(),
+    status: v.string(),
+    updated: v.any(),
+    department: v.string(),
+    staffid: v.string(),
+    priority: v.string(),
+}),
+supportmessages: defineTable({
+    ticketid: v.string(),
+    message: v.string(),
+    authorid: v.string(),
+    isstaff: v.boolean(),
+    updated: v.any(),
+}),
 });
