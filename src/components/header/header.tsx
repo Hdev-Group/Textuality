@@ -48,20 +48,20 @@ export default function Header() {
         setMainLocation({ left: 0, width: 92 })
         break
       case '/blog':
-        setUnderlineStyle({ left: 92, width: 44 })
-        setMainLocation({ left: 92, width: 44 })
-        break
-      case '/tutorials':
         setUnderlineStyle({ left: 124, width: 52 })
         setMainLocation({ left: 124, width: 52 })
         break
-      case '/support':
-        setUnderlineStyle({ left: 206, width: 77 })
-        setMainLocation({ left: 206, width: 77 })
+      case '/tutorials':
+        setUnderlineStyle({ left: 209, width: 77 })
+        setMainLocation({ left: 209, width: 77 })
         break
-      case '/plans':
+      case '/support':
         setUnderlineStyle({ left: 318, width: 73 })
         setMainLocation({ left: 318, width: 73 })
+        break
+      case '/plans':
+        setUnderlineStyle({ left: 423, width: 67 })
+        setMainLocation({ left: 423, width: 67 })
         break
       default:
         setUnderlineStyle({ left: 0, width: 0 })
@@ -119,7 +119,7 @@ export default function Header() {
               className="absolute bottom-0 rounded-sm border-accent h-[30px] z-0 bg-muted-foreground/20 transition-all duration-300"
               style={{
               left: `${underlineStyle.left}px`,
-              width: `${underlineStyle.width + 20}px`,
+              width: `${underlineStyle.width > 1 ? underlineStyle.width + 20 : underlineStyle.width}px`,
               transform: `translate(-40px, 5px)`, 
               }}
             />
