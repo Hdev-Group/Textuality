@@ -1,6 +1,6 @@
 "use client"
 import Header from "@/components/header/header"
-import { useUser } from "@clerk/clerk-react";
+import { useUser } from "@clerk/nextjs";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Search, LifeBuoy, Book, MessageCircle, Mail } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -11,11 +11,11 @@ import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
 import Link from "next/link";
 
-export default function SupportPage(userId: any) {
+export default function SupportPage() {
     const user = useUser();
 
     const [searchQuery, setSearchQuery] = useState('')
-    const checktickets = useQuery(api.support.getTickets, { userId: userId });
+    const checktickets = useQuery(api.support.getTickets, { userId: user.user?.id });
 
     const supportCategories = [
       { icon: <LifeBuoy className="h-6 w-6" />, title: 'General Help', href: '/general-help' },

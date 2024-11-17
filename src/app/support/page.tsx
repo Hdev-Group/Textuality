@@ -1,7 +1,6 @@
 import React from 'react';
 import SupportPage from './SupportMain';
 import { preloadQuery } from "convex/nextjs";
-import { useAuth } from '@clerk/clerk-react';
 
 export async function generateMetadata() {
     return {
@@ -30,6 +29,5 @@ export async function generateMetadata() {
 
   
 export default function SupportWrap() {
-    const {userId} = useAuth();
-    return <SupportPage userId={userId} />;
+    return <SupportPage  />;
 }
