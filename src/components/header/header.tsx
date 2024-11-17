@@ -42,31 +42,24 @@ export default function Header() {
   // auto set underline based on URL
   useEffect(() => {
     const path = window.location.pathname
-    switch (path) {
-      case '/use-cases':
+      if( path.includes('/use-cases')){
         setUnderlineStyle({ left: 0, width: 92 })
         setMainLocation({ left: 0, width: 92 })
-        break
-      case '/blog':
+      } else if( path.includes('/blog')){
         setUnderlineStyle({ left: 124, width: 52 })
         setMainLocation({ left: 124, width: 52 })
-        break
-      case '/tutorials':
+      } else if( path.includes('/tutorials')){
         setUnderlineStyle({ left: 209, width: 77 })
         setMainLocation({ left: 209, width: 77 })
-        break
-      case '/support':
+      } else if( path.includes('/support')){
         setUnderlineStyle({ left: 318, width: 73 })
         setMainLocation({ left: 318, width: 73 })
-        break
-      case '/plans':
+      } else if( path.includes('/plans')){
         setUnderlineStyle({ left: 423, width: 67 })
         setMainLocation({ left: 423, width: 67 })
-        break
-      default:
+      } else {
         setUnderlineStyle({ left: 0, width: 0 })
-        break
-    }
+      }
   }, [])
 
   // 0 92 44 124 52 209 77 318 73 423 67

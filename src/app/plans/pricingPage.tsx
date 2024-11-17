@@ -99,25 +99,36 @@ export default function PricingPage() {
                 </div>
               </div>
             </div>
-            <div className="flex h-full w-full mt-20 pt-20 border-t justify-center">
-              <div className="flex items-center justify-center w-full container lg:mx-auto">
-                <div ref={tableRef} className="overflow-x-auto w-full">
-                  <Table className="relative">
-                    <TableHeader
-                      ref={headerRef}
-                      className={`sticky top-0 z-10 bg-background ${isSticky ? "shadow-md" : ""}`}
-                    >
-                      <TableRow>
-                        <TableHead className="w-[200px]">Features</TableHead>
-                        {plans.map((plan) => (
+            <div className="flex flex-col h-full w-full mt-20 pt-20 border-t relative justify-center">
+            <div className="sticky container mx-auto h-28 py-2 border-b-accent border-b bg-background top-[4.5rem] z-30">
+              <div className="w-full flex flex-row items-center justify-center">
+              <TableHead className="w-[200px] h-max flex items-center">Features</TableHead>
+              {plans.map((plan) => (
                           <TableHead key={plan.name} className="text-start">
                             <div className="font-bold text-foreground">{plan.name}</div>
                             <div className="text-2xl font-bold text-foreground">
-                              £{plan.price} <span className="text-xl text-muted-foreground">{billingCycle === "month" ? "/ mo" : "/ yr"}</span>
+                              £{plan.price} <span className="md:text-xl text-xs text-muted-foreground">{billingCycle === "month" ? "/ mo" : "/ yr"}</span>
                             </div>
-                            <div className="text-sm text-muted-foreground">{plan.description}</div>
+                            <div className="text-sm text-muted-foreground lg:block hidden">{plan.description}</div>
                           </TableHead>
                         ))}
+              </div>
+            </div>
+              <div className="flex items-center justify-center w-full container mx-auto">
+                <div ref={tableRef} className="overflow-x-auto w-full flex items-center justify-center">
+                  <Table className="relative">
+                    <TableHeader
+                      ref={headerRef}
+                      className={`sticky top-0 z-10 h-1 bg-background ${isSticky ? "shadow-md" : ""}`}
+                    >
+                      <TableRow className="h-1 w-full border-none justify-between">
+                        <TableHead className="w-[200px] h-1"></TableHead>
+                          <TableHead className="text-start h-1 w-1/1">
+                          </TableHead>
+                          <TableHead className="text-start h-1 w-1/1">
+                          </TableHead>
+                          <TableHead className="text-start h-1 w-1/3">
+                          </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -155,7 +166,7 @@ export default function PricingPage() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-center justify-center w-full mt-20">
+            <div className="flex flex-col items-center justify-center w-full mt-20 h-screen">
             </div>
             <Footer />
           </div>

@@ -55,7 +55,18 @@ body {
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
-
+.fadein {
+  animation: fadeIn ease 1.4s;
+  display: flex;
+}
+@keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
+  }
+}
 .content h2 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;

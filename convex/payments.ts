@@ -26,61 +26,61 @@ export const successfulPayment = mutation({
     },
 });
 
-export const subscriptionCanceled = mutation({
-    args: {
-        subscriptionId: v.string(),
-        status: v.string(),
-    },
-    handler: async (ctx, { subscriptionId, status }) => {
-        const subscription = await ctx.db.patch("memberships", {
-            subscriptionId,
-            subscriptionStatus: status,
-            cancellationDate: new Date(),
-        });
-        return subscription;
-    },
-});
+// export const subscriptionCanceled = mutation({
+//     args: {
+//         subscriptionId: v.string(),
+//         status: v.string(),
+//     },
+//     handler: async (ctx, { subscriptionId, status }) => {
+//         const subscription = await ctx.db.patch("memberships", {
+//             subscriptionId,
+//             subscriptionStatus: status,
+//             cancellationDate: new Date(),
+//         });
+//         return subscription;
+//     },
+// });
 
-export const subscriptionExpired = mutation({
-    args: {
-        subscriptionId: v.string(),
-        status: v.string(),
-    },
-    handler: async (ctx, { subscriptionId, status }) => {
-        const subscription = await ctx.db.patch("memberships", {
-            subscriptionId,
-            subscriptionStatus: status,
-            cancellationDate: new Date(),
-        });
-        return subscription;
-    },
-});
+// export const subscriptionExpired = mutation({
+//     args: {
+//         subscriptionId: v.string(),
+//         status: v.string(),
+//     },
+//     handler: async (ctx, { subscriptionId, status }) => {
+//         const subscription = await ctx.db.patch("memberships", {
+//             subscriptionId,
+//             subscriptionStatus: status,
+//             cancellationDate: new Date(),
+//         });
+//         return subscription;
+//     },
+// });
 
-export const subscriptionDeleted = mutation({
-    args: {
-        subscriptionId: v.string(),
-    },
-    handler: async (ctx, { subscriptionId }) => {
-        const subscription = await ctx.db.patch("memberships", {
-            subscriptionId,
-            subscriptionStatus: "deleted",
-            cancellationDate: new Date(),
-        });
-        return subscription;
-    },
-});
+// export const subscriptionDeleted = mutation({
+//     args: {
+//         subscriptionId: v.string(),
+//     },
+//     handler: async (ctx, { subscriptionId }) => {
+//         const subscription = await ctx.db.patch("memberships", {
+//             subscriptionId,
+//             subscriptionStatus: "deleted",
+//             cancellationDate: new Date(),
+//         });
+//         return subscription;
+//     },
+// });
 
-export const paymentFailed = mutation({
-    args: {
-        subscriptionId: v.string(),
-        invoiceId: v.string(),
-    },
-    handler: async (ctx, { subscriptionId, invoiceId }) => {
-        const subscription = await ctx.db.patch("memberships", {
-            subscriptionId,
-            subscriptionStatus: "payment_failed",
-            cancellationDate: new Date(),
-        });
-        return subscription;
-    },
-});
+// export const paymentFailed = mutation({
+//     args: {
+//         subscriptionId: v.string(),
+//         invoiceId: v.string(),
+//     },
+//     handler: async (ctx, { subscriptionId, invoiceId }) => {
+//         const subscription = await ctx.db.patch("memberships", {
+//             subscriptionId,
+//             subscriptionStatus: "payment_failed",
+//             cancellationDate: new Date(),
+//         });
+//         return subscription;
+//     },
+// });

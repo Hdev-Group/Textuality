@@ -155,3 +155,15 @@ export const removeUser = mutation({
     await ctx.db.patch(pageId, { users: updatedUsers });
   },
 });
+
+export const getPageSpecific = query({
+  args: {
+    userid: v.string(),
+  },
+  handler: async (ctx, { userid }) => {
+    console.log(userid);
+    const allPages = await ctx.db.query("pages").collect();
+    console.log(allPages);
+    return allPages.filter((page: any) => page.users.includes(userid));
+  },
+});

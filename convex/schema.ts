@@ -12,7 +12,7 @@ pages: defineTable({
     content: v.string(),
     category: v.string(),
     users: v.array(v.string()),
-}).index("bytitle", ["title"]),
+}).index("bytitle", ["title"]).index("byusers", ["users"]),
 roles: defineTable({
     externalId: v.string(),
     pageid: v.string(),

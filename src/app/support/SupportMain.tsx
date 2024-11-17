@@ -11,11 +11,11 @@ import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
 import Link from "next/link";
 
-export default function SupportPage(){
+export default function SupportPage(userId: any) {
     const user = useUser();
 
     const [searchQuery, setSearchQuery] = useState('')
-    const checktickets = useQuery(api.support.getTickets, { userId: user.user?.id });
+    const checktickets = useQuery(api.support.getTickets, { userId: userId });
 
     const supportCategories = [
       { icon: <LifeBuoy className="h-6 w-6" />, title: 'General Help', href: '/general-help' },
