@@ -30,12 +30,10 @@ import { DoesExist } from '../../doesExist';
 import { set } from 'zod';
 import { useUser } from '@clerk/clerk-react';
 import Head from 'next/head';
-// import { NotFoundError } from '@/components/edgecases/error';
-// import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { NotFoundError } from '@/components/edgecases/error';
 
 const useDebounce = (value: any, delay: number) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
-    console.log(value);
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -149,7 +147,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     useEffect(() => {
         if (hasChanges) {
             const saveContent = async () => {
-                console.log("Saving content...");
                 setUpdated("pending");
     
                 // Save updated fields
@@ -210,7 +207,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             setIsLocked((prev) => prev.filter((lock) => lock.fieldid !== fieldid));
             lockedinput({fieldid: fieldid, fileid: _fileid, teamid: _teamid, locked: false, userid: userid, userpfp: user.user.imageUrl});
         } else {
-            console.log('You are not the user who locked this field');
         }
     };
     
@@ -218,7 +214,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         const islockedalready = islocked.find((l) => l.fieldid === lock.fieldid);
 
         if (islockedalready) {
-            console.log('Field is already locked');
         } else {
             setIsLocked((prev) => [...prev, lock]);
             lockedinput({fieldid: lock.fieldid, fileid: _fileid, teamid: _teamid, locked: true, userid: lock.userid, userpfp: user.user.imageUrl});
@@ -735,8 +730,7 @@ function MessageList({ teamid, contentid }: any) {
         async function fetchUserData() {
             if (messages?.length > 0) {
                 const uniqueAuthorIds = [...new Set(messages.map((message) => message.authorid))];
-                const userCache = new Map(); // Cache for storing already fetched users
-                console.log("cock")
+                const userCache = new Map(); 
                 try {
                     const userDataPromises = uniqueAuthorIds.map(async (authorId) => {
                         if (userCache.has(authorId)) {

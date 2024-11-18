@@ -38,7 +38,6 @@ export async function generateMetadata({ params }) {
   
 export default function ProductWrapper({ params }) {
     const { _teamid, _templateid } = params;
-    console.log(_teamid, _templateid);
 
     return <TemplateManager params={{_teamid: _teamid, _templateid: _templateid}} />;
 }

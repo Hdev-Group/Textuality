@@ -187,7 +187,6 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
     const searchParams = new URLSearchParams(window.location.search);
     const success = searchParams.get("success");
     const priceIder = searchParams.get("priceId");
-    console.log(success, priceIder, priceId);
     if (success === "true" && priceIder === priceId) {
       setIsSuccess(true);
     }
@@ -203,7 +202,6 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
       router.push("/sign-in?redirect=/plans?priceId=" + priceId);
       return;
     }
-    console.log(priceId);
     const bundel = { priceId, mainemail, userid: user.user.id };
     const response = await fetch('/api/payments/create-checkout-session', {
       method: 'POST',

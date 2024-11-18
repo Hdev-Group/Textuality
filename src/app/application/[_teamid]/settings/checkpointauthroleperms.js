@@ -17,7 +17,6 @@ export default function CheckpointAuthWrapper({  teamid, children }) {
   
     useEffect(() => {
       if (isLoaded && getRole) {
-        console.log(getRole)
         // Check if the user is authorized (e.g., if they belong to the team)
         if (getRole?.[0]?.permissions?.includes('owner') || getRole?.[0]?.permissions?.includes('admin') || getRole?.[0]?.permissions?.includes('editor')) {
           setIsAuthorized(true);

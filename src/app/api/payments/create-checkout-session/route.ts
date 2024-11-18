@@ -6,7 +6,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 });
 
 export async function POST(req: NextRequest) {
-  console.log('req', req);
   try {
     const { bundel } = await req.json();
     const priceId = bundel.priceId;

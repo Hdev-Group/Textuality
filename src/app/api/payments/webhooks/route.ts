@@ -39,13 +39,11 @@ export async function POST(req: NextRequest) {
           const customer = await stripe.customers.retrieve(session.customer as string);
 
           if (session.metadata.userid) {
-            console.log(`Updating Stripe customer metadata with userid: ${session.metadata.userid}`);
             await stripe.customers.update(session.customer as string, {
               metadata: { userid: session.metadata.userid }
             });
           }
 
-          console.log('Payment successful:', session);
           await fetchMutation(api.payments.successfulPayment, {
             userid: session.metadata.userid as any,
             sessionId: session.id,
@@ -64,7 +62,6 @@ export async function POST(req: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
 
         if (subscription.status === 'canceled') {
-          console.log(`Subscription was canceled: ${subscription.id}`);
           await fetchMutation(api.payments.subscriptionCanceled, {
             subscriptionId: subscription.id,
             status: subscription.status,

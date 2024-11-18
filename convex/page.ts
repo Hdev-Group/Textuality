@@ -161,9 +161,7 @@ export const getPageSpecific = query({
     userid: v.string(),
   },
   handler: async (ctx, { userid }) => {
-    console.log(userid);
     const allPages = await ctx.db.query("pages").collect();
-    console.log(allPages);
     return allPages.filter((page: any) => page.users.includes(userid));
   },
 });

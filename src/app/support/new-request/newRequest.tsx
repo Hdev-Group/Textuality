@@ -134,7 +134,6 @@ export default function NewRequest() {
     function secondSelect(value: string) {
         if (value) {
             setSecondHelp(true)
-            console.log(value)
             const pagename = projects?.find((project) => project._id === value)?.title
             setPageName(pagename)
             setChatHelp((prev) => [...prev, { text: `Okay, What seems to be the problem in ${pagename}?`, isbot: true }])

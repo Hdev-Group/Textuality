@@ -108,7 +108,6 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   }
   function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
     const [isOpen, setIsOpen] = useState(false)
-    console.log(isOpen)
     const [confirmTitle, setConfirmTitle] = useState('')
     const [isDeleting, setIsDeleting] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -150,10 +149,20 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger>
-            Delete
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <MoreHorizontal className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsOpen(true)}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Template
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </DialogTrigger>
         {getContentSpecific && getContentSpecific?.length === 0 && (
-        <DialogContent>
+        <DialogContent aria-describedby='Deleting template'>
           <DialogHeader>
             <DialogTitle>Delete Template</DialogTitle>
             <DialogDescription>
