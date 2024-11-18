@@ -66,7 +66,7 @@ content: defineTable({
     status: v.string(),
     content: v.string(),
     updated: v.any(),
-}).index("bytemplateid", ["templateid"]),
+}).index("bytemplateid", ["templateid"]).index("bypageid", ["pageid"]),
 comments: defineTable({
     contentid: v.string(),
     authorid: v.string(),

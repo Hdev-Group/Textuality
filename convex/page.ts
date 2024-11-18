@@ -167,3 +167,32 @@ export const getPageSpecific = query({
     return allPages.filter((page: any) => page.users.includes(userid));
   },
 });
+
+export const getPageDetails = query({
+  args: {
+    _id: v.id("pages"),
+  },
+  handler: async (ctx, { _id }) => {
+    // we need to get page details like total users, total invites, then for templates total templates then content total content
+    const page = await ctx.db.get(_id);
+    const users = page?.users ?? [];
+    const invites = await ctx.db.query("invites")
+    .withIndex("bypageId", q => q.eq("pageId", _id))
+    .collect();
+
+    const templates = await ctx.db.query("templates")
+    .withIndex("bypageid", q => q.eq("pageid", _id))
+    .collect();
+
+    const content = await ctx.db.query("content")
+    .withIndex("bypageid", q => q.eq("pageid", _id))
+    .collect();
+
+    return {
+      users: users.length,
+      invites: invites.length,
+      templates: templates.length,
+      content: content.length,
+    }
+  },
+});
