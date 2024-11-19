@@ -39,7 +39,11 @@ export default function Page({ params }: { params: { _teamid: string}}) {
 
     useEffect(() => {
         const currentType = searchParams.get('type');
-        setActiveTab(currentType === 'general' || currentType === 'content' ? currentType : 'billing');
+        if (currentType === 'general' || currentType === 'content' || currentType === 'billing' || currentType === 'security') {
+            setActiveTab(currentType);
+        } else {
+            setActiveTab('general');
+        }
       }, [searchParams])
 
     const [pagetitle, setTitle] = useState(getPage?.title)
@@ -156,6 +160,37 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                                             </div>
                                         </div>
                                     </main>
+                                    ) : activeTab === "security" ? (
+                                        <main className="flex-1">
+                                        <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
+                                            <div className="flex justify-between items-center">
+                                                <h1 className="text-2xl font-bold">Security Settings</h1>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-4 p-8 border-b">
+                                            <div className="flex flex-col space-y-2">
+                                                <label className="text-sm font-medium">Page Name</label>
+                                                <Input
+                                                    type="text"
+                                                    maxLength={50}
+                                                    value={pagetitle}
+                                                    className="w-full border border-gray-200 dark:border-neutral-800 rounded-lg p-3 text-sm"
+                                                    onChange={(e) => setTitle(e.target.value)}
+                                                />
+                                                <span className="text-sm text-gray-500">{pagetitle?.length}/50</span>
+                                            </div>
+                                            <div className="flex flex-col space-y-2">
+                                                <label className="text-sm font-medium">Page Description</label>
+                                                <Textarea
+                                                    maxLength={500}
+                                                    className="w-full border border-gray-200 dark:border-neutral-800 rounded-lg p-3 text-sm"
+                                                    onChange={(e) => setContent(e.target.value)}
+                                                    value={content}
+                                                />
+                                                <span className="text-sm text-gray-500">{content?.length}/500</span>
+                                            </div>
+                                        </div>
+                                    </main>
                                     ) : null
                                 }
                             </div>
@@ -172,26 +207,26 @@ function Sidebar({ activeTab, setActiveTab, teamid }) {
             <div className="p-8 pb-9 border-b">
                 <h2 className="text-lg font-semibold">Settings</h2>
             </div>
-            <nav className="space-y-2">
-                <Link href={`/application/${teamid}/settings?type=general`}
+            <nav className="space-y-2 flex flex-col">
+            <Link href={`/application/${teamid}/settings?type=general`}
                     className={`flex items-center justify-between cursor-pointer w-full px-8 py-2  text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "general" ? "bg-gray-100 dark:bg-neutral-900 font-semibold" : "hover:bg-neutral-400/20"}`}
                 >
-                    <span>General</span>
+                    <p>General</p>
                 </Link>
                 <Link href={`/application/${teamid}/settings?type=content`}
                     className={`flex items-center justify-between cursor-pointer w-full px-8 py-2 text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "content" ? "bg-gray-100 dark:bg-neutral-900 font-semibold" : "hover:bg-neutral-400/20"}`}
                 >
-                    <span>Content</span>
+                    <p>Content</p>
                 </Link>
                 <Link href={`/application/${teamid}/settings?type=security`}
-                    className={`flex items-center justify-between cursor-pointer w-full px-8 py-2 text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "content" ? "bg-gray-100 dark:bg-neutral-900 font-semibold" : "hover:bg-neutral-400/20"}`}
+                    className={`flex items-center justify-between cursor-pointer w-full px-8 py-2 text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "security" ? "bg-gray-100 dark:bg-neutral-900 font-semibold" : "hover:bg-neutral-400/20"}`}
                 >
-                    <span>Security</span>
+                    <p>Security</p>
                 </Link>
                 <Link href={`/application/${teamid}/settings?type=billing`}
                     className={`flex items-center justify-between cursor-pointer w-full px-8 py-2 text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "billing" ? "bg-gray-100 dark:bg-neutral-900 font-semibold" : "hover:bg-neutral-400/20"}`}
                 >
-                    <span>Billing</span>
+                    <p>Billing</p>
                 </Link>
             </nav>
         </aside>
