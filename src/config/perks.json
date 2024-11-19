@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Free",
+        "price": "0",
+        "users": "5",
+        "requests": "1 Million",
+        "description": "For personal projects, marketers and small teams looking to get started.",
+        "features": ["Basic analytics", "Limited projects", "Standard support", "Content creation tools", "API access", "Webhooks"],
+        "popular": false,
+        "highlight": false
+    },
+    {
+        "name": "Pro",
+        "price": "12.50",
+        "description": "For growing teams and businesses that need more advanced tools.",
+        "users": "10",
+        "requests": "5 Million",
+        "features": ["Advanced analytics", "Unlimited projects", "Content Approval", "AI tools", "Webhooks", "Priority support", "Role Based Access Control"],
+        "popular": true,
+        "highlight": true
+    },
+    {
+        "name": "Enterprise",
+        "price": "23.50",
+        "description": "For large businesses and enterprises that require custom solutions.",
+        "users": "30 + Pay per user/month",
+        "requests": "20 Million + Pay as you go/month",
+        "features": ["Custom integrations", "Subscription & Paywall", "Social media scheduling", "Custom branding"],
+        "popular": false,
+        "highlight": true
+    }
+]

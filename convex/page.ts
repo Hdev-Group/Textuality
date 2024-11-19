@@ -13,11 +13,12 @@ export const create = mutation({
             title,
             content,
             category,
-            users: [userid]
+            users: [userid],
+            accesstoken: Array(64).fill(null).map(() => Math.random().toString(36).charAt(2)).join(''),
         });
         await ctx.db.insert("roles", {
             externalId: userid,
-            pageid: page, // Access the id property directly
+            pageid: page, 
             permissions: ["owner"]
         });
     },

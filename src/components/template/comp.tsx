@@ -20,11 +20,13 @@ type FieldType = {
     templateid: string;
     reference: string;
     fieldposition?: number;
+    fieldappearance?: string;
   }
   import { ScrollArea } from "@/components/ui/scroll-area"
-import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, MessageCircleQuestionIcon, Frown } from "lucide-react"
+import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, MessageCircleQuestionIcon, Frown, Heading } from "lucide-react"
 
   const fieldTypes: FieldType[] = [
+    { icon: Heading, name: "Title", description: "Main title Includes author information & more", templateid: '', reference: '' },
     { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", templateid: '', reference: '' },
     { icon: Type, name: "Short Text", description: "Titles, names, paragraphs, list of names", templateid: '', reference: '' },
     { icon: Hash, name: "Number", description: "ID, order number, rating, quantity", templateid: '', reference: '' },
@@ -39,7 +41,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     { 
       name: "Blog Post", 
       fields: [
-        { name: "Title", type: "Short Text" },
+        { name: "Title", type: "Title" },
         { name: "Content", type: "Rich text" },
         { name: "Featured Image", type: "Media" },
         { name: "Tags", type: "Short Text" },
@@ -49,7 +51,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     { 
       name: "Event Announcement", 
       fields: [
-        { name: "Event Name", type: "Short Text" },
+        { name: "Event Name", type: "Title" },
         { name: "Date and Time", type: "Date and time" },
         { name: "Location", type: "Location" },
         { name: "Description", type: "Rich text" }
@@ -58,7 +60,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     { 
       name: "Product Review", 
       fields: [
-        { name: "Product Name", type: "Short Text" },
+        { name: "Product Name", type: "Title" },
         { name: "Rating", type: "Number" },
         { name: "Review Text", type: "Rich text" },
         { name: "Pros", type: "Rich text" },
@@ -184,7 +186,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
   export function EditFieldDialog({ open, onOpenChange, field, onEditField }: { open: boolean; onOpenChange: (open: boolean) => void; field: FieldType | null; onEditField: (field: FieldType) => void }) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[725px] overflow-hidden transition-all">
+        <DialogContent className="sm:max-w-[1025px] overflow-hidden transition-all">
           <DialogHeader>
             <DialogTitle>Edit Field</DialogTitle>
           </DialogHeader>
@@ -205,11 +207,13 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
   }
   
   function FieldForm({ field, onBack, onSubmit, type }: { type: string, field: FieldType, onBack: () => void, onSubmit: (field: FieldType) => void }) {
+    console.log(field)
     const [fieldName, setFieldName] = useState(field.fieldname || '');
     const [fieldId, setFieldId] = useState(field.reference || '');
     const [description, setDescription] = useState(field.description || '');
     const [isRequired, setIsRequired] = useState(field.isRequired || false); 
     const [defaultValue, setDefaultValue] = useState(field.defaultValue || '');
+    const [fieldappearance, setFieldAppearance] = useState(field.fieldappearance || 'number-editor');
   
     const handleSubmit = (event: React.FormEvent) => {
       event.preventDefault();
@@ -219,7 +223,8 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
         fieldname: fieldName,
         description,
         isRequired,
-        defaultValue
+        defaultValue,
+        fieldappearance: fieldappearance || 'number-editor',
       });
     };
   
@@ -227,7 +232,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+          <h2 className="text-lg font-semibold">Name</h2>
             <Input
               id="name"
               placeholder="Enter field name"
@@ -237,7 +242,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="id">Field ID</Label>
+          <h2 className="text-lg font-semibold">Field ID</h2>
             <Input
               id="id"
               placeholder="Enter field reference"
@@ -249,7 +254,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
         </div>
   
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+        <h2 className="text-lg font-semibold">Description</h2>
           <Input
             id="description"
             placeholder="Enter field description"
@@ -259,7 +264,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
         </div>
   
         <div className="space-y-2">
-          <Label htmlFor="defaultValue">Default Value</Label>
+        <h2 className="text-lg font-semibold">Default Value</h2>
           <Input
             id="defaultValue"
             placeholder="Enter default value"
@@ -269,7 +274,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
         </div>
   
         <div className="space-y-2">
-          <Label>Is Required</Label>
+        <h2 className="text-lg font-semibold">Is Required</h2>
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
@@ -280,17 +285,50 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
           </div>
         </div>
   
-        {field.name === 'Number' && (
+        {(field.type === 'Number' || field.name === 'Number') && (
           <div className="space-y-2">
-            <Label>Type</Label>
+            <h2 className="text-lg font-semibold">Apperance</h2>
             <div className="flex space-x-4">
-              <label className="flex items-center space-x-2">
-                <input type="radio" name="numberType" value="integer" />
-                <span>Integer</span>
+              <label className={`${fieldappearance === "number-editor" ? "border-blue-300" : ""} border rounded-md flex flex-col items-start  space-y-2 cursor-pointer`}>
+                <input
+                  type="radio"
+                  name="appearance"
+                  onChange={(e) => setFieldAppearance(e.target.value)}
+                  value="number-editor"
+                  checked={fieldappearance === 'number-editor'}
+                  className="hidden peer"
+                />
+                <div className='p-4 w-full h-full'>
+                  <div className="flex items-center justify-center w-full h-8 border rounded-md">
+                    <span>1001</span>
+                  </div>
+                </div>
+                <div className='flex flex-col gap-0.5 border-t px-4 py-2 h-14'>
+                  <span className="font-semibold">Number editor</span>
+                  <p className="text-xs text-gray-400">Default</p>
+                </div>
               </label>
-              <label className="flex items-center space-x-2">
-                <input type="radio" name="numberType" value="decimal" />
-                <span>Decimal</span>
+              <label className={`${fieldappearance === "rating" ? "border-blue-300" : ""} border rounded-md flex flex-col justify-end items-start space-y-2 cursor-pointer `}>
+                <input
+                  type="radio"
+                  name="appearance"
+                  value="rating"
+                  onChange={(e) => setFieldAppearance(e.target.value)}
+                  checked={fieldappearance === 'rating'}
+                  className="hidden peer"
+                />
+                <div className='flex w-full p-4'>
+                  <div className="flex space-x-1">
+                    <span className="text-yellow-500">★</span>
+                    <span className="text-yellow-500">★</span>
+                    <span className="text-yellow-500">★</span>
+                    <span className="text-gray-400">★</span>
+                    <span className="text-gray-400">★</span>
+                  </div>
+                </div>
+                <div className='flex flex-col w-full items-center gap-0.5 h-14 border-t px-4 py-2 '>
+                  <span className="font-semibold">Rating</span>
+                </div>
               </label>
             </div>
           </div>

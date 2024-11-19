@@ -57,44 +57,44 @@ export async function POST(req: NextRequest) {
         break;
       }
 
-      // Handle subscription status updates
-      case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
+      // // Handle subscription status updates
+      // case 'customer.subscription.updated': {
+      //   const subscription = event.data.object as Stripe.Subscription;
 
-        if (subscription.status === 'canceled') {
-          await fetchMutation(api.payments.subscriptionCanceled, {
-            subscriptionId: subscription.id,
-            status: subscription.status,
-          });
-        }
-        if (subscription.status === 'incomplete_expired') {
-          console.log(`Subscription ended or was deleted: ${subscription.id}`);
-          await fetchMutation(api.payments.subscriptionExpired, {
-            subscriptionId: subscription.id,
-            status: subscription.status,
-          });
-        }
-        break;
-      }
+      //   if (subscription.status === 'canceled') {
+      //     await fetchMutation(api.payments.subscriptionCanceled, {
+      //       subscriptionId: subscription.id,
+      //       status: subscription.status,
+      //     });
+      //   }
+      //   if (subscription.status === 'incomplete_expired') {
+      //     console.log(`Subscription ended or was deleted: ${subscription.id}`);
+      //     await fetchMutation(api.payments.subscriptionExpired, {
+      //       subscriptionId: subscription.id,
+      //       status: subscription.status,
+      //     });
+      //   }
+      //   break;
+      // }
 
-      case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription;
-        console.log(`Subscription was deleted: ${subscription.id}`);
-        await fetchMutation(api.payments.subscriptionDeleted, {
-          subscriptionId: subscription.id,
-        });
-        break;
-      }
+      // case 'customer.subscription.deleted': {
+      //   const subscription = event.data.object as Stripe.Subscription;
+      //   console.log(`Subscription was deleted: ${subscription.id}`);
+      //   await fetchMutation(api.payments.subscriptionDeleted, {
+      //     subscriptionId: subscription.id,
+      //   });
+      //   break;
+      // }
 
-      case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice;
-        console.log(`Invoice payment failed for subscription: ${invoice.subscription}`);
-        await fetchMutation(api.payments.paymentFailed, {
-          subscriptionId: invoice.subscription as string,
-          invoiceId: invoice.id,
-        });
-        break;
-      }
+      // case 'invoice.payment_failed': {
+      //   const invoice = event.data.object as Stripe.Invoice;
+      //   console.log(`Invoice payment failed for subscription: ${invoice.subscription}`);
+      //   await fetchMutation(api.payments.paymentFailed, {
+      //     subscriptionId: invoice.subscription as string,
+      //     invoiceId: invoice.id,
+      //   });
+      //   break;
+      // }
 
       default:
         console.log(`Ignoring unhandled event type: ${event.type}`);

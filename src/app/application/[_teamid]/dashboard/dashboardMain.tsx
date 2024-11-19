@@ -31,6 +31,7 @@ export default function Page({ params }: { params: { _teamid: string} }) {
       document.cookie = `setup=true; path=/; SameSite=Lax`;
       document.cookie = `poweruser=false; path=/; SameSite=Lax`;
     }
+    setPreview(preview);
   }
 
   useEffect(() => {
@@ -71,8 +72,11 @@ function Setup({ changePreview }: { changePreview: any }) {
     <div className='flex container mx-auto'>
       <div className='flex flex-row justify-between w-full items-center'>
         <h2 className='text-3xl font-semibold'>Setup your Textuality account</h2>
-        <div className='flex flex-row gap-1 items-center justify-center cursor-pointer' onClick={() => changePreview("PowerUser")}>
+        <div className='flex flex-row gap-3'>
+          <Button>Start Setup</Button>
+          <div className='flex flex-row gap-1 items-center justify-center cursor-pointer' onClick={() => changePreview("PowerUser")}>
           <X className='h-5 w-5' /> <p className='text-md'>Skip setup</p>
+        </div>
         </div>
       </div>
       <div className='border-muted border mt-3 rounded-md'>
@@ -163,9 +167,9 @@ function PowerUser({ getpageinfo, changePreview }: { getpageinfo: any, changePre
       </div>
       <div className='border-muted border mt-3 rounded-md'>
         <div className='flex flex-col gap-3 '>
-          <div className='flex border-b border-muted items-center py-4 px-4 justify-between'>
+          <div className='flex border-b border-muted items-center py-4 px-4 justify-between hover:bg-muted/70 transition-all' onClick={() => showHideContentBuild()}>
             <p className='font-semibold text-lg flex flex-row gap-3 items-center'><Folder className='h-6 w-6' />Build your content</p>
-            <ChevronDown className={`h-6 w-6 hover:text-blue-500 cursor-pointer transition-all ${showhideContent ? "rotate-0" : "rotate-180"}`} onClick={() => showHideContentBuild()} />
+            <ChevronDown className={`h-6 w-6 hover:text-blue-500 cursor-pointer transition-all ${showhideContent ? "rotate-0" : "rotate-180"}`}  />
           </div>
           <div className={`flex w-full flex-row justify-between py-2 px-5 overflow-hidden ${showhideContent ? "h-auto" : "hidden"}`}>
             <div className='flex flex-row gap-5 items-center w-1/3 border-r pr-5 border-muted'>
@@ -198,9 +202,9 @@ function PowerUser({ getpageinfo, changePreview }: { getpageinfo: any, changePre
     <div className='flex container mx-auto mt-5'>
       <div className='border-muted border mt-3 rounded-md'>
         <div className='flex flex-col gap-3 '>
-          <div className='flex border-b border-muted items-center py-4 px-4 justify-between'>
+          <div className='flex border-b border-muted items-center py-4 px-4 justify-between hover:bg-muted/70 transition-all' onClick={() => showhideSuggested()}>
             <p className='font-semibold text-lg flex flex-row gap-3 items-center'><LucideMessageCircleQuestion className='h-6 w-6' /> Suggested for you</p>
-            <ChevronDown className={`h-6 w-6 hover:text-blue-500 cursor-pointer transition-all ${showhideSuggesteder ? "rotate-0" : "rotate-180"}`} onClick={() => showhideSuggested()} />
+            <ChevronDown className={`h-6 w-6 hover:text-blue-500 cursor-pointer transition-all ${showhideSuggesteder ? "rotate-0" : "rotate-180"}`}  />
           </div>
           <div className={`flex w-full flex-row justify-between py-2 px-5 overflow-hidden ${showhideSuggesteder ? "h-auto" : "hidden"}`}>
             <div className='flex flex-col gap-5 w-full  pr-5 '>

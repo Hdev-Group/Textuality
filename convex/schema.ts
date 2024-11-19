@@ -12,6 +12,7 @@ pages: defineTable({
     content: v.string(),
     category: v.string(),
     users: v.array(v.string()),
+    accesstoken: v.string(),
 }).index("bytitle", ["title"]).index("byusers", ["users"]),
 roles: defineTable({
     externalId: v.string(),
@@ -47,6 +48,7 @@ fields: defineTable({
     description: v.optional(v.string()),
     reference: v.string(),
     fieldposition: v.any(),
+    fieldappearance: v.any(),
 }).index("bytemplateid", ["templateid"]),
 fieldvalues: defineTable({
     fieldid: v.string(),

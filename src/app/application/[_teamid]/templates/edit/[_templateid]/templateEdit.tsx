@@ -6,7 +6,7 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../../../../convex/_generated/api'
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight, LucideMessageCircleQuestion, InfoIcon } from "lucide-react"
+import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight, LucideMessageCircleQuestion, InfoIcon, Heading } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { BookMarkedIcon, Filter, Trash2 } from "lucide-react"
 import { Input } from "@/components/ui/input";
@@ -37,11 +37,13 @@ type FieldType = {
   templateid: string;
   reference: string;
   fieldposition?: number;
+  fieldappearance?: string;
 }
 
 
 const fieldTypes: FieldType[] = [
   { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", position: 0, templateid: '', reference: '' },
+  { icon: Heading, name: "Title", description: "Main title", position: 0, templateid: '', reference: '' },
   { icon: Type, name: "Short Text", description: "Titles, names, paragraphs, list of names", position: 0, templateid: '', reference: '' },
   { icon: Hash, name: "Number", description: "ID, order number, rating, quantity", position: 0, templateid: '', reference: '' },
   { icon: Calendar, name: "Date and time", description: "Event dates", position: 0, templateid: '', reference: '' },
@@ -248,7 +250,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       description: newField.description,
       type: field.name, 
       reference: newField.reference,
-      fieldposition: fields.length + 1
+      fieldposition: fields.length + 1,
+      fieldappearance: field.fieldappearance as any
     });
   };
 
@@ -279,6 +282,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
         reference: field.reference,
         fieldposition: field.fieldposition,
         lastUpdatedBy: userId as string,
+        fieldappearance: field.fieldappearance as any
       })
     ));
   };
@@ -310,7 +314,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
         description: field.description,
         reference: field.reference,
         fieldposition: field.position,
-        lastUpdatedBy: userId as string
+        lastUpdatedBy: userId as string,
+        fieldappearance: field.fieldappearance as any
       })
     }
   }
@@ -494,6 +499,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
               type: updatedField.type as string,
               reference: updatedField.reference,
               fieldposition: updatedField.fieldposition as number,
+              fieldappearance: updatedField.fieldappearance,
             })
           }}
         />
