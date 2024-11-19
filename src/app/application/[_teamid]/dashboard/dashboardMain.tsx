@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { use } from 'react';
 import { useUser } from "@clerk/clerk-react";
 import { useAuth } from '@clerk/nextjs'
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder } from "lucide-react"
@@ -18,7 +18,7 @@ export default function Page({ params }: { params: { _teamid: string} }) {
   const { _teamid } = params;
   const teamid = _teamid;
   const user = useUser();
-
+  const pageContentAPIGetter = useQuery(api.apicontent.pageContentAPIGetter, { pageid: teamid })
   const getpageinfo = useQuery(api.page.getPageDetails, { _id: teamid as any });
 
   const [preview, setPreview] = useState("Setup");
@@ -53,7 +53,7 @@ export default function Page({ params }: { params: { _teamid: string} }) {
           <div className="flex flex-col md:gap-0 gap-5 w-full justify-between">
             <div>
               {
-                preview === "Setup" ? <Setup changePreview={changePreview} /> : <PowerUser changePreview={changePreview} getpageinfo={getpageinfo} />
+                preview === "Setup" ? <Setup changePreview={changePreview} /> : <PowerUser changePreview={changePreview} pageContentAPIGetter={pageContentAPIGetter} getpageinfo={getpageinfo} _teamid={_teamid} />
               }
             </div>
           </div>
@@ -116,7 +116,8 @@ function Setup({ changePreview }: { changePreview: any }) {
   )
 }
 
-function PowerUser({ getpageinfo, changePreview }: { getpageinfo: any, changePreview: any }) {
+function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }: { getpageinfo: any, changePreview: any, _teamid: any, pageContentAPIGetter: any }) {
+  const teamid = _teamid;
   useEffect(() => {
     const handleCookieChange = () => {
       if (document.cookie.includes('showhideContent=true')) {
@@ -218,7 +219,7 @@ function PowerUser({ getpageinfo, changePreview }: { getpageinfo: any, changePre
               <div className='flex flex-row py-4 gap-5'>
                 <img src="/images/createblog.svg"  />
                 <div className='flex flex-col gap-2'>
-                  <h3 className='font-semibold'>Learn how to intergrate Textuality</h3>
+                  <h3 className='font-semibold'>Learn how to integrate Textuality</h3>
                   <p>Learn how to make your content shine using best practices that will make you appear higher in search results</p>
                 </div>
               </div>
@@ -227,18 +228,23 @@ function PowerUser({ getpageinfo, changePreview }: { getpageinfo: any, changePre
         </div>
       </div>
     </div>
-    <UsageMeter getpageinfo={getpageinfo} />
+
+    <UsageMeter getpageinfo={getpageinfo} pageContentAPIGetter={pageContentAPIGetter} />
   </div>
   )
 }
 
-function UsageMeter(getpageinfo: any){
-  const pageinfo = getpageinfo.getpageinfo;
+function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  pageContentAPIGetter }) {
+  const pageinfo = getpageinfo;
 
+  const pageContentAPI = pageContentAPIGetter?.[0]?.contentsendingapi
+  const pageContentManagerAPI = pageContentAPIGetter?.[0]?.contentmanagerapi
   // calculate the percentage of usage
   const users = (pageinfo.users / 5) * 100;
   const templates = (pageinfo.templates / 25) * 100;
   const content = (pageinfo.content / 5000) * 100;
+  const contentAPI = (pageContentAPI / 2000) * 100;
+  const contentManagerAPI = (pageContentManagerAPI / 2000) * 100;
 
   return(
     <div className='flex container mx-auto mt-5'>
@@ -255,17 +261,17 @@ function UsageMeter(getpageinfo: any){
               <div className='flex flex-col border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3 w-full'>
                 <h1 className='text-md font-semibold'>Content Sending API</h1>
                 <p className='text-muted-foreground text-xs'>Number of API calls that was made to send your content</p>
-                <p className='font-semibold mt-3'>0</p>
+                <p className='font-semibold mt-3'>{pageContentAPI}</p>
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: '0%'}}></div>
+                  <div className='bg-primary rounded-full h-2' style={{width: contentAPI}}></div>
                 </div>
               </div>
               <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
                 <h1 className='text-md font-semibold'>Content Management API</h1>
                 <p className='text-muted-foreground text-xs'>Number of API calls that was made to create or update content</p>
-                <p className='font-semibold mt-3'>0</p>
+                <p className='font-semibold mt-3'>{pageContentManagerAPI}</p>
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: '0%'}}></div>
+                  <div className='bg-primary rounded-full h-2' style={{width: contentManagerAPI}}></div>
                 </div>
               </div>
             </div>

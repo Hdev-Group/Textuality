@@ -138,4 +138,9 @@ supportmessages: defineTable({
     isstaff: v.boolean(),
     updated: v.any(),
 }),
+pagesenderdata: defineTable({
+    pageid: v.string(),
+    contentsendingapi: v.number(),
+    contentmanagerapi: v.number(),
+}),
 });
