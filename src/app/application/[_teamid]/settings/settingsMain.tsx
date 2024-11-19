@@ -28,11 +28,14 @@ import { Building2, AlertCircle, MoreVertical } from "lucide-react";
 import { z } from "zod";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import CheckpointAuthWrapper from "./checkpointauthroleperms";
 
-export default function Page({ params }: { params: { _teamid: string}}) {
+export default function Page({ params }) {
     const { _teamid } = params
+    console.log(_teamid)
     const teamid = _teamid
     const getPage = useQuery(api.page.getPage, { _id: teamid as any });
+    const updatePage = useMutation(api.page.updatePage);
     const getDepartments = useQuery(api.department.getDepartments, { pageid: teamid as any });
     const [activeTab, setActiveTab] = React.useState("general");
     const searchParams = useSearchParams();
@@ -45,11 +48,27 @@ export default function Page({ params }: { params: { _teamid: string}}) {
             setActiveTab('general');
         }
       }, [searchParams])
+    console.log(getPage?.title)
+    useEffect(() => {
+        if (getPage) {
+            setTitle(getPage?.title)
+            setContent(getPage?.content)
+        }
+    }, [getPage])
+    const [pagetitle, setTitle] = useState("")
+    const [content, setContent] = useState("")
 
-    const [pagetitle, setTitle] = useState(getPage?.title)
-    const [content, setContent] = useState(getPage?.content)
+    function handleSaveChangesTitle(e: FormEvent) {
+        e.preventDefault();
+        updatePage({ _id: teamid, title: pagetitle, content: content });
+    }
+    function handleSaveChangesContent(e: FormEvent) {
+      e.preventDefault();
+      updatePage({ _id: teamid, title: pagetitle, content: content });
+    }
 
     return (
+      <CheckpointAuthWrapper teamid={teamid}>
         <body className='overflow-y-hidden'>
             <AuthWrapper _teamid={_teamid}>
                 <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
@@ -68,7 +87,8 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                                         </div>
                                         <div className="space-y-4 p-8 border-b">
                                             <div className="flex flex-col space-y-2">
-                                                <label className="text-sm font-medium">Page Name</label>
+                                              <form onSubmit={handleSaveChangesTitle}>
+                                              <label className="text-sm font-medium">Page Name</label>
                                                 <Input
                                                     type="text"
                                                     maxLength={50}
@@ -76,17 +96,30 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                                                     className="w-full border border-gray-200 dark:border-neutral-800 rounded-lg p-3 text-sm"
                                                     onChange={(e) => setTitle(e.target.value)}
                                                 />
-                                                <span className="text-sm text-gray-500">{pagetitle?.length}/50</span>
+                                                <div className="flex flex-row justify-between mt-3">
+                                                <span className="text-sm text-gray-500">
+                                                    {pagetitle?.length || 0}/50
+                                                </span>
+                                                <Button type="submit" variant="outline">Save Changes</Button>
+                                                </div>
+                                              </form>
                                             </div>
                                             <div className="flex flex-col space-y-2">
-                                                <label className="text-sm font-medium">Page Description</label>
+                                              <form onSubmit={handleSaveChangesContent}>
+                                              <label className="text-sm font-medium">Page Description</label>
                                                 <Textarea
                                                     maxLength={500}
                                                     className="w-full border border-gray-200 dark:border-neutral-800 rounded-lg p-3 text-sm"
                                                     onChange={(e) => setContent(e.target.value)}
                                                     value={content}
                                                 />
-                                                <span className="text-sm text-gray-500">{content?.length}/500</span>
+                                                <div className="flex flex-row justify-between mt-3">
+                                                  <span className="text-sm text-gray-500">{
+                                                    content?.length || 0}/500
+                                                  </span>
+                                                  <Button type="submit" variant="outline">Save Changes</Button>
+                                                </div>
+                                              </form>
                                             </div>
                                         </div>
                                     </main>
@@ -199,6 +232,7 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                 </div>
         </AuthWrapper>
     </body>
+    </CheckpointAuthWrapper>
     )
 }
 function Sidebar({ activeTab, setActiveTab, teamid }) {

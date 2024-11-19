@@ -39,6 +39,17 @@ export const getPage = query({
   },
 });
 
+export const updatePage = mutation({
+  args: {
+    _id: v.id("pages"),
+    title: v.optional(v.string()),
+    content: v.optional(v.string()),
+  },
+  handler: async (ctx, { _id, title, content }) => {
+    await ctx.db.patch(_id, { title, content });
+  },
+});
+
 export const inviteUser = mutation({
   args: {
     externalId: v.string(),
