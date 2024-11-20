@@ -37,6 +37,9 @@ export async function GET(req: NextRequest) {
     const data = await fetchQuery(api.apicontent.APIGetter, {
       id: _fileid as any,
     });
+    if (data.fileget.status !== 'published') {
+      return NextResponse.json({ error: 'File is not published' }, { status: 400 });
+    }
     console.log(data);
 
     return NextResponse.json({
