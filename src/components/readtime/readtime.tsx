@@ -1,6 +1,6 @@
 export default function readtimecalc({ text }: { text: any }) {
     const wordsPerMinute = 200;
-    const noOfWords = text.split(/\s/g).length;
+    const noOfWords = text ? text.split(/\s/g).length : 0;
     const minutes = noOfWords / wordsPerMinute;
     const readTime = Math.ceil(minutes);
 

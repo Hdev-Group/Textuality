@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, CalendarDaysIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import readtimecalc from "@/components/readtime/readtime";
+import Footer from "@/components/footer/footer";
 
 export default function Visualizer() {
     const [contentData, setContentData] = useState({
@@ -147,7 +148,7 @@ export default function Visualizer() {
         <>
      <div className="relative min-h-screen">
      <div 
-        className="fixed inset-0 bg-black z-[-1]"
+        className="fixed inset-0 bg-background z-[-1]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' font-size='13' fill='rgba(255,255,255,0.05)' text-anchor='middle' dominant-baseline='middle' transform='rotate(-45, 30, 30)'%3EPreview%3C/text%3E%3C/svg%3E")`,
           backgroundSize: '60px 60px'
@@ -155,7 +156,7 @@ export default function Visualizer() {
       />
 
         <Header />
-        <div className='flex px-5 flex-col justify-between container mt-10 mx-auto w-full '>
+        <div className='flex px-5 flex-col min-h-screen items-start justify-start container mt-10 mx-auto w-full '>
         <a className={`flex flex-row items-center text-xs w-auto gap-1 cursor-pointer`}>
             <ArrowLeft width={14} height={14} /> Back
         </a>
@@ -169,6 +170,7 @@ export default function Visualizer() {
                     )
                 )}
         </div>
+        <Footer />
     </div>
         </>
     );
