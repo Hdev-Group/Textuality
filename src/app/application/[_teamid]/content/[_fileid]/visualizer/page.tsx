@@ -3,6 +3,7 @@ import Header from "@/components/header/header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, CalendarDaysIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import readtimecalc from "@/components/readtime/readtime";
 
 export default function Visualizer() {
     const [contentData, setContentData] = useState({
@@ -79,24 +80,6 @@ export default function Visualizer() {
                 return <p>Unknown field type</p>;
         }
     };
-    const readtimecalc = (text: string) => {
-        const wordsPerMinute = 200;
-        const noOfWords = text.split(/\s/g).length;
-        const minutes = noOfWords / wordsPerMinute;
-        const readTime = Math.ceil(minutes);
-    
-        if (readTime < 1) {
-            return `${Math.ceil(minutes * 60)} seconds`;
-        } else if (readTime === 1) {
-            return `${readTime} minute`;
-        } else if (readTime < 60) {
-            return `${readTime} minutes`;
-        } else {
-            const hours = Math.floor(readTime / 60);
-            const remainingMinutes = readTime % 60;
-            return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes > 0 ? `and ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
-        }
-    }
     const renderTitle = (field: any, index: number) => {
         const titlevalue = contentData.content?.title;
         const authorId = contentData.content?.authorid;
@@ -123,7 +106,7 @@ export default function Visualizer() {
                                 <b>{department?.departmentname}</b>
                             </p>
                             <div className="flex flex-row gap-2 items-center">
-                                <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextFields)} read</p>
+                                <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextFields as any)} read</p>
                                     <p>·</p>
                                 <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
                                     <CalendarDaysIcon height={18} /> {new Date().toDateString()}
@@ -148,7 +131,7 @@ export default function Visualizer() {
                             <b>Unknown</b>
                         </p>
                         <div className="flex flex-row gap-2 items-center">
-                            <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextFields)} read</p>
+                            <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextFields as any)} read</p>
                                 <p>·</p>
                                 <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
                                 <CalendarDaysIcon height={18} /> {new Date().toDateString()}

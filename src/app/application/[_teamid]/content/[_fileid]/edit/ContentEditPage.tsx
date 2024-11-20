@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/richtext/editor';
+import readtimecalc from '@/components/readtime/readtime';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Select,
@@ -284,25 +285,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                 return <Input type="text" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' placeholder="Unknown field type" />;
         }
     };
-    
-    const readtimecalc = (text: string) => {
-        const wordsPerMinute = 200;
-        const noOfWords = text.split(/\s/g).length;
-        const minutes = noOfWords / wordsPerMinute;
-        const readTime = Math.ceil(minutes);
-    
-        if (readTime < 1) {
-            return `${Math.ceil(minutes * 60)} seconds`;
-        } else if (readTime === 1) {
-            return `${readTime} minute`;
-        } else if (readTime < 60) {
-            return `${readTime} minutes`;
-        } else {
-            const hours = Math.floor(readTime / 60);
-            const remainingMinutes = readTime % 60;
-            return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes > 0 ? `and ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
-        }
-    }
     async function setAuthor(selectedAuthor: string) {
         await changeAuthor({ _id: _fileid as any, authorid: selectedAuthor, previousauthors: [...getContent?.previousauthors, getContent.authorid] });
     }
