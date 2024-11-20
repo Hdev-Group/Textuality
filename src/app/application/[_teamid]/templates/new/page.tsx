@@ -95,12 +95,13 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
         }, 100);
       });
     }
-  };
-
+  }
+  const title = `New Template | Textuality`
 
   return (
   <>
   <body className='overflow-hidden'>
+    <title>{title}</title>
     <AuthWrapper _teamid={_teamid}>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
       <AppHeader activesection="templates" teamid={_teamid} />
@@ -118,12 +119,12 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                 <DialogTitle>Create Template</DialogTitle>
                 <DialogDescription>Use this form to create a new template</DialogDescription>
               </DialogHeader>
-              <form id='newtemplate' onSubmit={handleSubmit} className='gap-2 flex flex-col'>
+              <form id='newtemplate' onSubmit={handleSubmit} className='flex flex-col'>
               <div className="flex flex-col gap-4">
                 <Label htmlFor="name" className="font-semibold text-sm">
                   Name
                 </Label>
-                <Input id="name" onChange={(e) => setNameValue(e.target.value)} maxLength={45} placeholder="Enter template name" />
+                <Input id="name" required onChange={(e) => setNameValue(e.target.value)} maxLength={45} placeholder="Enter template name" />
                 <div className='flex justify-end'>
                     <p className='text-xs'>{namevalue.length}/45</p>
                 </div>
@@ -132,7 +133,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                 <Label htmlFor="description" className="font-semibold text-sm">
                   Description
                 </Label>
-                <Textarea id="description" onChange={(e) => setDescriptionValue(e.target.value)} maxLength={120} placeholder="Enter a description" />
+                <Textarea id="description" required onChange={(e) => setDescriptionValue(e.target.value)} maxLength={120} placeholder="Enter a description" />
                 <div className='flex justify-end'>
                     <p className='text-xs'>{descriptionValue.length}/120</p>
                 </div>

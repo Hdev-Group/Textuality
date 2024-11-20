@@ -13,11 +13,12 @@ export const create = mutation({
             title,
             content,
             category,
-            users: [userid]
+            users: [userid],
+            accesstoken: Array(64).fill(null).map(() => Math.random().toString(36).charAt(2)).join(''),
         });
         await ctx.db.insert("roles", {
             externalId: userid,
-            pageid: page, // Access the id property directly
+            pageid: page, 
             permissions: ["owner"]
         });
     },
@@ -35,6 +36,17 @@ export const getPage = query({
   },
   handler: async (ctx, { _id }) => {
     return ctx.db.get(_id);
+  },
+});
+
+export const updatePage = mutation({
+  args: {
+    _id: v.id("pages"),
+    title: v.optional(v.string()),
+    content: v.optional(v.string()),
+  },
+  handler: async (ctx, { _id, title, content }) => {
+    await ctx.db.patch(_id, { title, content });
   },
 });
 
@@ -129,6 +141,16 @@ export const getRoledetail = query({
     .collect();
   },
 });
+export const getPageRoles = query({
+  args: {
+    pageId: v.id("pages"),
+  },
+  handler: async (ctx, { pageId }) => {
+    return ctx.db.query("roles")
+    .withIndex("bypageid", q => q.eq("pageid", pageId))
+    .collect();
+  },
+});
 export const removeUser = mutation({
   args: {
     externalId: v.string(),
@@ -143,5 +165,44 @@ export const removeUser = mutation({
     const currentUsers = page?.users ?? [];
     const updatedUsers = currentUsers.filter((user: string) => user !== externalId);
     await ctx.db.patch(pageId, { users: updatedUsers });
+  },
+});
+
+export const getPageSpecific = query({
+  args: {
+    userid: v.string(),
+  },
+  handler: async (ctx, { userid }) => {
+    const allPages = await ctx.db.query("pages").collect();
+    return allPages.filter((page: any) => page.users.includes(userid));
+  },
+});
+
+export const getPageDetails = query({
+  args: {
+    _id: v.id("pages"),
+  },
+  handler: async (ctx, { _id }) => {
+    // we need to get page details like total users, total invites, then for templates total templates then content total content
+    const page = await ctx.db.get(_id);
+    const users = page?.users ?? [];
+    const invites = await ctx.db.query("invites")
+    .withIndex("bypageId", q => q.eq("pageId", _id))
+    .collect();
+
+    const templates = await ctx.db.query("templates")
+    .withIndex("bypageid", q => q.eq("pageid", _id))
+    .collect();
+
+    const content = await ctx.db.query("content")
+    .withIndex("bypageid", q => q.eq("pageid", _id))
+    .collect();
+
+    return {
+      users: users.length,
+      invites: invites.length,
+      templates: templates.length,
+      content: content.length,
+    }
   },
 });

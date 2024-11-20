@@ -37,8 +37,7 @@ export async function generateMetadata({ params }) {
 
   
 export default function ProductWrapper({ params }) {
-    const { _teamid, _fileid } = params;
-    console.log(_teamid, _fileid);
+    const { _teamid } = params;
 
     return <Page params={{_teamid: _teamid}} />;
 }

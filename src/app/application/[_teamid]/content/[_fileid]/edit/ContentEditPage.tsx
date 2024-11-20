@@ -30,12 +30,9 @@ import { DoesExist } from '../../doesExist';
 import { set } from 'zod';
 import { useUser } from '@clerk/clerk-react';
 import Head from 'next/head';
-// import { NotFoundError } from '@/components/edgecases/error';
-// import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const useDebounce = (value: any, delay: number) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
-    console.log(value);
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -149,7 +146,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     useEffect(() => {
         if (hasChanges) {
             const saveContent = async () => {
-                console.log("Saving content...");
                 setUpdated("pending");
     
                 // Save updated fields
@@ -210,7 +206,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             setIsLocked((prev) => prev.filter((lock) => lock.fieldid !== fieldid));
             lockedinput({fieldid: fieldid, fileid: _fileid, teamid: _teamid, locked: false, userid: userid, userpfp: user.user.imageUrl});
         } else {
-            console.log('You are not the user who locked this field');
         }
     };
     
@@ -218,7 +213,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         const islockedalready = islocked.find((l) => l.fieldid === lock.fieldid);
 
         if (islockedalready) {
-            console.log('Field is already locked');
         } else {
             setIsLocked((prev) => [...prev, lock]);
             lockedinput({fieldid: lock.fieldid, fileid: _fileid, teamid: _teamid, locked: true, userid: lock.userid, userpfp: user.user.imageUrl});
@@ -258,6 +252,16 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                     onChange={(value: any) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} 
                     />
                 );
+            case "Title":
+                return <Input 
+                type="text" 
+                value={fieldValues[field._id] || ''} 
+                onChange={handleChange} 
+                className='border rounded-md p-2 w-full' 
+                placeholder={field.description} 
+                onFocus={() => lockSet({fieldid: field._id, userid: userId})}
+                onBlur={() => removeLock(field._id, userId)}
+                />;
             case "Short Text":
                 return <Input 
                 type="text" 
@@ -269,7 +273,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                 onBlur={() => removeLock(field._id, userId)}
                 />;
             case "Number":
-                return <Input type="number" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' min={0} placeholder={field.description} />;
+                return <Input type="number" value={fieldValues[field._id] || ''} onChange={handleChange} className='border rounded-md p-2 w-full' min={0} max={field.fieldappearance === "rating" ? "5" : null} placeholder={field.description} />;
             case "Boolean":
                 return <Switch checked={fieldValues[field._id] || false} onChange={(value) => setFieldValues(prev => ({ ...prev, [field._id]: value }))} />;
             case "Date and time":
@@ -446,7 +450,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                 return <div key={index} id='richtext' className='flex flex-col gap-1'>
                                                     {renderLivePreviewFields(field)}
                                                 </div>
-                                            } else if (field.fieldname === "Title" || field.fieldname === "Main Title" || field.fieldname === "Heading" || field.fieldname === "Event Name" || field.fieldname === "Name" || field.fieldname === "Subject" || field.fieldname === "Event Title") {
+                                            } else if (field.type === "Title") {
                                                 // check if its a department or a user
                                                 if (getDepartments.some(dept => dept._id === getContent?.authorid)) {
                                                     const data= getDepartments.find(dept => dept._id === getContent?.authorid);
@@ -464,7 +468,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                                     </p>
                                                                     <div className="flex flex-row gap-2 items-center">
                                                                         {
-                                                                            field.type === "Rich text" ? (
+                                                                            getFields?.some(f => f._id === field._id && f.type === "Rich text") ? (
                                                                                 <>
                                                                                     <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(fieldValues[field._id] || '')} read</p>
                                                                                     <p>·</p>
@@ -510,9 +514,38 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                     <p>{fieldValues[field._id]}</p>
                                                 </div>
                                             }else if (field.type === "Number") {
-                                                return <div key={index} className='flex flex-col gap-1'>
-                                                    <p>{fieldValues[field._id]}</p>
-                                                </div>
+                                                // check to see the fieldappearance
+                                                if (field.fieldappearance === "rating"){
+                                                    // star rating
+                                                    const rating = fieldValues[field._id] || 0 ;
+                                                    return (
+                                                        <div key={index} className='flex flex-col gap-1'>
+                                                            <div className='flex flex-row'>
+                                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                                    <svg
+                                                                        key={star}
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill={star <= rating ? "currentColor" : "none"}
+                                                                        viewBox="0 0 24 24"
+                                                                        stroke="currentColor"
+                                                                        className={`w-6 h-6 ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+                                                                    >
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={2}
+                                                                            d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                                                                        />
+                                                                    </svg>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                } else if (field.fieldappearance === "number") {
+                                                    return <div key={index} className='flex flex-col gap-1'>
+                                                        <p>{fieldValues[field._id]}</p>
+                                                    </div>
+                                                }
                                             } else if (field.type === "Boolean") {
                                                 return <div key={index} className='flex flex-col gap-1'>
                                                     <p>{fieldValues[field._id]}</p>
@@ -735,8 +768,7 @@ function MessageList({ teamid, contentid }: any) {
         async function fetchUserData() {
             if (messages?.length > 0) {
                 const uniqueAuthorIds = [...new Set(messages.map((message) => message.authorid))];
-                const userCache = new Map(); // Cache for storing already fetched users
-                console.log("cock")
+                const userCache = new Map(); 
                 try {
                     const userDataPromises = uniqueAuthorIds.map(async (authorId) => {
                         if (userCache.has(authorId)) {

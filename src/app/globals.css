@@ -55,7 +55,18 @@ body {
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
-
+.fadein {
+  animation: fadeIn ease 1.4s;
+  display: flex;
+}
+@keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
+  }
+}
 .content h2 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
@@ -81,6 +92,7 @@ body {
     --muted-foreground: 0 0% 45.1%;
     --accent: 0 0% 96.1%;
     --accent-foreground: 0 0% 9%;
+    --diffaccent: 214.3,31.8%,91.4%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
@@ -108,6 +120,7 @@ body {
     --muted-foreground: 0 0% 63.9%;
     --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
+    --diffaccent: 214.3,31.8%,91.4%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
@@ -180,6 +193,42 @@ body {
     background-image: linear-gradient(rgba(245, 192, 192, 0.15) 1px, transparent 1px), linear-gradient(to right, rgba(245, 192, 192, 0.15) 1px, transparent 1px);
     background-size: 40px 40px;
 }
+nav a {
+  position: relative;
+}
+
+nav a span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: var(--primary-color);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+nav a:hover span,
+nav a.active span {
+  transform: scaleX(1);
+}
+
+.bgfader {
+  content: "";
+  display: block;
+  inset: 0px 0px -20px;
+  z-index: 0;
+  background-image: linear-gradient(rgba(245, 192, 192, 0.15) 1px, transparent 1px), linear-gradient(to right, rgba(245, 192, 192, 0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.1));
+}
+.bgmain{
+    content: "";
+    display: block;
+    inset: 0px 0px -20px;
+    background-size: 40px 40px;
+}
 .darkbg{
     content: "";
     display: block;
@@ -209,6 +258,20 @@ body {
 
 .mainstopper > div {
   display: flex;
+}
+
+.pingersuccessbought{
+  animation: pingpulsebuy 2s ease-in-out 8;
+}
+@keyframes pingpulsebuy {
+  0%{
+    border: cyan 2px solid;
+    box-shadow: 0 0 0 0 rgba(0, 238, 255, 0.4);
+  }
+  100%{
+    border: cyan 2px solid;
+    box-shadow: 0 0 0 25px rgba(238, 255, 0, 0);
+  }
 }
 
 @keyframes pingpulseyellow {

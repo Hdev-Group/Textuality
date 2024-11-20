@@ -6,8 +6,11 @@ import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../../../../../convex/_generated/api'
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight, LucideMessageCircleQuestion } from "lucide-react"
+import { AlignLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, Braces, ArrowLeft, MoreHorizontal, Edit, Trash, GripVertical, ChevronLeft, ChevronRight, LucideMessageCircleQuestion, InfoIcon, Heading } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { BookMarkedIcon, Filter, Trash2 } from "lucide-react"
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import AppHeader from "@/components/header/appheader"
 import AuthWrapper from '../../../withAuth'
@@ -15,7 +18,8 @@ import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation';
 import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
-import {NotFoundError} from '@/components/edgecases/error'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+
 
 type FieldType = {
   icon: React.ComponentType<{ className?: string }>;
@@ -33,11 +37,13 @@ type FieldType = {
   templateid: string;
   reference: string;
   fieldposition?: number;
+  fieldappearance?: string;
 }
 
 
 const fieldTypes: FieldType[] = [
   { icon: AlignLeft, name: "Rich text", description: "Text formatting with references and media", position: 0, templateid: '', reference: '' },
+  { icon: Heading, name: "Title", description: "Main title", position: 0, templateid: '', reference: '' },
   { icon: Type, name: "Short Text", description: "Titles, names, paragraphs, list of names", position: 0, templateid: '', reference: '' },
   { icon: Hash, name: "Number", description: "ID, order number, rating, quantity", position: 0, templateid: '', reference: '' },
   { icon: Calendar, name: "Date and time", description: "Event dates", position: 0, templateid: '', reference: '' },
@@ -63,8 +69,10 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   const getTemplates = useQuery(api.template.getExactTemplate, { pageid: teamid, _id: templateid })
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
+  const getRole = useQuery(api.page.getRoledetail, { externalId: userId || "none", pageId: teamid });
   const saveField = useMutation(api.template.updateField)
   const deleteField = useMutation(api.template.deleteField)
+  const TemplateRemove = useMutation(api.template.remove);
   useEffect(() => {
     const currentType = searchParams.get('type');
     setType(currentType === 'settings' || currentType === 'preview' ? currentType : '');
@@ -94,7 +102,134 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       router.push(`/application/${teamid}/templates`)
     }
   }, [getTemplates, router, teamid])
-
+  interface DeleteTemplateProps {
+    id: any
+    title: string
+    onDelete: (id: string) => Promise<void>
+    getRole: { permissions: string[] }[]
+  }
+  function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
+    const [isOpen, setIsOpen] = useState(false)
+    const [confirmTitle, setConfirmTitle] = useState('')
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [success, setSuccess] = useState(false)
+    const [length, setLength] = useState(0)
+    const getContentSpecific = useQuery(api.template.getContentViaTemplate, { templateid: id as any});
+    const canDelete = getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission))
+  
+      const handleDelete = async () => {
+        if (confirmTitle !== title) {
+          setError("The entered title doesn't match. Please try again.")
+          return
+        }
+        if (getContentSpecific?.length > 0){
+          setError("The template has content associated with it. Please delete the content items before deleting the template.")
+          return
+        }
+        setIsDeleting(true)
+        setError(null)
+    
+        try {
+          await onDelete(id)
+          setSuccess(true)
+          setTimeout(() => setIsOpen(false), 2000) // Close dialog after 2 seconds
+        } catch (err) {
+          setError("An error occurred while deleting the template. Please try again.")
+        } finally {
+          setIsDeleting(false)
+        }
+      }
+  
+    if (!canDelete) return null
+  
+    useEffect(() => {
+      const length = getContentSpecific?.length
+      setLength(length)
+    }, [getContentSpecific])
+  
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <MoreHorizontal className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsOpen(true)}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Template
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+        </DialogTrigger>
+        {getContentSpecific && getContentSpecific?.length === 0 && (
+        <DialogContent aria-describedby='Deleting template'>
+          <DialogHeader>
+            <DialogTitle>Delete Template</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete the template, all content, and all its contents.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              To confirm, type <strong>{title}</strong> in the box below:
+            </p>
+            <Input
+              className="mt-2"
+              value={confirmTitle}
+              onChange={(e) => setConfirmTitle(e.target.value)}
+              placeholder="Enter template title"
+            />
+          </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {success && (
+            <Alert>
+              <AlertTitle>Success</AlertTitle>
+              <AlertDescription>The template has been successfully deleted.</AlertDescription>
+            </Alert>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDelete}
+              disabled={confirmTitle !== title || isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Template"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+        )} {
+          // we will show an error if the template has content
+          getContentSpecific && getContentSpecific?.length > 0 && (
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>This template can't be deleted right now.</DialogTitle>
+              </DialogHeader>
+              <div className="py-4 flex flex-col gap-2">
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  This template has <strong>{length}</strong> content associated with it. Please delete the content items before deleting the template.
+                </p>
+                <div className='bg-blue-400/40 flex flex-row gap-1 items-center  border-blue-400  border px-2 py-1 rounded-md'>
+                  <InfoIcon className='h-4 w-4 mr-1' />
+                  <span className='text-sm'>Delete all <strong>content</strong> that uses this template before deleting it.</span>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" className='font-semibold bg-green-700 text-white' onClick={() => setIsOpen(false)}>Okay</Button>
+              </DialogFooter>
+            </DialogContent>
+          )
+        }
+      </Dialog>
+    )
+  }
   const addField = async (field: FieldType) => {
     const newField = { 
       ...field, 
@@ -115,7 +250,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       description: newField.description,
       type: field.name, 
       reference: newField.reference,
-      fieldposition: fields.length + 1
+      fieldposition: fields.length + 1,
+      fieldappearance: field.fieldappearance as any
     });
   };
 
@@ -146,6 +282,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
         reference: field.reference,
         fieldposition: field.fieldposition,
         lastUpdatedBy: userId as string,
+        fieldappearance: field.fieldappearance as any
       })
     ));
   };
@@ -177,7 +314,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
         description: field.description,
         reference: field.reference,
         fieldposition: field.position,
-        lastUpdatedBy: userId as string
+        lastUpdatedBy: userId as string,
+        fieldappearance: field.fieldappearance as any
       })
     }
   }
@@ -197,7 +335,19 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                   </Link>
                   <h1 className="text-2xl font-semibold ml-3">{getTemplates?.[0]?.title} Fields</h1>
                 </div>
-                <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
+                <div className='flex flex-row gap-4 items-center justify-center'>
+
+                      <DeleteTemplate
+                              id={_templateid}
+                              title={getTemplates?.[0]?.title}
+                              onDelete={async (id) => {
+                                await TemplateRemove({ _id: id as any});
+                              }}
+                              getRole={getRole}
+                        />
+
+                  <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
+                </div>
               </div>
               <div className='flex flex-row px-6'>
                 <aside className='border-r h-screen pb-6 w-1/6'>
@@ -213,10 +363,10 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                     </Link>
                   </div>
                 </aside>
-                <div className='w-full pb-6 ml-6'>
+                <div className='w-full pb-6 ml-6 container mx-auto'>
                 {
                     type === "" ? (
-                      <DragDropContext onDragEnd={onDragEnd}>
+                      <DragDropContext onDragEnd={onDragEnd} >
                       <Table className='mt-4 mx-auto  py-6'>
                         <TableHeader className='border rounded-t-md'>
                           <TableRow>
@@ -349,6 +499,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
               type: updatedField.type as string,
               reference: updatedField.reference,
               fieldposition: updatedField.fieldposition as number,
+              fieldappearance: updatedField.fieldappearance,
             })
           }}
         />
