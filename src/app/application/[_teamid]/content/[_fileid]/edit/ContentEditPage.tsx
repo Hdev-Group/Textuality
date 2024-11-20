@@ -4,10 +4,10 @@ import AppHeader from '@/components/header/appheader'
 import AuthWrapper from '../../../withAuth'
 import { api } from '../../../../../../../convex/_generated/api'
 import { useQuery, useMutation } from 'convex/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronLeft, Lock, LucideClipboardSignature, MessagesSquare, Save, SidebarOpen, View } from 'lucide-react';
+import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronLeft, Link2, Lock, LucideClipboardSignature, Mailbox, MessagesSquare, Save, SidebarOpen, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -187,7 +187,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             });
         });
     }, []);
-    
     const removeLock = (fieldid: string, userid: string) => {
         // first check to see if the same user is trying to remove the lock
         const isuser = islocked.find((lock) => lock.fieldid === fieldid && lock.userid === userid);
@@ -241,9 +240,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         const handleChange = (e: any) =>
             setFieldValues((prev) => ({ ...prev, [field._id]: e.target.value }));
 
-        // as this is a collaborative editor we need to lock down inputs to prevent multiple users from editing the same field do when its clicked and then we will show the pfp n shit.
-    
-        // locking done now we need to work on the actual field restrictions
         switch (field.type) {
             case "Rich text":
                 return(
@@ -310,6 +306,32 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     async function setAuthor(selectedAuthor: string) {
         await changeAuthor({ _id: _fileid as any, authorid: selectedAuthor, previousauthors: [...getContent?.previousauthors, getContent.authorid] });
     }
+    const visualizerWindowRef = useRef(null);
+
+    const sendToVisualizer = ({ content, fields, values }) => {
+        return () => {
+            // Open the visualizer window if it's not already open
+            if (!visualizerWindowRef.current || visualizerWindowRef.current.closed) {
+                visualizerWindowRef.current = window.open(`/application/${_teamid}/content/${_fileid}/visualizer`, '_blank');
+            }
+            
+            // Ensure the data is sent after the new page has loaded
+            console.log({ content, fields, values });
+            setTimeout(() => {
+                visualizerWindowRef.current?.postMessage({ content, fields, values }, window.location.origin);
+            }, 500);
+        };
+    };
+
+    // on update, send the data to the visualizer
+    useEffect(() => {
+        if (updated === "true" && visualizerWindowRef.current && !visualizerWindowRef.current.closed) {
+            visualizerWindowRef.current.postMessage(
+                { content: getContent, fields: getFields, values: getFieldValues },
+                window.location.origin
+            );
+        }
+    }, [updated]);
 
     return (
         <body className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
@@ -363,32 +385,32 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                         </div>
                                     </div>
                                 </div>
-                                <div className={`${isSideBarOpen ? "w-full md:w-[20rem]" : "w-[5rem]"} transition-all h-auto justify-center flex-1 border-x pt-5`}>
+                                <div className={`${isSideBarOpen ? "w-full md:w-[25rem]" : "w-[5rem]"} transition-all h-auto justify-center flex-1 border-x pt-5`}>
                                     <div className='flex flex-col h-auto w-full gap-5 px-5'>
-                                        <div onClick={() => sidebardeployer()} className='border p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-full rounded-md hover:shadow-md shadow-none justify-center  hover:border-black hover:bg-neutral-50/40 transition-all w-full'>
+                                        <div onClick={() => sidebardeployer()} className='border p-1 flex flex-row gap-4 overflow-hidden items-center cursor-pointer h-full rounded-md hover:shadow-md shadow-none justify-start  hover:border-black hover:bg-neutral-50/40 transition-all w-full'>
                                             <SidebarOpen className={`${isSideBarOpen ? '' : 'rotate-180'}`} />
-                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Close</p> : null}
+                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-semibold text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Close</p> : null}
                                         </div>
                                         <div className='h-0.5 w-full border-t' />
-                                        <div onClick={() => handleSidebarClick("viewer")} className={`${activeSidebar === "viewer" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex justify-center  flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
+                                        <div onClick={() => handleSidebarClick("viewer")} className={`${activeSidebar === "viewer" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex justify-start  flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <View />
                                             {
-                                                isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Viewer</p> : null
+                                                isSideBarOpen && activeSidebar === null ? <p className='text-sm font-semibold text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Viewer</p> : null
                                             }
                                         </div>
-                                        <div onClick={() => handleSidebarClick("chat")} className={`${activeSidebar === "chat" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex justify-center  flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
+                                        <div onClick={() => handleSidebarClick("chat")} className={`${activeSidebar === "chat" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex justify-start  flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <MessagesSquare />
-                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Chat</p> : null}
+                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-semibold text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>Chat</p> : null}
                                         </div>
-                                        <div onClick={() => handleSidebarClick("ai")} className={`${activeSidebar === "ai" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row justify-center  gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
+                                        <div onClick={() => handleSidebarClick("ai")} className={`${activeSidebar === "ai" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex flex-row justify-start  gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <BotMessageSquare />
                                             {
-                                                isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>AI</p> : null
+                                                isSideBarOpen && activeSidebar === null ? <p className='text-sm font-semibold text-gray-700 dark:text-gray-100 tracking-wide flex-nowrap leading-tight'>AI</p> : null
                                             }
                                         </div>
-                                        <div onClick={() => handleSidebarClick("logs")} className={`${activeSidebar === "logs" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex justify-center flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
+                                        <div onClick={() => handleSidebarClick("logs")} className={`${activeSidebar === "logs" ? "border-black dark:border-gray-300 border" : "border"} p-1 flex justify-start flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
                                             <LucideClipboardSignature />
-                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-medium text-gray-700 dark:text-gray-100 tracking-wide leading-tight flex-nowrap'>Logs</p> : null}
+                                            {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-tight flex-nowrap'>Logs</p> : null}
                                         </div>
                                         <div>
                                             <div className={`
@@ -399,12 +421,12 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                         `}>
                                         <div className='flex flex-col gap-0.5'>
                                             {
-                                                isSideBarOpen === true && activeSidebar === null ? <span className='font-bold'>{getContent?.status}</span> : null
+                                                isSideBarOpen === true && activeSidebar === null ? <span className='font-semibold'>{getContent?.status}</span> : null
                                             }
                                             {isSideBarOpen && activeSidebar === null  && (
                                                 <>
                                                     {getContent?.status === "Published" && <span className='text-xs font-medium'>This content has been published.</span>}
-                                                    {getContent?.status === "Draft" && <span className='text-xs font-medium'>This content is a draft. It has not been posted.</span>}
+                                                    {getContent?.status === "Draft" && <span className='text-xs font-medium'>This content has not been posted.</span>}
                                                     {getContent?.status === "Review" && <span className='text-xs font-medium'>This content is under review. An owner, admin or author needs to review this first.</span>}
                                                 </>
                                             )}
@@ -417,9 +439,9 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                             ${updated === "pending" ? "bg-yellow-300 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""}
                                             ${updated === "false" ? "bg-red-300 text-red-700 dark:bg-red-700 dark:text-red-300" : ""}
                                             px-2.5 py-1 h-auto min-h-8 rounded-sm w-full flex items-center`}>
-                                            <div className='flex flex-col gap-0.5 items-center '>
+                                            <div className='flex flex-col gap-0.5 items-start justify-start'>
                                                 {
-                                                    isSideBarOpen === true && activeSidebar === null ? <span className='font-bold'>Autosave</span> : <Save className='w-full h-full'  />
+                                                    isSideBarOpen === true && activeSidebar === null ? <span className='font-semibold text-left'>Autosave</span> : <Save className='w-full h-full'  />
                                                 }
                                                 {isSideBarOpen && activeSidebar === null && (
                                                     <>
@@ -430,6 +452,11 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                 )}
                                             </div>
                                         </div>
+                                    {/* Publish sector */}
+                                    <div onClick={() => handleSidebarClick("publish")} className={`${activeSidebar === "publish" ? "border-black  dark:border-gray-300 border" : "border"} p-1 my-3 flex justify-start flex-row gap-4 overflow-hidden items-center cursor-pointer h-auto rounded-md hover:shadow-md shadow-none hover:border-black hover:bg-neutral-50/40 transition-all w-full`}>
+                                        <Mailbox />
+                                        {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-tight flex-nowrap'>Publish</p> : null}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -437,8 +464,13 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                         {
                             activeSidebar === "viewer" ? (
                                 <div className='flex flex-col gap-5'>
-                                    <div className='border-b p-5'>
+                                    <div className='border-b p-5 flex flex-row justify-between items-center'>
                                         <h1 className='text-2xl font-bold'>Content Preview</h1>
+                                        <div onClick={sendToVisualizer({ content: getContent, fields: getFields, values: getFieldValues })}>
+                                            <div className='flex flex-row gap-1 items-center underline text-blue-400 cursor-pointer' >
+                                                <Link2 /> <p>View content in full screen</p>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className='flex px-5 flex-col justify-between'>
                                         <a className={`flex flex-row items-center text-xs w-auto gap-1 cursor-pointer`}>
@@ -613,6 +645,24 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                 <div className='flex flex-col gap-5'>
                                     <div className='border-b p-5'>
                                         <h1 className='text-2xl font-bold'>AI</h1>
+                                    </div>
+                                </div>
+                            ) : activeSidebar === "publish" ? (
+                                <div className='flex flex-col gap-5'>
+                                    <div className='border-b p-5'>
+                                        <h1 className='text-2xl font-bold'>Publish</h1>
+                                    </div>
+                                    <div className='flex flex-col gap-5 px-5'>
+                                        <div className='w-full flex flex-row items-center justify-between'>
+                                            <p>Current</p>
+                                            <div className={`
+                                            ${getContent?.status === "Published" ? "bg-green-300 text-green-700 dark:bg-green-700 dark:text-green-300" : ""}
+                                            ${getContent?.status === "Draft" ? "bg-yellow-300 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""}
+                                            ${getContent?.status === "Review" ? "bg-purple-300/60 text-purple-700 dark:bg-purple-700 dark:text-purple-300" : ""}
+                                            px-2.5 py-1 h-auto min-h-8 rounded-sm  flex items-center`}>
+                                                <p className=''>{getContent?.status}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ) : null

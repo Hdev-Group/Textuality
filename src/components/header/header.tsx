@@ -187,7 +187,7 @@ export default function Header() {
           </nav>
           <div className="mt-8 space-y-4">
             <Button asChild className="w-full">
-              <Link href="/create" onClick={() => setIsMenuOpen(false)}>
+              <Link href="/application/home" onClick={() => setIsMenuOpen(false)}>
                 Create Content
               </Link>
             </Button>
