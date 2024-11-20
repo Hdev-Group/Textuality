@@ -124,7 +124,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                 <Label htmlFor="name" className="font-semibold text-sm">
                   Name
                 </Label>
-                <Input id="name" onChange={(e) => setNameValue(e.target.value)} maxLength={45} placeholder="Enter template name" />
+                <Input id="name" required onChange={(e) => setNameValue(e.target.value)} maxLength={45} placeholder="Enter template name" />
                 <div className='flex justify-end'>
                     <p className='text-xs'>{namevalue.length}/45</p>
                 </div>
@@ -133,7 +133,7 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
                 <Label htmlFor="description" className="font-semibold text-sm">
                   Description
                 </Label>
-                <Textarea id="description" onChange={(e) => setDescriptionValue(e.target.value)} maxLength={120} placeholder="Enter a description" />
+                <Textarea id="description" required onChange={(e) => setDescriptionValue(e.target.value)} maxLength={120} placeholder="Enter a description" />
                 <div className='flex justify-end'>
                     <p className='text-xs'>{descriptionValue.length}/120</p>
                 </div>

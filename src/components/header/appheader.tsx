@@ -27,7 +27,6 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 
-
 export default function AppHeader({ teamid, activesection }: any) {
   const navItems = [
     { icon: Home, label: "Dashboard", route: `/application/${teamid}/dashboard`, activesection: "dashboard" },
@@ -38,8 +37,45 @@ export default function AppHeader({ teamid, activesection }: any) {
   const teamname = useQuery(api.page.getExactPage, { _id: teamid })?.title;
   const { signOut } = useClerk()
   const [isdark, setDark] = useState(true);
+  const pathname = usePathname();
   const [image, setImage] = useState("/IMG_6128.png");
+  const [mainlocation, setMainLocation] = useState({left: 35, width: 0})
+  const [activeNav, setActiveNav] = useState<string | null>(null)
+  const [underlineStyle, setUnderlineStyle] = useState({ left: mainlocation.left, width: mainlocation.width })
+  useEffect(() => {
+    const path = window.location.pathname
+      if( path.includes('/use-cases') || path.includes('/blog') || path.includes('/tutorials') || path.includes('/support') || path.includes('/plans')) {
+        setUnderlineStyle({ left: mainlocation.left, width: mainlocation.width })
+      } else {
+        setUnderlineStyle({ left: mainlocation.left, width: mainlocation.width })
+      }
+  }, [])
+  useEffect(() => {
+    const activeNavElement = document.querySelector(`[href='${activeNav}']`);
+    if (activeNavElement) {
+      const { offsetLeft, offsetWidth } = activeNavElement as HTMLElement;
+      setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
+    }
+  }, [activeNav]);
 
+  useEffect(() => {
+    const activeItem = navItems.find((item) => pathname.startsWith(item.route));
+    setActiveNav(activeItem?.route || null);
+  }, [pathname]);
+
+  const handleMouseEnter = (e: React.MouseEvent, href: string) => {
+    const target = e.currentTarget as HTMLElement;
+    const { offsetLeft, offsetWidth } = target;
+    setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
+  };
+
+  const handleMouseLeave = () => {
+    const activeNavElement = document.querySelector(`[href='${activeNav}']`);
+    if (activeNavElement) {
+      const { offsetLeft, offsetWidth } = activeNavElement as HTMLElement;
+      setUnderlineStyle({ left: offsetLeft, width: offsetWidth });
+    }
+  };
   useEffect(() => {
     const themesetter = document.getElementById('themesetter');
 
@@ -75,7 +111,6 @@ export default function AppHeader({ teamid, activesection }: any) {
   const router = useRouter()
   const { user } = useUser()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const pathname = usePathname();
   return (
     <header className="w-full z-50 bg-transparent">
       <div className="md:px-10 mx-auto transition-all">
@@ -85,18 +120,31 @@ export default function AppHeader({ teamid, activesection }: any) {
               <img src={image} alt="Textuality Logo" className="h-8 w-8" />
               <span className="sr-only">Textuality</span>
             </Link>
-            <nav className="hidden lg:flex items-center space-x-1">
+            <nav className="hidden lg:flex relative items-center ">
             {navItems.map((item) => (
-            <Link href={item.route} key={item.label} >
-              <button
-                className={`font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm  ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 py-1 px-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-neutral-900/5 hover:text-accent-background dark:hover:bg-accent ${activesection === item.activesection ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''}`}
+              <Link 
+              href={item.route} 
+              key={item.route}
+              onMouseEnter={(e) => handleMouseEnter(e, item.route)}
+              onMouseLeave={handleMouseLeave}
+              className='z-50'
               >
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.label}
-              </button>
-            </Link>
-))}
-
+                <button
+                  className={`font-semibold inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm  ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 py-1 px-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-background`}
+                >
+                  <item.icon className="mr-2 h-4 w-4" />
+                  {item.label}
+                </button>
+              </Link>
+            ))}
+            <span
+              className={` bottom-0 rounded-sm border h-[30px] z-0 border-blue-400  bg-blue-300/20  text-blue-500 transition-all duration-300 ${activeNav === null ? "hidden" : "absolute"}`}
+              style={{
+              left: `${underlineStyle.left + 40}px`,
+              width: `${underlineStyle.width > 1 ? underlineStyle.width  : underlineStyle.width}px`,
+              transform: `translate(-40px, 0px)`, 
+              }}
+            />
             </nav>
           </div>
           <div className="flex items-center gap-2">

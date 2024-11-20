@@ -11,6 +11,7 @@ import { useAuth } from '@clerk/nextjs'
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { set } from 'zod';
 
 export default function TemplateManager({ params }: { params: { _teamid: any }}) {
     const { _teamid } = params;
@@ -48,8 +49,17 @@ export default function TemplateManager({ params }: { params: { _teamid: any }})
       }, [getPage, userId])
 
     const [namevalue, setNameValue] = useState('')
-    const [apivalue, setApiValue] = useState('')
+    const [apivalue, setApiValue] = useState<string>('');
 
+    useEffect(() => {
+        setApiValueSanitize(namevalue);
+    }, [namevalue]);
+
+    function setApiValueSanitize(arg0: string) {
+        // we need to sanitize the namevalue to make it more api friendly
+        const sanitized = arg0.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
+        setApiValue(sanitized);
+    }
     const sendContent = useMutation(api.content.createContent)
   
     const templatefilter = getTemplates?.filter((template) => template._id === templateId)
@@ -80,7 +90,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any }})
                                 <Label htmlFor="name" className="font-semibold text-sm">
                                 Title
                                 </Label>
-                                <Input id="name" onChange={(e) => setNameValue(e.target.value)} maxLength={45} placeholder="Enter content title" />
+                                <Input id="name" required onChange={(e) => setNameValue(e.target.value)} maxLength={45} placeholder="Enter content title" />
                                 <div className='flex justify-end'>
                                     <p className='text-xs'>{namevalue.length}/45</p>
                                 </div>
@@ -89,7 +99,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any }})
                                 <Label htmlFor="apiref" className="font-semibold text-sm">
                                 API Reference
                                 </Label>
-                                <Input id="apiref" onChange={(e) => setApiValue(e.target.value)} maxLength={45} placeholder="Enter API reference" />
+                                <Input id="apiref" required value={apivalue} onChange={(e) => setApiValueSanitize(e.target.value)} maxLength={45} placeholder="Enter API reference" />
                                 <div className='flex justify-end'>
                                     <p className='text-xs'>{apivalue.length}/45</p>
                                 </div>
