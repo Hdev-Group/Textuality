@@ -93,7 +93,7 @@ export default function Visualizer() {
         }).join(' ');
 
         return (
-            <div key={index} className="flex font-bold text-3xl mt-2 dark:text-white text-black flex-col gap-1">
+            <div key={index} className="flex font-bold text-3xl  dark:text-white text-black flex-col gap-1">
                 <p>{titlevalue}</p>
                 <div className="flex flex-row gap-2">
                     <Avatar>
@@ -130,8 +130,8 @@ export default function Visualizer() {
       />
 
         <Header />
-        <div className='flex px-5 flex-col min-h-screen items-start justify-start container mt-10 mx-auto w-full '>
-        <a className={`flex flex-row items-center text-xs w-auto gap-1 cursor-pointer`} onClick={() => window.close()}>
+        <div className='flex px-5 flex-col min-h-screen items-start justify-start container mt-10  mx-auto w-full '>
+        <a className={`flex flex-row items-center text-xs w-auto mb-10 gap-1 cursor-pointer`} onClick={() => window.close()}>
             <ArrowLeft width={14} height={14} /> Back
         </a>
             {contentData.fields

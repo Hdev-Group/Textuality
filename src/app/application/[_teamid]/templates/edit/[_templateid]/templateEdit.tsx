@@ -67,9 +67,6 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   const searchParams = useSearchParams();
   const getPage = useQuery(api.page.getPage, { _id: teamid as any })
   const getTemplates = useQuery(api.template.getExactTemplate, { pageid: teamid, _id: templateid })
-  if (!getTemplates) {
-    window.location.href = `/application/${teamid}/templates`
-  }
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
   const getRole = useQuery(api.page.getRoledetail, { externalId: userId || "none", pageId: teamid });
@@ -105,6 +102,9 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       router.push(`/application/${teamid}/templates`)
     }
   }, [getTemplates, router, teamid])
+
+  // check if the template exists
+  if (!getTemplates) return null;
   interface DeleteTemplateProps {
     id: any
     title: string
