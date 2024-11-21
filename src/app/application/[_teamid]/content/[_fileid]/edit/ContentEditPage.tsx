@@ -289,8 +289,8 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         await changeAuthor({ _id: _fileid as any, authorid: selectedAuthor, previousauthors: [...getContent?.previousauthors, getContent.authorid] });
     }
     const visualizerWindowRef = useRef(null);
-
-    const sendToVisualizer = ({ content, fields, values }) => {
+    const [authorInfo, setAuthorInfo] = useState<any>(null);
+    const sendToVisualizer = ({ content, fields, values, authorInfo }) => {
         return () => {
             // Open the visualizer window if it's not already open
             if (!visualizerWindowRef.current || visualizerWindowRef.current.closed) {
@@ -298,9 +298,9 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             }
             
             // Ensure the data is sent after the new page has loaded
-            console.log({ content, fields, values });
+            console.log({ content, fields, values, authorInfo });
             setTimeout(() => {
-                visualizerWindowRef.current?.postMessage({ content, fields, values }, window.location.origin);
+                visualizerWindowRef.current?.postMessage({ content, fields, values, authorInfo }, window.location.origin);
             }, 500);
         };
     };
@@ -309,11 +309,31 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     useEffect(() => {
         if (updated === "true" && visualizerWindowRef.current && !visualizerWindowRef.current.closed) {
             visualizerWindowRef.current.postMessage(
-                { content: getContent, fields: getFields, values: getFieldValues },
+                { content: getContent, fields: getFields, values: getFieldValues, authorInfo: authorInfo },
                 window.location.origin
             );
         }
     }, [updated]);
+
+
+    // author information
+    useEffect(() => {
+        if (getDepartments && getDepartments.some(dept => dept._id === getContent?.authorid)) {
+            const data = getDepartments.find(dept => dept._id === getContent?.authorid);
+            setAuthorInfo({
+                name: data?.departmentname,
+                imageUrl: '',
+                description: data?.departmentdescription
+            });
+        } else if (userData?.length) {
+            setAuthorInfo({
+                name: `${userData[0]?.firstName} ${userData[0]?.lastName}`,
+                imageUrl: userData[0]?.imageUrl,
+                description: userData[0]?.authordescription
+            });
+        }
+    }, [userData, getDepartments]);
+
 
     return (
         <body className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
@@ -448,7 +468,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                 <div className='flex flex-col gap-5'>
                                     <div className='border-b p-5 flex flex-row justify-between items-center'>
                                         <h1 className='text-2xl font-bold'>Content Preview</h1>
-                                        <div onClick={sendToVisualizer({ content: getContent, fields: getFields, values: getFieldValues })}>
+                                        <div onClick={sendToVisualizer({ content: getContent, fields: getFields, values: getFieldValues, authorInfo: authorInfo })}>
                                             <div className='flex flex-row gap-1 items-center underline text-blue-400 cursor-pointer' >
                                                 <Link2 /> <p>View content in full screen</p>
                                             </div>
@@ -522,7 +542,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                     </div>
                                                 </div>
                                                 )
-                                                }
+                                            }
                                             }  else if (field.type === "Short Text") {
                                                 return <div key={index} className='flex flex-col gap-1'>
                                                     <p>{fieldValues[field._id]}</p>

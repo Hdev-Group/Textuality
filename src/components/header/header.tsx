@@ -70,7 +70,7 @@ export default function Header() {
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
               <img src="/IMG_6128.png" alt="Textuality Logo" className="h-8 w-8 dark:flex hidden" />
-              <img src={"/IMG_6129.png"} alt="Textuality Logo" className="h-8 w-8 dark:hidden flex" />
+              <img src="/IMG_6129.png" alt="Textuality Logo" className="h-8 w-8 dark:hidden flex" />
               <span className="text-xl mt-1.5 ml-[-8px] font-bold text-foreground hidden sm:block">extuality</span>
             </Link>
           </div>
