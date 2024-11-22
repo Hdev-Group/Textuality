@@ -23,6 +23,7 @@ export default function Header() {
   const [hasScrolled, setHasScrolled] = useState(false)
   const [underlineStyle, setUnderlineStyle] = useState({ left: mainlocation.left, width: mainlocation.width })
   const [activeNav, setActiveNav] = useState<string | null>(null)
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -42,14 +43,24 @@ export default function Header() {
   // auto set underline based on URL
   useEffect(() => {
     const path = window.location.pathname
-      if( path.includes('/use-cases') || path.includes('/blog') || path.includes('/tutorials') || path.includes('/support') || path.includes('/plans')) {
-        setUnderlineStyle({ left: mainlocation.left, width: mainlocation.width })
-      } else {
-        setUnderlineStyle({ left: mainlocation.left, width: mainlocation.width })
-      }
-  }, [])
+    const navItems = [
+      { label: "Use Cases", href: "/use-cases" },
+      { label: "Blog", href: "/blog" },
+      { label: "Tutorials", href: "/tutorials" },
+      { label: "Support", href: "/support" },
+      { label: "Pricing", href: "/plans" },
+    ]
 
-  // 0 92 44 124 52 209 77 318 73 423 67
+    const activeItem = navItems.find(item => path.includes(item.href))
+    if (activeItem) {
+      const element = document.querySelector(`a[href='${activeItem.href}']`) as HTMLElement
+      if (element) {
+        const { offsetLeft, offsetWidth } = element
+        setUnderlineStyle({ left: offsetLeft, width: offsetWidth })
+        setMainLocation({ left: offsetLeft, width: offsetWidth })
+      }
+    }
+  }, [])
 
   const handleMouseEnter = (e: React.MouseEvent, href: string) => {
     setActiveNav(href)
@@ -60,8 +71,9 @@ export default function Header() {
       width: offsetWidth,
     })
   }
+
   const handleMouseLeave = () => {
-    setUnderlineStyle({width: mainlocation.width, left: mainlocation.left})
+    setUnderlineStyle({ width: mainlocation.width, left: mainlocation.left })
   }
   return (
     <header className={`sticky top-0 w-full z-50 ${hasScrolled ? "border-b bg-background" : ""} `}>
@@ -173,17 +185,20 @@ export default function Header() {
             </Button>
           </div>
           <nav className="space-y-6">
+            <Link href="/use-cases" className="block text-base font-medium text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>
+              Use Cases
+            </Link>
             <Link href="/blog" className="block text-base font-medium text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>
               Blog
             </Link>
             <Link href="/tutorials" className="block text-base font-medium text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>
               Tutorials
             </Link>
-            <Link href="/resources" className="block text-base font-medium text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>
-              Resources
+            <Link href="/support" className="block text-base font-medium text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>
+              Support
             </Link>
-            <Link href="/about" className="block text-base font-medium text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>
-              About
+            <Link href="/plans" className="block text-base font-medium text-foreground hover:text-primary transition-colors" onClick={() => setIsMenuOpen(false)}>
+              Pricing
             </Link>
           </nav>
           <div className="mt-8 space-y-4">
