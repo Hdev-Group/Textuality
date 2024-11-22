@@ -325,7 +325,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   }
   const title = getTemplates?.[0]?.title + ' — Templates' + ' — Textuality'
   return (
-    <body className='overflow-y-hidden'>
+    <div className='overflow-y-hidden'>
       <title>{title}</title>
       <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
@@ -508,7 +508,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
           }}
         />
       </AuthWrapper>
-    </body>
+    </div>
   )
 }
 

@@ -118,7 +118,7 @@ export default function Page({ params }: { params: { _teamid: string}}) {
   const title = getPage?.title + " — Templates — Textuality";
   
   return (
-      <body className="overflow-y-hidden">
+      <div className="overflow-y-hidden">
         <title>{title}</title>
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
@@ -221,7 +221,7 @@ export default function Page({ params }: { params: { _teamid: string}}) {
         </main>
       </div>
     </AuthWrapper>
-    </body>
+    </div>
   );
 }
 interface DeleteTemplateProps {

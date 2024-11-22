@@ -71,6 +71,7 @@ export default function Header() {
             <Link href="/" className="flex items-center">
               <img src="/IMG_6128.png" alt="Textuality Logo" className="h-8 w-8 dark:flex hidden" />
               <img src="/IMG_6129.png" alt="Textuality Logo" className="h-8 w-8 dark:hidden flex" />
+              <span className="sr-only">Textuality</span>
               <span className="text-xl mt-1.5 ml-[-8px] font-bold text-foreground hidden sm:block">extuality</span>
             </Link>
           </div>
@@ -187,7 +188,7 @@ export default function Header() {
           </nav>
           <div className="mt-8 space-y-4">
             <Button asChild className="w-full">
-              <Link href="/application/home" onClick={() => setIsMenuOpen(false)}>
+              <Link href="/create" onClick={() => setIsMenuOpen(false)}>
                 Create Content
               </Link>
             </Button>

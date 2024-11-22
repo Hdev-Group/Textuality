@@ -93,7 +93,7 @@ function PageGetter({ pageid }: { pageid: any }) {
     <title>
       Textuality - Home
     </title>
-    <body className="overflow-hidden">
+    <div className="overflow-hidden">
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
       <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
@@ -180,7 +180,7 @@ function PageGetter({ pageid }: { pageid: any }) {
           </div>
       </main>
     </div>
-    </body>
+    </div>
     </>
   );
 }

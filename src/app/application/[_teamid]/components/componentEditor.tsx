@@ -10,7 +10,7 @@ export default function Page({ params }: { params: { _teamid: string}}) {
     const { _teamid: teamid } = params
     const getPage = useQuery(api.page.getPage, { _id: teamid as any })
     return (
-      <body className='overflow-y-hidden'>
+      <div className='overflow-y-hidden'>
         <AuthWrapper _teamid={teamid}>
           <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
             <AppHeader activesection="components" teamid={teamid} />
@@ -21,6 +21,6 @@ export default function Page({ params }: { params: { _teamid: string}}) {
             </main>
             </div>
         </AuthWrapper>
-        </body>
+        </div>
   );
 }

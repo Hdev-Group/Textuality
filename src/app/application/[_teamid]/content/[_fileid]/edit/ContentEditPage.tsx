@@ -336,7 +336,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
 
 
     return (
-        <body className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
+        <div className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
             <AuthWrapper _teamid={_teamid}>
                 <DoesExist _fileid={_fileid}>
                 <div className="h-full">
@@ -676,7 +676,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         </div>
         </DoesExist>
     </AuthWrapper>
-</body>
+</div>
     )
 }
 interface Author {

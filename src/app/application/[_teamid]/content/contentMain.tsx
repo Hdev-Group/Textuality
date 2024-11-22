@@ -110,7 +110,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
     }
     return (
         
-        <body className='overflow-y-hidden'>
+        <div className='overflow-y-hidden'>
             <AuthWrapper _teamid={_teamid}>
                 <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
                     <AppHeader activesection="content" teamid={_teamid} />
@@ -262,7 +262,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                     </main>
                 </div>
             </AuthWrapper>
-        </body>
+        </div>
     );
 }
 

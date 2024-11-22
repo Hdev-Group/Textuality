@@ -240,9 +240,9 @@ function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  
   const pageContentAPI = pageContentAPIGetter?.[0]?.contentsendingapi
   const pageContentManagerAPI = pageContentAPIGetter?.[0]?.contentmanagerapi
   // calculate the percentage of usage
-  const users = (pageinfo.users / 5) * 100;
-  const templates = (pageinfo.templates / 25) * 100;
-  const content = (pageinfo.content / 5000) * 100;
+  const users = (pageinfo?.users / 5) * 100;
+  const templates = (pageinfo?.templates / 25) * 100;
+  const content = (pageinfo?.content / 5000) * 100;
   const contentAPI = (pageContentAPI / 2000) * 100;
   const contentManagerAPI = (pageContentManagerAPI / 2000) * 100;
 

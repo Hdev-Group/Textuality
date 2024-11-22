@@ -34,7 +34,7 @@ export async function generateMetadata({ params }) {
 }
 
   
-export default function ProductWrapper({ params }) {
+export default function ProductWrapper() {
 
     return <Visualizer />;
 }
