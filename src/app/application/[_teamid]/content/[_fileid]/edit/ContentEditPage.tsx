@@ -297,7 +297,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             }
             
             // Ensure the data is sent after the new page has loaded
-            console.log({ content, fields, values, authorInfo });
+            
             setTimeout(() => {
                 visualizerWindowRef.current?.postMessage({ content, fields, values, authorInfo }, window.location.origin);
             }, 500);
