@@ -3,9 +3,9 @@ import React from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { Inter as FontSans } from "next/font/google";
-import ConvexClientProvider from "./ConvexClientProvider";
+import ConvexClientProvider from "../ConvexClientProvider";
 import { Toaster } from "@/components/ui/toaster";
-import "./globals.css";
+import "../globals.css";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             />
             <link rel="icon" href="/IMG_6128.png" />
           </head>
-          <body >
+          <body className="overflow-hidden">
           <ConvexClientProvider>
               {children}
               <Toaster />

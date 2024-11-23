@@ -3,7 +3,6 @@ import Header from "@/components/header/header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, CalendarDaysIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import readtimecalc from "@/components/readtime/readtime";
 import Footer from "@/components/footer/footer";
 
 export default function Visualizer() {
@@ -106,7 +105,7 @@ export default function Visualizer() {
                             <b>{authorInfo.name}</b>
                         </p>
                         <div className="flex flex-row gap-2 items-center">
-                            <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(richTextFields as any)} read</p>
+                            <p className="font-normal text-xs dark:text-gray-400">{readtimecalc({ text: richTextFields })} read</p>
                                 <p>·</p>
                                 <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
                                 <CalendarDaysIcon height={18} /> {new Date().toDateString()}
@@ -148,6 +147,24 @@ export default function Visualizer() {
     </div>
         </>
     );
+}
+function readtimecalc({ text }: { text: any }) {
+    const wordsPerMinute = 200;
+    const noOfWords = text ? text.split(/\s/g).length : 0;
+    const minutes = noOfWords / wordsPerMinute;
+    const readTime = Math.ceil(minutes);
+
+    if (readTime < 1) {
+        return `${Math.ceil(minutes * 60)} seconds`;
+    } else if (readTime === 1) {
+        return `${readTime} minute`;
+    } else if (readTime < 60) {
+        return `${readTime} minutes`;
+    } else {
+        const hours = Math.floor(readTime / 60);
+        const remainingMinutes = readTime % 60;
+        return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes > 0 ? `and ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
+    }
 }
 function RichTextViewer({ content }: { content: string }) {
     if (!content) {

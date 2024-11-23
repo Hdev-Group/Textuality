@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/richtext/editor';
-import readtimecalc from '@/components/readtime/readtime';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Select,
@@ -334,7 +333,11 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         }
     }, [userData, getDepartments]);
 
-
+    const richTextFields = getFields?.filter((field: any) => field.type === "Rich text").map((field: any) => {
+        const fieldValueObj = getContent[field._id] || getContent[field.fieldname];
+        return fieldValueObj?.value || null;
+    }).join(' ');
+    
     return (
         <div className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
             <AuthWrapper _teamid={_teamid}>
@@ -489,7 +492,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                 if (getDepartments.some(dept => dept._id === getContent?.authorid)) {
                                                     const data= getDepartments.find(dept => dept._id === getContent?.authorid);
                                                     return (
-                                                        <div key={index} className='flex font-bold text-3xl mt-2 dark:text-white text-black flex-col gap-1'>
+                                                        <div key={index} className='flex font-bold mb-2 text-3xl mt-2 dark:text-white text-black flex-col gap-1'>
                                                             <p>{fieldValues[field._id]}</p>
                                                             <div className="flex flex-row gap-2">
                                                                 <Avatar>
@@ -504,7 +507,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                                         {
                                                                             getFields?.some(f => f._id === field._id && f.type === "Rich text") ? (
                                                                                 <>
-                                                                                    <p className="font-normal text-xs dark:text-gray-400">{readtimecalc(fieldValues[field._id] || '')} read</p>
+                                                                                    <p className="font-normal text-xs dark:text-gray-400">{readtimecalc({ text: richTextFields})} read</p>
                                                                                     <p>·</p>
                                                                                 </>
                                                                             ) : null
@@ -689,6 +692,24 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     </AuthWrapper>
 </div>
     )
+}
+function readtimecalc({ text }: { text: any }) {
+    const wordsPerMinute = 200;
+    const noOfWords = text ? text.split(/\s/g).length : 0;
+    const minutes = noOfWords / wordsPerMinute;
+    const readTime = Math.ceil(minutes);
+
+    if (readTime < 1) {
+        return `${Math.ceil(minutes * 60)} seconds`;
+    } else if (readTime === 1) {
+        return `${readTime} minute`;
+    } else if (readTime < 60) {
+        return `${readTime} minutes`;
+    } else {
+        const hours = Math.floor(readTime / 60);
+        const remainingMinutes = readTime % 60;
+        return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes > 0 ? `and ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
+    }
 }
 interface Author {
     id: string

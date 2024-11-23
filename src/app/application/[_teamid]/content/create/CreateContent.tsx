@@ -61,7 +61,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any }})
         setApiValue(sanitized);
     }
     const sendContent = useMutation(api.content.createContent)
-  
+
     const templatefilter = getTemplates?.filter((template) => template._id === templateId)
     async function onsubmit(event) {
         event.preventDefault();
