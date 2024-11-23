@@ -105,3 +105,28 @@ export const pageContentAPIGetter = query({
         return page;
     },
 });
+
+export const APIGetterFull = query({
+    args: {
+        pageid: v.any(),
+    },
+    handler: async (ctx, { pageid }) => {
+        const fileget = await ctx.db.query("content").filter(q => q.eq(q.field("pageid"), pageid)).collect();
+        const templateget = await ctx.db.query("templates").filter(q => q.eq(q.field("pageid"), pageid)).collect();
+        const fields = await ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), templateget[0]._id)).collect();
+        const fieldvalues = await ctx.db.query("fieldvalues").filter(q => q.eq(q.field("fileid"), fileget[0]._id)).collect();
+        const merged = fields.map((field) => {
+            const fieldvalue = fieldvalues.find((fv) => fv.fieldid === field._id);
+            return {
+                ...field,
+                value: fieldvalue?.value, 
+            };
+        });
+
+        return {
+            merged,
+            fileget,
+            templateget, 
+        };
+    },
+});
