@@ -12,7 +12,7 @@ import { motion } from 'framer-motion'
 export default function Home() {
   return (
     <>
-      <div className="flex bg flex-col min-h-screen w-full items-center justify-center">
+      <div className="flex bg flex-col min-h-screen w-full items-center justify-center" >
         <div className="flex items-center justify-center ">
           <div className="border-x bg-background border-neutral-600 max-w-[2000px] w-full z-30  dark:border-white/50 rounded-sm lg:mx-10 lg:mb-10 border-y">
             <OverHeader />
@@ -36,7 +36,7 @@ export default function Home() {
                           <a href="/application/home">
                             <Button className="font-semibold md:w-auto w-full" size="lg">Get Textuality free</Button>
                           </a>
-                          <Button className="font-semibold" size="lg" variant="outline">Learn more</Button>
+                          <Button className="font-semibold" size="lg" variant="gradient">Learn more</Button>
                         </div>
                         </div>
                       </div>
@@ -207,7 +207,7 @@ export default function Home() {
                                 <div className="flex flex-col px-8 gap-4 items-start w-full py-10">
                                   <h2 className="text-lg space-grotesk-400 text-start">Need some more power? Check out our plans to fit with you, your team or organization.</h2>
                                   <a href="/pricing" className="md:w-auto w-full">
-                                    <Button className="font-semibold"  variant="outline">View Pricing</Button>
+                                    <Button className="font-semibold"  variant="gradient">View Pricing</Button>
                                   </a>
                                 </div>
                               </div>
