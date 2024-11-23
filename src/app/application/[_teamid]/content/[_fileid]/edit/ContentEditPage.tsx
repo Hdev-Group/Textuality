@@ -7,7 +7,7 @@ import { useQuery, useMutation } from 'convex/react'
 import React, { useEffect, useState, useRef } from 'react'
 import { useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronLeft, Link2, Lock, LucideClipboardSignature, Mailbox, MessagesSquare, Save, SidebarOpen, View } from 'lucide-react';
+import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronDown, ChevronLeft, Link2, Lock, LucideClipboardSignature, Mailbox, MessagesSquare, Save, SidebarOpen, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -357,7 +357,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                         <div className='flex flex-col gap-5'>
                                             <Author authordetails={userData} getDepartments={getDepartments} getAuthorid={getContent?.authorid} onValueChange={setAuthor} teamid={_teamid} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
-                                                <div key={index} className='flex flex-col gap-1'>
+                                                <div key={index} className='flex flex-col gap-1 border-l-gray-500/40 border-l-2 pl-4'>
                                                     <div className='flex flex-row justify-between'>
                                                         <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
                                                         {
@@ -665,6 +665,17 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                 <p className=''>{getContent?.status}</p>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div className='flex flex-row  px-5'>
+                                        <button className='bg-green-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-green-800 transition-all'>
+                                            Publish
+                                        </button>
+                                        <button className='bg-green-700 hover:bg-green-800 text-white rounded-l-none px-3 py-2 rounded-md'>
+                                            <ChevronDown />
+                                        </button>
+                                    </div>
+                                    <div className='flex flex-col px-5'>
+                                        <p>Last saved MINS AGO</p>
                                     </div>
                                 </div>
                             ) : null

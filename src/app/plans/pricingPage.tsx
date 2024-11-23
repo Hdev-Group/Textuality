@@ -227,8 +227,9 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
           </div>
         )}
         <div className={`flex flex-col border-2 hover:bg-muted/20 transition-all w-full rounded-lg ${isSuccess ? "pingersuccessbought" : ""} ${plans.highlight ? "border-primary shadow-md shadow-primary/40 " : "border-muted"}`}>
-          <div className={`flex border-b-2 flex-col p-6 h-52 justify-between ${plans.highlight ? "border-primary" : "border-muted"}`}>
-            <div className="flex flex-col gap-1">
+          <div className={`flex border-b-2 flex-col p-6 h-72 justify-between ${plans.highlight ? "border-primary" : "border-muted"}`}>
+            <div className="flex flex-col items-start gap-1">
+              <img src={plans.name === "Free" ? "/planimg/freeplan.png" : plans.name === "Pro" ? "/planimg/pro.png" : "/planimg/enterprise.png"} alt={plans.name} className="w-12 h-12" />
               <h1 className="text-2xl font-semibold text-foreground">{plans.name}</h1>
               <h2 className="text-2xl font-semibold text-foreground">
                 £{plans.price}
@@ -246,7 +247,7 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
               isSignedIn ? (
                 <Button
                   onClick={() => handleCheckout(priceId)}
-                  className="w-full bg-primary text-background"
+                  className="w-full mt-2 bg-primary text-background"
                 >
                   Get Started
                 </Button>
