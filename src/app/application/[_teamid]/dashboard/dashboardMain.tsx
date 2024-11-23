@@ -278,21 +278,21 @@ function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  
             <div className='flex flex-row gap-5 px-5 py-3 justify-between'>
               <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
                 <h1 className='text-md font-semibold'>Users</h1>
-                <p className='font-semibold mt-3 text-sm'>{pageinfo.users}/5</p>
+                <p className='font-semibold mt-3 text-sm'>{pageinfo?.users}/5</p>
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
                   <div className='bg-primary rounded-full h-2' style={{width: users}}></div>
                 </div>
               </div>
               <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
                 <h1 className='text-md font-semibold'>Templates</h1>
-                <p className='font-semibold mt-3  text-sm'>{pageinfo.templates}/25</p>
+                <p className='font-semibold mt-3  text-sm'>{pageinfo?.templates}/25</p>
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
                   <div className='bg-primary rounded-full h-2' style={{width: templates}}></div>
                 </div>
               </div>
               <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
                 <h1 className='text-md font-semibold'>Content</h1>
-                <p className='font-semibold mt-3  text-sm'>{pageinfo.content}/5000</p>
+                <p className='font-semibold mt-3  text-sm'>{pageinfo?.content}/5000</p>
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
                   <div className='bg-primary rounded-full h-2' style={{width: content}}></div>
                 </div>

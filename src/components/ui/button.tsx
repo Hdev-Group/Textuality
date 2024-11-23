@@ -5,12 +5,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "relative overflow-hidden inline-flex items-center items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "relative overflow-hidden flex flex-row items-center items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/90",
+          "bg-primary text-muted hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost:
-          "hover:bg-neutral-900/5 hover:text-accent-background dark:hover:bg-accent",
+          "hover:bg-neutral-900/5 hover:text-accent-background flex dark:hover:bg-accent",
         link: "text-primary underline-offset-4 hover:underline",
         gradient:
           "bg-transparent group relative text-primary z-20 overflow-hidden backdrop-blur-lg transition-colors hover:border-muted-foreground border hover:bg-neutral-900/5",
@@ -89,7 +89,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <span className="relative z-10">{props.children}</span>
           </>
         ) : (
-          <span className="relative z-10">{props.children}</span>
+          <span className="relative z-10 flex flex-row items-center gap-1">{props.children}</span>
         )}
       </Comp>
     );

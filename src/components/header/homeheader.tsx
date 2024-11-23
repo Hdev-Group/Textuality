@@ -2,21 +2,17 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Users, FolderPen, Image as ImageIcon, Component, Moon, Sun, Settings, Search, ArrowUp, House } from "lucide-react"
+import { Users, FolderPen, Image as ImageIcon, Component, Moon, Sun, Settings, Search, ArrowUp, House, Check } from "lucide-react"
 import { useUser } from "@clerk/clerk-react"
 import { UserButton } from '@clerk/clerk-react'
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { usePathname } from 'next/navigation';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu"
-  import { useSelectedLayoutSegment } from 'next/navigation'
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 
 
 const navItems = [
@@ -72,29 +68,11 @@ export default function HomeHeader({activesection}: any) {
         <img src={image} alt="Textuality Logo" className="h-8 w-8" />
         <span className="sr-only">Textuality</span>
       </Link>
-      <nav className="hidden md:flex items-center space-x-1">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-          </DropdownMenuTrigger>
-        </DropdownMenu>
-          {navItems.map((item) => (
-          <Link href={item.route} key={item.label}>
-            <Button
-            variant="ghost"
-            className={`font-semibold ${activesection === item.activesection ? 'border-blue-400 bg-blue-300/20 border text-blue-500' : ''}`}
-            >
-            <item.icon className="mr-2 h-4 w-4" />
-            {item.label}
-            </Button>
-          </Link>
-          ))}
-      </nav>
+
       </div>
       <div className="flex items-center gap-2">
-      <Button variant="ghost" className="hidden sm:flex items-center gap-1.5 mr-2">
-        <ArrowUp className="h-4 w-4" />
-        <span>Upgrade plan</span>
-      </Button>
+      <PlanUpgrade />
+
       <Button size="icon" variant="ghost" aria-label="Search">
         <Search className="h-4 w-4" />
       </Button>
@@ -138,4 +116,72 @@ export default function HomeHeader({activesection}: any) {
     )}
   </header>
   )
+}
+function PlanUpgrade() {
+  return (
+    <HoverCard openDelay={200}>
+      <HoverCardTrigger asChild>
+        <Button variant="ghost" className="hidden sm:flex items-center gap-1.5">
+          <ArrowUp className="h-4 w-4" />
+          <span>Upgrade Plan</span>
+        </Button>
+      </HoverCardTrigger>
+      
+      <HoverCardContent className="w-80 p-4 bg-background rounded-lg shadow-md">
+        <div className="flex flex-col space-y-3">
+          <h3 className="font-semibold text-lg">Upgrade Your Experience</h3>
+          <p className="text-sm text-muted-foreground">
+            You’re currently on the <strong>Free</strong> plan
+          </p>
+          
+          <div className="grid gap-4 mt-4">
+            <PlanOption
+              name="Pro"
+              price="£12.50"
+              everythingin="Free"
+              features={[
+                "Advanced analytics", "Unlimited projects", "Content Approval", "AI tools", "Webhooks", "Priority support", "Role Based Access Control"
+              ]}
+            />
+            <PlanOption
+              name="Enterprise"
+              everythingin="Pro"
+              price="£23.50"
+              features={[
+                "Custom integrations", "Subscription & Paywall", "Social media scheduling", "Custom branding"
+              ]}
+            />
+          </div>
+          <a href="/plans" className="w-full">
+          <Button className="w-full mt-4">View All Plans</Button>
+          </a>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
+  );
+}
+
+function PlanOption({ name, price, features, everythingin }) {
+  return (
+    <div className="flex items-start flex-col space-x-4 p-3 bg-muted rounded-lg shadow-sm">
+      <div className="flex-shrink-0">
+        <h4 className="font-semibold text-base">{name}</h4>
+        <p className="text-sm text-muted-foreground">
+          Starting at {price}/mo
+        </p>
+        <p className="text-muted-foreground text-xs mt-1">
+          Everything in {everythingin} and
+        </p>
+      </div>
+      
+      <ul className="space-y-1 mt-2 text-sm">
+        {features.map((feature, index) => (
+          <li key={index} className="flex items-center">
+            <Check className="h-4 w-4 mr-2 text-primary" />
+            {feature}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }

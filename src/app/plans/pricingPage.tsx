@@ -56,7 +56,7 @@ export default function PricingPage() {
 
 
   return (
-    <body className={`flex bgmain flex-col min-h-screen w-full items-center justify-center `}>
+    <div className={`flex bgmain flex-col min-h-screen w-full items-center justify-center `}>
       <div className="flex items-center justify-center">
         <div className="border-x  border-neutral-600 max-w-[2000px] w-full z-30 dark:border-white/50 rounded-sm lg:mx-10 lg:mb-10 border-b">
           <Header />
@@ -172,7 +172,7 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
-    </body>
+    </div>
   );
 }
 
