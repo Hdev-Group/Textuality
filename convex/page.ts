@@ -206,3 +206,68 @@ export const getPageDetails = query({
     }
   },
 });
+
+export const deletePage = mutation({
+  args: {
+    _id: v.id("pages"),
+  },
+  handler: async (ctx, { _id }) => {
+    const roles = await ctx.db.query("roles")
+      .withIndex("bypageid", q => q.eq("pageid", _id))
+      .collect();
+    for (const role of roles) {
+      await ctx.db.delete(role._id);
+    }
+
+    const invites = await ctx.db.query("invites")
+      .withIndex("bypageId", q => q.eq("pageId", _id))
+      .collect();
+    for (const invite of invites) {
+      await ctx.db.delete(invite._id);
+    }
+
+    const templates = await ctx.db.query("templates")
+      .withIndex("bypageid", q => q.eq("pageid", _id))
+      .collect();
+    for (const template of templates) {
+      await ctx.db.delete(template._id);
+    }
+
+    const content = await ctx.db.query("content")
+      .withIndex("bypageid", q => q.eq("pageid", _id))
+      .collect();
+    for (const item of content) {
+      await ctx.db.delete(item._id);
+    }
+
+    const fields = await ctx.db.query("fields")
+      .withIndex("bytemplateid", q => q.eq("templateid", _id))
+      .collect();
+    for (const field of fields) {
+      await ctx.db.delete(field._id);
+    }
+
+    const fieldvalues = await ctx.db.query("fieldvalues")
+      .withIndex("byteamid", q => q.eq("teamid", _id))
+      .collect();
+    for (const fieldvalue of fieldvalues) {
+      await ctx.db.delete(fieldvalue._id);
+    }
+
+    const comments = await ctx.db.query("comments")
+      .withIndex("bypageid", q => q.eq("pageid", _id))
+      .collect();
+    for (const comment of comments) {
+      await ctx.db.delete(comment._id);
+    }
+
+    const departments = await ctx.db.query("departments")
+      .withIndex("bypageid", q => q.eq("pageid", _id))
+      .collect();
+    for (const department of departments) {
+      await ctx.db.delete(department._id);
+    }
+
+    await ctx.db.delete(_id);
+  },
+});

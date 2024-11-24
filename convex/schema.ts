@@ -56,7 +56,7 @@ fieldvalues: defineTable({
     externalId: v.string(),
     teamid: v.string(),
     fileid: v.string(),
-}).index("byfieldid", ["fieldid"]),
+}).index("byfieldid", ["fieldid"]).index("byteamid", ["teamid"]).index("byfieldid_and_teamid", ["fieldid", "teamid"]),
 content: defineTable({
     pageid: v.string(),
     templateid: v.string(),
@@ -75,7 +75,8 @@ comments: defineTable({
     comment: v.string(),
     updated: v.any(),
     templateid: v.string(),
-}).index("bycontentid", ["contentid"]),
+    pageid: v.string(),
+}).index("bypageid", ["pageid"]),
 aichat: defineTable({
     question: v.string(),
     answer: v.string(),
@@ -95,7 +96,7 @@ departments: defineTable({
     departmentdescription: v.string(),
     isLive: v.boolean(),
     pageid: v.any(),
-}).index("bydepartmentname", ["departmentname"]),
+}).index("bydepartmentname", ["departmentname"]).index("bypageid", ["pageid"]),
 messages: defineTable({
     message: v.string(),
     authorid: v.string(),

@@ -71,7 +71,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
   const getRole = useQuery(api.page.getRoledetail, { externalId: userId || "none", pageId: teamid });
-  const saveField = useMutation(api.template.updateField)
+  const saveField = useMutation(api.template.updateFieldTemplate)
   const deleteField = useMutation(api.template.deleteField)
   const TemplateRemove = useMutation(api.template.remove);
   useEffect(() => {

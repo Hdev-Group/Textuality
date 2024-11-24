@@ -68,7 +68,10 @@ export default function TemplateManager({ params }: { params: { _teamid: any }})
         setOpen(false);
         setContent({ name: namevalue, apiref: apivalue });
         const returner = await sendContent({ pageid: _teamid as any, updated: new Date().getTime(), templateid: templateId as any, title: namevalue, apiref: apivalue, lastUpdatedBy: userId });
-        router.push(`/application/${_teamid}/content/${returner}/edit`);
+        // wait for returner
+        if (returner) {
+            router.push(`/application/${_teamid}/content/${returner}/edit`);
+        }
     }
     const title = getPage?.title + ' — Create Content' + ' — Textuality'
     return (

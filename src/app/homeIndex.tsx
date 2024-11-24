@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import Footer from "@/components/footer/footer"
 import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare} from "lucide-react"
 import { motion } from 'framer-motion'
+import Link from "next/link"
 
 
 export default function Home() {
@@ -61,22 +62,21 @@ export default function Home() {
     },
   ]
   return (
-    <div>
-      <div className="flex bg flex-col min-h-screen w-full items-center justify-center">
-        <div className="flex items-center justify-center ">
-          <div className="w-full justify-center flex-col items-center flex">
+          <div className="w-full relative justify-center flex-col items-center flex">
             <OverHeader />
             <Header />
               <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
-                <div className="absolute left-1/2 -translate-x-1/2 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))]"/>
-                <div className="flex flex-col w-full items-center justify-start h-full">
-                  <div className="container h-full px-4 mt-12 md:mt-44  mb-12">
+                <div className="absolute left-1/2 -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))]"/>
+                <div className="flex flex-col z-10 w-full items-center justify-start h-full">
+                  <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col md:flex-row items-start justify-start w-full">
                     <div className="flex flex-col w-auto">
                       <h1 className="font-bold lg:text-[52px] text-5xl space-grotesk-600 text-foreground">Content management that brings everyone together</h1>
                       <p className="text-lg text-muted-foreground mt-4 w-[75%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
                       <div className="flex flex-row gap-2 mt-5">
-                        <Button size="lg">Get Started</Button>
+                        <Link href="/application/home">
+                          <Button  size="lg">Get Started</Button>
+                        </Link>
                         <Button variant="gradient" size="lg">Learn More</Button>
                       </div>
                     </div>
@@ -283,9 +283,6 @@ export default function Home() {
               </main>
               <Footer />
             </div>
-        </div>
-      </div>
-    </div>
   )
 }
 

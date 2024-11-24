@@ -76,7 +76,7 @@ export default function Header() {
     setUnderlineStyle({ width: mainlocation.width, left: mainlocation.left })
   }
   return (
-    <header className={`sticky container top-0 z-50 rounded-b-lg backdrop-blur-md ${hasScrolled ? "border-b bg-background/80 border-x" : ""} `}>
+    <header className={`sticky container px-4 top-0 z-50 rounded-b-lg bg-background/20 backdrop-blur-xl ${hasScrolled ? "border-b  border-x" : ""} `}>
       <div className="container mx-auto">
         <div className="flex justify-between items-center py-4 lg:justify-start md:space-x-10">
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">

@@ -26,6 +26,16 @@ export const createContent = mutation({
     }
 });
 
+export const updateContentStatus = mutation({
+    args: {
+        _id: v.id("content"),
+        status: v.string(),
+    },
+    handler: async (ctx, { _id, status }) => {
+        return ctx.db.patch(_id, { status });
+    }
+});
+
 export const getContentSpecific = query({
     args: {
         _id: v.id("content"),
