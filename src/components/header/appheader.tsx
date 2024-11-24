@@ -122,8 +122,8 @@ export default function AppHeader({ teamid, activesection }: any) {
             </Link>
             <nav className="hidden lg:flex relative items-center ">
             {navItems.map((item) => (
-              <Link 
-              href={item.route} 
+              <a 
+              onClick={() => router.push(item.route)}
               key={item.route}
               onMouseEnter={(e) => handleMouseEnter(e, item.route)}
               onMouseLeave={handleMouseLeave}
@@ -135,7 +135,7 @@ export default function AppHeader({ teamid, activesection }: any) {
                   <item.icon className="mr-2 h-4 w-4" />
                   {item.label}
                 </button>
-              </Link>
+              </a>
             ))}
             <span
               className={` bottom-0 rounded-sm border h-[30px] z-0 border-blue-400  bg-blue-300/20  text-blue-500 transition-all duration-300 ${activeNav === null ? "hidden" : "absolute"}`}

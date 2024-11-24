@@ -27,8 +27,9 @@ export default function NewRequest() {
     const user = useUser()
     const { userId, isLoaded } = useAuth()
     const projects = useQuery(api.page.getPageSpecific, { userid: userId || user?.user?.id || "" })
-    const helpmsg = document.getElementById("helpmsg") as HTMLInputElement
+    let helpmsg: HTMLInputElement;
     const [firsthelp, setFirstHelp] = useState(false)
+    const [isClient, setIsClient] = useState(false);
     const [secondhelp, setSecondHelp] = useState(false)
     const [messageBlock, SetMessageBlock] = useState(false)
     const [showrequestform, setShowRequestForm] = useState(false)
@@ -36,6 +37,14 @@ export default function NewRequest() {
     const [chathelp, setChatHelp] = useState([
         
     ])
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+    useEffect(() => {
+        if (isClient) {
+            helpmsg = document.getElementById("helpmsg") as HTMLInputElement;
+        }
+    }, [isClient]);
     const [isExpanded, setIsExpanded] = useState(secondhelp);
     const contentRef = useRef(null);
     const [contentHeight, setContentHeight] = useState(0);

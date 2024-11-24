@@ -40,7 +40,6 @@ export default function Page({ params }: { params: { _teamid: string}}) {
   const teamid = _teamid;
   const { userId } = useAuth();
   const router = useRouter();
-
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState<any[]>([]);
@@ -199,8 +198,8 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                   ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center  items-center justify-center w-full">
-                        <div className='flex flex-col gap-2'>
+                      <TableCell colSpan={4} className="text-center items-center justify-center w-full">
+                        <div className='flex flex-col gap-2 items-center justify-center'>
                         No templates found.
                           {
                             getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
