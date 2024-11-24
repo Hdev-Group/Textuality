@@ -5,7 +5,7 @@ import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { Inter as FontSans } from "next/font/google";
 import ConvexClientProvider from "../../ConvexClientProvider";
 import { Toaster } from "@/components/ui/toaster";
-import "../../team.css";
+import "./team.css";
 
 const fontSans = FontSans({
   subsets: ["latin"],

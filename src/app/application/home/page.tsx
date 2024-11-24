@@ -81,6 +81,7 @@ export default function Page() {
   
   return (
     <div className="overflow-y-hidden">
+      <title>Home | Textuality</title>
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
       <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
