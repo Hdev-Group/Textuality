@@ -366,7 +366,7 @@ body {
   padding: 0 !important; 
 }
 .spinnercard .inner {
-  padding: 25px;
+  overflow: hidden;
   width: 100%;
   height: auto;
   background: #222;
@@ -389,8 +389,8 @@ body {
     rgba(7, 191, 197, 0.75) 50%,
     rgba(7, 191, 197, 0) 100%
   );
-  height: 350px;
-  width: 100px;
+  height: 550px;
+  width: 300px;
   transform: translate(0);
   position: absolute;
   animation: rotate 9s linear forwards infinite;

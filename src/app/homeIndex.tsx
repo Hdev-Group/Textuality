@@ -1,13 +1,13 @@
 "use client"
 import Image from "next/image"
-import { useState } from "react"
 import Header from "@/components/header/header"
 import OverHeader from "@/components/header/overheader"
 import { Button } from "@/components/ui/button"
 import Footer from "@/components/footer/footer"
-import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare} from "lucide-react"
+import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play} from "lucide-react"
 import { motion } from 'framer-motion'
 import Link from "next/link"
+import { useState, useEffect, useRef } from 'react';
 
 
 export default function Home() {
@@ -69,7 +69,7 @@ export default function Home() {
                 <div className="absolute left-1/2 -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))]"/>
                 <div className="flex flex-col z-10 w-full items-center justify-start h-full">
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
-                  <div className="flex flex-col md:flex-row items-start justify-start w-full">
+                  <div className="flex flex-col lg:flex-row items-start justify-start w-full">
                     <div className="flex flex-col w-auto">
                       <h1 className="font-bold lg:text-[52px] text-5xl space-grotesk-600 text-foreground">Content management that brings everyone together</h1>
                       <p className="text-lg text-muted-foreground mt-4 w-[75%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
@@ -80,15 +80,7 @@ export default function Home() {
                         <Button variant="gradient" size="lg">Learn More</Button>
                       </div>
                     </div>
-                    <div className="flex w-1/2 h-full mt-[-5rem]">
-                      <div className="spinnercard borderspincard">
-                        <div className="inner z-10">
-                          <video autoPlay loop muted className="w-full h-full object-cover">
-                            <source src="/videos/hero.mp4" type="video/mp4" />
-                          </video>
-                        </div>
-                      </div>
-                    </div>
+                    <VideoSection />
                   </div>
                   </div>
                   <div className="w-full overflow-hidden flex items-center flex-col py-8">
@@ -238,45 +230,20 @@ export default function Home() {
                     </div>
                     </div>
                   </div>
-                  <div className="flex flex-col w-full  items-end justify-end gap-3 mt-32 container">
-                  <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start">Protecting you and your page.</h1>
-                  <p className="lg:text-md text-sm px-4 text-muted-foreground text-start">
-                    With Textuality all your content is encrypted in AES 256-bit encryption, with end-to-end encryption and secure backups you can be sure your content is safe.
-                  </p>
-                  <div className="flex flex-row mt-5">
-                    <Extrainfocard
-                      title="End-to-end Encryption"
-                      description="Encrypt your content with AES 256-bit encryption."
-                      icon={<Shield size={24} />
-                    } />
-                    <Extrainfocard
-                      title="Secure Backups"
-                      description="Automatically backup your content to the cloud."
-                      icon={<Cloud size={24} />
-                    } />
-                    <Extrainfocard
-                      title="Two-Factor Authentication"
-                      description="Secure your account with two-factor authentication."
-                      icon={<FileLock size={24} />
-                    } />
-                    <Extrainfocard
-                      title="Secure Sharing"
-                      description="Share your content securely with anyone."
-                      icon={<Share2 size={24} />
-                    } />
-                    <Extrainfocard
-                      title={"Secure API's"}
-                      description="By default all API's are secure and require authentication before accessing content."
-                      icon={<Link2 size={24} />}
-                    />
-                  </div>
-                  <div>
-                  <div className="flex flex-col w-full  items-start justify-start gap-3 mt-32 container">
-                  <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start">Built for the modern business</h1>
-                  <p className="lg:text-md text-sm px-4 text-muted-foreground text-start">
-                    Textuality is the perfect tool for your next project. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.
-                  </p>
+                  <div className="flex flex-col w-full  items-center justify-start p-24 gap-3 mt-32 container bg-[#2b1c50]/40 rounded-3xl h-screen">
+                    <div className="flex flex-row items-start justify-start w-full">
+                      <div className="flex flex-row items-start">
+                        <div className="flex items-center justify-center bg-green-500/20 p-2 rounded-full">
+                          <div className="animate-pulse bg-green-500 p-2 rounded-full"></div>
+                        </div>
+                        <div className="flex flex-col gap-2 ml-4">
+                          <h1 className="text-3xl font-bold text-white">Real time everywhere</h1>
+                          <p className="text-md text-foreground">Our platform is built to be fast and reliable, so you can create content from anywhere in the world.</p>
+                        </div>
+                      </div>
                     </div>
+                  <div>
+
                 </div>
                 </div>
                 </div>
@@ -304,3 +271,59 @@ function Extrainfocard({ title, description, icon }) {
     </div>
   )
 }
+
+
+const VideoSection = () => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
+
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (!isPlaying) { // If video is not playing, play and unmute
+        videoRef.current.play();
+        videoRef.current.muted = false;
+        videoRef.current.setAttribute('controls', 'controls');
+
+      } else { 
+        videoRef.current.pause();
+        videoRef.current.setAttribute('muted', 'muted');
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  return (
+    <div className="flex w-full h-full z-50 lg:mt-[-10rem]">
+      <div className="spinnercard borderspincard">
+        <div className="inner group z-10 relative items-center flex justify-center">
+          {
+            !isPlaying ? (
+              <button
+              className="group absolute z-50 inset-0 flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg transition-all duration-300 ease-out hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 m-auto"
+              onClick={handlePlayPause}
+              aria-label="Play/Pause video"
+            >
+              <div className="absolute inset-0 rounded-full opacity-75"></div>
+              <div className="relative flex items-center justify-center w-full h-full">
+                <Play className="w-8 h-8 text-white transition-transform duration-300 ease-out group-hover:scale-125" />
+              </div>
+              {isPlaying && (
+                <span className="absolute inset-0 rounded-full animate-ripple bg-white opacity-25"></span>
+              )}
+            </button>
+            ) : null
+          }
+          <video
+            ref={videoRef}
+            loop
+            muted
+            autoPlay
+            className="w-full h-full object-cover"
+          >
+            <source src="/HeroVid.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </div>
+  );
+};
