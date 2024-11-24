@@ -219,7 +219,7 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
     }
   };
   return (
-    <>
+    <div>
       <div className="relative">
         {plans.popular && (
           <div className="absolute top-0 right-0 bg-primary text-background px-4 py-1.5 rounded-bl-lg rounded-tr-lg text-xs shadow-md shadow-primary/40 font-semibold">
@@ -276,6 +276,6 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

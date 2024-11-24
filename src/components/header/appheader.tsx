@@ -116,13 +116,14 @@ export default function AppHeader({ teamid, activesection }: any) {
       <div className="md:px-10 mx-auto transition-all">
         <div className="flex w-full justify-between items-center py-4">
           <div className="flex items-center gap-4 lg:gap-6">
-            <Link href="/application/home" className="flex items-center h-8 w-8">
+            <a href="/application/home" className="flex items-center h-8 w-8">
               <img src={image} alt="Textuality Logo" className="h-8 w-8" />
               <span className="sr-only">Textuality</span>
-            </Link>
+            </a>
             <nav className="hidden lg:flex relative items-center ">
             {navItems.map((item) => (
-              <a 
+              <Link 
+              href={item.route} 
               onClick={() => router.push(item.route)}
               key={item.route}
               onMouseEnter={(e) => handleMouseEnter(e, item.route)}
@@ -135,7 +136,7 @@ export default function AppHeader({ teamid, activesection }: any) {
                   <item.icon className="mr-2 h-4 w-4" />
                   {item.label}
                 </button>
-              </a>
+              </Link>
             ))}
             <span
               className={` bottom-0 rounded-sm border h-[30px] z-0 border-blue-400  bg-blue-300/20  text-blue-500 transition-all duration-300 ${activeNav === null ? "hidden" : "absolute"}`}

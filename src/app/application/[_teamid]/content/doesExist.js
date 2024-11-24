@@ -16,5 +16,5 @@ export const DoesExist = ({children, _fileid}) => {
         }
     }, [getContent]);
     
-    return <>{children}</>;
+    return <div>{children}</div>;
     }

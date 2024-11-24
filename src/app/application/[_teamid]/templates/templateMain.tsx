@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import "../team.css"
 
 import {
   Table,
@@ -111,14 +112,9 @@ export default function Page({ params }: { params: { _teamid: string}}) {
     if (hours > 0) return `${hours} hours ago`;
     if (minutes > 0) return `${minutes} minutes ago`;
     return "a few seconds ago";
-  }
-
-
-  const title = getPage?.title + " — Templates — Textuality";
-  
+  }  
   return (
-      <div className="overflow-y-hidden">
-        <title>{title}</title>
+    <div className="overflow-y-hidden">
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
         <AppHeader activesection="templates" teamid={teamid} />

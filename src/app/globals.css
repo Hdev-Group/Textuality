@@ -358,7 +358,13 @@ nav a.active span {
   margin: 100px auto;
   border-radius: 0.375rem;
 }
+nextjs-portal {
+  display: none;
+}
 
+body {
+  padding: 0 !important; 
+}
 .spinnercard .inner {
   padding: 25px;
   width: 100%;

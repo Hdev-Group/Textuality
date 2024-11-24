@@ -79,21 +79,8 @@ export default function Page() {
   if (!getinvites) {
   }
   
-function PageGetter({ pageid }: { pageid: any }) {
-  const page = useQuery(api.page.getExactPage, { _id: pageid });
-
-  if (!page) {
-    return <p>Loading...</p>;
-  }
-
-  return <>{page.title}</>;
-}
   return (
-    <>
-    <title>
-      Textuality - Home
-    </title>
-    <div className="overflow-hidden">
+    <div className="overflow-y-hidden">
     <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
       <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
@@ -181,7 +168,6 @@ function PageGetter({ pageid }: { pageid: any }) {
       </main>
     </div>
     </div>
-    </>
   );
 }
 
@@ -240,8 +226,7 @@ function Project({
   const creationDate = new Date(_creationTime);
 
   return (
-    <>
-        <div className="bg-neutral-50 md:min-w-[30rem] md:w-min dark:bg-neutral-900 border w-full dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+    <div className="bg-neutral-50  md:min-w-[30rem] md:w-min dark:bg-neutral-900 border w-full dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       <div className="p-6 space-y-4">
         <div className="flex justify-between items-start">
           <h3 className="text-xl font-bold">{title.length > 15 ? `${title.substring(0, 15)}...` : title}</h3>
@@ -294,7 +279,6 @@ function Project({
         </Link>
       </div>
     </div>
-    </>
   );
 }
 

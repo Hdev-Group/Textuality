@@ -19,6 +19,7 @@ import { useSearchParams } from 'next/navigation';
 import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import "../../../team.css"
 
 
 type FieldType = {
@@ -291,7 +292,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
     ));
   };
   const handleEdit = (fieldId: string) => {
-    const fieldToEdit = fields.find(field => field._id === fieldId);
+    const fieldToEdit = fields?.find(field => field._id === fieldId);
     if (fieldToEdit) {
       setEditingField(fieldToEdit);
       setIsEditFieldOpen(true);
@@ -407,8 +408,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                                           <TableCell>
                                             <div className="flex items-center">
                                               <div className="flex items-center">
-                                                {fieldTypes.find(ft => ft.name === field.type)?.icon && 
-                                                  React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
+                                                {fieldTypes?.find(ft => ft.name === field.type)?.icon && 
+                                                  React.createElement(fieldTypes?.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
                                                 }
                                                 {field.type}
                                               </div>
@@ -441,10 +442,12 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                                     </Draggable>
                                   ))
                               ) : (
-                                <TableRow  className="text-center py-4 ">
-                                  <TableCell colSpan={4} className='flex-1 space-y-2'>
+                                <TableRow  className="text-center py-4 w-full">
+                                  <TableCell colSpan={4} className='space-y-2'>
                                     <p className='w-full'>No fields found. Click "Add Field" to create your first field.</p>
+                                    <div className='flex justify-center items-center'>
                                     <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
+                                    </div>
                                   </TableCell>
                                 </TableRow>
                               )

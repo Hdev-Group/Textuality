@@ -118,7 +118,7 @@ export default function Visualizer() {
     };
 
     return (
-        <>
+        <div>
      <div className="relative min-h-screen">
      <div 
         className="fixed inset-0 bg-background z-[-1]"
@@ -145,7 +145,7 @@ export default function Visualizer() {
         </div>
         <Footer />
     </div>
-        </>
+        </div>
     );
 }
 function readtimecalc({ text }: { text: any }) {

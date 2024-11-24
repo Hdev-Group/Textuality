@@ -43,7 +43,7 @@ export default function Page({ params }: { params: { _teamid: string} }) {
   }, []);
 
   return (
-    <>
+    <div>
         <body className='overflow-hidden'>
           <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
@@ -62,7 +62,7 @@ export default function Page({ params }: { params: { _teamid: string} }) {
         </div>
           </AuthWrapper>
         </body>
-      </>
+      </div>
   );
 }
 

@@ -132,7 +132,6 @@ export default function Page({ params }: { params: { _teamid: string }}) {
         return template?.title;
     }
     return (
-        
         <div className='overflow-y-hidden'>
             <AuthWrapper _teamid={_teamid}>
                 <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
@@ -298,7 +297,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                     ))
                                                 ) : (
                                                     <TableRow>
-                                                        <TableCell colSpan={5} className="text-center items-center justify-center w-full">
+                                                        <TableCell colSpan={7} className="text-center items-center justify-center w-full">
                                                             <div className="flex flex-col gap-2 w-auto">
                                                                 <p className="text-lg">No content found.</p>
                                                                 <div className="w-auto">
@@ -376,17 +375,17 @@ function ContentCreateButton({getTemplates, _teamid}: any) {
             {
                 getTemplates?.length > 0 ? (
                     getTemplates?.map((template: any) => (
-                    <Link href={`/application/${_teamid}/content/create?templateid=${template._id}`} key={template._id}>
+                    <a href={`/application/${_teamid}/content/create?templateid=${template._id}`} key={template._id}>
                         <DropdownMenuItem key={template._id} >{template.title}</DropdownMenuItem>
-                    </Link>
+                    </a>
                     ))
                 ) : (
-                    <>
+                    <div>
                         <DropdownMenuLabel>No templates found.</DropdownMenuLabel>
-                        <Link href={`/application/${_teamid}/templates/new`}>
+                        <a href={`/application/${_teamid}/templates/new`}>
                         <DropdownMenuItem >Create a new template</DropdownMenuItem>
-                        </Link>
-                    </>
+                        </a>
+                    </div>
                 )
             }
         </DropdownMenuContent>

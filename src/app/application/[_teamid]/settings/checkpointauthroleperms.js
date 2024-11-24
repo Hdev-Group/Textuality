@@ -36,5 +36,5 @@ export default function CheckpointAuthWrapper({  teamid, children }) {
     }
   
     // Render children (i.e., the page content) if the user is authorized
-    return <>{children}</>;
+    return <div>{children}</div>;
   };

@@ -61,7 +61,7 @@ export default function Home() {
     },
   ]
   return (
-    <>
+    <div>
       <div className="flex bg flex-col min-h-screen w-full items-center justify-center">
         <div className="flex items-center justify-center ">
           <div className="w-full justify-center flex-col items-center flex">
@@ -285,7 +285,7 @@ export default function Home() {
             </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

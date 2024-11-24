@@ -78,7 +78,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     };
     useEffect(() => {
         // Compare current fieldValues with the last saved ones to check for changes
-        const changesDetected = Object.entries(debouncedFieldValues).some(([fieldid, value]) => {
+        const changesDetected = Object.entries(debouncedFieldValues)?.some(([fieldid, value]) => {
             return lastSavedValues[fieldid] !== value;
         });
     
@@ -86,7 +86,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     }, [debouncedFieldValues, lastSavedValues]);
     useEffect(() => {
         async function fetchUserData() {
-            if (getContent?.authorid && !userData.some(user => user._id === getContent.authorid)) {
+            if (getContent?.authorid && !userData?.some(user => user._id === getContent.authorid)) {
                 
                 try {
                     const response = await fetch(`/api/secure/get-user?userId=${getContent?.authorid}`);
@@ -189,7 +189,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     }, []);
     const removeLock = (fieldid: string, userid: string) => {
         // first check to see if the same user is trying to remove the lock
-        const isuser = islocked.find((lock) => lock.fieldid === fieldid && lock.userid === userid);
+        const isuser = islocked?.find((lock) => lock.fieldid === fieldid && lock.userid === userid);
         // then if thats true remove the lock 
         if (isuser) {
             if (updated === "pending") {
@@ -209,7 +209,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     };
     
     const lockSet = (lock: { fieldid: string; userid: string }) => {
-        const islockedalready = islocked.find((l) => l.fieldid === lock.fieldid);
+        const islockedalready = islocked?.find((l) => l.fieldid === lock.fieldid);
 
         if (islockedalready) {
         } else {
@@ -317,8 +317,8 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
 
     // author information
     useEffect(() => {
-        if (getDepartments && getDepartments.some(dept => dept._id === getContent?.authorid)) {
-            const data = getDepartments.find(dept => dept._id === getContent?.authorid);
+        if (getDepartments && getDepartments?.some(dept => dept._id === getContent?.authorid)) {
+            const data = getDepartments?.find(dept => dept._id === getContent?.authorid);
             setAuthorInfo({
                 name: data?.departmentname,
                 imageUrl: '',
@@ -365,8 +365,8 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                         <Label className='text-sm font-medium text-gray-700 dark:text-gray-100'>{field?.fieldname}</Label>
                                                         {
                                                             // check to see if the field is currently being edited by another user and if so show the pfp of the user
-                                                            getlockedinputs.find(lock => lock.fieldid === field._id) ? (
-                                                                getlockedinputs.find(lock => lock.fieldid === field._id && lock.userid === userId) ? (
+                                                            getlockedinputs?.find(lock => lock.fieldid === field._id) ? (
+                                                                getlockedinputs?.find(lock => lock.fieldid === field._id && lock.userid === userId) ? (
                                                                     <div className='flex flex-row gap-2 items-center'>
                                                                         <Avatar className='w-5 h-5 mb-2'>
                                                                             <AvatarImage src={user.user.imageUrl} />
@@ -376,7 +376,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                                 ) : (
                                                                     <div className='flex flex-row gap-2 justify-center items-center'>
                                                                         <Avatar className='w-5 h-5 mb-2'>
-                                                                            <AvatarImage src={getlockedinputs.find(lock => lock.fieldid === field._id)?.userpfp} />
+                                                                            <AvatarImage src={getlockedinputs?.find(lock => lock.fieldid === field._id)?.userpfp} />
                                                                         </Avatar>
                                                                         <p className='text-xs text-gray-700 dark:text-gray-100'><Lock className='h-3 w-3' /></p>
                                                                     </div>
@@ -429,11 +429,11 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                 isSideBarOpen === true && activeSidebar === null ? <span className='font-semibold'>{getContent?.status}</span> : null
                                             }
                                             {isSideBarOpen && activeSidebar === null  && (
-                                                <>
+                                                <div>
                                                     {getContent?.status === "Published" && <span className='text-xs font-medium'>This content has been published.</span>}
                                                     {getContent?.status === "Draft" && <span className='text-xs font-medium'>This content has not been posted.</span>}
                                                     {getContent?.status === "Review" && <span className='text-xs font-medium'>This content is under review. An owner, admin or author needs to review this first.</span>}
-                                                </>
+                                                </div>
                                             )}
                                         </div>
                                     </div>
@@ -449,11 +449,11 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                     isSideBarOpen === true && activeSidebar === null ? <span className='font-semibold text-left'>Autosave</span> : <Save className='w-full h-full'  />
                                                 }
                                                 {isSideBarOpen && activeSidebar === null && (
-                                                    <>
+                                                    <div>
                                                         {updated === "true" && <span className='text-xs font-medium'>Content has been saved.</span>}
                                                         {updated === "pending" && <span className='text-xs font-medium'>Content is being saved.</span>}
                                                         {updated === "false" && <span className='text-xs font-medium'>Content could not be saved.</span>}
-                                                    </>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
@@ -489,8 +489,8 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                 </div>
                                             } else if (field.type === "Title") {
                                                 // check if its a department or a user
-                                                if (getDepartments.some(dept => dept._id === getContent?.authorid)) {
-                                                    const data= getDepartments.find(dept => dept._id === getContent?.authorid);
+                                                if (getDepartments?.some(dept => dept._id === getContent?.authorid)) {
+                                                    const data= getDepartments?.find(dept => dept._id === getContent?.authorid);
                                                     return (
                                                         <div key={index} className='flex font-bold mb-2 text-3xl mt-2 dark:text-white text-black flex-col gap-1'>
                                                             <p>{fieldValues[field._id]}</p>
@@ -506,10 +506,10 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                                     <div className="flex flex-row gap-2 items-center">
                                                                         {
                                                                             getFields?.some(f => f._id === field._id && f.type === "Rich text") ? (
-                                                                                <>
+                                                                                <div>
                                                                                     <p className="font-normal text-xs dark:text-gray-400">{readtimecalc({ text: richTextFields})} read</p>
                                                                                     <p>·</p>
-                                                                                </>
+                                                                                </div>
                                                                             ) : null
                                                                         }
                                                                         <p className="font-normal text-xs dark:text-gray-400 flex items-center flex-row gap-0.5">
@@ -721,8 +721,8 @@ interface Author {
   
 function Author({ authordetails, onValueChange, teamid, getDepartments, getAuthorid }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string, getDepartments: any, getAuthorid: string }) {
 
-    const mainAuthor = authordetails.find((author: any) => author.id === getAuthorid);
-    const maindepartment = getDepartments.find((dept: any) => dept._id === getAuthorid);
+    const mainAuthor = authordetails?.find((author: any) => author.id === getAuthorid);
+    const maindepartment = getDepartments?.find((dept: any) => dept._id === getAuthorid);
 
     const [selectedAuthor, setSelectedAuthor] = useState<string | undefined>(mainAuthor?._id);
     const [isMainAuthor, setMainAuthor] = useState(false);
@@ -759,7 +759,7 @@ function Author({ authordetails, onValueChange, teamid, getDepartments, getAutho
           <SelectGroup>
             <SelectLabel>Main Author</SelectLabel>
                 {
-                    getDepartments.some((dept: any) => dept?._id === mainAuthor?._id) ? (
+                    getDepartments?.some((dept: any) => dept?._id === mainAuthor?._id) ? (
                         <SelectItem value={getDepartments?._id}>
                             <DepartmentOption
                                 author={mainAuthor}
@@ -886,7 +886,7 @@ function MessageList({ teamid, contentid }: any) {
         if (messages) {
             setStoredMessages((prevMessages) => {
                 const newMessages = messages.filter(
-                    (message) => !prevMessages.some((prevMessage) => prevMessage._id === message._id)
+                    (message) => !prevMessages?.some((prevMessage) => prevMessage._id === message._id)
                 );
                 return [...prevMessages, ...newMessages];
             });

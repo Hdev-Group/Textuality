@@ -68,7 +68,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {variant === "gradient" ? (
-          <>
+          <div>
             <span
               className="absolute inset-0 z-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-20 blur-lg transition-opacity duration-300 pointer-events-none"
               style={{
@@ -88,7 +88,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               }}
             />
             <span className="relative z-10">{props.children}</span>
-          </>
+          </div>
         ) : (
           <span className="relative z-10 flex flex-row items-center gap-1">{props.children}</span>
         )}

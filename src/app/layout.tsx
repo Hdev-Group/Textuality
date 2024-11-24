@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             />
             <link rel="icon" href="/IMG_6128.png" />
           </head>
-          <body >
+          <body>
           <ConvexClientProvider>
               {children}
               <Toaster />
