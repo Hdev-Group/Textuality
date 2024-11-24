@@ -190,7 +190,6 @@ body {
     content: "";
     display: block;
     inset: 0px 0px -20px;
-    background-image: linear-gradient(rgba(245, 192, 192, 0.15) 1px, transparent 1px), linear-gradient(to right, rgba(245, 192, 192, 0.15) 1px, transparent 1px);
     background-size: 40px 40px;
 }
 nav a {
