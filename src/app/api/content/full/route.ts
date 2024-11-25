@@ -2,15 +2,61 @@ import { NextResponse, NextRequest } from "next/server";
 import { api } from '../../../../../convex/_generated/api';
 import { fetchMutation, fetchQuery } from "convex/nextjs";
 
-export async function GET(req: NextRequest) {
-  const authorizationHeader = req.headers.get('Authorization');
-  console.log('Request received at:', new Date().toISOString());
+// In-memory request tracking
+const requestCounts = new Map();
+const RATE_LIMIT = 200; 
+const BURST_LIMIT = 30;
+const TIME_WINDOW = 60000;
 
+// Helper to extract user token
+const getAuthToken = (req: NextRequest) => {
+  const authorizationHeader = req.headers.get('Authorization');
   if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  return authorizationHeader.split(' ')[1];
+};
+
+function isRateLimited(userKey: string) {
+  const now = Date.now();
+
+  if (!requestCounts.has(userKey)) {
+    requestCounts.set(userKey, []);
+  }
+
+  const timestamps = requestCounts.get(userKey);
+  requestCounts.set(userKey, timestamps.filter((timestamp: number) => now - timestamp <= TIME_WINDOW));
+
+  if (timestamps.length >= RATE_LIMIT + BURST_LIMIT) {
+    return true;
+  }
+
+  timestamps.push(now);
+  return false;
+}
+
+export async function GET(req: NextRequest) {
+  const token = getAuthToken(req);
+
+  if (!token) {
     return NextResponse.json({ error: 'Access token is required' }, { status: 401 });
   }
 
-  const [_, token, pageid] = authorizationHeader.split(' ');
+  const userKey = token; 
+
+
+  if (isRateLimited(userKey)) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 }
+    );
+  }
+
+  const pageid = req.nextUrl.pathname.split('/').pop(); 
+
+  if (!pageid) {
+    return NextResponse.json({ error: 'Page ID is required' }, { status: 400 });
+  }
 
   try {
     const [correctPageID, isAuthCorrect] = await Promise.all([
@@ -36,7 +82,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'No published files found. Please publish a file.' }, { status: 400 });
     }
 
-    console.log('Response sent at:', new Date().toISOString());
     return NextResponse.json({ results });
 
   } catch (error) {
@@ -47,4 +92,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-// curl -X GET "http://localhost:3000/api/content/full" -H "Authorization: Bearer cpq1bow4u3gg5rl55cmknmg7m5ooflh7h8288lfaabdslgh63unwbyppv9m39mfd j978n7r29qavcf6m20fcnhfw3174tqra"
