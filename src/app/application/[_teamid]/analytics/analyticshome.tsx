@@ -22,10 +22,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
+import { useQuery } from "convex/react"
+import { api } from "../../../../../convex/_generated/api"
 
 export default function AnalyticsHome({ params }: { params: { _teamid: string} }){
     const { _teamid: teamid } = params
+    const teaminfo = useQuery(api.page.getExactPage, { _id: teamid as any });
+
     return(
         <div>
         <body className='overflow-hidden'>
@@ -45,7 +48,7 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string} }
             </div>
             <div className="flex flex-row py-4 px-8">
                 <div className="flex flex-row">
-                    <DateSelector />
+                    <DateSelector teaminfo={teaminfo} />
                 </div>
             </div>
           </div>
@@ -57,9 +60,12 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string} }
       </div>
     )
 }
-function DateSelector() {
+function DateSelector({teaminfo}: {teaminfo: any}) {
     const [date, setDate] = useState<Date>(new Date())
     const [filterType, setFilterType] = useState<"day" | "month" | "year">("day")
+
+    const createdatday = new Date(teaminfo?._creationTime)
+    console.log(teaminfo)
   
     const handleDateChange = (newDate: Date | undefined) => {
       if (newDate) {
@@ -149,6 +155,9 @@ function DateSelector() {
               <Calendar
                 mode="single"
                 selected={date}
+                disabled={(date) =>
+                    date > new Date() || date < new Date(createdatday)
+                }
                 onSelect={handleDateChange}
                 initialFocus
               />
