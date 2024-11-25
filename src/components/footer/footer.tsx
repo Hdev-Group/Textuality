@@ -1,7 +1,8 @@
 "use client"
-import { Facebook, Instagram, Twitter, Youtube, Moon, Sun } from "lucide-react"
+import { Facebook, Instagram, Twitter, Youtube, Moon, Sun, LogIn, LucideTwitter, LucideLinkedin } from "lucide-react"
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function Footer() {
   const [isdark, setDark] = useState(true);
@@ -41,62 +42,63 @@ export default function Footer() {
 
 
     return(
-      <footer className="bg-background border-t mx-0 w-full">
-      <div className="container mx-auto py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2">
-            <div className="flex flex-row">
-              <img src={image} alt="Textuality" className="h-8 w-8" />
-              <h2 className="text-2xl font-bold ml-[-8px] mt-0.5 mb-4">extuality</h2>
+      <footer className="bg-background mx-0 w-full mt-20 relative">
+            <div className="w-full bg-muted/10 border-t">
+              <div className="container relative mx-auto py-8 px-4 ">
+                <div className="flex flex-row justify-between">
+                  <div className="flex flex-col gap-4">
+                    <h1 className="text-[0.9rem] font-bold text-muted-foreground">PRODUCT</h1>
+                    <Link href={"/plans"}>
+                    <p className="text-sm text-muted-foreground">Pricing</p>
+                    </Link>
+                    <Link href={"/"}>
+                    <p className="text-sm text-muted-foreground">Use Cases</p>
+                    </Link>
+                    <Link href={"/"}>
+                    <p className="text-sm text-muted-foreground">Blog</p>
+                    </Link>
+                    <Link href={"/"}>
+                    <p className="text-sm text-muted-foreground">Tutorials</p>
+                    </Link>
+                    <Link href={"/support"}>
+                    <p className="text-sm text-muted-foreground">Support</p>
+                    </Link>
+
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="text-muted-foreground mb-4">Empowering your digital narrative.</p>
-            <div className="flex space-x-4">
-              <a href="#" aria-label="Facebook" className="text-muted-foreground hover:text-primary">
-                <Facebook size={20} />
-              </a>
-              <a href="#" aria-label="Instagram" className="text-muted-foreground hover:text-primary">
-                <Instagram size={20} />
-              </a>
-              <a href="#" aria-label="Twitter" className="text-muted-foreground hover:text-primary">
-                <Twitter size={20} />
-              </a>
-              <a href="#" aria-label="YouTube" className="text-muted-foreground hover:text-primary">
-                <Youtube size={20} />
-              </a>
+            <div className="w-full bg-muted/20 border-t">
+              <div className="container mx-auto  pb-8 px-4 w-full">
+                <div className="flex flex-row justify-between">
+                  <div className="flex flex-row gap-5 items-center text-sm text-muted-foreground">
+                    <Link href={"/"}>
+                    <div className="rounded-full p-2 bg-blue-500/20 text-blue-600 transition-all hover:bg-blue-400/30">
+                      <LucideTwitter size={24} />
+                    </div>
+                    </Link>
+                    <Link href={"/"}>
+                    <div className="rounded-full text-blue-600 p-2 bg-blue-500/20 transition-all hover:bg-blue-400/30">
+                      <LucideLinkedin size={24} />
+                    </div>
+                    </Link>
+                    <Link href={"/"}>
+                    <p>Textuality Terms of Service</p>
+                    </Link>
+                    <Link href={"/"}>
+                    <p>Textuality Privacy Policy</p>
+                    </Link>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="items-end justify-end">
+                      <img src={"/hdev/hdevlogo.png"} alt="HDev Logo" className="w-auto h-24" />
+                    </div>
+                    <p className="text-muted-foreground text-sm">© {new Date().getFullYear()}, Textuality, Inc. All Rights Reserved</p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Features</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Pricing</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">API</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">About</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Careers</a></li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Documentation</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Help Center</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Community</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Blog</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Privacy Policy</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-primary">Terms of Service</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center">
-          <div className="text-center md:text-left mb-4 md:mb-0">
-            <p className="text-sm text-muted-foreground">© 2024 Textuality. All rights reserved.</p>
-            <p className="text-xs text-muted-foreground">Textuality by the Hdev Group</p>
-          </div>
-          <div className="flex items-center space-x-4">
-          <Button size="sm" variant='outline' id="themesetter"> {isdark ? <Moon size={16} /> : <Sun size={16} />} </Button> 
-          </div>
-        </div>
-      </div>
-    </footer>
+      </footer>
+
     )
 }

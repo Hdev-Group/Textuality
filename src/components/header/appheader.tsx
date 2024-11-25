@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
-import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, ArrowUp, Home, ChevronRight, Check } from "lucide-react"
+import { Wrench, FolderPen, Image as ImageIcon, Component, Settings, Search, ArrowUp, Home, ChartArea, ChevronRight, Check } from "lucide-react"
 import { useUser } from "@clerk/clerk-react"
 import { useState, useEffect } from "react"
 import { useClerk } from '@clerk/nextjs'
@@ -33,6 +33,7 @@ export default function AppHeader({ teamid, activesection }: any) {
     { icon: Wrench, label: "Templates", route: `/application/${teamid}/templates`, activesection: "templates" },
     { icon: FolderPen, label: "Content", route: `/application/${teamid}/content`, activesection: "content" },
     { icon: Component, label: "Components", route: `/application/${teamid}/components`, activesection: "components" },
+    { icon: ChartArea, label: "Analytics", route: `/application/${teamid}/analytics`, activesection: "analytics" },
   ];
   const teamname = useQuery(api.page.getExactPage, { _id: teamid })?.title;
   const { signOut } = useClerk()
@@ -276,7 +277,7 @@ function PlanOption({ name, price, features, everythingin }) {
           Starting at {price}/mo
         </p>
         <p className="text-muted-foreground text-xs mt-1">
-          Everything in {everythingin} and
+          {everythingin && `Everything in ${everythingin} and`}
         </p>
       </div>
       
@@ -293,7 +294,7 @@ function PlanOption({ name, price, features, everythingin }) {
 }
 
 function CurrentlyIn({ information, whereat }: { information: any, whereat: any }) {
-  const whereatcapitalized = whereat.charAt(0).toUpperCase() + whereat.slice(1);
+  const whereatcapitalized = whereat ? whereat.charAt(0).toUpperCase() + whereat.slice(1) : '';
   return (
     <div className='border-green-500 hidden lg:flex border-l-8 border bg-green-500/20 p-2 rounded-md'>
       <p className='text-xs font-semibold flex flex-row items-center justify-center'>{information} <ChevronRight height={16} width={16} /> {whereatcapitalized}</p>

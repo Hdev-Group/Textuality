@@ -7,12 +7,13 @@ import { useAuth } from '@clerk/nextjs'
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder } from "lucide-react"
+import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder, Text, LucideHardDriveUpload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import AuthWrapper from '../withAuth';
 import { cookies } from 'next/headers';
+import { set } from 'zod';
 
 export default function Page({ params }: { params: { _teamid: string} }) {
   const { _teamid } = params;
@@ -86,7 +87,7 @@ function Setup({ changePreview }: { changePreview: any }) {
           </div>
           <div className='flex w-full flex-row justify-between py-2 px-5'>
             <div className='flex flex-row gap-5 items-center w-1/3 border-r pr-5 border-muted'>
-              <img src="/images/quickstart.svg" />
+            <Text className='h-10 w-10' />
               <div className='flex flex-col gap-1'>
                 <h3 className='font-semibold text-lg'>Quick Start Guide</h3>
                 <p className='text-muted-foreground text-sm'>Discover the best practices to use textuality effectively for your content</p>
@@ -94,14 +95,16 @@ function Setup({ changePreview }: { changePreview: any }) {
             </div>
             <div className='flex flex-col gap-2 w-3/4 pl-5'>
               <div className='flex flex-row border-b py-4 gap-5'>
-                <img src="/images/createblog.svg"  />
+              <img src="/icons/IMG_6490.png" className='h-10 dark:flex hidden' />
+              <img src="/icons/IMG_6451.png" className='h-10 dark:hidden flex' />
                 <div className='flex flex-col gap-2'>
                   <h3 className='font-semibold'>Create your content</h3>
                   <p>Learn how to integrate Textuality using best practices that will make you appear higher in search results</p>
                 </div>
               </div>
               <div className='flex flex-row gap-5 py-4'>
-                <img src="/images/invite.svg" />
+              <img src="/icons/IMG_6489.png" className='h-10 dark:flex hidden' />
+              <img src="/icons/IMG_6452.png" className='h-10 dark:hidden flex' />
                 <div className='flex flex-col gap-2'>
                   <h3 className='font-semibold'>Pre-Made Templates</h3>
                   <p>Unsure where to begin? Start by using a pre-configured template.</p>
@@ -174,7 +177,7 @@ function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }
           </div>
           <div className={`flex w-full flex-row justify-between py-2 px-5 overflow-hidden ${showhideContent ? "h-auto" : "hidden"}`}>
             <div className='flex flex-row gap-5 items-center w-1/3 border-r pr-5 border-muted'>
-              <img src="/images/quickstart.svg" />
+              <Text className='h-10 w-10' />
               <div className='flex flex-col gap-1'>
                 <h3 className='font-semibold text-lg'>Quick Start Guide</h3>
                 <p className='text-muted-foreground text-sm'>Discover the best practices to use textuality effectively for your content</p>
@@ -182,14 +185,16 @@ function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }
             </div>
             <div className='flex flex-col gap-2 w-3/4 pl-5'>
               <div className='flex flex-row border-b py-4 gap-5'>
-                <img src="/images/createblog.svg"  />
+              <img src="/icons/IMG_6490.png" className='h-10 dark:flex hidden' />
+              <img src="/icons/IMG_6451.png" className='h-10 dark:hidden flex' />
                 <div className='flex flex-col gap-2'>
                   <h3 className='font-semibold'>Create your content</h3>
                   <p>Learn how to make your content shine using best practices that will make you appear higher in search results</p>
                 </div>
               </div>
               <div className='flex flex-row gap-5 py-4'>
-                <img src="/images/invite.svg" />
+              <img src="/icons/IMG_6489.png" className='h-10 dark:flex hidden' />
+              <img src="/icons/IMG_6452.png" className='h-10 dark:hidden flex' />
                 <div className='flex flex-col gap-2'>
                   <h3 className='font-semibold'>Pre-Made Templates</h3>
                   <p>Unsure where to begin? Start by using a pre-configured template.</p>
@@ -210,14 +215,15 @@ function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }
           <div className={`flex w-full flex-row justify-between py-2 px-5 overflow-hidden ${showhideSuggesteder ? "h-auto" : "hidden"}`}>
             <div className='flex flex-col gap-5 w-full  pr-5 '>
               <div className='flex flex-row py-4 gap-5'>
-                <img src="/images/quickstart.svg" />
+                <img src="/icons/IMG_6491.png" className='h-10 dark:flex hidden' />
+                <img src="/icons/IMG_6450.png" className='h-10 dark:hidden flex' />
                 <div className='flex flex-col gap-1'>
                   <h3 className='font-semibold text-lg'>Invite Team members</h3>
                   <p className='text-muted-foreground text-sm'>Discover the best practices to use textuality effectively for your content</p>
                 </div>
               </div>
               <div className='flex flex-row py-4 gap-5'>
-                <img src="/images/createblog.svg"  />
+                <LucideHardDriveUpload className='h-10 w-10' />
                 <div className='flex flex-col gap-2'>
                   <h3 className='font-semibold'>Learn how to integrate Textuality</h3>
                   <p>Learn how to make your content shine using best practices that will make you appear higher in search results</p>
@@ -236,7 +242,7 @@ function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }
 
 function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  pageContentAPIGetter }) {
   const pageinfo = getpageinfo;
-
+  const [warninger, setWarning] = useState(false);
   const pageContentAPI = pageContentAPIGetter?.[0]?.contentsendingapi
   const pageContentManagerAPI = pageContentAPIGetter?.[0]?.contentmanagerapi
   // calculate the percentage of usage
@@ -246,13 +252,21 @@ function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  
   const contentAPI = (pageContentAPI / 2000) * 100;
   const contentManagerAPI = (pageContentManagerAPI / 2000) * 100;
 
+  useEffect(() => {
+    // check if one of the percentage is greater than 75% and display a warning
+    const warning = users >= 75 || templates >= 75 || content >= 75 || contentAPI >= 75 || contentManagerAPI >= 75;
+    if (warning) {
+      setWarning(true);
+    }
+  }, [users, templates, content, contentAPI, contentManagerAPI]);
+
   return(
     <div className='flex container mx-auto mt-5'>
       <div className='border-muted border mt-3 rounded-md'>
         <div className='flex flex-col gap-3 '>
           <div className='flex border-b border-muted items-center py-4 px-4 justify-between'>
             <p className='font-semibold text-lg flex flex-row gap-3'><ChartArea className='h-6 w-6' /> Insights</p>
-            <Link className='flex flex-row items-center gap-1.5 hover:underline text-blue-500 underline-offset-2 text-sm' href='/plans'>
+            <Link className={`flex flex-row items-center gap-1.5 hover:underline underline-offset-2 text-sm py-1.5 px-2 rounded-lg ${warninger ? " bg-red-500 shadow-md animate-pulse text-foreground font-semibold" : "text-blue-500 "}`} href='/plans'>
               <CreditCard className='h-4 w-4' /> Upgrade Plan
             </Link>
           </div>
@@ -260,41 +274,46 @@ function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  
             <div className='flex flex-row gap-5 px-5 py-3 justify-between'>
               <div className='flex flex-col border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3 w-full'>
                 <h1 className='text-md font-semibold'>Content Sending API</h1>
-                <p className='text-muted-foreground text-xs'>Number of API calls that was made to send your content</p>
-                <p className='font-semibold mt-3'>{pageContentAPI}</p>
+                <p className='text-muted-foreground text-xs'>Number of API calls that were made to send your content</p>
+                <p className='font-semibold mt-3'>{pageContentAPI || 0}/50000</p>
+                {pageContentAPI >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {contentAPI}% of your pageContentAPI limit.</p>}
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: contentAPI}}></div>
+                  <div className='bg-primary rounded-full h-2' style={{width: contentAPI || 0, backgroundColor: contentAPI >=75 ? 'red' : ''}}></div>
                 </div>
               </div>
               <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
                 <h1 className='text-md font-semibold'>Content Management API</h1>
-                <p className='text-muted-foreground text-xs'>Number of API calls that was made to create or update content</p>
-                <p className='font-semibold mt-3'>{pageContentManagerAPI}</p>
+                <p className='text-muted-foreground text-xs'>Number of API calls that were made to create or update content</p>
+                <p className='font-semibold mt-3'>{pageContentManagerAPI || 0}/50000</p>
+                {pageContentManagerAPI >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {pageContentManagerAPI}% of your pageContentManagerAPI limit.</p>}
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: contentManagerAPI}}></div>
+                  <div className='bg-primary rounded-full h-2' style={{width: contentManagerAPI || 0,  backgroundColor: contentManagerAPI >=75 ? 'red' : ''}}></div>
                 </div>
               </div>
             </div>
             <div className='flex flex-row gap-5 px-5 py-3 justify-between'>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
+              <div className='flex flex-col w-full border-foreground/40 h-auto border bg-muted-foreground/20 rounded-sm p-3'>
                 <h1 className='text-md font-semibold'>Users</h1>
                 <p className='font-semibold mt-3 text-sm'>{pageinfo?.users}/5</p>
+                {users >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {users}% of your user limit.</p>}
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: users}}></div>
+                    <div className='bg-primary rounded-full h-2' style={{width: users, backgroundColor: users >= 75 ? 'red' : ''}}></div>
                 </div>
               </div>
               <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
                 <h1 className='text-md font-semibold'>Templates</h1>
                 <p className='font-semibold mt-3  text-sm'>{pageinfo?.templates}/25</p>
+                {templates >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {templates}% of your template limit.</p>}
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: templates}}></div>
+                  <div className='bg-primary rounded-full h-2' style={{width: templates, backgroundColor: templates >= 75 ? 'red' : ''}}></div>
                 </div>
               </div>
               <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
                 <h1 className='text-md font-semibold'>Content</h1>
                 <p className='font-semibold mt-3  text-sm'>{pageinfo?.content}/5000</p>
+                {content >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {content}% of your content limit.</p>}
                 <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: content}}></div>
+                  <div className='bg-primary rounded-full h-2' style={{width: content, backgroundColor: content >=75 ? 'red' : ''}}></div>
                 </div>
               </div>
               <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
