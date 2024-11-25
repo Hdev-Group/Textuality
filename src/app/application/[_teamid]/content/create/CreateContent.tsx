@@ -61,18 +61,21 @@ export default function TemplateManager({ params }: { params: { _teamid: any }})
         setApiValue(sanitized);
     }
     const sendContent = useMutation(api.content.createContent)
-  
+
     const templatefilter = getTemplates?.filter((template) => template._id === templateId)
     async function onsubmit(event) {
         event.preventDefault();
         setOpen(false);
         setContent({ name: namevalue, apiref: apivalue });
         const returner = await sendContent({ pageid: _teamid as any, updated: new Date().getTime(), templateid: templateId as any, title: namevalue, apiref: apivalue, lastUpdatedBy: userId });
-        router.push(`/application/${_teamid}/content/${returner}/edit`);
+        // wait for returner
+        if (returner) {
+            router.push(`/application/${_teamid}/content/${returner}/edit`);
+        }
     }
     const title = getPage?.title + ' — Create Content' + ' — Textuality'
     return (
-        <body className='overflow-y-hidden'>
+        <div className='overflow-y-hidden'>
             <title>{title}</title>
             <AuthWrapper _teamid={_teamid}>
             <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
@@ -133,6 +136,6 @@ export default function TemplateManager({ params }: { params: { _teamid: any }})
                     </main>
                 </div>
             </AuthWrapper>
-        </body>
+        </div>
     );
 }

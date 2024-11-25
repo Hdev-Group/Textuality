@@ -99,7 +99,6 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
   const title = `New Template | Textuality`
 
   return (
-  <>
   <body className='overflow-hidden'>
     <title>{title}</title>
     <AuthWrapper _teamid={_teamid}>
@@ -209,6 +208,5 @@ export default function TemplateManager({ params }: { params: Promise<{ _teamid:
     </div>
     </AuthWrapper>
   </body>
-  </>
   )
 }

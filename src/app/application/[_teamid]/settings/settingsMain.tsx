@@ -29,20 +29,25 @@ import { z } from "zod";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CheckpointAuthWrapper from "./checkpointauthroleperms";
+import { useRouter } from "next/navigation";
 
 export default function Page({ params }) {
     const { _teamid } = params
     console.log(_teamid)
+    const route = useRouter()
     const teamid = _teamid
+    const { user } = useUser()
     const getPage = useQuery(api.page.getPage, { _id: teamid as any });
+    const getRole = useQuery(api.page.getRoledetail, { externalId: user?.id ?? 'none', pageId: _teamid });
     const updatePage = useMutation(api.page.updatePage);
     const getDepartments = useQuery(api.department.getDepartments, { pageid: teamid as any });
+    const deletePage = useMutation(api.page.deletePage);
     const [activeTab, setActiveTab] = React.useState("general");
     const searchParams = useSearchParams();
 
     useEffect(() => {
         const currentType = searchParams.get('type');
-        if (currentType === 'general' || currentType === 'content' || currentType === 'billing' || currentType === 'security') {
+        if (currentType === 'general' || currentType === 'content' || currentType === 'billing' || currentType === 'security' || currentType === 'dangerzone') {
             setActiveTab(currentType);
         } else {
             setActiveTab('general');
@@ -67,9 +72,18 @@ export default function Page({ params }) {
       updatePage({ _id: teamid, title: pagetitle, content: content });
     }
 
+    function pagedelete() {
+      // check role again
+      if (getRole?.[0]?.permissions.includes("owner")){
+      deletePage({ _id: teamid });
+      route.push('/application/home')
+      } else {
+        alert("You do not have permission to delete this page")
+      }
+    }
     return (
       <CheckpointAuthWrapper teamid={teamid}>
-        <body className='overflow-y-hidden'>
+        <div className='overflow-y-hidden'>
             <AuthWrapper _teamid={_teamid}>
                 <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
                     <AppHeader activesection="settings" teamid={_teamid} />
@@ -224,6 +238,38 @@ export default function Page({ params }) {
                                             </div>
                                         </div>
                                     </main>
+                                    ) : activeTab === "dangerzone" ? (
+                                        <main className="flex-1">
+                                        <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
+                                            <div className="flex justify-between items-center">
+                                                <h1 className="text-2xl font-bold">Danger Zone</h1>
+                                            </div>
+                                        </div>
+                                        {
+                                          ["owner"].some(role => getRole?.[0]?.permissions.includes(role)) ? (
+                                            <div className="space-y-4 p-8 border-b">
+                                            <h2 className="text-lg font-semibold">Delete Page</h2>
+                                            <p className="text-sm text-gray-400">Delete this page. This action cannot be undone.</p>
+                                            <Dialog>
+                                              <DialogTrigger asChild>
+                                                <Button variant="destructive">Delete Page</Button>
+                                              </DialogTrigger>
+                                              <DialogContent>
+                                                <DialogHeader>
+                                                  <DialogTitle>Delete Page</DialogTitle>
+                                                  <DialogDescription>Are you sure you want to delete this page?</DialogDescription>
+                                                </DialogHeader>
+                                                <DialogFooter>
+                                                  <Button variant="destructive" onClick={() => pagedelete()}>Delete Page</Button>
+                                                </DialogFooter>
+                                              </DialogContent>
+                                            </Dialog>
+                                          </div>
+                                          ) : (
+                                            <p className="text-sm text-gray-400 p-8">You do not have permission to delete this page</p>
+                                          )
+                                        }
+                                    </main>
                                     ) : null
                                 }
                             </div>
@@ -231,7 +277,7 @@ export default function Page({ params }) {
                     </main>
                 </div>
         </AuthWrapper>
-    </body>
+    </div>
     </CheckpointAuthWrapper>
     )
 }
@@ -261,6 +307,11 @@ function Sidebar({ activeTab, setActiveTab, teamid }) {
                     className={`flex items-center justify-between cursor-pointer w-full px-8 py-2 text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "billing" ? "bg-gray-100 dark:bg-neutral-900 font-semibold" : "hover:bg-neutral-400/20"}`}
                 >
                     <p>Billing</p>
+                </Link>
+                <Link href={`/application/${teamid}/settings?type=dangerzone`}
+                    className={`flex items-center justify-between cursor-pointer w-full px-8 py-2 text-sm font-medium text-gray-600 dark:text-neutral-300 ${activeTab === "dangerzone" ? "bg-red-100 dark:bg-red-900 font-semibold" : "hover:bg-red-400/20"}`}
+                >
+                    <p>Danger Zone</p>
                 </Link>
             </nav>
         </aside>

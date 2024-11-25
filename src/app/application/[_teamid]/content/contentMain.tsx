@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { SelectSeparator } from '@radix-ui/react-select';
 import Link from 'next/link';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function Page({ params }: { params: { _teamid: string }}) {
     const { _teamid } = params;
@@ -49,6 +50,9 @@ export default function Page({ params }: { params: { _teamid: string }}) {
     const [userData, setUserData] = useState<any[]>([]);
     const [dataloaded, setDataLoaded] = useState(false);
     const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
+    const [selectedItems, setSelectedItems] = useState<string[]>([]);
+    console.log(getContent?.length);
+    const [selectAll, setSelectAll] = useState(false);
 
     const departmentFilter = getDepartments?.filter((department) => department._id === getContent?.[0]?.authorid);
 
@@ -63,6 +67,25 @@ export default function Page({ params }: { params: { _teamid: string }}) {
         }
     }, [userId, getPage, getPage?.users]);
 
+    const handleCheckboxChange = (itemId: string, checked: boolean) => {
+        if (checked) {
+            setSelectedItems((prev) => [...prev, itemId]);
+        } else {
+            setSelectedItems((prev) => prev.filter((id) => id !== itemId));
+        }
+    };
+
+    const handleSelectAllChange = (checked: boolean) => {
+        setSelectAll(checked);
+        if (checked) {
+            // Select all items
+            const allIds = getContent?.map((item) => item._id) || [];
+            setSelectedItems(allIds);
+        } else {
+            // Deselect all items
+            setSelectedItems([]);
+        }
+    };
 
     useEffect(() => {
         async function fetchAllUserData() {
@@ -109,8 +132,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
         return template?.title;
     }
     return (
-        
-        <body className='overflow-y-hidden'>
+        <div className='overflow-y-hidden'>
             <AuthWrapper _teamid={_teamid}>
                 <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
                     <AppHeader activesection="content" teamid={_teamid} />
@@ -162,6 +184,12 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                         <Table>
                                             <TableHeader>
                                                 <TableRow>
+                                                    <TableHead>
+                                                        <Checkbox
+                                                            checked={selectAll}
+                                                            onCheckedChange={(checked) => handleSelectAllChange(checked as boolean)}
+                                                        />
+                                                    </TableHead>
                                                     <TableHead>Title</TableHead>
                                                     <TableHead>Template</TableHead>
                                                     <TableHead>Updated</TableHead>
@@ -175,9 +203,35 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
+                                                {
+                                                    selectedItems.length > 0 && (
+                                                        <TableRow className='transition-height duration-500 ease-in-out h-0'>
+                                                            <TableCell colSpan={7} className="text-center items-center justify-center w-full">
+                                                                <div className="flex flex-col gap-2 py-2 px-11 items-start w-auto">
+                                                                    <p>{selectedItems.length} item(s) entry selected:</p>
+                                                                    <div className="w-auto flex flex-row gap-2">
+                                                                        <Button className='h-8'>Duplicate</Button>
+                                                                        <Button variant="destructive" className='h-8'>Delete</Button>
+                                                                        <Button variant="gradient" className='h-8'>Archive</Button>
+                                                                        <Button variant="publish" className='h-8'>Publish</Button>
+                                                                    </div>
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ) 
+                                                }
                                                 {filteredContentItems?.length > 0 ? (
                                                     filteredContentItems?.map((item) => (
                                                                 <TableRow key={item._id} className="cursor-pointer hover:border-b-red-300/60">
+                                                                        <TableCell>
+                                                                        <Checkbox
+                                                                            checked={selectedItems.includes(item._id)}
+                                                                            onCheckedChange={(checked) =>
+                                                                                handleCheckboxChange(item._id, checked as boolean)
+                                                                            }
+                                                                            className='ml-2'
+                                                                        />
+                                                                        </TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)} className="font-medium">{item.title}</TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>{getTemplateName(item._id)}</TableCell>
                                                                     <TableCell onClick={() => router.push(`/application/${_teamid}/content/${item._id}/edit`)}>{timeAgo(new Date(item.updated))}</TableCell>
@@ -243,7 +297,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                     ))
                                                 ) : (
                                                     <TableRow>
-                                                        <TableCell colSpan={5} className="text-center items-center justify-center w-full">
+                                                        <TableCell colSpan={7} className="text-center items-center justify-center w-full">
                                                             <div className="flex flex-col gap-2 w-auto">
                                                                 <p className="text-lg">No content found.</p>
                                                                 <div className="w-auto">
@@ -262,7 +316,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                     </main>
                 </div>
             </AuthWrapper>
-        </body>
+        </div>
     );
 }
 
@@ -321,17 +375,17 @@ function ContentCreateButton({getTemplates, _teamid}: any) {
             {
                 getTemplates?.length > 0 ? (
                     getTemplates?.map((template: any) => (
-                    <Link href={`/application/${_teamid}/content/create?templateid=${template._id}`} key={template._id}>
+                    <a href={`/application/${_teamid}/content/create?templateid=${template._id}`} key={template._id}>
                         <DropdownMenuItem key={template._id} >{template.title}</DropdownMenuItem>
-                    </Link>
+                    </a>
                     ))
                 ) : (
-                    <>
+                    <div>
                         <DropdownMenuLabel>No templates found.</DropdownMenuLabel>
-                        <Link href={`/application/${_teamid}/templates/new`}>
+                        <a href={`/application/${_teamid}/templates/new`}>
                         <DropdownMenuItem >Create a new template</DropdownMenuItem>
-                        </Link>
-                    </>
+                        </a>
+                    </div>
                 )
             }
         </DropdownMenuContent>

@@ -10,6 +10,7 @@ import Footer from "@/components/footer/footer";
 import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
 import Link from "next/link";
+import { useMemo } from "react";
 
 export default function SupportPage() {
     const user = useUser();
@@ -32,7 +33,7 @@ export default function SupportPage() {
 
     const TypewriterEffect = ({ firstName }: any) => {
       const [typedText, setTypedText] = useState("");
-      const helptext = `How can we help, ${firstName}?`;
+      const helptext = useMemo(() => `How can we help, ${firstName}?`, [firstName]);
     
       useEffect(() => {
         let i = 0;
@@ -56,7 +57,7 @@ export default function SupportPage() {
     }
 
     return (
-        <body className={`flex bgmain flex-col min-h-screen w-full items-center justify-center `}>
+        <body className={`flex bgmain flex-col min-h-screen w-full items-center justify-center`}>
         <div className="flex items-center justify-center">
           <div className="border-x  border-neutral-600 h-full max-w-[2000px] w-full z-30 dark:border-white/50 rounded-sm lg:mx-10 lg:mb-10 border-b">
             <Header />
@@ -97,8 +98,10 @@ export default function SupportPage() {
                   <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full px-4 md:px-0">
                     {supportCategories.map((category, index) => (
                       <Link key={index} href={category?.href}>
-                        <Button variant="outline" className="h-24 w-full flex flex-col items-center justify-center space-y-2">
+                        <Button variant="gradient" className="h-24 w-full flex flex-col items-center justify-center ">
+                          <div className="w-full items-center justify-center flex mb-1">
                           {category.icon}
+                          </div>
                           <span>{category.title}</span>
                         </Button>
                       </Link>

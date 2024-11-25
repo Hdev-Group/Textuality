@@ -37,7 +37,7 @@
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
-    "convex": "^1.16.4",
+    "convex": "^1.17.2",
     "framer-motion": "^11.11.4",
     "highlight.js": "^11.10.0",
     "lowlight": "^3.1.0",

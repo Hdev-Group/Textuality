@@ -116,16 +116,25 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     const handleSelectTemplate = (template) => {
       const newFields = template.fields.map((field, index) => {
         const matchedType = fieldTypes.find((type) => type.name === field.type);
+        
+        if (!matchedType) {
+          console.error(`No matching field type found for ${field.type}`);
+          return null;
+        }
+    
         return {
           ...matchedType,
           type: field.type,
           fieldname: field.name,
           reference: `${template.name.toLowerCase().replace(/\s+/g, '_')}_${field.name.toLowerCase().replace(/\s+/g, '_')}`,
+          position: index + 1,
+          fieldappearance: matchedType.fieldappearance || 'number-editor'
         };
-      });
+      }).filter(field => field !== null);  
     
-      // Confirm if `onAddField` doesn’t modify the `position` value
-      newFields.forEach((field) => onAddField({ ...field, position: field.fieldposition }));
+
+      newFields.forEach((field) => onAddField(field));
+    
       handleClose();
     };
     

@@ -125,6 +125,34 @@ export const updateField = mutation({
         });
     },
 });
+
+export const updateFieldTemplate = mutation({
+    args: {
+        fieldid: v.id("fields"),
+        fieldname: v.string(),
+        templateid: v.id("templates"),
+        type: v.string(),
+        lastUpdatedBy: v.string(),
+        description: v.optional(v.string()),
+        reference: v.any(),
+        fieldposition: v.number(),
+        fieldappearance: v.any(),
+    },
+    handler: async (ctx, { fieldid, templateid, lastUpdatedBy, fieldname, description, type, reference, fieldposition, fieldappearance }) => {
+        await ctx.db.patch(fieldid, {
+            fieldname,
+            type,
+            reference,
+            description,
+            fieldposition,
+            fieldappearance,
+        });
+        await ctx.db.patch(templateid, {
+            lastUpdatedBy, 
+        });
+    },
+});
+
 export const remove = mutation({
     args: {
         _id: v.id("templates"),

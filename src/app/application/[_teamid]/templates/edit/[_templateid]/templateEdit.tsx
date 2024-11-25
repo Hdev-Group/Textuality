@@ -19,6 +19,7 @@ import { useSearchParams } from 'next/navigation';
 import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import "../../../team.css"
 
 
 type FieldType = {
@@ -70,7 +71,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
   const getRole = useQuery(api.page.getRoledetail, { externalId: userId || "none", pageId: teamid });
-  const saveField = useMutation(api.template.updateField)
+  const saveField = useMutation(api.template.updateFieldTemplate)
   const deleteField = useMutation(api.template.deleteField)
   const TemplateRemove = useMutation(api.template.remove);
   useEffect(() => {
@@ -102,6 +103,9 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       router.push(`/application/${teamid}/templates`)
     }
   }, [getTemplates, router, teamid])
+
+  // check if the template exists
+  if (!getTemplates) return null;
   interface DeleteTemplateProps {
     id: any
     title: string
@@ -134,6 +138,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
           await onDelete(id)
           setSuccess(true)
           setTimeout(() => setIsOpen(false), 2000) // Close dialog after 2 seconds
+          window.location.href = `/application/${teamid}/templates`
         } catch (err) {
           setError("An error occurred while deleting the template. Please try again.")
         } finally {
@@ -287,7 +292,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
     ));
   };
   const handleEdit = (fieldId: string) => {
-    const fieldToEdit = fields.find(field => field._id === fieldId);
+    const fieldToEdit = fields?.find(field => field._id === fieldId);
     if (fieldToEdit) {
       setEditingField(fieldToEdit);
       setIsEditFieldOpen(true);
@@ -321,7 +326,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   }
   const title = getTemplates?.[0]?.title + ' — Templates' + ' — Textuality'
   return (
-    <body className='overflow-y-hidden'>
+    <div className='overflow-y-hidden'>
       <title>{title}</title>
       <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
@@ -403,8 +408,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                                           <TableCell>
                                             <div className="flex items-center">
                                               <div className="flex items-center">
-                                                {fieldTypes.find(ft => ft.name === field.type)?.icon && 
-                                                  React.createElement(fieldTypes.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
+                                                {fieldTypes?.find(ft => ft.name === field.type)?.icon && 
+                                                  React.createElement(fieldTypes?.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
                                                 }
                                                 {field.type}
                                               </div>
@@ -437,10 +442,12 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                                     </Draggable>
                                   ))
                               ) : (
-                                <TableRow  className="text-center py-4 ">
-                                  <TableCell colSpan={4} className='flex-1 space-y-2'>
+                                <TableRow  className="text-center py-4 w-full">
+                                  <TableCell colSpan={4} className='space-y-2'>
                                     <p className='w-full'>No fields found. Click "Add Field" to create your first field.</p>
+                                    <div className='flex justify-center items-center'>
                                     <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
+                                    </div>
                                   </TableCell>
                                 </TableRow>
                               )
@@ -504,7 +511,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
           }}
         />
       </AuthWrapper>
-    </body>
+    </div>
   )
 }
 

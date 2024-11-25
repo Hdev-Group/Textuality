@@ -7,7 +7,7 @@ import Head from "next/head";
 
 export function IsAuthorizedEdge() {
   return (
-    <>
+    <div>
       <Head>
         <title>Not Authorized | Textuality</title>
       </Head>
@@ -28,13 +28,13 @@ export function IsAuthorizedEdge() {
           </CardContent>
         </Card>
       </div>
-    </>
+    </div>
   );
 }
 
 export function IsLoadedEdge(){
   return (
-    <>
+    <div>
     <title>Loading... | Textuality</title>
       <div className="flex items-center flex-col justify-center min-h-screen">
         <div className="flex justify-center items-center h-64">
@@ -42,6 +42,6 @@ export function IsLoadedEdge(){
         </div>
         <p className="text-muted-foreground text-center mt-4">Loading.</p>
       </div>
-    </>
+    </div>
   );
 }

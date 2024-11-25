@@ -56,7 +56,7 @@ export default function PricingPage() {
 
 
   return (
-    <body className={`flex bgmain flex-col min-h-screen w-full items-center justify-center `}>
+    <div className={`flex bgmain flex-col min-h-screen w-full items-center justify-center `}>
       <div className="flex items-center justify-center">
         <div className="border-x  border-neutral-600 max-w-[2000px] w-full z-30 dark:border-white/50 rounded-sm lg:mx-10 lg:mb-10 border-b">
           <Header />
@@ -172,7 +172,7 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
-    </body>
+    </div>
   );
 }
 
@@ -219,7 +219,7 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
     }
   };
   return (
-    <>
+    <div>
       <div className="relative">
         {plans.popular && (
           <div className="absolute top-0 right-0 bg-primary text-background px-4 py-1.5 rounded-bl-lg rounded-tr-lg text-xs shadow-md shadow-primary/40 font-semibold">
@@ -227,8 +227,9 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
           </div>
         )}
         <div className={`flex flex-col border-2 hover:bg-muted/20 transition-all w-full rounded-lg ${isSuccess ? "pingersuccessbought" : ""} ${plans.highlight ? "border-primary shadow-md shadow-primary/40 " : "border-muted"}`}>
-          <div className={`flex border-b-2 flex-col p-6 h-52 justify-between ${plans.highlight ? "border-primary" : "border-muted"}`}>
-            <div className="flex flex-col gap-1">
+          <div className={`flex border-b-2 flex-col p-6 h-72 justify-between ${plans.highlight ? "border-primary" : "border-muted"}`}>
+            <div className="flex flex-col items-start gap-1">
+              <img src={plans.name === "Free" ? "/planimg/freeplan.png" : plans.name === "Pro" ? "/planimg/pro.png" : "/planimg/enterprise.png"} alt={plans.name} className="w-12 h-12" />
               <h1 className="text-2xl font-semibold text-foreground">{plans.name}</h1>
               <h2 className="text-2xl font-semibold text-foreground">
                 £{plans.price}
@@ -246,7 +247,7 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
               isSignedIn ? (
                 <Button
                   onClick={() => handleCheckout(priceId)}
-                  className="w-full bg-primary text-background"
+                  className="w-full mt-2 bg-primary text-background"
                 >
                   Get Started
                 </Button>
@@ -275,6 +276,6 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

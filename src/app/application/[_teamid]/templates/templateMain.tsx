@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import "../team.css"
 
 import {
   Table,
@@ -40,7 +41,6 @@ export default function Page({ params }: { params: { _teamid: string}}) {
   const teamid = _teamid;
   const { userId } = useAuth();
   const router = useRouter();
-
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState<any[]>([]);
@@ -112,14 +112,9 @@ export default function Page({ params }: { params: { _teamid: string}}) {
     if (hours > 0) return `${hours} hours ago`;
     if (minutes > 0) return `${minutes} minutes ago`;
     return "a few seconds ago";
-  }
-
-
-  const title = getPage?.title + " — Templates — Textuality";
-  
+  }  
   return (
-      <body className="overflow-y-hidden">
-        <title>{title}</title>
+    <div className="overflow-y-hidden">
       <AuthWrapper _teamid={teamid}>
       <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen overflow-y-hidden">
         <AppHeader activesection="templates" teamid={teamid} />
@@ -199,8 +194,8 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                   ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center  items-center justify-center w-full">
-                        <div className='flex flex-col gap-2'>
+                      <TableCell colSpan={4} className="text-center items-center justify-center w-full">
+                        <div className='flex flex-col gap-2 items-center justify-center'>
                         No templates found.
                           {
                             getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
@@ -221,7 +216,7 @@ export default function Page({ params }: { params: { _teamid: string}}) {
         </main>
       </div>
     </AuthWrapper>
-    </body>
+    </div>
   );
 }
 interface DeleteTemplateProps {

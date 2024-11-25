@@ -4,42 +4,42 @@ import { Id } from "./_generated/dataModel";
 
 export const updateField = mutation({
     args: {
-        fieldid: v.string(),
-        value: v.string(),
-        externalId: v.any(),
-        fileid: v.string(),
-        teamid: v.string(),
-        updated: v.any()
+      fieldid: v.string(),
+      value: v.string(),
+      externalId: v.any(),
+      fileid: v.string(),
+      teamid: v.string(),
+      updated: v.any()
     },
     handler: async (ctx, { fieldid, value, externalId, fileid, teamid, updated }) => {
-        const existingRecord = await ctx.db.query("fieldvalues")
-            .filter(q => q.and(
-                q.eq(q.field("fieldid"), fieldid),
-                q.eq(q.field("teamid"), teamid)
-            ))
-            .first();
-        if (existingRecord) {
-            await ctx.db.patch(existingRecord._id, {
-                value,
-                externalId,
-                fileid,
-            });
-            const itemId: Id<"content"> = fileid as Id<"content">
-            await ctx.db.patch(itemId, { updated });
-            return { ...existingRecord, value, externalId, fileid };
-        } else {
-            const newRecord = {
-                fieldid,
-                value,
-                externalId,
-                teamid,
-                fileid,
-            };
-            const insertedRecord = await ctx.db.insert("fieldvalues", newRecord);
-            return insertedRecord;
-        }
+        
+      // Referencing the compound index in our query
+      const existingRecord = await ctx.db.query("fieldvalues")
+        .withIndex("byfieldid_and_teamid", q => q.eq("fieldid", fieldid).eq("teamid", teamid))
+        .first();
+        
+      if (existingRecord) {
+        await ctx.db.patch(existingRecord._id, {
+          value,
+          externalId,
+          fileid,
+        });
+        const itemId: Id<"content"> = fileid as Id<"content">
+        await ctx.db.patch(itemId, { updated });
+        return { ...existingRecord, value, externalId, fileid };
+      } else {
+        const newRecord = {
+          fieldid,
+          value,
+          externalId,
+          teamid,
+          fileid,
+        };
+        const insertedRecord = await ctx.db.insert("fieldvalues", newRecord);
+        return insertedRecord;
+      }
     }
-});
+  });
 
 export const getFieldValues = query({
     args: {
