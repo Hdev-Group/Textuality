@@ -14,6 +14,7 @@ import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import AuthWrapper from '../withAuth';
 import { cookies } from 'next/headers';
 import { set } from 'zod';
+import { Progress } from "@/components/ui/progress"
 
 export default function Page({ params }: { params: { _teamid: string} }) {
   const { _teamid } = params;
@@ -271,62 +272,83 @@ function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  
             </Link>
           </div>
           <div className='flex w-full flex-col justify-between py-2 pb-4 px-5'>
-            <div className='flex flex-row gap-5 px-5 py-3 justify-between'>
-              <div className='flex flex-col border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3 w-full'>
-                <h1 className='text-md font-semibold'>Content Sending API</h1>
-                <p className='text-muted-foreground text-xs'>Number of API calls that were made to send your content</p>
-                <p className='font-semibold mt-3'>{pageContentAPI || 0}/50000</p>
-                {pageContentAPI >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {contentAPI}% of your pageContentAPI limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: contentAPI || 0, backgroundColor: contentAPI >=75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Content Management API</h1>
-                <p className='text-muted-foreground text-xs'>Number of API calls that were made to create or update content</p>
-                <p className='font-semibold mt-3'>{pageContentManagerAPI || 0}/50000</p>
-                {pageContentManagerAPI >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {pageContentManagerAPI}% of your pageContentManagerAPI limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: contentManagerAPI || 0,  backgroundColor: contentManagerAPI >=75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-            </div>
-            <div className='flex flex-row gap-5 px-5 py-3 justify-between'>
-              <div className='flex flex-col w-full border-foreground/40 h-auto border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Users</h1>
-                <p className='font-semibold mt-3 text-sm'>{pageinfo?.users}/5</p>
-                {users >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {users}% of your user limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                    <div className='bg-primary rounded-full h-2' style={{width: users, backgroundColor: users >= 75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Templates</h1>
-                <p className='font-semibold mt-3  text-sm'>{pageinfo?.templates}/25</p>
-                {templates >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {templates}% of your template limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: templates, backgroundColor: templates >= 75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Content</h1>
-                <p className='font-semibold mt-3  text-sm'>{pageinfo?.content}/5000</p>
-                {content >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {content}% of your content limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: content, backgroundColor: content >=75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Webhooks</h1>
-                <p className='font-semibold mt-3 text-sm'>0/2</p>
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: '0%'}}></div>
-                </div>
-              </div>
-            </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            <MetricCard
+              title="Content Sending API"
+              description="Number of API calls that were made to send your content"
+              current={pageContentAPI}
+              max={50000}
+            />
+            <MetricCard
+              title="Content Management API"
+              description="Number of API calls that were made to create or update content"
+              current={pageContentManagerAPI}
+              max={50000}
+            />
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 mt-5 lg:grid-cols-4">
+            <MetricCard
+              title="Users"
+              description="Total number of users"
+              current={pageinfo?.users || 0}
+              max={5}
+            />
+            <MetricCard
+              title="Templates"
+              description="Total number of templates"
+              current={pageinfo?.templates || 0}
+              max={25}
+            />
+            <MetricCard
+              title="Content"
+              description="Total amount of content"
+              current={pageinfo?.content || 0}
+              max={5000}
+            />
+            <MetricCard
+              title="Webhooks"
+              description="Total number of webhooks"
+              current={0}
+              max={2}
+            />
+          </div>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+interface MetricCardProps {
+  title: string
+  description: string
+  current: number
+  max: number
+  warningThreshold?: number
+}
+function MetricCard({ title, description, current, max, warningThreshold = 75 }: MetricCardProps) {
+  const percentage = (current / max) * 100
+  const isWarning = percentage >= warningThreshold
+  console.log(percentage)
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-xs text-muted-foreground mb-2">{description}</p>
+        <p className="font-semibold mb-2">
+          {(current ?? 0).toLocaleString()}/{(max ?? 0).toLocaleString()}
+        </p>
+        {isWarning && (
+          <p className="text-destructive text-sm mb-2">
+            You have reached {percentage.toFixed(0)}% of your {title.toLowerCase()} limit.
+          </p>
+        )}
+        <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
+            <div className='bg-primary rounded-full h-2' style={{width: `${percentage || 0}%`, backgroundColor: isWarning ? 'red' : ''}}></div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectGroup
 } from "@/components/ui/select";
-
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
@@ -28,19 +29,18 @@ import Link from "next/link";
 
 interface ProjectProps {
   title: string;
-  description?: any;
+  description: any;
   date: string;
-  // postCount: number;
+  postCount: number;
   _id: any;
   category: string;
   content: string;
   users: string[];
   _creationTime: number;
-  // latestPost: { title: string; excerpt: string };
+  latestPost: { title: string; excerpt: string };
 }
 
 export default function Page() {
-  
   const { isSignedIn } = useAuth();
   const user = useUser();
   const projects = useQuery(api.page.getPages);
@@ -101,7 +101,7 @@ export default function Page() {
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold mb-2">Recent Pages</h2>
+            <h2 className="text-xl font-semibold mb-2">Your Pages</h2>
             
             {/* Handle loading and error states */}
             {isLoading ? (
@@ -113,11 +113,11 @@ export default function Page() {
             ) : projects?.length === 0 ? (
               <p>No projects available.</p>
             ) : (
-                <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
+                <div className="flex p-2 rounded-xl items-start  flex-wrap gap-6">
                   {/* Map through the projects if available */}
                   {filteredprojects?.length === 0 ? (
                     <div className="w-full flex items-center flex-col py-4 justify-center">
-                      <p className="text-lg ">No projects available.</p>
+                      <p className="text-lg ">No pages available.</p>
                       <CreatePage />
                     </div>
                   ) : (
@@ -130,7 +130,10 @@ export default function Page() {
                         category={page.category}
                         content={page.content}
                         users={page.users}
+                        description={page.content}
                         _creationTime={page._creationTime}
+                        postCount={0}
+                        latestPost={{ title: "", excerpt: "" }}
                       />
                     ))
                   )}
@@ -173,21 +176,38 @@ export default function Page() {
 }
 
 
-function Project({ 
+interface ProjectProps {
+  title: string
+  description: any
+  users: string[]
+  _id: any
+  _creationTime: number
+  latestPost: { title: string; excerpt: string }
+  postCount: number
+}
+
+interface UserData {
+  id: string
+  firstName: string
+  imageUrl: string
+}
+
+export function Project({ 
   title,
   description,
   users,
   _id,
   _creationTime,
+  latestPost,
+  postCount
 }: ProjectProps) {
-  const [userData, setUserData] = useState<{ firstName: string; imageUrl: string }[]>([]);
+  const [userData, setUserData] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const userCache: { [key: string]: { id: string; firstName: string; imageUrl: string } } = {};
+  const userCache: { [key: string]: UserData } = {};
 
   useEffect(() => {
     async function fetchAssigneeData() {
       if (users && users.length > 0) {
-        // Filter out the users that have already been fetched (exist in the cache)
         const usersToFetch = users.filter((user: string) => !userCache[user]);
 
         if (usersToFetch.length > 0) {
@@ -199,12 +219,10 @@ function Project({
             }
             const data = await response.json();
 
-            // Store the new user data in the cache
-            data.users.forEach((user: { id: string; firstName: string; imageUrl: string }) => {
-              userCache[user.id] = user; // Assuming the user object has an 'id' field
+            data.users.forEach((user: UserData) => {
+              userCache[user.id] = user;
             });
 
-            // Update the state with both cached and newly fetched users
             setUserData(users.map((user: string) => userCache[user]));
 
           } catch (error) {
@@ -214,7 +232,6 @@ function Project({
             setIsLoading(false);
           }
         } else {
-          // If no users need to be fetched, just use the cache
           setUserData(users.map((user: string) => userCache[user]));
         }
       }
@@ -227,60 +244,54 @@ function Project({
   const creationDate = new Date(_creationTime);
 
   return (
-    <div className="bg-neutral-50  md:min-w-[30rem] md:w-min dark:bg-neutral-900 border w-full dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-      <div className="p-6 space-y-4">
-        <div className="flex justify-between items-start">
-          <h3 className="text-xl font-bold">{title.length > 15 ? `${title.substring(0, 15)}...` : title}</h3>
-          <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
-            <CalendarDays className="w-4 h-4 mr-1" />
+    <Card className="overflow-hidden transition-all hover:shadow-lg md:min-w-[30rem] md:w-min w-full">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold truncate">{title}</h3>
+          <Badge variant="secondary" className="font-normal">
+            <CalendarDays className="w-3 h-3 mr-1" />
             {creationDate.toLocaleDateString()}
-          </div>
+          </Badge>
         </div>
-        <p className="text-sm text-neutral-600 dark:text-neutral-300">{description}</p>
-        <div className="flex justify-between items-center text-sm text-neutral-500 dark:text-neutral-400">
+      </CardHeader>
+      <CardContent className="pb-0">
+        <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+        <div className="flex justify-between items-center mt-4 text-sm text-muted-foreground">
           <div className="flex items-center">
             <BookOpen className="w-4 h-4 mr-1" />
             <span>
-              {/* {postCount === 1 ? "1 post" : `${postCount || "No"} posts`} */}
+              {/* Placeholder for post count */}
+              No posts
             </span>
           </div>
           <div className="flex items-center">
             <Users className="w-4 h-4 mr-1" />
-            <span>{teamMemberCount} members</span>
+            <span>{teamMemberCount} {teamMemberCount >= 1 ? "member" : "members"}</span>
           </div>
         </div>
-      </div>
-      {/* {latestPost && (
-        <div className="bg-neutral-100 dark:bg-neutral-800 p-4 border-t dark:border-neutral-700">
-          <h4 className="font-semibold mb-2">Latest Post</h4>
-          <p className="text-sm font-medium">{latestPost.title}</p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">{latestPost.excerpt}</p>
-        </div>
-      )} */}
-      <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
-        <div className="flex -space-x-2">
-          {/* Show avatars for the first 3 users */}
-          {userData.slice(0, 3).map((member, index) => (
-            <Avatar key={index} className="w-8 h-8 border-2 border-white dark:border-neutral-900">
+      </CardContent>
+      <CardFooter className="flex flex-row items-center justify-between h-full mt-4 bg-muted/30">
+      <div className="flex flex-row items-center justify-between overflow-hidden ">
+          {!isLoading && userData.slice(0, 3).map((member, index) => (
+            <Avatar key={index} className="w-8 h-8 border-2 border-background">
               <AvatarImage src={member.imageUrl} alt={member.firstName} />
               <AvatarFallback>{member.firstName.charAt(0)}</AvatarFallback>
             </Avatar>
           ))}
-          {/* Display the +X if more than 3 users */}
           {teamMemberCount > 3 && (
-            <div className="w-8 h-8 rounded-full bg-neutral-300 dark:bg-neutral-700 flex items-center justify-center text-xs font-medium">
+            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium border-2 border-background">
               +{teamMemberCount - 3}
             </div>
           )}
         </div>
-        <Link href={`/application/${_id}/dashboard`}>
-          <Button variant="secondary" size="sm">
-            View Project <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
-        </Link>
-      </div>
-    </div>
-  );
+        <Button variant="gradient" size="sm" asChild>
+          <Link href={`/application/${_id}/dashboard`}>
+            <span className="flex flex-row justify-between items-center">View Project <ArrowRight className="w-4 h-4 ml-1" /></span>
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  )
 }
 
 function CreatePage() {

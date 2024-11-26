@@ -94,6 +94,8 @@ function DateSelector({teaminfo}: {teaminfo: any}) {
     const handleNext = () => {
       switch (filterType) {
         case "day":
+          // check to see if the date is in the future
+          if (date >= new Date()) return
           setDate(addDays(date, 1))
           break
         case "month":
