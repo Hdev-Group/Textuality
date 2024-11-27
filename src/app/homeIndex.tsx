@@ -66,7 +66,7 @@ export default function Home() {
             <OverHeader />
             <Header />
               <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
-                <div className="absolute left-1/2 -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))]"/>
+                <div className="absolute left-1/2 top-[-50px] -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))]"/>
                 <div className="flex flex-col z-10 w-full items-center justify-start h-full">
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col lg:flex-row items-start justify-start w-full">
@@ -184,7 +184,7 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col w-full  items-start justify-start gap-3 mt-32 container relative">
                   <div className="absolute inset-0 max-w-xs  left-0 h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
-                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start">A secure foundation to write on</h1>
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-teal-300">A secure foundation to write on</h1>
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start">
                       Textuality is built with security in mind. Our platform is designed to keep your content safe and secure while you focus on creating amazing content.
                     </p>
@@ -230,32 +230,50 @@ export default function Home() {
                     </div>
                     </div>
                   </div>
-                  <div className="flex flex-col w-full  items-center justify-start p-24 gap-3 mt-32 container bg-[#2b1c50]/40 rounded-3xl h-screen">
-                    <div className="flex flex-row items-start justify-start w-full">
-                      <div className="flex flex-row items-start">
-                        <div className="flex items-center justify-center bg-green-500/20 p-2 rounded-full">
-                          <div className="animate-pulse bg-green-500 p-2 rounded-full"></div>
-                        </div>
-                        <div className="flex flex-col gap-2 ml-4">
-                          <h1 className="text-3xl font-bold text-white">Real time everywhere</h1>
-                          <p className="text-md text-foreground">Our platform is built to be fast and reliable, so you can create content from anywhere in the world.</p>
-                        </div>
-                      </div>
+                  <div className="w-full mt-20 flex flex-col relative container">
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-teal-400">An easy way to do content.</h1>
+                    <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end">
+                      With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
+                    </p>
+                    {/* example of it */}
+                    <div className="flex flex-col md:flex-row mt-10 ">
+                      <BlurCard title="Instant Visulisation" description="See your content in real-time as you create it." icon={<GalleryThumbnailsIcon size={24} />} />
+                      <BlurCard title="Split Screen Editing" description="Edit your content in a split screen view." icon={<EditIcon size={24} />} />
+                      
                     </div>
                   <div>
-
                 </div>
-                </div>
-                </div>
-              </main>
-              <Footer />
+              </div>
             </div>
+          </main>
+          <Footer />
+        </div>
+  )
+}
+
+function BlurCard({title, description, icon}){
+  return(
+    <div className="backdrop-blur-xl relative gap-2 flex flex-col duration-500 transition-colors  bg-transparent  border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
+      <div className="w-full left-0 h-44 blur rounded-xl" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
+      <div className="flex flex-col h-44 absolute pt-7 px-5 gap-2">
+      <div className="text-muted-foreground group-hover:text-blue-300">
+        {icon}
+      </div>
+      <h1 className="text-xl group-hover:ml-5 duration-500 ml-0 transition-all space-grotesk-600 font-bold leading-tight">
+        {title}
+      </h1>
+      <p className="text-muted-foreground text-sm sm:text-md">
+      {description}
+      </p>
+      </div>
+
+    </div>
   )
 }
 
 function Extrainfocard({ title, description, icon }) {
   return(
-    <div className="md:border-l md:last:border-r relative gap-2 py-10 flex flex-col duration-500 transition-colors md:border-b bg-transparent hover:bg-gradient-to-t from-neutral-200/60 to-transparent dark:hover:bg-gradient-to-t dark:from-neutral-900 dark:to-transparent border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
+    <div className="md:border-l md:last:border-r backdrop-blur-xl relative gap-2 py-10 flex flex-col duration-500 transition-colors md:border-b bg-transparent hover:bg-gradient-to-t from-neutral-200/60 to-transparent dark:hover:bg-gradient-to-t dark:from-neutral-900 dark:to-transparent border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
       <div className="absolute left-0 top-[20%] w-1 h-7 rounded-r-md bg-muted group-hover:bg-blue-500 duration-500 transit transition-all group-hover:h-14" />
       <div className="flex flex-col gap-2">
       <div className="text-muted-foreground">
@@ -294,7 +312,7 @@ const VideoSection = () => {
 
   return (
     <div className="flex w-full h-full z-50 lg:mt-[-10rem]">
-      <div className="spinnercard borderspincard">
+      <div className="spinnercard borderspincard custom-shadow">
         <div className="inner group z-10 relative items-center flex justify-center">
           {
             !isPlaying ? (
