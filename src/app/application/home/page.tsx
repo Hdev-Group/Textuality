@@ -26,19 +26,19 @@ import { get } from "http";
 import { useAuth } from "@clerk/nextjs";
 import { IsAuthorizedEdge } from "@/components/edgecases/Auth";
 import Link from "next/link";
-
 interface ProjectProps {
   title: string;
-  description: any;
-  date: string;
-  postCount: number;
-  _id: any;
+  description: string;
+  users: string[];
+  _id: string;
   category: string;
   content: string;
-  users: string[];
+  date: string;
   _creationTime: number;
   latestPost: { title: string; excerpt: string };
+  postCount: number;
 }
+
 
 export default function Page() {
   const { isSignedIn } = useAuth();
@@ -176,15 +176,6 @@ export default function Page() {
 }
 
 
-interface ProjectProps {
-  title: string
-  description: any
-  users: string[]
-  _id: any
-  _creationTime: number
-  latestPost: { title: string; excerpt: string }
-  postCount: number
-}
 
 interface UserData {
   id: string
@@ -192,14 +183,15 @@ interface UserData {
   imageUrl: string
 }
 
-export function Project({ 
+export function Project({
   title,
   description,
   users,
+  date,
+  category,
+  content,
   _id,
   _creationTime,
-  latestPost,
-  postCount
 }: ProjectProps) {
   const [userData, setUserData] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState(true);

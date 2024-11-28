@@ -36,10 +36,11 @@ function isRateLimited(userKey: string) {
   return false;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { _pageid: string } }) {
-  const { _pageid } = params;
+export async function GET(req: NextRequest, { params }: { params: Promise<{ _pageid: string }> }): Promise<NextResponse> {
+  const { _pageid } = await params;
   const pageid = _pageid;
   const token = getAuthToken(req);
+
   const clerk = await clerkClient();
 
   if (!token) {
