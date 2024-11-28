@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
-import { api } from '../../../../../convex/_generated/api';
+import { api } from '../../../../../../convex/_generated/api';
 import { fetchMutation, fetchQuery } from "convex/nextjs";
+import { clerkClient } from "@clerk/nextjs/server";
 
 // In-memory request tracking
 const requestCounts = new Map();
@@ -35,15 +36,17 @@ function isRateLimited(userKey: string) {
   return false;
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest, { params }: { params: { _pageid: string } }) {
+  const { _pageid } = params;
+  const pageid = _pageid;
   const token = getAuthToken(req);
+  const clerk = await clerkClient();
 
   if (!token) {
     return NextResponse.json({ error: 'Access token is required' }, { status: 401 });
   }
 
-  const userKey = token; 
-
+  const userKey = token;
 
   if (isRateLimited(userKey)) {
     return NextResponse.json(
@@ -51,8 +54,6 @@ export async function GET(req: NextRequest) {
       { status: 429 }
     );
   }
-
-  const pageid = req.nextUrl.pathname.split('/').pop(); 
 
   if (!pageid) {
     return NextResponse.json({ error: 'Page ID is required' }, { status: 400 });
@@ -77,12 +78,35 @@ export async function GET(req: NextRequest) {
     ]);
 
     const results = data.fileget?.filter((element: any) => element.status === 'Published') || [];
+    const userMap = new Map();
 
-    if (results.length === 0) {
+    for (const result of results) {
+      const authorId = result.authorid;
+      if (!userMap.has(authorId)) {
+        const user = await clerk.users.getUser(authorId);
+        userMap.set(authorId, {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          imageUrl: user.imageUrl,
+        });
+      }
+    }
+
+    const enrichedResults = results.map((result: any) => {
+      const authorInfo = userMap.get(result.authorid) || {};
+      return {
+        ...result,
+        author: authorInfo, // Embed user details here
+      };
+    });
+
+    console.log('Results with author information:', enrichedResults);
+
+    if (enrichedResults.length === 0) {
       return NextResponse.json({ error: 'No published files found. Please publish a file.' }, { status: 400 });
     }
 
-    return NextResponse.json({ results });
+    return NextResponse.json({ results: enrichedResults });
 
   } catch (error) {
     console.error('Error processing request:', error);

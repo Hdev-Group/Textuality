@@ -184,7 +184,7 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col w-full  items-start justify-start gap-3 mt-32 container relative">
                   <div className="absolute inset-0 max-w-xs  left-0 h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
-                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-teal-300">A secure foundation to write on</h1>
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start">A <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-teal-300">secure foundation</span> to write on</h1>
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start">
                       Textuality is built with security in mind. Our platform is designed to keep your content safe and secure while you focus on creating amazing content.
                     </p>
@@ -231,7 +231,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="w-full mt-20 flex flex-col relative container">
-                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-teal-400">An easy way to do content.</h1>
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end ">An <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-teal-400">easy way</span> to do content.</h1>
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end">
                       With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
                     </p>
@@ -239,7 +239,9 @@ export default function Home() {
                     <div className="flex flex-col md:flex-row mt-10 ">
                       <BlurCard title="Instant Visulisation" description="See your content in real-time as you create it." icon={<GalleryThumbnailsIcon size={24} />} />
                       <BlurCard title="Split Screen Editing" description="Edit your content in a split screen view." icon={<EditIcon size={24} />} />
-                      
+                    </div>
+                    <div className="flex flex-col md:flex-row">
+                      <BlurCard title="Drag and Drop" description="Drag and drop template editor to create your page." icon={<CloudUploadIcon size={24} />} />
                     </div>
                   <div>
                 </div>
