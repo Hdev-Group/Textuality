@@ -9,34 +9,63 @@ export const updateField = mutation({
       externalId: v.any(),
       fileid: v.string(),
       teamid: v.string(),
-      updated: v.any()
+      updated: v.any(),
+      isPublished: v.boolean()
     },
-    handler: async (ctx, { fieldid, value, externalId, fileid, teamid, updated }) => {
+    handler: async (ctx, { fieldid, value, externalId, fileid, teamid, updated, isPublished }) => {
         
-      // Referencing the compound index in our query
-      const existingRecord = await ctx.db.query("fieldvalues")
-        .withIndex("byfieldid_and_teamid", q => q.eq("fieldid", fieldid).eq("teamid", teamid))
-        .first();
+      if (!isPublished) {
+        const existingRecord = await ctx.db.query("fieldvalues")
+          .withIndex("byfieldid_and_teamid", q => q.eq("fieldid", fieldid).eq("teamid", teamid))
+          .first();
         
-      if (existingRecord) {
-        await ctx.db.patch(existingRecord._id, {
-          value,
-          externalId,
-          fileid,
-        });
-        const itemId: Id<"content"> = fileid as Id<"content">
-        await ctx.db.patch(itemId, { updated });
-        return { ...existingRecord, value, externalId, fileid };
+        if (existingRecord) {
+          await ctx.db.patch(existingRecord._id, {
+            value,
+            externalId,
+            fileid,
+          });
+          const itemId: Id<"content"> = fileid as Id<"content">
+          await ctx.db.patch(itemId, { updated });
+          return { ...existingRecord, value, externalId, fileid };
+        } else {
+          const newRecord = {
+            fieldid,
+            value,
+            externalId,
+            teamid,
+            fileid,
+          };
+          const insertedRecord = await ctx.db.insert("fieldvalues", newRecord);
+          return insertedRecord;
+        }
       } else {
-        const newRecord = {
-          fieldid,
-          value,
-          externalId,
-          teamid,
-          fileid,
-        };
-        const insertedRecord = await ctx.db.insert("fieldvalues", newRecord);
-        return insertedRecord;
+        // Handle the case when isPublished is true
+        const existingRecord = await ctx.db.query("fieldvalues")
+          .withIndex("byfieldid_and_teamid", q => q.eq("fieldid", fieldid).eq("teamid", teamid))
+          .first();
+        
+        if (existingRecord) {
+          await ctx.db.patch(existingRecord._id, {
+            value,
+            externalId,
+            fileid,
+          });
+          const itemId: Id<"content"> = fileid as Id<"content">
+          await ctx.db.patch(itemId, { updated });
+          return { ...existingRecord, value, externalId, fileid, isPublished };
+        } else {
+          const newRecord = {
+            fieldid,
+            value,
+            externalId,
+            teamid,
+            fileid,
+            isPublished,
+          };
+          const insertedRecord = await ctx.db.insert("fieldvalues", newRecord);
+          return insertedRecord;
+        }
       }
     }
   });

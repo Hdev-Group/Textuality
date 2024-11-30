@@ -31,6 +31,7 @@ import { set } from 'zod';
 import { useUser } from '@clerk/clerk-react';
 import Head from 'next/head';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { get } from 'http';
 
 const useDebounce = (value: any, delay: number) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -53,17 +54,18 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const router = useRouter();
     const user = useUser();
     const { userId } = useAuth();
-    const getPage = useQuery(api.page.getPage, { _id: _teamid as any });
-    const getContent = useQuery(api.content.getContentSpecific, { _id: _fileid as any });
+    const getContent = useQuery(api.content.getContentSpecific, { _id: _fileid as any});
     const getFields = useQuery(api.content.getFields, { templateid: getContent?.templateid });
+
     const changeAuthor = useMutation(api.content.changeAuthor);
-    const getFieldValues = useQuery(api.fields.getFieldValues, { fileid: _fileid as string  });
+    const getFieldValues = useQuery(api.fields.getFieldValues, {fileid: _fileid as string});
     const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid as any });
     const lockedinput = useMutation(api.fields.lockField);
     const getlockedinputs = useQuery(api.fields.getLockedFields, { fileid: _fileid as string });
     const [islocked, setIsLocked] = useState<any[]>(getlockedinputs || []);
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
     const [fieldValues, setFieldValues] = useState({});
+    const [hasClickedSave, setHasClickedSave] = useState(false);
     const [userData, setUserData] = useState([]);
     const updateContent = useMutation(api.fields.updateField);
     const updateContentStatus = useMutation(api.content.updateContentStatus);
@@ -71,12 +73,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const [hasChanges, setHasChanges] = useState(false);
     const [updated, setUpdated] = useState("true");
     const debouncedFieldValues = useDebounce(fieldValues, 2000); 
-    const structureFieldValues = (fieldValues: any) => {
-        return Object.entries(fieldValues).map(([fieldid, value]) => ({
-            fieldid,
-            value
-        }));
-    };
     useEffect(() => {
         if (getFieldValues?.length) {
           const values = getFieldValues.reduce((acc, field) => {
@@ -92,6 +88,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         );
         setHasChanges(changesDetected);
       }, [debouncedFieldValues, lastSavedValues]);
+
 
     const fetchUserOrDepartment = async (authorid: string) => {
         try {
@@ -154,11 +151,18 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             const saveChanges = async () => {
                 setUpdated("pending");
                 try {
+                    if (getContent?.status === "Published" && hasClickedSave === true) {
+                        await Promise.all(
+                            Object.entries(debouncedFieldValues).map(([fieldid, value]) =>
+                                updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now(), ispublished: getContent?.status === "Published" ? false : true } as any)
+                            )
+                        );                    } else {
                     await Promise.all(
                         Object.entries(debouncedFieldValues).map(([fieldid, value]) =>
-                            updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now() })
+                            updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now(), ispublished: getContent?.status === "Published" ? false : true } as any)
                         )
                     );
+                    }
                     setLastSavedValues(debouncedFieldValues);
                     setUpdated("true");
                 } catch (error) {
@@ -174,8 +178,12 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         }
     }, [hasChanges, debouncedFieldValues]);
 
+    function saveclicker() {
+        setHasClickedSave(true);
+        
+      }
+
     useEffect(() => {
-        // check if a user has closed the page then remove any locks they have
         window.addEventListener('beforeunload', () => {
             islocked.forEach((lock) => {
                 toggleFieldLock(lock.fieldid, false);
@@ -331,11 +339,18 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                             <div className={`flex flex-row w-full h-full`}>
                                 <div className={`${isSideBarOpen ? "md:w-full md:flex hidden" : "w-full flex"} flex-col h-full`}>
                                     <div className="border-b py-5 px-5 flex flex-row">
-                                        <div className='flex flex-row gap-3'>
-                                            <div onClick={() => router.push(`/application/${_teamid}/content`)} className='flex flex-row gap-2 border rounded-md hover:border-black hover:shadow-md cursor-pointer transition-all items-center'>
-                                                <ChevronLeft />
+                                        <div className='flex flex-row w-full gap-3 justify-between'>
+                                            <div className='flex flex-row items-center gap-3'>
+                                                <div onClick={() => router.push(`/application/${_teamid}/content`)} className='flex flex-row gap-2 border rounded-md hover:border-black hover:shadow-md cursor-pointer transition-all items-center'>
+                                                    <ChevronLeft />
+                                                </div>
+                                                <h1 className='text-2xl font-bold'>{getContent?.title}</h1>
                                             </div>
-                                            <h1 className='text-2xl font-bold'>{getContent?.title}</h1>
+                                            <Button onClick={() => saveclicker()}
+                                                variant='publish'
+                                                className={`px-3 py-1 rounded-md text-sm font-semibold ${getContent?.status === "Published" ? "flex" : "hidden"} ${hasClickedSave ? "bg-green-800" : ""}`}>
+                                                Save
+                                            </Button>
                                         </div>
                                     </div>
                                     <div className='container mx-auto px-5 py-5 overflow-y-auto'>
@@ -434,7 +449,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                     <>
                                                         {updated === "true" && <span className='text-xs font-medium'>Content has been saved.</span>}
                                                         {updated === "pending" && <span className='text-xs font-medium'>Content is being saved.</span>}
-                                                        {updated === "false" && <span className='text-xs font-medium'>Content could not be saved.</span>}
+                                                        {updated === "false" && <span className='text-xs font-medium'>Content could not be saved. Due to it being published</span>}
                                                     </>
                                                 )}
                                             </div>
