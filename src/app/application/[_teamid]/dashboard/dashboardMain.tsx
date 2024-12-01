@@ -383,7 +383,19 @@ function SetupAPI({pageinfo}: {pageinfo: any}) {
   console.log(pageinfo)
   return(
     <div className='flex flex-col w-full  overflow-x-scroll items-start justify-start mt-10 '>
-      <p className='text-lg font-semibold'>Setup your Textuality API</p>
+      <p className='text-xl font-semibold'>Setup your Textuality API</p>
+      <p className='text-lg font-semibold'>Your .env token setup</p>
+      <p className='text-red-400 font-semibold'>Warning. Your API key is how you access your content and it controls your limits. Be warned when giving this out.</p>
+      <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
+        {`TEXTUALITY_PAGE_ID=${pageinfo._id}`}
+      </SyntaxHighlighter>
+      <div className='flex flex-row relative'>
+        <div className='absolute w-full h-full  backdrop-blur-md rounded-lg hover:backdrop-blur-none z-50'></div>
+        <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
+          {`TEXTUALITY_API_KEY=${pageinfo.accesstoken}`}
+        </SyntaxHighlighter>
+      </div>
+      <p className='text-lg font-semibold'>Your content page setup</p>
       <p>/blog</p>
       <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
         {`const [blogs, setBlogs] = useState([]);
@@ -406,6 +418,7 @@ useEffect(() => {
         `}
       </SyntaxHighlighter>
       <div className='flex flex-col'>
+      <p className='text-lg font-semibold'>Your API setup</p>
         <p>/api/textuality/full</p>
         <SyntaxHighlighter language="javascript" className="rounded-lg overflow-x-scroll" style={materialDark}>
           {`

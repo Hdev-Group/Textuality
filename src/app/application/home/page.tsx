@@ -7,14 +7,15 @@ import { api } from "../../../../convex/_generated/api";
 import {
   CalendarDays, Users, BookOpen, ArrowRight, ChevronDown, Plus,
   Check,
-  Highlighter
+  Highlighter,
+  X
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectGroup
 } from "@/components/ui/select";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
@@ -24,7 +25,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@radix-ui/react-toast";
 import { get } from "http";
-import { useAuth } from "@clerk/nextjs";
 import { IsAuthorizedEdge } from "@/components/edgecases/Auth";
 import Link from "next/link";
 interface ProjectProps {
@@ -42,7 +42,6 @@ interface ProjectProps {
 
 
 export default function Page() {
-  const { isSignedIn } = useAuth();
   const user = useUser();
   const projects = useQuery(api.page.getPages);
   const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id as string));
@@ -56,7 +55,9 @@ export default function Page() {
   const isLoading = !projects; 
   const error = projects === null; 
 
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
+  if (!getinvites || getinvites.length === 0) return null
   // Calculate time of day greeting
   const date = new Date();
   const hours = date.getHours();
@@ -83,10 +84,10 @@ export default function Page() {
   return (
     <div className="overflow-y-hidden">
       <title>Home | Textuality</title>
-    <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
+    <div className="bg-gray-100 dark:bg-neutral-900 h-full overflow-y-hidden">
       <HomeHeader activesection="home" />
-      <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
-      <div className="bg-white dark:bg-neutral-950 h-screen rounded-lg overflow-y-auto shadow-lg p-8 space-y-8">
+      <main className="md:mx-auto md:px-10 py-3 h-full transition-all overflow-y-hidden">
+      <div className="bg-white dark:bg-neutral-950 pb-10 h-full rounded-lg overflow-y-hidden shadow-lg p-8 space-y-8">
           <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
             <div>
               <h1 className="text-4xl font-bold">
@@ -118,9 +119,12 @@ export default function Page() {
                   {/* Map through the projects if available */}
                   {filteredprojects?.length === 0 ? (
                     <div className="flex w-full items-center justify-center">
-                      <div className="flex items-start flex-col gap-2 py-4 justify-center">
+                      <div className="flex items-center flex-col gap-2 py-4 justify-center">
+                        <div className="p-6 rounded-full flex items-center justify-center mb-2 overflow-hidden bg-blue-500/15 w-[20rem] h-[20rem]">
+                        
+                        </div>
                         <h1 className="font-semibold text-3xl">Start getting your content out there.</h1>
-                        <div className="flex flex-col gap-1 items-start justify-start">
+                        <div className="flex flex-col gap-1 w-full items-start justify-start">
                           <div className="flex flex-row gap-2">
                             <Highlighter className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
                             <p className="text-foreground/80">Keep your blog organised in one spot</p>
@@ -154,31 +158,52 @@ export default function Page() {
             )}
             {getinvites &&
             getinvites?.length > 0 && (
-            <div>
-              <h2 className="text-xl mt-5 font-semibold mb-2">Page Invites</h2>
-              <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
-              {getinvites?.map((invite, index) => (
-                <div key={index} className="bg-neutral-50 min-w-[30rem] dark:bg-neutral-800 border w-min dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-                  <div className="p-6 space-y-4">
-                    <div className="flex justify-between items-start">
-                    <PageName type="title" pageid={invite.pageId} />
-                    </div>
-                    <div className="text-sm text-neutral-600 dark:text-neutral-300 flex flex-row gap-0">
-                      <p className="w-full flex flex-row">You have been invited to join with the role of {invite.role}.</p>
-                    </div>
-                  </div>
-                  <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
-                    <Button variant="secondary" size="sm" onClick={() => AcceptInvite({InviteDetails: invite})}>
-                      Accept Invite <Check className="w-4 h-4 ml-1" />
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => CancelInvite({InviteDetails: invite})}>
-                      Decline Invite
-                    </Button>
-                  </div>
-                </div>
-              ))}
+              <section className="w-full py-8 pb-10 ">
+              <h2 className="text-2xl font-bold mb-6">Page Invites</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 gap-6">
+                {getinvites.map((invite, index) => (
+                  <Card 
+                    key={index}
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                    onMouseEnter={() => setHoveredCard(index)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    <CardHeader>
+                      <CardTitle>
+                        <PageName type="title" pageid={invite.pageId} />
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        You have been invited to join with the role of <span className="font-semibold">{invite.role}</span>.
+                      </p>
+                    </CardContent>
+                    <CardFooter className="bg-muted p-4 flex justify-between items-center">
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        onClick={() => AcceptInvite({InviteDetails: invite})}
+                        className="transition-transform duration-300 ease-in-out"
+                        style={{ transform: hoveredCard === index ? 'scale(1.05)' : 'scale(1)' }}
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Accept
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => CancelInvite({InviteDetails: invite})}
+                        className="transition-transform duration-300 ease-in-out"
+                        style={{ transform: hoveredCard === index ? 'scale(1.05)' : 'scale(1)' }}
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Decline
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
               </div>
-            </div>
+            </section>
             )}
           </div>
           </div>
