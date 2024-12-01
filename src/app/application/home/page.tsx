@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@radix-ui/react-toast";
 import { get } from "http";
+import { useAuth } from "@clerk/nextjs";
 import { IsAuthorizedEdge } from "@/components/edgecases/Auth";
 import Link from "next/link";
 interface ProjectProps {
@@ -42,6 +43,7 @@ interface ProjectProps {
 
 
 export default function Page() {
+  const { isSignedIn } = useAuth();
   const user = useUser();
   const projects = useQuery(api.page.getPages);
   const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id as string));
@@ -55,9 +57,7 @@ export default function Page() {
   const isLoading = !projects; 
   const error = projects === null; 
 
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
 
-  if (!getinvites || getinvites.length === 0) return null
   // Calculate time of day greeting
   const date = new Date();
   const hours = date.getHours();
@@ -84,10 +84,10 @@ export default function Page() {
   return (
     <div className="overflow-y-hidden">
       <title>Home | Textuality</title>
-    <div className="bg-gray-100 dark:bg-neutral-900 h-full overflow-y-hidden">
+    <div className="bg-gray-100 dark:bg-neutral-900 h-auto overflow-y-hidden">
       <HomeHeader activesection="home" />
-      <main className="md:mx-auto md:px-10 py-3 h-full transition-all overflow-y-hidden">
-      <div className="bg-white dark:bg-neutral-950 pb-10 h-full rounded-lg overflow-y-hidden shadow-lg p-8 space-y-8">
+      <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
+      <div className="bg-white dark:bg-neutral-950 h-screen rounded-lg overflow-y-auto shadow-lg p-8 space-y-8">
           <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
             <div>
               <h1 className="text-4xl font-bold">
@@ -119,12 +119,9 @@ export default function Page() {
                   {/* Map through the projects if available */}
                   {filteredprojects?.length === 0 ? (
                     <div className="flex w-full items-center justify-center">
-                      <div className="flex items-center flex-col gap-2 py-4 justify-center">
-                        <div className="p-6 rounded-full flex items-center justify-center mb-2 overflow-hidden bg-blue-500/15 w-[20rem] h-[20rem]">
-                        
-                        </div>
+                      <div className="flex items-start flex-col gap-2 py-4 justify-center">
                         <h1 className="font-semibold text-3xl">Start getting your content out there.</h1>
-                        <div className="flex flex-col gap-1 w-full items-start justify-start">
+                        <div className="flex flex-col gap-1 items-start justify-start">
                           <div className="flex flex-row gap-2">
                             <Highlighter className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
                             <p className="text-foreground/80">Keep your blog organised in one spot</p>
@@ -158,15 +155,13 @@ export default function Page() {
             )}
             {getinvites &&
             getinvites?.length > 0 && (
-              <section className="w-full py-8 pb-10 ">
+              <div className="w-full py-8 pb-10 ">
               <h2 className="text-2xl font-bold mb-6">Page Invites</h2>
               <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 gap-6">
                 {getinvites.map((invite, index) => (
                   <Card 
                     key={index}
                     className="overflow-hidden transition-all duration-300 ease-in-out"
-                    onMouseEnter={() => setHoveredCard(index)}
-                    onMouseLeave={() => setHoveredCard(null)}
                   >
                     <CardHeader>
                       <CardTitle>
@@ -184,7 +179,6 @@ export default function Page() {
                         size="sm" 
                         onClick={() => AcceptInvite({InviteDetails: invite})}
                         className="transition-transform duration-300 ease-in-out"
-                        style={{ transform: hoveredCard === index ? 'scale(1.05)' : 'scale(1)' }}
                       >
                         <Check className="w-4 h-4 mr-2" />
                         Accept
@@ -194,7 +188,6 @@ export default function Page() {
                         size="sm" 
                         onClick={() => CancelInvite({InviteDetails: invite})}
                         className="transition-transform duration-300 ease-in-out"
-                        style={{ transform: hoveredCard === index ? 'scale(1.05)' : 'scale(1)' }}
                       >
                         <X className="w-4 h-4 mr-2" />
                         Decline
@@ -203,7 +196,7 @@ export default function Page() {
                   </Card>
                 ))}
               </div>
-            </section>
+            </div>
             )}
           </div>
           </div>
