@@ -15,11 +15,22 @@ import AuthWrapper from '../withAuth';
 import { cookies } from 'next/headers';
 import { set } from 'zod';
 import { Progress } from "@/components/ui/progress"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function Page({ params }: { params: { _teamid: string} }) {
   const { _teamid } = params;
   const teamid = _teamid;
   const user = useUser();
+  const pagespecific = useQuery(api.page.getExactPage, { _id: teamid as any });
   const pageContentAPIGetter = useQuery(api.apicontent.pageContentAPIGetter, { pageid: teamid })
   const getpageinfo = useQuery(api.page.getPageDetails, { _id: teamid as any });
 
@@ -55,7 +66,7 @@ export default function Page({ params }: { params: { _teamid: string} }) {
           <div className="flex flex-col md:gap-0 gap-5 w-full justify-between">
             <div>
               {
-                preview === "Setup" ? <Setup changePreview={changePreview} /> : <PowerUser changePreview={changePreview} pageContentAPIGetter={pageContentAPIGetter} getpageinfo={getpageinfo} _teamid={_teamid} />
+                preview === "Setup" ? <Setup changePreview={changePreview} getpageinfo={pagespecific} /> : <PowerUser changePreview={changePreview} pageContentAPIGetter={pageContentAPIGetter} getpageinfo={getpageinfo} _teamid={_teamid} />
               }
             </div>
           </div>
@@ -68,14 +79,29 @@ export default function Page({ params }: { params: { _teamid: string} }) {
   );
 }
 
-function Setup({ changePreview }: { changePreview: any }) {
+function Setup({ changePreview, getpageinfo }: { changePreview: any, getpageinfo: any }) {
   return(
     <div className='xl:min-w-[1400px] w-full xl:w-min container mt-10 mx-auto items-center justify-center'>
     <div className='flex container mx-auto'>
       <div className='flex flex-row justify-between w-full items-center'>
         <h2 className='text-3xl font-semibold'>Setup your Textuality account</h2>
         <div className='flex flex-row gap-3'>
-          <Button>Start Setup</Button>
+          <Sheet>
+            <SheetTrigger>
+              <Button>Get Started</Button>
+            </SheetTrigger>
+            <SheetContent className='w-1/2 h-full overflow-y-scroll overflow-x-hidden text-wrap break-words break-all'>
+              <SheetHeader>
+                <SheetTitle>Get Started</SheetTitle>
+              </SheetHeader>
+              <SheetDescription>
+                <p>Get started with Textuality by following the setup guide</p>
+              </SheetDescription>
+              <div className='flex flex-col gap-3'>
+                <SetupAPI pageinfo={getpageinfo} />
+              </div>
+            </SheetContent>
+          </Sheet>
           <div className='flex flex-row gap-1 items-center justify-center cursor-pointer' onClick={() => changePreview("PowerUser")}>
           <X className='h-5 w-5' /> <p className='text-md'>Skip setup</p>
         </div>
@@ -350,5 +376,62 @@ function MetricCard({ title, description, current, max, warningThreshold = 75 }:
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+function SetupAPI({pageinfo}: {pageinfo: any}) {
+  console.log(pageinfo)
+  return(
+    <div className='flex flex-col w-full  overflow-x-scroll items-start justify-start mt-10 '>
+      <p className='text-lg font-semibold'>Setup your Textuality API</p>
+      <p>/blog</p>
+      <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
+        {`const [blogs, setBlogs] = useState([]);
+const [error, setError] = useState<string | null>(null);
+
+useEffect(() => {
+  fetch("/api/textuality/full")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setBlogs(data.blogs);
+      }
+    })
+    .catch((err) => {
+      setError(err.message);
+    });
+}, []);
+        `}
+      </SyntaxHighlighter>
+      <div className='flex flex-col'>
+        <p>/api/textuality/full</p>
+        <SyntaxHighlighter language="javascript" className="rounded-lg overflow-x-scroll" style={materialDark}>
+          {`
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(_req: NextRequest) {
+
+    const token = process.env.TEXTUALITY_API_KEY;
+
+    const response = await fetch("http://textuality.hdev.uk/api/content/full/${pageinfo._id}", {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': \`Bearer \${token}\`
+        }
+    });
+    const data = await response.json();
+    if (data.error) {
+        return NextResponse.json({ error: data.error }, { status: 500 });
+    } else {
+        console.log(data);
+        return NextResponse.json({ blogs: data }, { status: 200 });
+    }
+}
+          `}
+        </SyntaxHighlighter>
+      </div>      
+    </div>
   )
 }

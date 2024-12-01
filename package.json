@@ -57,6 +57,7 @@
     "react-dom": "^18",
     "react-quill": "^2.0.0",
     "react-quill-new": "^3.3.3",
+    "react-syntax-highlighter": "^15.6.1",
     "slate": "^0.110.2",
     "slate-history": "^0.110.3",
     "slate-react": "^0.110.3",

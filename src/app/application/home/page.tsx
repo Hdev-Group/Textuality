@@ -6,7 +6,8 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import {
   CalendarDays, Users, BookOpen, ArrowRight, ChevronDown, Plus,
-  Check
+  Check,
+  Highlighter
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -96,7 +97,7 @@ export default function Page() {
               </p>
             </div>
             <div className="flex items-start">
-              <CreatePage />
+              <CreatePage islarge={false} />
             </div>
           </div>
 
@@ -116,9 +117,21 @@ export default function Page() {
                 <div className="flex p-2 rounded-xl items-start  flex-wrap gap-6">
                   {/* Map through the projects if available */}
                   {filteredprojects?.length === 0 ? (
-                    <div className="w-full flex items-center flex-col py-4 justify-center">
-                      <p className="text-lg ">No pages available.</p>
-                      <CreatePage />
+                    <div className="flex w-full items-center justify-center">
+                      <div className="flex items-start flex-col gap-2 py-4 justify-center">
+                        <h1 className="font-semibold text-3xl">Start getting your content out there.</h1>
+                        <div className="flex flex-col gap-1 items-start justify-start">
+                          <div className="flex flex-row gap-2">
+                            <Highlighter className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
+                            <p className="text-foreground/80">Keep your blog organised in one spot</p>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <Highlighter className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
+                            <p className="text-foreground/80">Invite your team members to collaborate on content</p>
+                          </div>
+                        </div>
+                        <CreatePage islarge={true} />
+                      </div>
                     </div>
                   ) : (
                     filteredprojects?.map((page, index) => (
@@ -286,7 +299,7 @@ export function Project({
   )
 }
 
-function CreatePage() {
+function CreatePage({islarge}: any) {
   const user = useUser()
 
   const createPage = useMutation(api.page.create)
@@ -318,8 +331,8 @@ function CreatePage() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm" className="mt-4 font-semibold">
-          Create a Page <Plus className="ml-2" height={18} />
+        <Button variant="gradient" size="sm" className={`mt-4 font-semibold flex flex-row items-center justify-center ${islarge ? "w-full" : ""}`}>
+          <span className="flex flex-row gap-0.5 items-center justify-center">Create a Page <Plus className="ml-2" height={18} /></span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
