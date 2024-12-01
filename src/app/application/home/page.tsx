@@ -25,7 +25,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@radix-ui/react-toast";
 import { get } from "http";
-import { useAuth } from "@clerk/nextjs";
 import { IsAuthorizedEdge } from "@/components/edgecases/Auth";
 import Link from "next/link";
 interface ProjectProps {
@@ -43,7 +42,6 @@ interface ProjectProps {
 
 
 export default function Page() {
-  const { isSignedIn } = useAuth();
   const user = useUser();
   const projects = useQuery(api.page.getPages);
   const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id as string));

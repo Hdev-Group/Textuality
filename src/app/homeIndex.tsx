@@ -126,27 +126,27 @@ export default function Home() {
                       <Extrainfocard title="Publish" description="Publish your content to the web with a single click." icon={<FileText />} />
                     </div>
                   </div>
-                  <div className="w-full rounded-3xl bg-white/80 h-full container mx-10 md:py-0 py-10 relative mt-20">
-                    <div className="absolute top-0 right-0 bg-gradient-to-br  from-blue-500 to-purple-500 w-full h-full opacity-20 rounded-3xl" />
-                    <h1 className="lg:text-[52px] text-5xl text-black mt-20 text-center">Industry-Disruptive content management software</h1>
-                    <p className="text-md text-muted-foreground dark:text-muted text-center px-2 mt-2">
+                  <div className="w-full rounded-3xl bg-background h-full container mx-10 md:py-0 py-10 relative mt-20">
+                    <div className="absolute top-0 right-0 bg-gradient-to-br  from-blue-600 to-purple-900 w-full h-full opacity-20 rounded-3xl" />
+                    <h1 className="lg:text-[52px] text-5xl text-white mt-20 text-center">Industry-Disruptive content management software</h1>
+                    <p className="text-md text-muted-foreground dark:text-muted-foreground text-center px-2 mt-2">
                       Textuality is the perfect tool for your next project. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.
                     </p>
                     <div className="flex flex-col md:flex-row justify-between w-full mx-10 mt-10">
                       <div className="flex flex-col gap-2">
                         <h1 className="text-md font-semibold space-grotesk-600 text-blue-900 ">BEST IN CLASS</h1>
-                        <h1 className="text-3xl font-bold space-grotesk-600 text-black">Leading with ease</h1>
-                        <p className="text-md text-muted-foreground dark:text-muted">Our content management system is the most secure, user friendy, easy to use system on the market, With top sub second performance to get your content where it needs to go</p>
+                        <h1 className="text-3xl font-bold space-grotesk-600 text-white">Leading with ease</h1>
+                        <p className="text-md text-muted-foreground dark:text-muted-foreground">Our content management system is the most secure, user friendy, easy to use system on the market, With top sub second performance to get your content where it needs to go</p>
                         <div className="flex flex-col gap-2">
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Low latency | ~750ms content delivery</p>
                           </div>
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Easy to use | No learning curve</p>
                           </div>
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Secure | End-to-end encryption</p>
                           </div>
@@ -162,18 +162,18 @@ export default function Home() {
                       </div>
                       <div className="flex flex-col gap-2">
                         <h1 className="text-md font-semibold space-grotesk-600 text-blue-900 ">PRODUCTION-READY</h1>
-                        <h1 className="text-3xl font-bold space-grotesk-600 text-black">Backed by developers</h1>
-                        <p className="text-md text-muted-foreground dark:text-muted text-wrap break-words w-[90%]">From easy to use API's to publishing and monitoring your content developers choose Textuality because we build with them in mind.</p>
+                        <h1 className="text-3xl font-bold space-grotesk-600 text-white">Backed by developers</h1>
+                        <p className="text-md text-muted-foreground dark:text-muted-foreground text-wrap break-words w-[90%]">From easy to use API's to publishing and monitoring your content developers choose Textuality because we build with them in mind.</p>
                         <div className="flex flex-col gap-2">
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>API-first | Easy to integrate</p>
                           </div>
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Monitoring | Real-time metrics</p>
                           </div>
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Developer friendly | Easy to use</p>
                           </div>
@@ -313,7 +313,7 @@ const VideoSection = () => {
 
   return (
     <div className="flex w-full h-full z-50 lg:mt-[-10rem]">
-      <div className="spinnercard borderspincard custom-shadow">
+      <div className="spinnercard borderspincard">
         <div className="inner group z-10 relative items-center flex justify-center">
           {
             !isPlaying ? (

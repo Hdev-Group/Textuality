@@ -7,7 +7,7 @@ import { useAuth } from '@clerk/nextjs'
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder, Text, LucideHardDriveUpload } from "lucide-react"
+import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder, Text, LucideHardDriveUpload, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
@@ -381,6 +381,7 @@ function MetricCard({ title, description, current, max, warningThreshold = 75 }:
 
 function SetupAPI({pageinfo}: {pageinfo: any}) {
   console.log(pageinfo)
+  const [hasclicked, setHasClicked] = useState(false);
   return(
     <div className='flex flex-col w-full  overflow-x-scroll items-start justify-start mt-10 '>
       <p className='text-xl font-semibold'>Setup your Textuality API</p>
@@ -390,7 +391,9 @@ function SetupAPI({pageinfo}: {pageinfo: any}) {
         {`TEXTUALITY_PAGE_ID=${pageinfo._id}`}
       </SyntaxHighlighter>
       <div className='flex flex-row relative'>
-        <div className='absolute w-full h-full  backdrop-blur-md rounded-lg hover:backdrop-blur-none z-50'></div>
+        <div onClick={() => setHasClicked(!hasclicked)} className={`absolute w-full h-full flex items-center justify-center cursor-pointer rounded-lg z-50 ${hasclicked ? "backdrop-blur-none opacity-0" : " backdrop-blur-md flex"}`}>
+          <p className='flex flex-row gap-2 font-semibold text-xl'><EyeOff className='w-7 h-7' /> API Secret Inside</p>
+        </div>
         <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
           {`TEXTUALITY_API_KEY=${pageinfo.accesstoken}`}
         </SyntaxHighlighter>
@@ -421,14 +424,14 @@ useEffect(() => {
       <p className='text-lg font-semibold'>Your API setup</p>
         <p>/api/textuality/full</p>
         <SyntaxHighlighter language="javascript" className="rounded-lg overflow-x-scroll" style={materialDark}>
-          {`
-import { NextRequest, NextResponse } from "next/server";
+          {`import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(_req: NextRequest) {
 
     const token = process.env.TEXTUALITY_API_KEY;
+    const pageid = process.env.TEXTUALITY_PAGE_ID;
 
-    const response = await fetch("http://textuality.hdev.uk/api/content/full/${pageinfo._id}", {
+    const response = await fetch("http://textuality.hdev.uk/api/content/full/{pageid}", {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': \`Bearer \${token}\`
@@ -441,8 +444,7 @@ export async function GET(_req: NextRequest) {
         console.log(data);
         return NextResponse.json({ blogs: data }, { status: 200 });
     }
-}
-          `}
+}`}
         </SyntaxHighlighter>
       </div>      
     </div>
