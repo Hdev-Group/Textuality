@@ -30,10 +30,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CheckpointAuthWrapper from "./checkpointauthroleperms";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast"
 
 export default function Page({ params }) {
     const { _teamid } = params
     console.log(_teamid)
+    const { toast } = useToast()
     const route = useRouter()
     const teamid = _teamid
     const { user } = useUser()
@@ -41,6 +43,7 @@ export default function Page({ params }) {
     const getRole = useQuery(api.page.getRoledetail, { externalId: user?.id ?? 'none', pageId: _teamid });
     const updatePage = useMutation(api.page.updatePage);
     const getDepartments = useQuery(api.department.getDepartments, { pageid: teamid as any });
+    const getContent = useQuery(api.content.getContent, { pageid: teamid as any });
     const deletePage = useMutation(api.page.deletePage);
     const [activeTab, setActiveTab] = React.useState("general");
     const searchParams = useSearchParams();
@@ -81,6 +84,25 @@ export default function Page({ params }) {
         alert("You do not have permission to delete this page")
       }
     }
+
+    function deleteDepartment(departmentid: string) {
+      if (["owner", "admin", "editor"].some(role => getRole?.[0]?.permissions.includes(role))) {
+        // check to see if the department has any content ownership
+        getContent?.map((content) => {
+          if (content.authorid === departmentid) {
+            toast({
+              title: "Department has content ownership",
+              content: `We have detected that this department has content ownership in {}. Please reassign ownership before deleting this department`,
+              variant: "destructive",
+            })
+          } else {
+            console.log(departmentid, "aaa")
+          }
+        }
+        )
+      }
+    }
+
     return (
       <CheckpointAuthWrapper teamid={teamid}>
         <div className='overflow-y-hidden'>
@@ -168,7 +190,23 @@ export default function Page({ params }) {
                                                             <p className="text-sm text-gray-400">{department.departmentdescription}</p>
                                                             </div>
                                                             <div className="h-full flex items-start">
-                                                                <MoreVertical className="h-4 w-4" />
+                                                                <DropdownMenu>
+                                                                  <DropdownMenuTrigger asChild>
+                                                                    <MoreVertical className="h-4 w-4" />
+                                                                  </DropdownMenuTrigger>
+                                                                  <DropdownMenuContent align="start">
+                                                                    <DropdownMenuItem>
+                                                                      Edit
+                                                                    </DropdownMenuItem>
+                                                                    {
+                                                                      ["owner", "admin", "editor"].some(role => getRole?.[0]?.permissions.includes(role)) ? (
+                                                                        <DropdownMenuItem className="hover:bg-red-500/60" onClick={() => deleteDepartment(department._id)}>
+                                                                          Delete
+                                                                        </DropdownMenuItem>
+                                                                      ) : null
+                                                                    }
+                                                                  </DropdownMenuContent>
+                                                                </DropdownMenu>
                                                             </div>
                                                         </div>
                                                     )) : <p>No departments found</p>

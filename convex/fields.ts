@@ -10,7 +10,7 @@ export const updateField = mutation({
       fileid: v.string(),
       teamid: v.string(),
       updated: v.any(),
-      isPublished: v.boolean()
+      isPublished: v.optional(v.boolean()),
     },
     handler: async (ctx, { fieldid, value, externalId, fileid, teamid, updated, isPublished }) => {
         
