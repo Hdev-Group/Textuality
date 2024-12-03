@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
 import { useAuth, useUser } from "@clerk/clerk-react"
-import { Search } from "lucide-react"
-import { useQuery } from "convex/react"
+import { Columns2, Columns3, Columns4, Search } from "lucide-react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "../../../../convex/_generated/api"
 import {
     Select,
@@ -22,15 +22,19 @@ import { Textarea } from "@/components/ui/textarea"
 import { useEffect, useState, useRef } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useRouter } from "next/navigation"
 
 export default function NewRequest() {
     const user = useUser();
-    const { userId, isLoaded } = useAuth();
+    const router = useRouter();
+    const { userId, isSignedIn } = useAuth();
+
     const projects = useQuery(api.page.getPageSpecific, {
       userid: userId || user?.user?.id || "",
     });
-  
     // State Variables
+    const [pageid, setPageID] = useState("");
+
     const [firstHelp, setFirstHelp] = useState(false);
     const [isClient, setIsClient] = useState(false);
     const [secondHelp, setSecondHelp] = useState(false);
@@ -41,17 +45,22 @@ export default function NewRequest() {
     const [isExpanded, setIsExpanded] = useState(false);
     const [contentHeight, setContentHeight] = useState(0);
     const [contentHeightForm, setContentHeightForm] = useState(0);
+    const [helpmsg, sethelpmsg] = useState("");
+    const [reportform, FillRequestForm] = useState({
+      title: "",
+      description: "",
+      priority: "",
+      category: "",
+    });
   
     const contentRef = useRef(null);
     const contentFormRef = useRef(null);
-    const helpmsg = document.getElementById("helpmsg") as HTMLInputElement;
 
-    // Effect: Handle Client Rendering
+
     useEffect(() => {
       setIsClient(true);
     }, []);
   
-    // Effect: Dynamically Update Height for Animations
     useEffect(() => {
       if (contentRef.current) {
         setContentHeight(contentRef.current.scrollHeight);
@@ -70,81 +79,42 @@ export default function NewRequest() {
     const intents = [
       {
         intent: "content_issue",
-        keywords: ["content", "not loading", "missing", "disappear"],
-        response:
-          "It seems you're facing issues with content not displaying. Could you check if the page is published and linked correctly? Let me know if the issue persists.",
+        response: "It seems you're facing issues with content not displaying. Could you check if the page is published and linked correctly? Let me know if the issue persists.",
+        followUp: "Is this happening on all pages or just one specific page?",
       },
       {
         intent: "saving_issue",
-        keywords: ["not saving", "error saving", "can't save"],
-        response:
-          "You're experiencing a saving error. Ensure all mandatory fields are filled, and check your internet connection. Let me know more details if possible.",
+        response: "You're experiencing a saving error. Ensure all mandatory fields are filled, and check your internet connection. Let me know more details if possible.",
+        followUp: "Did you notice any error messages while saving? You should see a green save icon for autosave, yellow for pending changes, and red for errors.",
       },
       {
         intent: "layout_issue",
-        keywords: ["layout", "broken", "design", "CSS", "template"],
-        response:
-          "It seems like there are layout or design issues. Have you tried inspecting the browser console for CSS or rendering errors? If you have I will open a report for you based on what I think has gone wrong.",
+        response: "It seems like there are layout or design issues. Have you tried inspecting the browser console for CSS or rendering errors?",
+        followUp: "Which browser are you using? Some design issues might be browser-specific.",
       },
       {
         intent: "login_issue",
-        keywords: ["login", "authentication", "sign in", "password"],
-        response:
-          "You're having trouble logging in. Please verify your credentials or try resetting your password. Do you need assistance with resetting?",
+        response: "You're having trouble logging in. Please verify your credentials or try resetting your password. Do you need assistance with resetting?",
+        followUp: "Have you tried resetting your password? If so, did you receive an email?",
       },
       {
         intent: "performance_issue",
-        keywords: ["slow", "lag", "performance"],
-        response:
-          "Performance seems to be an issue. Try clearing the cache, reducing large media files, or optimizing your CMS settings. Could you tell me what specifically feels slow?",
+        response: "Performance seems to be an issue. Try clearing the cache, reducing large media files, or optimizing your CMS settings.",
+        followUp: "Are you uploading large files or experiencing slow responses while editing?",
       },
       {
-        intent: "unknown",
-        keywords: [],
-        response:
-          "I'm not sure what the issue is. Could you provide more details or describe it differently? I'm here to help!",
+        intent: "api_issue",
+        response: "It looks like you're experiencing an API-related problem. Could you verify the API connection and authentication keys?",
+        followUp: "Is the API returning any specific error messages? Could you share the details in the request.",
+      },
+      {
+        intent: "other",
+        response: "Ah, I will open a support request for you. Please provide more details about the issue.",
+        followUp: "Please describe the issue there.",
       },
     ];
 
-    // Detect User Intent
-    const detectIntent = (inputText) => {
-      inputText = inputText.toLowerCase();
-  
-      let matchedIntent = "unknown";
-      let highestMatchCount = 0;
-  
-      intents.forEach((intent) => {
-        let matchCount = 0;
-  
-        intent.keywords.forEach((keyword) => {
-          if (inputText.includes(keyword.toLowerCase())) {
-            matchCount++;
-          }
-        });
-  
-        if (matchCount > highestMatchCount) {
-          highestMatchCount = matchCount;
-          matchedIntent = intent.intent;
-        }
-      });
-  
-      return matchedIntent;
-    };
-  
-    // Generate Follow-Up Questions
-    const generateFollowUp = (intent) => {
-      const followUpQuestions = {
-        content_issue: "Is this happening on all pages or just one specific page?",
-        saving_issue: "Did you notice any error messages while saving?",
-        layout_issue: "Which browser are you using? Some design issues might be browser-specific.",
-        login_issue: "Have you tried resetting your password? If so, did you receive an email?",
-        performance_issue:
-          "Are you uploading large files or experiencing slow responses while editing?",
-        unknown: "Could you share more details about what you're trying to do?",
-      };
-  
-      return followUpQuestions[intent] || "Can you tell me more about the issue?";
-    };
+
   
     // Handle Help Button Click
     const beginHelp = () => {
@@ -165,54 +135,122 @@ export default function NewRequest() {
     };
   
     // Handle Project Selection
-    const secondSelect = (value) => {
-      if (value) {
+    const secondSelect = (value: string) => {
+      if (value && projects) {
         setSecondHelp(true);
-        const selectedPage = projects?.find((project) => project._id === value)?.title;
-        setPageName(selectedPage);
+        const selectedPage = projects.find((project) => project._id === value)?.title;
+        setPageName(selectedPage || "");
+        setPageID(value);
         setChatHelp((prev) => [
           ...prev,
           { text: `Okay, What seems to be the problem in ${selectedPage}?`, isbot: true },
         ]);
-        window.scrollBy({
-          top: 350,
-          behavior: "smooth",
-        });
+        window.scrollBy({ top: 350, behavior: "smooth" });
       }
     };
+    
   
-    // Generate Bot Response
-    const generateResponse = (inputText) => {
-      const intent = detectIntent(inputText);
-      const matchedIntent = intents.find((i) => i.intent === intent);
-      return matchedIntent ? matchedIntent.response : "I'm having trouble understanding the issue. Can you try explaining it differently?";
-    };
-  
-    // Send Message to Chatbot
-    const sendHelpMessage = (message) => {
-      const messageText = message.value.trim();
-      if (!messageText || messageBlock) return;
-  
-      setChatHelp([...chatHelp, { text: messageText, isbot: false }]);
-  
-      const intent = detectIntent(messageText);
-      const botResponse = generateResponse(messageText);
-  
-      setChatHelp((prev) => [...prev, { text: botResponse, isbot: true }]);
-  
-      const followUp = generateFollowUp(intent);
-      setChatHelp((prev) => [...prev, { text: followUp, isbot: true }]);
-      message.value = "";
-  
-      // Limit Messages
-      if (chatHelp.filter((chat) => !chat.isbot).length >= 5) {
-        setMessageBlock(true);
+    const sendHelpMessage = ({value}) => {
+      if (!value || messageBlock) return;
+    
+      // Define message templates for display
+      const intentMessageEditing = {
+        content_issue: "I am having a problem with content not displaying or appearing incorrectly.",
+        saving_issue: "I am having a problem with errors or issues encountered while trying to save changes.",
+        layout_issue: "I am having a problem with the design or layout of the page.",
+        login_issue: "I am having a problem with logging into the system or accessing my account.",
+        performance_issue: "I am having a problem with slow performance or lag while using the application.",
+        api_issue: "I am having a problem with API connections or data retrieval.",
+        other: "I am having a problem with something not covered by the above categories.",
+      };
+    
+      // Convert intent to user-friendly message
+      const userMessage = intentMessageEditing[value];
+      console.log(userMessage);
+      setChatHelp((prev) => [...prev, { text: userMessage, isbot: false }]);
+
+      // Match intent and handle response
+      const matchedIntent = intents.find((i) => i.intent === value);
+    
+      if (!matchedIntent) {
         setChatHelp((prev) => [
           ...prev,
-          {
-            text: "I'm sorry, but I'm unable to assist you further. You can submit a support request directly to our team. I will open a report for you based on what I think has gone wrong.",
-            isbot: true,
-          },
+          { text: "I'm having trouble understanding the issue. Can you explain it in more detail?", isbot: true },
+        ]);
+        return;
+      }
+    
+      // Append bot's response and follow-up
+      setChatHelp((prev) => [
+        ...prev,
+        { text: matchedIntent.response, isbot: true },
+        { text: matchedIntent.followUp, isbot: true },
+      ]);
+      setMessageBlock(true)
+      setShowRequestForm(true)
+
+      const valueissues = [
+        {
+          value: "content_issue",
+          text: "Content Issue",
+          description: "I am having a problem with content not displaying or appearing incorrectly.",
+          priority: "medium",
+        },
+        {
+          value: "saving_issue",
+          text: "Saving Issue",
+          description: "I am having a problem with errors or issues encountered while trying to save changes.",
+          priority: "medium",
+        },
+        {
+          value: "layout_issue",
+          text: "Layout Issue",
+          description: "I am having a problem with the design or layout of the page.",
+          priority: "medium",
+        },
+        {
+          value: "login_issue",
+          text: "Login Issue",
+          description: "I am having a problem with logging into the system or accessing my account.",
+          priority: "high",
+        },
+        {
+          value: "performance_issue",
+          text: "Performance Issue",
+          description: "I am having a problem with slow performance or lag while using the application.",
+          priority: "high",
+        },
+        {
+          value: "api_issue",
+          text: "API Issue",
+          description: "I am having a problem with API connections or data retrieval.",
+          priority: "high",
+        },
+        {
+          value: "other",
+          text: "Other",
+        }
+      ]
+
+      FillRequestForm({
+        title: valueissues.find((issue) => issue.value === value).text + " in " + pageName,
+        description: valueissues.find((issue) => issue.value === value).description,
+        priority: "medium",
+        category: { value: value } as any,
+      })
+      // Block further messages after 5 user inputs
+      if (chatHelp.filter((chat) => !chat.isbot).length >= 5) {
+        setMessageBlock(true);
+        setShowRequestForm(true)
+        FillRequestForm({
+          title: "Support Request for " + pageName + "due to " + value,
+          description: chatHelp.map((chat) => chat.text).join("\n"),
+          priority: "medium",
+          category: { value: value  } as any,
+        })
+        setChatHelp((prev) => [
+          ...prev,
+          { text: "I will create a support issue now.", isbot: true },
         ]);
         handleFollowUpResponse();
       }
@@ -229,7 +267,7 @@ export default function NewRequest() {
     return (
     <body className={`flex bgmain flex-col min-h-screen w-full items-center justify-center `}>
         <div className="flex items-center justify-center">
-            <div className="w-full flex items-center justify-center flex-col h-full rounded-sm lg:mx-10 lg:mb-10 ">
+            <div className="w-full flex items-center justify-center flex-col h-full rounded-sm">
                 <Header />
                 <div className="flex flex-col w-full items-center min-h-screen">
                     <div className="flex flex-col w-full h-auto mx-auto container gap-4 ">
@@ -312,18 +350,28 @@ export default function NewRequest() {
                                             ))}
                                         </div>
                                         <div className="p-4">
-                                            <div className="relative">
-                                            <Textarea
-                                                placeholder={messageBlock ? "You've reached the limit of messages. Please submit a support request." : "Type your message here..."}
-                                                className="w-full h-40"
-                                                id="helpmsg"
-                                                disabled={messageBlock}
-                                            />
+                                            <div className="relative flex flex-row gap-2">
+                                              <Select onValueChange={sethelpmsg}>
+                                                <SelectTrigger>
+                                                  <SelectValue placeholder="Your issue?" className="placeholder:text-muted-foreground" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectGroup>
+                                                    <SelectItem value="content_issue">Content Issue</SelectItem>
+                                                    <SelectItem value="saving_issue">Saving Issue</SelectItem>
+                                                    <SelectItem value="layout_issue">Layout Issue</SelectItem>
+                                                    <SelectItem value="login_issue">Login Issue</SelectItem>
+                                                    <SelectItem value="performance_issue">Performance Issue</SelectItem>
+                                                    <SelectItem value="api_issue">API issue</SelectItem>
+                                                    <SelectItem value="other">Other</SelectItem>
+                                                  </SelectGroup>
+                                                </SelectContent>
+                                              </Select>
                                             <Button
                                                 size="sm"
-                                                className="absolute bottom-2 right-2"
+                                                className=""
                                                 disabled={messageBlock}
-                                                onClick={() => sendHelpMessage(helpmsg)}
+                                                onClick={() => sendHelpMessage({ value: helpmsg })}
                                             >
                                                 Send
                                             </Button>
@@ -336,73 +384,7 @@ export default function NewRequest() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className={`${showRequestForm ? "flex" : "hidden"} w-full p-4 pt-5 pb-5 border-t border-muted`}
-                                style={{ maxHeight: showRequestForm ? `${contentHeightForm + 25}px` : '0px' }} ref={contentFormRef} >
-                                    <form className="pb-10">
-                                        <div className="flex flex-col gap-4">
-                                            <h3 className="text-xl font-semibold">Request Form</h3>
-                                            <div className="flex flex-col gap-4">
-                                                <Label htmlFor="title">Title</Label>
-                                                <Input type="text" id="title" className="w-full"></Input>
-                                            </div>
-                                            <div className="flex flex-col gap-4">
-                                                <Label htmlFor="description">Description</Label>
-                                                <Textarea id="description" className="w-full h-40"></Textarea>
-                                            </div>
-                                            <div className="flex flex-col gap-4">
-                                                <Label htmlFor="priority">Priority</Label>
-                                                <Select>
-                                                    <SelectTrigger>
-                                                        <div className="flex flex-row gap-4 items-center">
-                                                            <Search className="w-4 h-4" />
-                                                            <SelectValue>
-                                                            </SelectValue>
-                                                        </div>
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectGroup>
-                                                            <SelectItem value="low">Low</SelectItem>
-                                                            <SelectItem value="medium">Medium</SelectItem>
-                                                            <SelectItem value="high">High</SelectItem>
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="flex flex-col gap-4">
-                                                <Label htmlFor="category">Category</Label>
-                                                <Select>
-                                                    <SelectTrigger>
-                                                        <div className="flex flex-row gap-4 items-center">
-                                                            <Search className="w-4 h-4" />
-                                                            <SelectValue>
-                                                            </SelectValue>
-                                                        </div>
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectGroup>
-                                                            <SelectItem value="content">Content</SelectItem>
-                                                            <SelectItem value="design">Design</SelectItem>
-                                                            <SelectItem value="performance">Performance</SelectItem>
-                                                            <SelectItem value="login">Login</SelectItem>
-                                                            <SelectItem value="other">Other</SelectItem>
-                                                        </SelectGroup>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="flex flex-row gap-3">
-                                                <div className="flex items-center justify-center p-0.5 bg-background rounded-full">
-                                                    <img src="/IMG_6128.png" alt="Textuality logo" className="w-8 h-8 rounded-full" />
-                                                </div>
-                                                <div className="flex flex-col gap-1 mt-1.5">
-                                                    <p className="text-[16px] leading-7">So, Its in NAMEOFPAGE. Primarily because of CATEGORY and its PRIORITY. Is this correct?</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col gap-4 ">
-                                                <Button size="lg" className="font-semibold">Submit Request</Button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
+                                <SupportForm pageid={pageid} reportform={reportform} showRequestForm={showRequestForm} contentHeightForm={contentHeightForm} contentFormRef={contentFormRef} />
                             </div>
                         </div>
                     </div>
@@ -412,4 +394,130 @@ export default function NewRequest() {
         </div>
         </body>
     )
+}
+
+function SupportForm({ showRequestForm, contentHeightForm, contentFormRef, reportform, pageid }) {
+  const user = useUser()
+  const router = useRouter()
+  const reportSubmit = useMutation(api.support.createTicket)
+
+  const [showSuccess, setShowSuccess] = useState("false")
+  const [submitted, setSubmitted] = useState(false)
+
+  function submitRequest(e: React.FormEvent) {
+    e.preventDefault()
+    // Check if all fields are filled
+    if (!requestForm.title || !requestForm.description || !requestForm.priority) {
+      alert("Please fill all fields before submitting the request.")
+      return
+    }
+    // check if user is logged in
+    if (!user?.user?.id) {
+      alert("Please login to submit a request.")
+      return
+    }
+     const hassubmitted = reportSubmit({
+      pageid: pageid,
+      title: requestForm.title,
+      content: requestForm.description,
+      priority: requestForm.priority,
+      userId: user?.user?.id,
+    })
+    setSubmitted(true)
+    if (hassubmitted) {
+      setShowSuccess("true")
+      console.log(hassubmitted)
+      router.push("/support/tickets")
+    } else {
+      setShowSuccess("error")
+    }
+  }
+
+
+  const [requestForm, FillRequestForm] = useState({
+    title: "",
+    description: "",
+    priority: "",
+    category: "",
+  });
+
+
+  useEffect(() => {
+    FillRequestForm({
+      title: reportform.title,
+      description: reportform.description,
+      priority: reportform.priority,
+      category: reportform.category,
+    })
+  }, [reportform])  
+
+  function changeReportForm(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const { id, value } = e.target;
+    FillRequestForm((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  }
+
+
+  return(
+    <div className={`${showRequestForm ? "flex" : "hidden"} w-full p-4 pt-5  border-t border-muted`}
+    style={{ minHeight: showRequestForm ? `${contentHeightForm + 5}px` : '0px' }} ref={contentFormRef} >
+        <form className="pb-12 w-full" onSubmit={(e) => submitRequest(e)}>
+            <div className="flex flex-col gap-4 w-full">
+                <h3 className="text-xl font-semibold">Request Form</h3>
+                <div className="flex flex-col gap-4">
+                    <Label htmlFor="title">Title</Label>
+                    <Input type="text" id="title" className="w-full" required onChange={changeReportForm} value={requestForm.title}></Input>
+                </div>
+                <div className="flex flex-col gap-4">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" className="w-full h-40" required onChange={changeReportForm} value={requestForm.description}></Textarea>
+                </div>
+                <div className="flex flex-col gap-4">
+                    <Label htmlFor="priority">Priority</Label>
+                    <Select onValueChange={(value) => FillRequestForm((prev) => ({ ...prev, priority: value }))} value={requestForm.priority}>
+                        <SelectTrigger>
+                            <div className="flex flex-row gap-4 items-center">
+                                <Search className="w-4 h-4" />
+                                <SelectValue >
+                                </SelectValue>
+                            </div>
+                        </SelectTrigger>
+                        <SelectContent id="priority">
+                            <SelectGroup>
+                                <SelectItem value="low">
+                                  <div className="flex items-center gap-3 justify-center px-3 py-0.5 border-green-400 bg-green-400/20 rounded-lg border">
+                                    <Columns2 className="w-5 h-5" /> Low
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="medium">
+                                  <div className="flex items-center gap-3 justify-center px-3 py-0.5 border-yellow-400 bg-yellow-400/20 rounded-lg border">
+                                    <Columns3 className="w-5 h-5" /> Medium
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="high">
+                                  <div className="flex items-center gap-3 justify-center px-3 py-0.5 border-red-400 bg-red-400/20 rounded-lg border">
+                                    <Columns4 className="w-5 h-5" /> High
+                                  </div>
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex flex-col gap-4 ">
+                    <Button size="lg" type="submit" className="font-semibold" disabled={submitted === true}>Submit Request</Button>
+                </div>
+                <p className="text-muted-foreground text-sm">By submitting this request, you agree to our <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.</p>
+                {
+                  showSuccess === "true" && (
+                    <div className="flex w-full border-green-400 border bg-green-500/20 rounded-xl">
+                      <p className="text-green-400 font-semibold p-4">Your request has been submitted successfully. You will receive a confirmation email shortly.</p>
+                    </div>
+                  )
+                }
+            </div>
+        </form>
+    </div>
+  )
 }

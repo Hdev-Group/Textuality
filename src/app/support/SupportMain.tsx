@@ -11,9 +11,12 @@ import { api } from "../../../convex/_generated/api";
 import { useQuery } from "convex/react";
 import Link from "next/link";
 import { useMemo } from "react";
+import { useAuth } from "@clerk/clerk-react";
 
 export default function SupportPage() {
     const user = useUser();
+    const { isSignedIn } = useAuth();
+
 
     const [searchQuery, setSearchQuery] = useState('')
     const checktickets = useQuery(api.support.getTickets, { userId: user.user?.id });
@@ -93,11 +96,37 @@ export default function SupportPage() {
               {
                 checktickets?.length > 0 &&
                 <div className="container flex flex-col w-full items-center justify-center">
-                  <h1 className="text-4xl font-bold tracking-tighter">Your Support Tickets</h1>
+                  <h1 className="text-4xl font-bold tracking-wide">Your Support Tickets</h1>
+                  <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full px-4 md:px-0">
+                    {checktickets.map((ticket, index) => (
+                      <div className="flex flex-col justify-between gap-2 w-full items-start border border-muted hover:border-muted-foreground p-4 rounded-md">
+                        <div className="flex flex-row justify-between w-full">
+                          <div className="flex flex-col gap-2 items-start justify-start">
+                            <span className="text-lg font-bold">{ticket.title}</span>
+                          </div>
+                          <div className="flex flex-col gap-2 items-end justify-end ml-3">
+                            {
+                              ticket.status === 'open' ? <span className="text-sm bg-green-400/20 border-green-400 border text-white px-2 py-1 rounded-md">Open</span> : ticket.status === 'closed' ? <span className="text-sm bg-red-400/20 border-red-400 border text-white px-2 py-1 rounded-md">Closed</span> : <span className="text-sm bg-yellow-400/20 border-yellow-400 border text-white px-2 py-1 rounded-md">Pending</span>
+                            }
+                          </div>
+                        </div>
+                        <div className="w-full mt-3">
+                        <Link href={`/support/tickets/${ticket._id}`}>
+                              <Button variant="gradient" className="w-full">View</Button>
+                        </Link>
+                        </div>
+                      </div>
+                    ))}
+                    </div>
+                    <div className="w-full">
+                    <Link href="/support/tickets">
+                      <Button variant="outline" className="mt-4 w-full text-md mb-5">View All Tickets</Button>
+                    </Link>
+                    </div>
                 </div>
               }
               <div className="container flex flex-col w-full items-center justify-center">
-                <h1 className="text-4xl font-bold tracking-tighter">Popular Categories</h1>
+                <h1 className="text-4xl font-bold tracking-wide">Popular Categories</h1>
                   <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full px-4 md:px-0">
                     {supportCategories.map((category, index) => (
                       <Link key={index} href={category?.href}>

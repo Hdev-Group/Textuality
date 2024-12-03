@@ -10,3 +10,27 @@ export const getTickets = query({
         return result;
     },
 });
+
+export const createTicket = mutation({
+    args: {
+        title: v.string(),
+        content: v.string(),
+        userId: v.string(),
+        priority: v.string(),
+        pageid: v.string(),
+    },
+    handler: async (ctx, { userId, title, content, priority, pageid }) => {
+        const result = await ctx.db.insert("supporttickets", {
+            title,
+            content,
+            userId,
+            pageid,
+            status: "open",
+            updated: Date.now(),
+            department: "general",
+            staffid: "",
+            priority,
+        });
+        return result;
+    },
+});

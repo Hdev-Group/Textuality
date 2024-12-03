@@ -7,7 +7,7 @@ import { useQuery, useMutation } from 'convex/react'
 import React, { useEffect, useState, useRef, useCallback,useMemo } from 'react'
 import { useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronDown, ChevronLeft, Link2, Lock, LucideClipboardSignature, Mailbox, MessagesSquare, Save, SidebarOpen, View } from 'lucide-react';
+import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronDown, ChevronLeft, Clock2, Link2, Lock, LucideClipboardSignature, Mailbox, MessagesSquare, Save, SidebarOpen, Text, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -688,10 +688,14 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                         <DropdownMenuLabel>Change Status to</DropdownMenuLabel>
                                                         <DropdownMenuItem>
                                                             <div className='flex flex-row gap-2 items-center'>
-                                                                <p>Change to Draft</p>
+                                                                <p className='flex flex-row gap-1 items-center justify-center'><Text className='w-5 h-5' /> Change to Draft</p>
                                                             </div>
                                                         </DropdownMenuItem>
-
+                                                        <DropdownMenuItem>
+                                                            <div className='flex flex-row gap-2 items-center'>
+                                                                <p className='flex flex-row gap-1 items-center justify-center'><Clock2 className='w-5 h-5' /> Schedule</p>
+                                                            </div>
+                                                        </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             )

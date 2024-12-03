@@ -181,6 +181,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                         </div>
 
                                         {/* Content Table */}
+                                        <div className='border rounded-md'>
                                         <Table>
                                             <TableHeader>
                                                 <TableRow>
@@ -319,6 +320,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                 )}
                                             </TableBody>
                                         </Table>
+                                        </div>
                                     </div>
                                 </main>
                             </div>
