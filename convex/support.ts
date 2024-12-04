@@ -30,6 +30,7 @@ export const createTicket = mutation({
             department: "general",
             staffid: "",
             priority,
+            _lastUpdated: Date.now(),
         });
         return result;
     },
