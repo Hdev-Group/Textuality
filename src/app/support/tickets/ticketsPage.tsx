@@ -106,7 +106,8 @@ export default function TicketsPage() {
                                 <TableBody>
                                     {
                                         filteredTickets?.length > 0 ? filteredTickets?.map((ticket) => (
-                                            <div key={ticket._id} className="h-full py-3 hover:bg-muted/20 transition-all flex flex-row cursor-pointer items-center justify-between" onClick={() => router.push(`/support/tickets/${ticket._id}`)}>
+                                            <a key={ticket._id} href={`/support/tickets/${ticket._id}`}>
+                                            <div  className="h-full py-3 hover:bg-muted/20 transition-all flex flex-row cursor-pointer items-center justify-between">
                                                 <div className="gap-2 flex flex-row justify-start px-6 h-full w-full items-center">
                                                     <TicketStatus status={ticket.status}/>
                                                     <TicketPriority priority={ticket.priority}/>
@@ -117,6 +118,7 @@ export default function TicketsPage() {
                                                     <span className="text-xs text-muted-foreground">{new Date(ticket._creationTime).toLocaleDateString()}</span>
                                                 </div>
                                             </div>
+                                            </a>
                                         )) : 
                                         <div className="flex flex-col items-center justify-center bg-muted/20 w-full h-full py-24">
                                             <div className="border p-3 rounded-lg">

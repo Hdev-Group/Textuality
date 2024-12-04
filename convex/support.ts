@@ -11,6 +11,16 @@ export const getTickets = query({
     },
 });
 
+export const getTicketsbyID = query({
+    args: {
+        _id: v.any(),
+    },
+    handler: async (ctx, { _id }) => {
+        const result = await ctx.db.query("supporttickets").filter(q => q.eq(q.field("_id"), _id)).collect();
+        return result;
+    },
+});
+
 export const createTicket = mutation({
     args: {
         title: v.string(),
