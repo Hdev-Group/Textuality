@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.699.0",
     "@clerk/clerk-react": "^5.11.0",
     "@clerk/nextjs": "^6.0.2",
     "@clerk/themes": "^2.1.50",
@@ -38,6 +39,7 @@
     "@tiptap/pm": "^2.9.1",
     "@tiptap/react": "^2.9.1",
     "@tiptap/starter-kit": "^2.9.1",
+    "aws-sdk": "^2.1692.0",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
@@ -52,6 +54,7 @@
     "next-nprogress-bar": "^2.3.14",
     "next-themes": "^0.3.0",
     "nextjs": "^0.0.3",
+    "nodemailer": "^6.9.16",
     "react": "^18",
     "react-beautiful-dnd": "^13.1.1",
     "react-day-picker": "^8.10.1",

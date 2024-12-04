@@ -416,6 +416,22 @@ function SupportForm({ showRequestForm, contentHeightForm, contentFormRef, repor
       alert("Please login to submit a request.")
       return
     }
+    fetch("/api/support/restricted/email/startsupport", {
+      method: "POST",
+      body: JSON.stringify({
+        email: user?.user?.emailAddresses[0].emailAddress,
+        firstname: user?.user?.firstName,
+        lastname: user?.user?.lastName,
+        title: requestForm.title,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer lksdhougrhgu8oUIGASFGousg98weg08ty***sougf9wet7f97t9GUIUSGFIUkgaosf897rfw7g973gt9kshdgfkhdsgkksdhgj~~dskigaiuda", // will be changed in prod
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data));    
+
      const hassubmitted = reportSubmit({
       pageid: pageid,
       title: requestForm.title,
@@ -432,15 +448,12 @@ function SupportForm({ showRequestForm, contentHeightForm, contentFormRef, repor
       setShowSuccess("error")
     }
   }
-
-
   const [requestForm, FillRequestForm] = useState({
     title: "",
     description: "",
     priority: "",
     category: "",
   });
-
 
   useEffect(() => {
     FillRequestForm({

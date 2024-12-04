@@ -41,12 +41,12 @@ export default function TicketsPage() {
             })
             .sort(({a, b}: any) => {
                 if (sort === "lastupdated") {
-                    return new Date(b._lastUpdated).getTime() - new Date(a._lastUpdated).getTime();
+                    return new Date(b._lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
                 } else if (sort === "priority") {
                     const priorityOrder = { high: 1, medium: 2, low: 3 };
                     return priorityOrder[a.priority] - priorityOrder[b.priority];
                 } else if (sort === "creation") {
-                    return new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime();
+                    return new Date(b._creationTime).getTime() - new Date(a.creationTime).getTime();
                 }
                 return 0;
             });
@@ -81,7 +81,7 @@ export default function TicketsPage() {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
-                                <Tabs defaultValue="all">
+                                <Tabs defaultValue="all" value={filter} onValueChange={(value) => setFilter(value)} >
                                     <TabsList defaultValue="all">
                                         <TabsTrigger value="all">All</TabsTrigger>
                                         <TabsTrigger value="open">Open</TabsTrigger>
@@ -105,7 +105,7 @@ export default function TicketsPage() {
                             <Table>
                                 <TableBody>
                                     {
-                                        checktickets?.length > 0 ? checktickets?.map((ticket) => (
+                                        filteredTickets?.length > 0 ? filteredTickets?.map((ticket) => (
                                             <div key={ticket._id} className="h-full py-3 hover:bg-muted/20 transition-all flex flex-row cursor-pointer items-center justify-between" onClick={() => router.push(`/support/tickets/${ticket._id}`)}>
                                                 <div className="gap-2 flex flex-row justify-start px-6 h-full w-full items-center">
                                                     <TicketStatus status={ticket.status}/>
@@ -114,7 +114,7 @@ export default function TicketsPage() {
                                                 </div>
                                                 <div className="gap-2 flex flex-row justify-end px-6 h-full w-full items-center">
                                                     <span className="text-md font-semibold items-center flex flex-row gap-2"><img src={user.user.imageUrl} className="w-6 h-6 rounded-full border" /> {user.user.fullName}</span>
-                                                    <span className="text-md font-semibold">{new Date(ticket._creationTime).toLocaleDateString()}</span>
+                                                    <span className="text-xs text-muted-foreground">{new Date(ticket._creationTime).toLocaleDateString()}</span>
                                                 </div>
                                             </div>
                                         )) : 
