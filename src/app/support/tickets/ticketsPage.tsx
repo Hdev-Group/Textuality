@@ -30,27 +30,33 @@ export default function TicketsPage() {
     const [sort, setSort] = useState('lastupdated');
 
     function filterTickets(tickets) {
+        const priorityOrder = { high: 1, medium: 2, low: 3 };
+    
         return tickets
-            ?.filter((ticket) => {
+            ?.filter((ticket: { status: string; title: string }) => {
                 if (filter === "all") return true;
                 return ticket.status === filter;
             })
-            .filter((ticket) => {
+            .filter((ticket: { title: string }) => {
                 if (!searchQuery) return true;
                 return ticket.title.toLowerCase().includes(searchQuery.toLowerCase());
             })
-            .sort(({a, b}: any) => {
+            .sort((a: { lastUpdated?: number; priority?: string; _creationTime?: number }, 
+                   b: { lastUpdated?: number; priority?: string; _creationTime?: number }) => {
                 if (sort === "lastupdated") {
-                    return new Date(b._lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
+                    return (b?.lastUpdated ?? 0) - (a?.lastUpdated ?? 0);
                 } else if (sort === "priority") {
-                    const priorityOrder = { high: 1, medium: 2, low: 3 };
-                    return priorityOrder[a.priority] - priorityOrder[b.priority];
+                    const priorityA = priorityOrder[a.priority?.toLowerCase()] || 999;
+                    const priorityB = priorityOrder[b.priority?.toLowerCase()] || 999;
+                    return priorityA - priorityB;
                 } else if (sort === "creation") {
-                    return new Date(b._creationTime).getTime() - new Date(a.creationTime).getTime();
+                    return (b?._creationTime ?? 0) - (a?._creationTime ?? 0);
                 }
+                // Default to no sorting
                 return 0;
             });
     }
+    
 
     const filteredTickets = filterTickets(checktickets);
 
@@ -89,8 +95,12 @@ export default function TicketsPage() {
                                         <TabsTrigger value="closed">Closed</TabsTrigger>
                                     </TabsList>
                                 </Tabs>
-                                <Select defaultValue="lastupdated">
-                                    <SelectTrigger >
+                                <Select
+                                    defaultValue="lastupdated"
+                                    value={sort}
+                                    onValueChange={(value) => setSort(value)}
+                                >  
+                                <SelectTrigger >
                                         <span>Sort By: <SelectValue /></span>
                                     </SelectTrigger>
                                     <SelectContent>
@@ -107,7 +117,7 @@ export default function TicketsPage() {
                                     {
                                         filteredTickets?.length > 0 ? filteredTickets?.map((ticket) => (
                                             <a key={ticket._id} href={`/support/tickets/${ticket._id}`}>
-                                            <div  className="h-full py-3 hover:bg-muted/20 transition-all flex flex-row cursor-pointer items-center justify-between">
+                                            <div  className="h-full py-3 border-b hover:bg-muted/20 transition-all flex flex-row cursor-pointer items-center justify-between">
                                                 <div className="gap-2 flex flex-row justify-start px-6 h-full w-full items-center">
                                                     <TicketStatus status={ticket.status}/>
                                                     <TicketPriority priority={ticket.priority}/>

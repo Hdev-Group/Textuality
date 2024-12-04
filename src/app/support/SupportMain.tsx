@@ -98,23 +98,23 @@ export default function SupportPage() {
                 <div className="container flex flex-col w-full items-center justify-center">
                   <h1 className="text-4xl font-bold tracking-wide">Your Support Tickets</h1>
                   <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full px-4 md:px-0">
-                    {checktickets.map((ticket, index) => (
-                      <div className="flex flex-col justify-between gap-2 w-full items-start border border-muted hover:border-muted-foreground p-4 rounded-md">
-                        <div className="flex flex-row justify-between w-full">
-                          <div className="flex flex-col gap-2 items-start justify-start">
-                            <span className="text-lg font-bold">{ticket.title}</span>
-                          </div>
-                          <div className="flex flex-col gap-2 items-end justify-end ml-3">
-                            {
-                              ticket.status === 'open' ? <span className="text-sm bg-green-400/20 border-green-400 border text-white px-2 py-1 rounded-md">Open</span> : ticket.status === 'closed' ? <span className="text-sm bg-red-400/20 border-red-400 border text-white px-2 py-1 rounded-md">Closed</span> : <span className="text-sm bg-yellow-400/20 border-yellow-400 border text-white px-2 py-1 rounded-md">Pending</span>
-                            }
-                          </div>
+                    {checktickets.filter(ticket => ticket.status !== 'closed').map((ticket, index) => (
+                      <div key={index} className="flex flex-col justify-between gap-2 w-full items-start border border-muted hover:border-muted-foreground p-4 rounded-md">
+                      <div className="flex flex-row justify-between w-full">
+                        <div className="flex flex-col gap-2 items-start justify-start">
+                        <span className="text-lg font-bold">{ticket.title}</span>
                         </div>
-                        <div className="w-full mt-3">
-                        <Link href={`/support/tickets/${ticket._id}`}>
-                              <Button variant="gradient" className="w-full">View</Button>
-                        </Link>
+                        <div className="flex flex-col gap-2 items-end justify-end ml-3">
+                        {
+                          ticket.status === 'open' ? <span className="text-sm bg-green-400/20 border-green-400 border text-white px-2 py-1 rounded-md">Open</span> : <span className="text-sm bg-yellow-400/20 border-yellow-400 border text-white px-2 py-1 rounded-md">Pending</span>
+                        }
                         </div>
+                      </div>
+                      <div className="w-full mt-3">
+                      <Link href={`/support/tickets/${ticket._id}`}>
+                          <Button variant="gradient" className="w-full">View</Button>
+                      </Link>
+                      </div>
                       </div>
                     ))}
                     </div>

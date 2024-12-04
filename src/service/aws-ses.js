@@ -72,7 +72,7 @@ export const testMail = async (body) => {
             Our team will review your query and get back to you as soon as possible.
         </p>
         <p>
-            If you have additional details or updates related to your request, please feel free to reply to this email.
+            If you have additional details or updates related to your request, please contact us in the support portal.
         </p>
         <p>
             Thank you for your patience and understanding.
