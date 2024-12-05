@@ -423,10 +423,11 @@ function SupportForm({ showRequestForm, contentHeightForm, contentFormRef, repor
         firstname: user?.user?.firstName,
         lastname: user?.user?.lastName,
         title: requestForm.title,
+        type: "requestsubmitted",
       }),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer lksdhougrhgu8oUIGASFGousg98weg08ty***sougf9wet7f97t9GUIUSGFIUkgaosf897rfw7g973gt9kshdgfkhdsgkksdhgj~~dskigaiuda", // will be changed in prod
+        "Authorization": "Bearer " + process.env.SECURE_TOKEN, // will be changed in prod
       },
     })
       .then((res) => res.json())
