@@ -1,23 +1,27 @@
-import * as AWS from "aws-sdk";
+import { SESClient, SendRawEmailCommand } from "@aws-sdk/client-ses";
 import * as nodemailer from "nodemailer";
-AWS.config.update({
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+
+// SES Client
+const sesClient = new SESClient({
     region: "eu-north-1",
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
 });
-AWS.config.getCredentials(function (error) {
-    if (error) {
-        console.log(error.stack);
-    }
+
+// Nodemailer transporter with custom send function
+const transporter = nodemailer.createTransport({
+    SES: {
+        ses: sesClient,
+        aws: { SendRawEmailCommand },
+    },
 });
-const ses = new AWS.SES({ apiVersion: "2010-12-01" });
+
 
 // change this to the "to" email that you want
 const adminMail = "no-reply@textuality.hdev.uk";
-// Create a transporter of nodemailer
-const transporter = nodemailer.createTransport({
-    SES: ses,
-});
+
 export const testMail = async (body) => {
     console.log("BODY", body);
     const type = body.type;

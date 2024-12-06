@@ -404,6 +404,7 @@ function SupportForm({ showRequestForm, contentHeightForm, contentFormRef, repor
   const [showSuccess, setShowSuccess] = useState("false")
   const [submitted, setSubmitted] = useState(false)
 
+
   function submitRequest(e: React.FormEvent) {
     e.preventDefault()
     // Check if all fields are filled
@@ -427,7 +428,7 @@ function SupportForm({ showRequestForm, contentHeightForm, contentFormRef, repor
       }),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + process.env.SECURE_TOKEN, // will be changed in prod
+        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SECURE_TOKEN}`,
       },
     })
       .then((res) => res.json())
