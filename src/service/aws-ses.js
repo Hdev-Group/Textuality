@@ -13,7 +13,7 @@ AWS.config.getCredentials(function (error) {
 const ses = new AWS.SES({ apiVersion: "2010-12-01" });
 
 // change this to the "to" email that you want
-const adminMail = "support@textuality.hdev.uk";
+const adminMail = "no-reply@textuality.hdev.uk";
 // Create a transporter of nodemailer
 const transporter = nodemailer.createTransport({
     SES: ses,
@@ -25,7 +25,7 @@ export const testMail = async (body) => {
     try {
         if (type === "requestsubmitted") {
         response = await transporter.sendMail({
-            from: adminMail,
+            from: `"Textuality Support" <${adminMail}>`,
             to: body.email,
             subject: `Support Request - ${body.title}`,
             html: `
@@ -94,7 +94,7 @@ export const testMail = async (body) => {
         });
     }  else if (type === "staffresponse") {
         response = await transporter.sendMail({
-            from: adminMail,
+            from: `"Textuality Support" <${adminMail}>`,
             to: body.email,
             subject: `Support Request Update - ${body.title}`,
             html: `
@@ -163,7 +163,7 @@ export const testMail = async (body) => {
     
     } else if (type === "awaitingresponse") {
         response = await transporter.sendMail({
-        from: adminMail,
+        from: `"Textuality Support" <${adminMail}>`,
         to: body.email,
         subject: `Awaiting Your Response - ${body.title}`,
         html: `
@@ -228,7 +228,7 @@ export const testMail = async (body) => {
     });
 } else if (type === "closed") {
     response = await transporter.sendMail({
-        from: adminMail,
+        from: `"Textuality Support" <${adminMail}>`,
         to: body.email,
         subject: `Support Request Closed - ${body.title}`,
         html: `

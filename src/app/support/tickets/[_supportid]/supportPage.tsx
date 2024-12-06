@@ -6,6 +6,7 @@ import TicketAuthWrapper from "../../isAllowed"
 import { useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { useUser } from "@clerk/clerk-react";
+import { Textarea } from "@/components/ui/textarea";
 
 
 export default function SupportPage({supportid}) {
@@ -45,9 +46,15 @@ export default function SupportPage({supportid}) {
                   </div>
                     <div className="flex flex-row gap-5 w-full mt-5">
                     <div className="w-full flex flex-col">
-                      <div className="border border-muted/50 rounded-md bg-muted/30 h-full">
+                      <div className="border border-muted/50 rounded-md bg-muted/30">
                         <div className="flex flex-col">
                           <UserTicket ticket={ticket} user={user} />
+                        </div>
+                      </div>
+                      <div className="mt-5 border border-muted rounded-md w-full">
+                        <div className="relative flex w-full">
+                          <Textarea placeholder="Write a reply..." />
+                          <Button className="absolute bottom-2 right-2" size="sm">Reply</Button>
                         </div>
                       </div>
                     </div>
@@ -85,7 +92,7 @@ export default function SupportPage({supportid}) {
 }
 function UserTicket({ ticket, user }) {
   return(
-    <div className="border-b flex flex-row gap-3">
+    <div className="border-b flex flex-row gap-3 pl-2">
       <img src={user.user.imageUrl} alt="User" className="w-9 h-9 mt-6 mx-2 rounded-full" />
       <div className="flex flex-col py-6 pr-4 gap-2 w-full">
         <div className="flex flex-row justify-between w-full">
