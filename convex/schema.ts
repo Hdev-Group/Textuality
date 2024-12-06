@@ -160,7 +160,6 @@ supportmessages: defineTable({
     message: v.string(),
     userId: v.string(),
     isstaff: v.boolean(),
-    updated: v.any(),
 }),
 pagesenderdata: defineTable({
     pageid: v.string(),

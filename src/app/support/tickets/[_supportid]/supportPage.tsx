@@ -3,7 +3,7 @@ import Header from "@/components/header/header";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import TicketAuthWrapper from "../../isAllowed"
-import { useQuery } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { useUser } from "@clerk/clerk-react";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,9 +11,21 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function SupportPage({supportid}) {
   const getTicket = useQuery(api.support.getTicketsbyID, { _id: supportid });
+  const sendUserMessage = useMutation(api.support.sendUserMessage);
   const ticket = getTicket?.[0];
+  const ticketmessages = useQuery(api.support.getMessages, { ticketID: supportid });
   const user = useUser();
   const router = useRouter();
+
+  function sendMessage({ value }) {
+    sendUserMessage({ 
+      ticketID: supportid, 
+      message: value,
+      userId: user.user.id,
+      isStaff: false
+    });
+  }
+
   return (
     <TicketAuthWrapper ticketID={supportid}>
       <div className={`flex bgmain flex-col min-h-screen w-full items-center justify-center`}>
@@ -48,14 +60,38 @@ export default function SupportPage({supportid}) {
                     <div className="w-full flex flex-col">
                       <div className="border border-muted/50 rounded-md bg-muted/30">
                         <div className="flex flex-col">
-                          <UserTicket ticket={ticket} user={user} />
+                          <div className="border-b flex flex-row gap-3 pl-2">
+                            <img src={user?.user?.imageUrl} alt="User" className="w-9 h-9 mt-6 mx-2 rounded-full" />
+                            <div className="flex flex-col py-6 pr-4 gap-2 w-full">
+                              <div className="flex flex-row justify-between w-full">
+                                <span className="text-sm font-semibold">{user?.user?.firstName} {user?.user?.lastName}</span>
+                                <span className="text-sm text-muted-foreground">{new Date(ticket?._creationTime).toLocaleDateString()}</span>
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                <p className="text-sm ">{ticket?.content}</p>
+                              </div>
+                            </div>
+                          </div>
+                          {
+                            ticketmessages?.map((message) => {
+                              if (message.isstaff === false) {
+                                return <UserTicket ticket={message} user={user} />
+                              } else {
+                                return <StaffTicket ticket={message} />
+                              }
+                            })
+                          }
                         </div>
                       </div>
                       <div className="mt-5 border border-muted rounded-md w-full">
-                        <div className="relative flex w-full">
-                          <Textarea placeholder="Write a reply..." />
-                          <Button className="absolute bottom-2 right-2" size="sm">Reply</Button>
-                        </div>
+                      <form className="relative flex w-full" onSubmit={(e) => {
+                          e.preventDefault();
+                          const messageElement = document.getElementById("replymessage") as HTMLTextAreaElement;
+                          sendMessage({ value: messageElement.value });
+                          }}>
+                          <Textarea placeholder="Write a reply..." id="replymessage" maxLength={2000} />
+                          <Button type="submit" className="absolute bottom-2 right-2" size="sm">Reply</Button>
+                        </form>
                       </div>
                     </div>
                     <div className="relative w-1/3 h-auto">
@@ -100,12 +136,30 @@ function UserTicket({ ticket, user }) {
           <span className="text-sm text-muted-foreground">{new Date(ticket._creationTime).toLocaleDateString()}</span>
         </div>
         <div className="flex flex-col gap-2">
+          <p className="text-sm ">{ticket.message}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StaffTicket({ ticket }) {
+  return(
+    <div className="border-b flex flex-row gap-3 pl-2">
+      <img src={ticket.staffimageUrl} alt="User" className="w-9 h-9 mt-6 mx-2 rounded-full" />
+      <div className="flex flex-col py-6 pr-4 gap-2 w-full">
+        <div className="flex flex-row justify-between w-full">
+          <span className="text-sm font-semibold">{ticket.staffname}</span>
+          <span className="text-sm text-muted-foreground">{new Date(ticket._creationTime).toLocaleDateString()}</span>
+        </div>
+        <div className="flex flex-col gap-2">
           <p className="text-sm ">{ticket.content}</p>
         </div>
       </div>
     </div>
   )
 }
+
 function TicketPriority({ priority }) {
   if (priority === "low") {
       return <span className="text-xs bg-blue-400/20 text-blue-400  font-semibold  px-2 py-1 rounded-full">Low</span>

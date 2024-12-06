@@ -424,6 +424,11 @@ function SupportForm({ showRequestForm, contentHeightForm, contentFormRef, repor
         firstname: user?.user?.firstName,
         lastname: user?.user?.lastName,
         title: requestForm.title,
+        priority: requestForm.priority,
+        description: requestForm.description,
+        status: "open",
+        datetime: new Date().toLocaleDateString(),
+        imageUrl: user?.user?.imageUrl,
         type: "requestsubmitted",
       }),
       headers: {

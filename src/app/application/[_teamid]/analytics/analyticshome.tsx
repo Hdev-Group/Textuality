@@ -80,28 +80,34 @@ function DateSelector({teaminfo}: {teaminfo: any}) {
     const handlePrevious = () => {
       switch (filterType) {
         case "day":
+          if (subDays(date, 1) < new Date(createdatday)) return  
           setDate(subDays(date, 1))
           break
         case "month":
+          if (subMonths(date, 1) < new Date(createdatday)) return
           setDate(subMonths(date, 1))
           break
         case "year":
+          if (subYears(date, 1) < new Date(createdatday)) return
           setDate(subYears(date, 1))
           break
       }
     }
   
     const handleNext = () => {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
       switch (filterType) {
         case "day":
-          // check to see if the date is in the future
-          if (date >= new Date()) return
+          if (date >= today) return
           setDate(addDays(date, 1))
           break
         case "month":
+          if (addMonths(date, 1) > today) return
           setDate(addMonths(date, 1))
           break
         case "year":
+          if (addYears(date, 1) > today) return
           setDate(addYears(date, 1))
           break
       }

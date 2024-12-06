@@ -45,3 +45,31 @@ export const createTicket = mutation({
         return result;
     },
 });
+
+export const sendUserMessage = mutation({
+    args: {
+        ticketID: v.string(),
+        message: v.string(),
+        userId: v.string(),
+        isStaff: v.boolean(),
+    },
+    handler: async (ctx, { ticketID, message, userId, isStaff }) => {
+        const result = await ctx.db.insert("supportmessages", {
+            ticketid: ticketID,
+            message,
+            userId,
+            isstaff: isStaff,
+        });
+        return result;
+    },
+});
+
+export const getMessages = query({
+    args: {
+        ticketID: v.any(),
+    },
+    handler: async (ctx, { ticketID }) => {
+        const result = await ctx.db.query("supportmessages").filter(q => q.eq(q.field("ticketid"), ticketID)).collect();
+        return result;
+    },
+});

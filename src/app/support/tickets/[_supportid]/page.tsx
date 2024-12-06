@@ -28,7 +28,7 @@ export async function generateMetadata() {
 }
 
   
-export default function SupportWrap({ params: { _supportid } }) {
-  console.log(_supportid);
+export default function SupportWrap({ params: { _supportid } }: { params: { _supportid: string } }) {
+
     return <SupportPage supportid={_supportid}  />;
 }

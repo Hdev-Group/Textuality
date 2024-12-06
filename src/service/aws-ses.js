@@ -28,6 +28,8 @@ export const testMail = async (body) => {
     var response;
     try {
         if (type === "requestsubmitted") {
+        const priorityColor = body.priority === "high" ? "#ff0000" : body.priority === "medium" ? "#ffcc00" : "#00cc00";
+
         response = await transporter.sendMail({
             from: `"Textuality Support" <${adminMail}>`,
             to: body.email,
@@ -40,61 +42,108 @@ export const testMail = async (body) => {
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
             margin: 0;
             padding: 0;
+            background-color: #f9f9f9;
         }
         .email-container {
-            padding: 20px;
             max-width: 600px;
             margin: 20px auto;
             background-color: #ffffff;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
         h2 {
             color: #333333;
+            margin-top: 0;
         }
         p {
             color: #555555;
             line-height: 1.6;
         }
-        .footer {
+        .outer-table {
+            width: 100%;
             margin-top: 20px;
-            font-size: 12px;
-            color: #888888;
-            text-align: start;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            display: block;
+            margin: 10px auto;
+        }
+        .badge {
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .status-open {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+        .status-high {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .priority-low {
+            background-color: rgba(96, 165, 250, 0.2);
+            color: #60a5fa; 
+        }
+        .priority-medium {
+            background-color: rgba(250, 204, 21, 0.2);
+            color: #facc15;
+        }
+        .priority-high {
+            background-color: rgba(248, 113, 113, 0.2);
+            color: #f87171; 
         }
     </style>
 </head>
 <body>
     <div class="email-container">
         <h2>Support Request Confirmation</h2>
-        <p>
-            Dear ${body.firstname} ${body.lastname},
-        </p>
+        <p>Dear ${body.firstname} ${body.lastname},</p>
         <p>
             Thank you for reaching out to us. This email confirms that we have received your support request. 
-            Our team will review your query and get back to you as soon as possible.
+            Our team will review your query and get back to you as soon as possible. 
+            If you have any other questions or concerns, please feel free to contact us on our support portal.
         </p>
-        <p>
-            If you have additional details or updates related to your request, please contact us in the support portal.
-        </p>
-        <p>
-            Thank you for your patience and understanding.
-        </p>
-        <p>
-            Best regards,<br/>
-            Textuality Support Team
-        </p>
-        <div class="footer">
+
+        <table class="outer-table" cellpadding="10">
+            <tr>
+                <td style="width: 60px; text-align: center;">
+                    <img src="${body.imageUrl}" alt="Profile Picture" class="profile-img">
+                </td>
+                <td>
+                    <strong>${body.firstname} ${body.lastname}</strong><br>
+                    <span>${body.datetime}</span><br>
+                    <p>${body.description || 'No description provided'}</p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Status:</strong></td>
+                <td><span class="badge status-${body.status.toLowerCase()}">${body.status}</span></td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Priority:</strong></td>
+                <td><span class="badge priority-${body.priority.toLowerCase()}">${body.priority}</span></td>
+            </tr>
+        </table>
+
+        <p class="footer">
             This is an automated message. Please do not reply directly to this email.
-        </div>
+        </p>
     </div>
 </body>
 </html>
-`,
+    `,
         });
     }  else if (type === "staffresponse") {
         response = await transporter.sendMail({
