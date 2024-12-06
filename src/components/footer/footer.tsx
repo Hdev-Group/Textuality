@@ -74,12 +74,12 @@ export default function Footer() {
                   <div className="flex flex-row gap-5 items-center text-sm text-muted-foreground">
                     <Link href={"/"}>
                     <div className="rounded-full p-2 bg-blue-500/20 text-blue-600 transition-all hover:bg-blue-400/30">
-                      <LucideTwitter size={24} />
+                      <LucideTwitter size={16} />
                     </div>
                     </Link>
                     <Link href={"/"}>
                     <div className="rounded-full text-blue-600 p-2 bg-blue-500/20 transition-all hover:bg-blue-400/30">
-                      <LucideLinkedin size={24} />
+                      <LucideLinkedin size={16} />
                     </div>
                     </Link>
                     <Link href={"/"}>

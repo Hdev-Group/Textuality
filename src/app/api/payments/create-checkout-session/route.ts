@@ -8,26 +8,27 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 export async function POST(req: NextRequest) {
   try {
     const { bundel } = await req.json();
-    const priceId = bundel.priceId;
-    const mainemail = bundel.mainemail;
-    const userid = bundel.userid;
+    const { priceId, mainemail, userid, productid } = bundel;
+
     if (!priceId) {
       throw new Error("Price ID is required");
     }
     if (!mainemail) {
       throw new Error("Email is required");
     }
-
     if (!userid) {
       throw new Error("User ID is required");
+    }
+    if (!productid) {
+      throw new Error("Product ID is required");
     }
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
-      {
-        price: priceId,
-        quantity: 1,
-      },
+        {
+          price: priceId,
+          quantity: 1,
+        },
       ],
       mode: 'subscription',
       customer_email: mainemail,
@@ -36,7 +37,8 @@ export async function POST(req: NextRequest) {
       allow_promotion_codes: true,
       automatic_tax: { enabled: true },
       metadata: {
-      userid: userid,
+        userid: userid,
+        productid: productid, 
       },
     });
 

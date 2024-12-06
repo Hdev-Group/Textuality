@@ -7,18 +7,30 @@ import { useAuth } from '@clerk/nextjs'
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder, Text, LucideHardDriveUpload } from "lucide-react"
+import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder, Text, LucideHardDriveUpload, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import AuthWrapper from '../withAuth';
 import { cookies } from 'next/headers';
 import { set } from 'zod';
+import { Progress } from "@/components/ui/progress"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function Page({ params }: { params: { _teamid: string} }) {
   const { _teamid } = params;
   const teamid = _teamid;
   const user = useUser();
+  const pagespecific = useQuery(api.page.getExactPage, { _id: teamid as any });
   const pageContentAPIGetter = useQuery(api.apicontent.pageContentAPIGetter, { pageid: teamid })
   const getpageinfo = useQuery(api.page.getPageDetails, { _id: teamid as any });
 
@@ -54,7 +66,7 @@ export default function Page({ params }: { params: { _teamid: string} }) {
           <div className="flex flex-col md:gap-0 gap-5 w-full justify-between">
             <div>
               {
-                preview === "Setup" ? <Setup changePreview={changePreview} /> : <PowerUser changePreview={changePreview} pageContentAPIGetter={pageContentAPIGetter} getpageinfo={getpageinfo} _teamid={_teamid} />
+                preview === "Setup" ? <Setup changePreview={changePreview} getpageinfo={pagespecific} /> : <PowerUser changePreview={changePreview} pageContentAPIGetter={pageContentAPIGetter} getpageinfo={getpageinfo} _teamid={_teamid} />
               }
             </div>
           </div>
@@ -67,14 +79,29 @@ export default function Page({ params }: { params: { _teamid: string} }) {
   );
 }
 
-function Setup({ changePreview }: { changePreview: any }) {
+function Setup({ changePreview, getpageinfo }: { changePreview: any, getpageinfo: any }) {
   return(
     <div className='xl:min-w-[1400px] w-full xl:w-min container mt-10 mx-auto items-center justify-center'>
     <div className='flex container mx-auto'>
       <div className='flex flex-row justify-between w-full items-center'>
         <h2 className='text-3xl font-semibold'>Setup your Textuality account</h2>
         <div className='flex flex-row gap-3'>
-          <Button>Start Setup</Button>
+          <Sheet>
+            <SheetTrigger>
+              <Button>Get Started</Button>
+            </SheetTrigger>
+            <SheetContent className='w-1/2 h-full overflow-y-scroll overflow-x-hidden text-wrap break-words break-all'>
+              <SheetHeader>
+                <SheetTitle>Get Started</SheetTitle>
+              </SheetHeader>
+              <SheetDescription>
+                <p>Get started with Textuality by following the setup guide</p>
+              </SheetDescription>
+              <div className='flex flex-col gap-3'>
+                <SetupAPI pageinfo={getpageinfo} />
+              </div>
+            </SheetContent>
+          </Sheet>
           <div className='flex flex-row gap-1 items-center justify-center cursor-pointer' onClick={() => changePreview("PowerUser")}>
           <X className='h-5 w-5' /> <p className='text-md'>Skip setup</p>
         </div>
@@ -271,62 +298,155 @@ function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  
             </Link>
           </div>
           <div className='flex w-full flex-col justify-between py-2 pb-4 px-5'>
-            <div className='flex flex-row gap-5 px-5 py-3 justify-between'>
-              <div className='flex flex-col border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3 w-full'>
-                <h1 className='text-md font-semibold'>Content Sending API</h1>
-                <p className='text-muted-foreground text-xs'>Number of API calls that were made to send your content</p>
-                <p className='font-semibold mt-3'>{pageContentAPI || 0}/50000</p>
-                {pageContentAPI >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {contentAPI}% of your pageContentAPI limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: contentAPI || 0, backgroundColor: contentAPI >=75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Content Management API</h1>
-                <p className='text-muted-foreground text-xs'>Number of API calls that were made to create or update content</p>
-                <p className='font-semibold mt-3'>{pageContentManagerAPI || 0}/50000</p>
-                {pageContentManagerAPI >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {pageContentManagerAPI}% of your pageContentManagerAPI limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: contentManagerAPI || 0,  backgroundColor: contentManagerAPI >=75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-            </div>
-            <div className='flex flex-row gap-5 px-5 py-3 justify-between'>
-              <div className='flex flex-col w-full border-foreground/40 h-auto border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Users</h1>
-                <p className='font-semibold mt-3 text-sm'>{pageinfo?.users}/5</p>
-                {users >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {users}% of your user limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                    <div className='bg-primary rounded-full h-2' style={{width: users, backgroundColor: users >= 75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Templates</h1>
-                <p className='font-semibold mt-3  text-sm'>{pageinfo?.templates}/25</p>
-                {templates >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {templates}% of your template limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: templates, backgroundColor: templates >= 75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Content</h1>
-                <p className='font-semibold mt-3  text-sm'>{pageinfo?.content}/5000</p>
-                {content >= 75 && <p className='text-red-500 text-xs mt-1 mb-[-5px]'>You have reached {content}% of your content limit.</p>}
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: content, backgroundColor: content >=75 ? 'red' : ''}}></div>
-                </div>
-              </div>
-              <div className='flex flex-col w-full border-foreground/40 border bg-muted-foreground/20 rounded-sm p-3'>
-                <h1 className='text-md font-semibold'>Webhooks</h1>
-                <p className='font-semibold mt-3 text-sm'>0/2</p>
-                <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
-                  <div className='bg-primary rounded-full h-2' style={{width: '0%'}}></div>
-                </div>
-              </div>
-            </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            <MetricCard
+              title="Content Sending API"
+              description="Number of API calls that were made to send your content"
+              current={pageContentAPI}
+              max={50000}
+            />
+            <MetricCard
+              title="Content Management API"
+              description="Number of API calls that were made to create or update content"
+              current={pageContentManagerAPI}
+              max={50000}
+            />
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 mt-5 lg:grid-cols-4">
+            <MetricCard
+              title="Users"
+              description="Total number of users"
+              current={pageinfo?.users || 0}
+              max={5}
+            />
+            <MetricCard
+              title="Templates"
+              description="Total number of templates"
+              current={pageinfo?.templates || 0}
+              max={25}
+            />
+            <MetricCard
+              title="Content"
+              description="Total amount of content"
+              current={pageinfo?.content || 0}
+              max={5000}
+            />
+            <MetricCard
+              title="Webhooks"
+              description="Total number of webhooks"
+              current={0}
+              max={2}
+            />
+          </div>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+interface MetricCardProps {
+  title: string
+  description: string
+  current: number
+  max: number
+  warningThreshold?: number
+}
+function MetricCard({ title, description, current, max, warningThreshold = 75 }: MetricCardProps) {
+  const percentage = (current / max) * 100
+  const isWarning = percentage >= warningThreshold
+  console.log(percentage)
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-xs text-muted-foreground mb-2">{description}</p>
+        <p className="font-semibold mb-2">
+          {(current ?? 0).toLocaleString()}/{(max ?? 0).toLocaleString()}
+        </p>
+        {isWarning && (
+          <p className="text-destructive text-sm mb-2">
+            You have reached {percentage.toFixed(0)}% of your {title.toLowerCase()} limit.
+          </p>
+        )}
+        <div className='w-full bg-foreground/20 rounded-full h-2 mt-2'>
+            <div className='bg-primary rounded-full h-2' style={{width: `${percentage || 0}%`, backgroundColor: isWarning ? 'red' : ''}}></div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function SetupAPI({pageinfo}: {pageinfo: any}) {
+  console.log(pageinfo)
+  const [hasclicked, setHasClicked] = useState(false);
+  return(
+    <div className='flex flex-col w-full  overflow-x-scroll items-start justify-start mt-10 '>
+      <p className='text-xl font-semibold'>Setup your Textuality API</p>
+      <p className='text-lg font-semibold'>Your .env token setup</p>
+      <p className='text-red-400 font-semibold'>Warning. Your API key is how you access your content and it controls your limits. Be warned when giving this out.</p>
+      <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
+        {`TEXTUALITY_PAGE_ID=${pageinfo._id}`}
+      </SyntaxHighlighter>
+      <div className='flex flex-row relative'>
+        <div onClick={() => setHasClicked(!hasclicked)} className={`absolute w-full h-full flex items-center justify-center cursor-pointer rounded-lg z-50 ${hasclicked ? "backdrop-blur-none opacity-0" : " backdrop-blur-md flex"}`}>
+          <p className='flex flex-row gap-2 font-semibold text-xl'><EyeOff className='w-7 h-7' /> API Secret Inside</p>
+        </div>
+        <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
+          {`TEXTUALITY_API_KEY=${pageinfo.accesstoken}`}
+        </SyntaxHighlighter>
+      </div>
+      <p className='text-lg font-semibold'>Your content page setup</p>
+      <p>/blog</p>
+      <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
+        {`const [blogs, setBlogs] = useState([]);
+const [error, setError] = useState<string | null>(null);
+
+useEffect(() => {
+  fetch("/api/textuality/full")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setBlogs(data.blogs);
+      }
+    })
+    .catch((err) => {
+      setError(err.message);
+    });
+}, []);
+        `}
+      </SyntaxHighlighter>
+      <div className='flex flex-col'>
+      <p className='text-lg font-semibold'>Your API setup</p>
+        <p>/api/textuality/full</p>
+        <SyntaxHighlighter language="javascript" className="rounded-lg overflow-x-scroll" style={materialDark}>
+          {`import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(_req: NextRequest) {
+
+    const token = process.env.TEXTUALITY_API_KEY;
+    const pageid = process.env.TEXTUALITY_PAGE_ID;
+
+    const response = await fetch("http://textuality.hdev.uk/api/content/full/{pageid}", {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': \`Bearer \${token}\`
+        }
+    });
+    const data = await response.json();
+    if (data.error) {
+        return NextResponse.json({ error: data.error }, { status: 500 });
+    } else {
+        console.log(data);
+        return NextResponse.json({ blogs: data }, { status: 200 });
+    }
+}`}
+        </SyntaxHighlighter>
+      </div>      
     </div>
   )
 }

@@ -66,7 +66,7 @@ export default function Home() {
             <OverHeader />
             <Header />
               <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
-                <div className="absolute left-1/2 -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))]"/>
+                <div className="absolute left-1/2 top-[-50px] -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))]"/>
                 <div className="flex flex-col z-10 w-full items-center justify-start h-full">
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col lg:flex-row items-start justify-start w-full">
@@ -111,13 +111,12 @@ export default function Home() {
                       ))}
                     </motion.div>
                     <div className="flex flex-row gap-2 mt-10">
-                      <h1 className="text-2xl font-semibold">Over 1k users wordwide</h1>
 
                     </div>
                   </div>
                   <div className="flex flex-col container w-full lg:w-[80%] relative items-center justify-center gap-3 mt-20">
                   <div className="absolute inset-0 max-w-xs mx-auto h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.2) 4.54%, rgba(64, 224, 208, 0.26) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
-                  <h1 className="lg:text-[52px] text-5xl font-bold text-center">Create expertly, easily</h1>
+                  <h1 className="lg:text-[52px] text-5xl font-bold text-center">Create <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-blue-500"> expert level blogs</span>, easily</h1>
                     <p className="lg:text-md text-sm text-muted-foreground text-center px-2 md:w-1/2">
                       Recreate what's possible with Textuality. Our platform is designed to help you create content that's engaging, informative, and beautiful while we handle all the heavy lifting.
                     </p>
@@ -127,27 +126,27 @@ export default function Home() {
                       <Extrainfocard title="Publish" description="Publish your content to the web with a single click." icon={<FileText />} />
                     </div>
                   </div>
-                  <div className="w-full rounded-3xl bg-white/80 h-full container mx-10 md:py-0 py-10 relative mt-20">
-                    <div className="absolute top-0 right-0 bg-gradient-to-br  from-blue-500 to-purple-500 w-full h-full opacity-20 rounded-3xl" />
-                    <h1 className="lg:text-[52px] text-5xl text-black mt-20 text-center">Industry-Disruptive content management software</h1>
-                    <p className="text-md text-muted-foreground dark:text-muted text-center px-2 mt-2">
+                  <div className="w-full rounded-3xl bg-background h-full container mx-10 md:py-0 py-10 relative mt-20">
+                    <div className="absolute top-0 right-0 bg-gradient-to-br  from-blue-600 to-purple-900 w-full h-full opacity-20 rounded-3xl" />
+                    <h1 className="lg:text-[52px] text-5xl text-white mt-20 text-center">Industry-Disruptive content management software</h1>
+                    <p className="text-md text-muted-foreground dark:text-muted-foreground text-center px-2 mt-2">
                       Textuality is the perfect tool for your next project. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.
                     </p>
                     <div className="flex flex-col md:flex-row justify-between w-full mx-10 mt-10">
                       <div className="flex flex-col gap-2">
                         <h1 className="text-md font-semibold space-grotesk-600 text-blue-900 ">BEST IN CLASS</h1>
-                        <h1 className="text-3xl font-bold space-grotesk-600 text-black">Leading with ease</h1>
-                        <p className="text-md text-muted-foreground dark:text-muted">Our content management system is the most secure, user friendy, easy to use system on the market, With top sub second performance to get your content where it needs to go</p>
+                        <h1 className="text-3xl font-bold space-grotesk-600 text-white">Leading with ease</h1>
+                        <p className="text-md text-muted-foreground dark:text-muted-foreground">Our content management system is the most secure, user friendy, easy to use system on the market, With top sub second performance to get your content where it needs to go</p>
                         <div className="flex flex-col gap-2">
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Low latency | ~750ms content delivery</p>
                           </div>
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Easy to use | No learning curve</p>
                           </div>
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Secure | End-to-end encryption</p>
                           </div>
@@ -163,18 +162,18 @@ export default function Home() {
                       </div>
                       <div className="flex flex-col gap-2">
                         <h1 className="text-md font-semibold space-grotesk-600 text-blue-900 ">PRODUCTION-READY</h1>
-                        <h1 className="text-3xl font-bold space-grotesk-600 text-black">Backed by developers</h1>
-                        <p className="text-md text-muted-foreground dark:text-muted text-wrap break-words w-[90%]">From easy to use API's to publishing and monitoring your content developers choose Textuality because we build with them in mind.</p>
+                        <h1 className="text-3xl font-bold space-grotesk-600 text-white">Backed by developers</h1>
+                        <p className="text-md text-muted-foreground dark:text-muted-foreground text-wrap break-words w-[90%]">From easy to use API's to publishing and monitoring your content developers choose Textuality because we build with them in mind.</p>
                         <div className="flex flex-col gap-2">
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>API-first | Easy to integrate</p>
                           </div>
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Monitoring | Real-time metrics</p>
                           </div>
-                          <div className="flex flex-row gap-3 text-black">
+                          <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Developer friendly | Easy to use</p>
                           </div>
@@ -184,7 +183,7 @@ export default function Home() {
                   </div>
                   <div className="flex flex-col w-full  items-start justify-start gap-3 mt-32 container relative">
                   <div className="absolute inset-0 max-w-xs  left-0 h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
-                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start">A secure foundation to write on</h1>
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start">A <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-teal-300">secure foundation</span> to write on</h1>
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start">
                       Textuality is built with security in mind. Our platform is designed to keep your content safe and secure while you focus on creating amazing content.
                     </p>
@@ -230,32 +229,52 @@ export default function Home() {
                     </div>
                     </div>
                   </div>
-                  <div className="flex flex-col w-full  items-center justify-start p-24 gap-3 mt-32 container bg-[#2b1c50]/40 rounded-3xl h-screen">
-                    <div className="flex flex-row items-start justify-start w-full">
-                      <div className="flex flex-row items-start">
-                        <div className="flex items-center justify-center bg-green-500/20 p-2 rounded-full">
-                          <div className="animate-pulse bg-green-500 p-2 rounded-full"></div>
-                        </div>
-                        <div className="flex flex-col gap-2 ml-4">
-                          <h1 className="text-3xl font-bold text-white">Real time everywhere</h1>
-                          <p className="text-md text-foreground">Our platform is built to be fast and reliable, so you can create content from anywhere in the world.</p>
-                        </div>
-                      </div>
+                  <div className="w-full mt-20 flex flex-col relative container">
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end ">An <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-teal-400">easy way</span> to do content.</h1>
+                    <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end">
+                      With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
+                    </p>
+                    {/* example of it */}
+                    <div className="flex flex-col md:flex-row mt-10 ">
+                      <BlurCard title="Instant Visulisation" description="See your content in real-time as you create it." icon={<GalleryThumbnailsIcon size={24} />} />
+                      <BlurCard title="Split Screen Editing" description="Edit your content in a split screen view." icon={<EditIcon size={24} />} />
+                    </div>
+                    <div className="flex flex-col md:flex-row">
+                      <BlurCard title="Drag and Drop" description="Drag and drop template editor to create your page." icon={<CloudUploadIcon size={24} />} />
                     </div>
                   <div>
-
                 </div>
-                </div>
-                </div>
-              </main>
-              <Footer />
+              </div>
             </div>
+          </main>
+          <Footer />
+        </div>
+  )
+}
+
+function BlurCard({title, description, icon}){
+  return(
+    <div className="backdrop-blur-xl relative gap-2 flex flex-col duration-500 transition-colors  bg-transparent  border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
+      <div className="w-full left-0 h-44 blur rounded-xl" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
+      <div className="flex flex-col h-44 absolute pt-7 px-5 gap-2">
+      <div className="text-muted-foreground group-hover:text-blue-300">
+        {icon}
+      </div>
+      <h1 className="text-xl group-hover:ml-5 duration-500 ml-0 transition-all space-grotesk-600 font-bold leading-tight">
+        {title}
+      </h1>
+      <p className="text-muted-foreground text-sm sm:text-md">
+      {description}
+      </p>
+      </div>
+
+    </div>
   )
 }
 
 function Extrainfocard({ title, description, icon }) {
   return(
-    <div className="md:border-l md:last:border-r relative gap-2 py-10 flex flex-col duration-500 transition-colors md:border-b bg-transparent hover:bg-gradient-to-t from-neutral-200/60 to-transparent dark:hover:bg-gradient-to-t dark:from-neutral-900 dark:to-transparent border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
+    <div className="md:border-l md:last:border-r backdrop-blur-xl relative gap-2 py-10 flex flex-col duration-500 transition-colors md:border-b bg-transparent hover:bg-gradient-to-t from-neutral-200/60 to-transparent dark:hover:bg-gradient-to-t dark:from-neutral-900 dark:to-transparent border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
       <div className="absolute left-0 top-[20%] w-1 h-7 rounded-r-md bg-muted group-hover:bg-blue-500 duration-500 transit transition-all group-hover:h-14" />
       <div className="flex flex-col gap-2">
       <div className="text-muted-foreground">

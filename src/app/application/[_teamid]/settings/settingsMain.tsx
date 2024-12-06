@@ -30,10 +30,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CheckpointAuthWrapper from "./checkpointauthroleperms";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast"
 
 export default function Page({ params }) {
     const { _teamid } = params
     console.log(_teamid)
+    const { toast } = useToast()
     const route = useRouter()
     const teamid = _teamid
     const { user } = useUser()
@@ -41,6 +43,7 @@ export default function Page({ params }) {
     const getRole = useQuery(api.page.getRoledetail, { externalId: user?.id ?? 'none', pageId: _teamid });
     const updatePage = useMutation(api.page.updatePage);
     const getDepartments = useQuery(api.department.getDepartments, { pageid: teamid as any });
+    const getContent = useQuery(api.content.getContent, { pageid: teamid as any });
     const deletePage = useMutation(api.page.deletePage);
     const [activeTab, setActiveTab] = React.useState("general");
     const searchParams = useSearchParams();
@@ -81,6 +84,25 @@ export default function Page({ params }) {
         alert("You do not have permission to delete this page")
       }
     }
+
+    function deleteDepartment(departmentid: string) {
+      if (["owner", "admin", "editor"].some(role => getRole?.[0]?.permissions.includes(role))) {
+        // check to see if the department has any content ownership
+        getContent?.map((content) => {
+          if (content.authorid === departmentid) {
+            toast({
+              title: "Department has content ownership",
+              content: `We have detected that this department has content ownership in {}. Please reassign ownership before deleting this department`,
+              variant: "destructive",
+            })
+          } else {
+            console.log(departmentid, "aaa")
+          }
+        }
+        )
+      }
+    }
+
     return (
       <CheckpointAuthWrapper teamid={teamid}>
         <div className='overflow-y-hidden'>
@@ -168,7 +190,23 @@ export default function Page({ params }) {
                                                             <p className="text-sm text-gray-400">{department.departmentdescription}</p>
                                                             </div>
                                                             <div className="h-full flex items-start">
-                                                                <MoreVertical className="h-4 w-4" />
+                                                                <DropdownMenu>
+                                                                  <DropdownMenuTrigger asChild>
+                                                                    <MoreVertical className="h-4 w-4" />
+                                                                  </DropdownMenuTrigger>
+                                                                  <DropdownMenuContent align="start">
+                                                                    <DropdownMenuItem>
+                                                                      Edit
+                                                                    </DropdownMenuItem>
+                                                                    {
+                                                                      ["owner", "admin", "editor"].some(role => getRole?.[0]?.permissions.includes(role)) ? (
+                                                                        <DropdownMenuItem className="hover:bg-red-500/60" onClick={() => deleteDepartment(department._id)}>
+                                                                          Delete
+                                                                        </DropdownMenuItem>
+                                                                      ) : null
+                                                                    }
+                                                                  </DropdownMenuContent>
+                                                                </DropdownMenu>
                                                             </div>
                                                         </div>
                                                     )) : <p>No departments found</p>
@@ -177,36 +215,7 @@ export default function Page({ params }) {
                                         </div>
                                     </main>
                                     ) : activeTab === "billing" ? (
-                                        <main className="flex-1">
-                                        <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
-                                            <div className="flex justify-between items-center">
-                                                <h1 className="text-2xl font-bold">Billing Settings</h1>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-4 p-8 border-b">
-                                            <div className="flex flex-col space-y-2">
-                                                <label className="text-sm font-medium">Page Name</label>
-                                                <Input
-                                                    type="text"
-                                                    maxLength={50}
-                                                    value={pagetitle}
-                                                    className="w-full border border-gray-200 dark:border-neutral-800 rounded-lg p-3 text-sm"
-                                                    onChange={(e) => setTitle(e.target.value)}
-                                                />
-                                                <span className="text-sm text-gray-500">{pagetitle?.length}/50</span>
-                                            </div>
-                                            <div className="flex flex-col space-y-2">
-                                                <label className="text-sm font-medium">Page Description</label>
-                                                <Textarea
-                                                    maxLength={500}
-                                                    className="w-full border border-gray-200 dark:border-neutral-800 rounded-lg p-3 text-sm"
-                                                    onChange={(e) => setContent(e.target.value)}
-                                                    value={content}
-                                                />
-                                                <span className="text-sm text-gray-500">{content?.length}/500</span>
-                                            </div>
-                                        </div>
-                                    </main>
+                                      <BillingPage />
                                     ) : activeTab === "security" ? (
                                         <main className="flex-1">
                                         <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
@@ -483,4 +492,61 @@ function AddDepartment({ teamid }) {
         </DialogContent>
       </Dialog>
     )
+  }
+
+  function BillingPage() {
+    const { user } = useUser();
+    const customerinfo = useQuery(api.customer.getCustomerInfo, { userid: user.id as any });
+  
+    useEffect(() => {
+      if (!customerinfo) {
+        return;
+      }
+      const customerId = customerinfo?.stripeid;
+      console.log('Customer ID:', customerId);
+    
+      const fetchSubscriptions = async () => {
+        try {
+          const response = await fetch('/api/getSubscription', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ customerId }),
+          });
+    
+          const data = await response.json();
+          console.log(data);
+    
+          if (!response.ok) {
+            console.error(data.error);
+          }
+        } catch (error) {
+          console.error('Error fetching subscriptions:', error);
+        }
+      };
+    
+      fetchSubscriptions();
+    }, [customerinfo]);
+  
+    return (
+      <main className="flex-1">
+        <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Billing Settings</h1>
+          </div>
+        </div>
+        <div className="space-y-4 p-8 border-b">
+          <h2 className="text-lg font-semibold">You are currently on the Free plan</h2>
+          <div className="flex p-4 w-[30rem] flex-col gap-2 border rounded-lg">
+            <h1 className="font-semibold text-lg">Textuality Free</h1>
+            <div className="flex flex-col justify-between items-start">
+              <Button variant="outline" className="w-full mt-2">
+                <img src="/planimg/pro.png" className="h-4 w-4" /> Upgrade Plan
+              </Button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
   }

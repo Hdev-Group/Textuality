@@ -1,5 +1,5 @@
 import React from 'react';
-import RequestsHome from './requestsHome';
+import TicketsPage from './ticketsPage';
 import { preloadQuery } from "convex/nextjs";
 
 export async function generateMetadata() {
@@ -29,5 +29,5 @@ export async function generateMetadata() {
 
   
 export default function SupportWrap() {
-    return <RequestsHome  />;
+    return <TicketsPage  />;
 }

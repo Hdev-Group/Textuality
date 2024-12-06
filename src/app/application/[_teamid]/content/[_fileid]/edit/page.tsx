@@ -4,7 +4,7 @@ import { api } from '../../../../../../../convex/_generated/api';
 import { preloadQuery } from "convex/nextjs";
 
 export async function generateMetadata({ params }) {
-    const { _teamid, _fileid } = params;
+    const { _teamid, _fileid } = await params;
 
     const pageResponse = await preloadQuery(api.page.getPage, { _id: _teamid });
     const contentResponse = await preloadQuery(api.content.getContentSpecific, { _id: _fileid });

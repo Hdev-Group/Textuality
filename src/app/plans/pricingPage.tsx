@@ -20,7 +20,7 @@ export default function PricingPage() {
       name: "Free",
       price: "0",
       users: "5",
-      requests: "1 Million",
+      requests: "500k",
       description: "For personal projects, marketers and small teams looking to get started.",
       features: ["Basic analytics", "Limited projects", "Standard support", "Content creation tools", "API access", "Webhooks"],
       popular: false,
@@ -56,9 +56,9 @@ export default function PricingPage() {
 
 
   return (
-    <div className={`flex bgmain flex-col min-h-screen w-full items-center justify-center `}>
+    <div className={`flex bgmain flex-col min-h-screen w-full  items-center justify-center `}>
       <div className="flex items-center justify-center">
-        <div className="border-x  border-neutral-600 max-w-[2000px] w-full z-30 dark:border-white/50 rounded-sm lg:mx-10 lg:mb-10 border-b">
+        <div className="w-full flex items-center justify-center flex-col z-30 rounded-sm lg:mx-10 lg:mb-10 border-b">
           <Header />
           <div className="mt-10">
             <div className="flex flex-col items-center gap-7 h-full">
@@ -93,9 +93,9 @@ export default function PricingPage() {
                   </div>
                 </div>
                 <div className="flex justify-between w-full mt-5 gap-10 flex-col lg:flex-row">
-                  <PricingCard plans={plans[0]} lastone={null} billingCycle={"forever"} priceId={null} />
-                  <PricingCard plans={plans[1]} lastone="Free" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKilvG1nQ3zP4pJN3WVpvHs" : ""} />
-                  <PricingCard plans={plans[2]} lastone="Pro" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKimJG1nQ3zP4pJeDdPL6RB" : ""} />
+                  <PricingCard plans={plans[0]} productid={null} lastone={null} billingCycle={"forever"} priceId={null} />
+                  <PricingCard plans={plans[1]} productid={"prod_RD94s4Pa5cgS4C"} lastone="Free" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKilvG1nQ3zP4pJN3WVpvHs" : ""} />
+                  <PricingCard plans={plans[2]} productid={"prod_RD94mxiuenz1m9"} lastone="Pro" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKimJG1nQ3zP4pJeDdPL6RB" : ""} />
                 </div>
               </div>
             </div>
@@ -176,7 +176,7 @@ export default function PricingPage() {
   );
 }
 
-function PricingCard({ plans, lastone, billingCycle, priceId }) {
+function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
   const router = useRouter();
   const user = useUser();
   const { isSignedIn, isLoaded } = useAuth();
@@ -202,7 +202,7 @@ function PricingCard({ plans, lastone, billingCycle, priceId }) {
       router.push("/sign-in?redirect=/plans?priceId=" + priceId);
       return;
     }
-    const bundel = { priceId, mainemail, userid: user.user.id };
+    const bundel = { priceId, mainemail, userid: user.user.id, productid: productid };
     const response = await fetch('/api/payments/create-checkout-session', {
       method: 'POST',
       headers: {

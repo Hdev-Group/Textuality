@@ -6,14 +6,17 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import {
   CalendarDays, Users, BookOpen, ArrowRight, ChevronDown, Plus,
-  Check
+  Check,
+  Highlighter,
+  X
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectGroup
 } from "@/components/ui/select";
-
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
@@ -22,26 +25,23 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@radix-ui/react-toast";
 import { get } from "http";
-import { useAuth } from "@clerk/nextjs";
 import { IsAuthorizedEdge } from "@/components/edgecases/Auth";
 import Link from "next/link";
-
 interface ProjectProps {
   title: string;
-  description?: any;
-  date: string;
-  // postCount: number;
-  _id: any;
+  description: string;
+  users: string[];
+  _id: string;
   category: string;
   content: string;
-  users: string[];
+  date: string;
   _creationTime: number;
-  // latestPost: { title: string; excerpt: string };
+  latestPost: { title: string; excerpt: string };
+  postCount: number;
 }
 
+
 export default function Page() {
-  
-  const { isSignedIn } = useAuth();
   const user = useUser();
   const projects = useQuery(api.page.getPages);
   const filteredprojects = projects?.filter((project) => project.users.includes(user?.user?.id as string));
@@ -96,12 +96,12 @@ export default function Page() {
               </p>
             </div>
             <div className="flex items-start">
-              <CreatePage />
+              <CreatePage islarge={false} />
             </div>
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold mb-2">Recent Pages</h2>
+            <h2 className="text-xl font-semibold mb-2">Your Pages</h2>
             
             {/* Handle loading and error states */}
             {isLoading ? (
@@ -113,12 +113,24 @@ export default function Page() {
             ) : projects?.length === 0 ? (
               <p>No projects available.</p>
             ) : (
-                <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
+                <div className="flex p-2 rounded-xl items-start  flex-wrap gap-6">
                   {/* Map through the projects if available */}
                   {filteredprojects?.length === 0 ? (
-                    <div className="w-full flex items-center flex-col py-4 justify-center">
-                      <p className="text-lg ">No projects available.</p>
-                      <CreatePage />
+                    <div className="flex w-full items-center justify-center">
+                      <div className="flex items-start flex-col gap-2 py-4 justify-center">
+                        <h1 className="font-semibold text-3xl">Start getting your content out there.</h1>
+                        <div className="flex flex-col gap-1 items-start justify-start">
+                          <div className="flex flex-row gap-2">
+                            <Highlighter className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
+                            <p className="text-foreground/80">Keep your blog organised in one spot</p>
+                          </div>
+                          <div className="flex flex-row gap-2">
+                            <Highlighter className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
+                            <p className="text-foreground/80">Invite your team members to collaborate on content</p>
+                          </div>
+                        </div>
+                        <CreatePage islarge={true} />
+                      </div>
                     </div>
                   ) : (
                     filteredprojects?.map((page, index) => (
@@ -130,7 +142,10 @@ export default function Page() {
                         category={page.category}
                         content={page.content}
                         users={page.users}
+                        description={page.content}
                         _creationTime={page._creationTime}
+                        postCount={0}
+                        latestPost={{ title: "", excerpt: "" }}
                       />
                     ))
                   )}
@@ -138,29 +153,46 @@ export default function Page() {
             )}
             {getinvites &&
             getinvites?.length > 0 && (
-            <div>
-              <h2 className="text-xl mt-5 font-semibold mb-2">Page Invites</h2>
-              <div className="flex p-2 rounded-xl items-start bg-neutral-100 dark:bg-neutral-900 flex-wrap gap-6">
-              {getinvites?.map((invite, index) => (
-                <div key={index} className="bg-neutral-50 min-w-[30rem] dark:bg-neutral-800 border w-min dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-                  <div className="p-6 space-y-4">
-                    <div className="flex justify-between items-start">
-                    <PageName type="title" pageid={invite.pageId} />
-                    </div>
-                    <div className="text-sm text-neutral-600 dark:text-neutral-300 flex flex-row gap-0">
-                      <p className="w-full flex flex-row">You have been invited to join with the role of {invite.role}.</p>
-                    </div>
-                  </div>
-                  <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
-                    <Button variant="secondary" size="sm" onClick={() => AcceptInvite({InviteDetails: invite})}>
-                      Accept Invite <Check className="w-4 h-4 ml-1" />
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => CancelInvite({InviteDetails: invite})}>
-                      Decline Invite
-                    </Button>
-                  </div>
-                </div>
-              ))}
+              <div className="w-full py-8 pb-10 ">
+              <h2 className="text-2xl font-bold mb-6">Page Invites</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2  lg:grid-cols-3 gap-6">
+                {getinvites.map((invite, index) => (
+                  <Card 
+                    key={index}
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                  >
+                    <CardHeader>
+                      <CardTitle>
+                        <PageName type="title" pageid={invite.pageId} />
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        You have been invited to join with the role of <span className="font-semibold">{invite.role}</span>.
+                      </p>
+                    </CardContent>
+                    <CardFooter className="bg-muted p-4 flex justify-between items-center">
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        onClick={() => AcceptInvite({InviteDetails: invite})}
+                        className="transition-transform duration-300 ease-in-out"
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Accept
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => CancelInvite({InviteDetails: invite})}
+                        className="transition-transform duration-300 ease-in-out"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Decline
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
               </div>
             </div>
             )}
@@ -173,21 +205,30 @@ export default function Page() {
 }
 
 
-function Project({ 
+
+interface UserData {
+  id: string
+  firstName: string
+  imageUrl: string
+}
+
+export function Project({
   title,
   description,
   users,
+  date,
+  category,
+  content,
   _id,
   _creationTime,
 }: ProjectProps) {
-  const [userData, setUserData] = useState<{ firstName: string; imageUrl: string }[]>([]);
+  const [userData, setUserData] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const userCache: { [key: string]: { id: string; firstName: string; imageUrl: string } } = {};
+  const userCache: { [key: string]: UserData } = {};
 
   useEffect(() => {
     async function fetchAssigneeData() {
       if (users && users.length > 0) {
-        // Filter out the users that have already been fetched (exist in the cache)
         const usersToFetch = users.filter((user: string) => !userCache[user]);
 
         if (usersToFetch.length > 0) {
@@ -199,12 +240,10 @@ function Project({
             }
             const data = await response.json();
 
-            // Store the new user data in the cache
-            data.users.forEach((user: { id: string; firstName: string; imageUrl: string }) => {
-              userCache[user.id] = user; // Assuming the user object has an 'id' field
+            data.users.forEach((user: UserData) => {
+              userCache[user.id] = user;
             });
 
-            // Update the state with both cached and newly fetched users
             setUserData(users.map((user: string) => userCache[user]));
 
           } catch (error) {
@@ -214,7 +253,6 @@ function Project({
             setIsLoading(false);
           }
         } else {
-          // If no users need to be fetched, just use the cache
           setUserData(users.map((user: string) => userCache[user]));
         }
       }
@@ -227,63 +265,57 @@ function Project({
   const creationDate = new Date(_creationTime);
 
   return (
-    <div className="bg-neutral-50  md:min-w-[30rem] md:w-min dark:bg-neutral-900 border w-full dark:border-neutral-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
-      <div className="p-6 space-y-4">
-        <div className="flex justify-between items-start">
-          <h3 className="text-xl font-bold">{title.length > 15 ? `${title.substring(0, 15)}...` : title}</h3>
-          <div className="flex items-center text-sm text-neutral-500 dark:text-neutral-400">
-            <CalendarDays className="w-4 h-4 mr-1" />
+    <Card className="overflow-hidden transition-all hover:shadow-lg md:min-w-[30rem] md:w-min w-full">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold truncate">{title}</h3>
+          <Badge variant="secondary" className="font-normal">
+            <CalendarDays className="w-3 h-3 mr-1" />
             {creationDate.toLocaleDateString()}
-          </div>
+          </Badge>
         </div>
-        <p className="text-sm text-neutral-600 dark:text-neutral-300">{description}</p>
-        <div className="flex justify-between items-center text-sm text-neutral-500 dark:text-neutral-400">
+      </CardHeader>
+      <CardContent className="pb-0">
+        <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+        <div className="flex justify-between items-center mt-4 text-sm text-muted-foreground">
           <div className="flex items-center">
             <BookOpen className="w-4 h-4 mr-1" />
             <span>
-              {/* {postCount === 1 ? "1 post" : `${postCount || "No"} posts`} */}
+              {/* Placeholder for post count */}
+              No posts
             </span>
           </div>
           <div className="flex items-center">
             <Users className="w-4 h-4 mr-1" />
-            <span>{teamMemberCount} members</span>
+            <span>{teamMemberCount} {teamMemberCount >= 1 ? "member" : "members"}</span>
           </div>
         </div>
-      </div>
-      {/* {latestPost && (
-        <div className="bg-neutral-100 dark:bg-neutral-800 p-4 border-t dark:border-neutral-700">
-          <h4 className="font-semibold mb-2">Latest Post</h4>
-          <p className="text-sm font-medium">{latestPost.title}</p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">{latestPost.excerpt}</p>
-        </div>
-      )} */}
-      <div className="p-4 flex items-center justify-between dark:bg-neutral-600 bg-neutral-200">
-        <div className="flex -space-x-2">
-          {/* Show avatars for the first 3 users */}
-          {userData.slice(0, 3).map((member, index) => (
-            <Avatar key={index} className="w-8 h-8 border-2 border-white dark:border-neutral-900">
+      </CardContent>
+      <CardFooter className="flex flex-row items-center justify-between h-full mt-4 bg-muted/30">
+      <div className="flex flex-row items-center justify-between overflow-hidden ">
+          {!isLoading && userData.slice(0, 3).map((member, index) => (
+            <Avatar key={index} className="w-8 h-8 border-2 border-background">
               <AvatarImage src={member.imageUrl} alt={member.firstName} />
               <AvatarFallback>{member.firstName.charAt(0)}</AvatarFallback>
             </Avatar>
           ))}
-          {/* Display the +X if more than 3 users */}
           {teamMemberCount > 3 && (
-            <div className="w-8 h-8 rounded-full bg-neutral-300 dark:bg-neutral-700 flex items-center justify-center text-xs font-medium">
+            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium border-2 border-background">
               +{teamMemberCount - 3}
             </div>
           )}
         </div>
-        <Link href={`/application/${_id}/dashboard`}>
-          <Button variant="secondary" size="sm">
-            View Project <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
-        </Link>
-      </div>
-    </div>
-  );
+        <Button variant="gradient" size="sm" asChild>
+          <Link href={`/application/${_id}/dashboard`}>
+            <span className="flex flex-row justify-between items-center">View Project <ArrowRight className="w-4 h-4 ml-1" /></span>
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  )
 }
 
-function CreatePage() {
+function CreatePage({islarge}: any) {
   const user = useUser()
 
   const createPage = useMutation(api.page.create)
@@ -315,8 +347,8 @@ function CreatePage() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm" className="mt-4 font-semibold">
-          Create a Page <Plus className="ml-2" height={18} />
+        <Button variant="gradient" size="sm" className={`mt-4 font-semibold flex flex-row items-center justify-center ${islarge ? "w-full" : ""}`}>
+          <span className="flex flex-row gap-0.5 items-center justify-center">Create a Page <Plus className="ml-2" height={18} /></span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

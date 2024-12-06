@@ -11,7 +11,7 @@ import AuthWrapper from '../withAuth';
 import { Input } from "@/components/ui/input";
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, Search, AlignLeftIcon, History, Timer } from 'lucide-react';
+import { Plus, Search, AlignLeftIcon, History, Timer, LineChart } from 'lucide-react';
 import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import {
     Table,
@@ -181,6 +181,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                         </div>
 
                                         {/* Content Table */}
+                                        <div className='border rounded-md'>
                                         <Table>
                                             <TableHeader>
                                                 <TableRow>
@@ -299,7 +300,17 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                     <TableRow>
                                                         <TableCell colSpan={7} className="text-center items-center justify-center w-full">
                                                             <div className="flex flex-col gap-2 w-auto">
-                                                                <p className="text-lg">No content found.</p>
+                                                            <h1 className="font-semibold text-3xl">Start getting your content out there.</h1>
+                                                                <div className="flex flex-col gap-1 items-start justify-start">
+                                                                <div className="flex flex-row gap-2">
+                                                                    <LineChart className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
+                                                                    <p className="text-foreground/80">Keep your blog organised in one spot</p>
+                                                                </div>
+                                                                <div className="flex flex-row gap-2">
+                                                                    <LineChart className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
+                                                                    <p className="text-foreground/80">Invite your team members to collaborate on content</p>
+                                                                </div>
+                                                                </div>
                                                                 <div className="w-auto">
                                                                     <ContentCreateButton getTemplates={getTemplates} _teamid={_teamid} />
                                                                 </div>
@@ -309,6 +320,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                 )}
                                             </TableBody>
                                         </Table>
+                                        </div>
                                     </div>
                                 </main>
                             </div>

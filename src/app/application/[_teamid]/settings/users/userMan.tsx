@@ -159,14 +159,14 @@ export default function TeamManagement({ params }: { params: { _teamid: string }
   }
 
   const filteredMembers = userData.filter(
-      (member) =>
-          (`${member.firstName} ${member.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (Array.isArray(member.emailAddresses)
-                  ? member.emailAddresses.some((email) =>
-                      email.toLowerCase().includes(searchQuery.toLowerCase())
-                  )
-                  : member.emailAddresses.toLowerCase().includes(searchQuery.toLowerCase()))) &&
-          (roleFilter === "all" || member?.role?.toLowerCase() === roleFilter)
+    (member) =>
+      (`${member.firstName} ${member.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (Array.isArray(member.emailAddresses)
+          ? member.emailAddresses.some((email) =>
+              email.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          : member.emailAddresses?.toLowerCase().includes(searchQuery.toLowerCase()))) &&
+      (roleFilter === "all" || member.role.some((role) => role.toLowerCase() === roleFilter))
   );
   
     return (
@@ -180,10 +180,9 @@ export default function TeamManagement({ params }: { params: { _teamid: string }
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center overflow-auto h-full justify-between space-y-4 sm:space-y-0">
               <div>
                 <CardTitle className="text-2xl font-bold">Team Members</CardTitle>
-                <CardDescription className="mt-1">
+                <CardDescription className="mt-1 flex flex-col gap-2 mb-2">
                   Manage and view your team members
-                  <br />
-                  <span className="font-semibold text-primary">
+                  <span className="font-semibold text-primary ">
                     {userData.length + (getInvites?.length || 0)}/5 members invited
                   </span>
                 </CardDescription>
@@ -201,19 +200,6 @@ export default function TeamManagement({ params }: { params: { _teamid: string }
                     className="pl-10"
                   />
                 </div>
-                <Select defaultValue="all" onValueChange={(value) => setRoleFilter(value)}>
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="Filter by role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Roles</SelectItem>
-                    <SelectItem value="contributor">Contributor</SelectItem>
-                    <SelectItem value="author">Author</SelectItem>
-                    <SelectItem value="editor">Editor</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="owner">Owner</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
   
               <Tabs defaultValue="members">

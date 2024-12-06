@@ -14,8 +14,11 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 
   try {
-    const body = await req.text();
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
+    // Read the raw body as a buffer
+    const body = await req.arrayBuffer();
+    
+    // Construct the event with raw body
+    event = stripe.webhooks.constructEvent(Buffer.from(body), sig, webhookSecret);
   } catch (err) {
     console.error('Webhook Error:', err.message);
     return NextResponse.json(
@@ -28,73 +31,94 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
-
+    
         if (session.payment_status === 'paid') {
-          if (!session.customer || !session.metadata) {
-            console.error('Missing customer or metadata in session:', session.id);
-            return NextResponse.json({ error: 'Missing data' }, { status: 400 });
+          var productid = session.metadata.productid;
+    
+          if (!productid) {
+            const lineItems = session.line_items?.data;
+            if (lineItems && lineItems.length > 0) {
+              const product = lineItems[0].price.product; 
+              productid = product as string; 
+            }
           }
-
-          // Ensure metadata is attached to the customer
-          const customer = await stripe.customers.retrieve(session.customer as string);
-
-          if (session.metadata.userid) {
-            await stripe.customers.update(session.customer as string, {
-              metadata: { userid: session.metadata.userid }
-            });
-          }
-
+    
           await fetchMutation(api.payments.successfulPayment, {
-            userid: session.metadata.userid as any,
+            userid: session.metadata.userid,
             sessionId: session.id,
             stripeid: session.customer as string,
-            subscriptionid: session.subscription as any,
+            productid: productid,  // Use the productid
+            subscriptionid: session.subscription as string,
             membershiptype: session.mode,
-            status: session.payment_status,
             subscriptionStatus: 'active',
           });
         }
         break;
       }
 
-      // // Handle subscription status updates
-      // case 'customer.subscription.updated': {
-      //   const subscription = event.data.object as Stripe.Subscription;
+      // Handle canceled subscription or payment failures
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        
+        // Call the subscription canceled mutation
+        await fetchMutation(api.payments.subscriptionCanceled, {
+          subscriptionId: subscription.id,
+          status: subscription.status,
+          cancellationDate: subscription.canceled_at,
+        });
+        break;
+      }
 
-      //   if (subscription.status === 'canceled') {
-      //     await fetchMutation(api.payments.subscriptionCanceled, {
-      //       subscriptionId: subscription.id,
-      //       status: subscription.status,
-      //     });
-      //   }
-      //   if (subscription.status === 'incomplete_expired') {
-      //     console.log(`Subscription ended or was deleted: ${subscription.id}`);
-      //     await fetchMutation(api.payments.subscriptionExpired, {
-      //       subscriptionId: subscription.id,
-      //       status: subscription.status,
-      //     });
-      //   }
-      //   break;
-      // }
+      // Handle changes in the subscription (e.g., plan change from monthly to yearly)
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+      
+        // Check if the plan has changed
+        const oldPlan = event.data.previous_attributes?.items?.[0]?.plan?.id;
+        const newPlan = subscription.items.data[0].plan.id;
+      
+        // Check for cancellation
+        console.log(subscription);
+        const cancellationDate = subscription.cancel_at;
+        console.log(cancellationDate);
 
-      // case 'customer.subscription.deleted': {
-      //   const subscription = event.data.object as Stripe.Subscription;
-      //   console.log(`Subscription was deleted: ${subscription.id}`);
-      //   await fetchMutation(api.payments.subscriptionDeleted, {
-      //     subscriptionId: subscription.id,
-      //   });
-      //   break;
-      // }
+          // Call the subscription updated mutation
+          await fetchMutation(api.payments.subscriptionUpdated, {
+            subscriptionId: subscription.id,
+            oldPlanId: oldPlan,
+            newPlanId: newPlan,
+            status: subscription.status,
+            cancellationDate: cancellationDate || null,
+          });
+        break;
+      }
 
-      // case 'invoice.payment_failed': {
-      //   const invoice = event.data.object as Stripe.Invoice;
-      //   console.log(`Invoice payment failed for subscription: ${invoice.subscription}`);
-      //   await fetchMutation(api.payments.paymentFailed, {
-      //     subscriptionId: invoice.subscription as string,
-      //     invoiceId: invoice.id,
-      //   });
-      //   break;
-      // }
+      case 'checkout.session.async_payment_failed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+
+        if (!session.customer || !session.metadata) {
+          console.error('Missing customer or metadata in session:', session.id);
+          return NextResponse.json({ error: 'Missing data' }, { status: 400 });
+        }
+
+        // Ensure metadata is attached to the customer
+        if (session.metadata.userid) {
+          await stripe.customers.update(session.customer as string, {
+            metadata: { userid: session.metadata.userid }
+          });
+        }
+
+        // Calculate the end date of the subscription
+        const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+        const endDate = subscription.current_period_end;
+
+        await fetchMutation(api.payments.subscriptionCanceled, {
+          subscriptionId: session.subscription as any,
+          status: session.payment_status,
+          cancellationDate: endDate,
+        });
+        break;
+      }
 
       default:
         console.log(`Ignoring unhandled event type: ${event.type}`);

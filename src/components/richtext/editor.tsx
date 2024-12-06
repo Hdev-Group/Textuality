@@ -24,7 +24,7 @@ const RichTextEditor = ({ sendValue, onChange }) => {
       [{ header: [1, 2, false] }],
       ["bold", "italic", "underline", "strike"],
       [{ list: "ordered" }, { list: "bullet" }],
-      ["link", "image"],
+      ["link"],
       ["clean"],
       ["code-block"],
     ],

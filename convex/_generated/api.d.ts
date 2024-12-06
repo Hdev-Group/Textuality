@@ -16,6 +16,7 @@ import type {
 import type * as apicontent from "../apicontent.js";
 import type * as blogs from "../blogs.js";
 import type * as content from "../content.js";
+import type * as customer from "../customer.js";
 import type * as department from "../department.js";
 import type * as fields from "../fields.js";
 import type * as http from "../http.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   apicontent: typeof apicontent;
   blogs: typeof blogs;
   content: typeof content;
+  customer: typeof customer;
   department: typeof department;
   fields: typeof fields;
   http: typeof http;

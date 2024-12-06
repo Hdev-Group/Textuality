@@ -5,13 +5,19 @@ import { useAuth } from '@clerk/nextjs'
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import AppHeader from "@/components/header/appheader"
-import { BookMarkedIcon, Filter, Trash2 } from "lucide-react"
+import { ArrowUp, BookMarkedIcon, Filter, PlusCircleIcon, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import "../team.css"
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -38,6 +44,7 @@ type Template = {
 
 export default function Page({ params }: { params: { _teamid: string}}) {
   const { _teamid } = params;
+  const user = useUser();
   const teamid = _teamid;
   const { userId } = useAuth();
   const router = useRouter();
@@ -46,7 +53,8 @@ export default function Page({ params }: { params: { _teamid: string}}) {
   const [userData, setUserData] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [nameFilter, setNameFilter] = useState("asc");
-  const [lastUpdatedFilter, setLastUpdatedFilter] = useState("");
+  const [usernameFilter, setUsernameFilter] = useState<string | null>(null)
+  const [lastUpdatedFilter, setLastUpdatedFilters] = useState("highest");
 
   // Fetch data using hooks at the top level to avoid inconsistencies
   const getPage = useQuery(api.page.getPage, { _id: teamid as any });
@@ -82,18 +90,34 @@ export default function Page({ params }: { params: { _teamid: string}}) {
   const filteredTemplates = useMemo(() => {
     if (!getTemplates) return [];
 
-    const sortedTemplates = [...getTemplates].sort((a, b) =>
-      nameFilter === "asc" ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title)
-    );
+    const sortedTemplates = [...getTemplates].sort((a, b) => {
+      if (nameFilter === "asc") {
+        return a.title.localeCompare(b.title);
+      } else if (nameFilter === "desc") {
+        return b.title.localeCompare(a.title);
+      } else {
+        return 0;
+      }
+    });
 
-    return sortedTemplates.filter((template) => {
+    const filteredByLastUpdated = sortedTemplates.sort((a, b) => {
+      if (lastUpdatedFilter === "highest") {
+        return new Date(b._creationTime).getTime() - new Date(a._creationTime).getTime();
+      } else if (lastUpdatedFilter === "lowest") {
+        return new Date(a._creationTime).getTime() - new Date(b._creationTime).getTime();
+      } else {
+        return 0;
+      }
+    });
+
+    return filteredByLastUpdated.filter((template) => {
       const matchesSearch = Object.values(template).some((value) =>
         value.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
-      const matchesLastUpdated = lastUpdatedFilter === "" || template?.lastUpdatedBy.includes(lastUpdatedFilter);
-      return matchesSearch && matchesLastUpdated;
+      const matchesUsernameFilter = usernameFilter === null || template?.lastUpdatedBy === usernameFilter;
+      return matchesSearch && matchesUsernameFilter;
     });
-  }, [getTemplates, searchTerm, lastUpdatedFilter, nameFilter]);
+  }, [getTemplates, searchTerm, lastUpdatedFilter, usernameFilter, nameFilter, lastUpdatedFilter]);
 
   // Helper functions
   function nameFilterSetter() {
@@ -113,6 +137,24 @@ export default function Page({ params }: { params: { _teamid: string}}) {
     if (minutes > 0) return `${minutes} minutes ago`;
     return "a few seconds ago";
   }  
+
+  function filterbyuser(userid: string) {
+    if (usernameFilter != null){
+      setUsernameFilter(null);
+    } else {
+      setUsernameFilter(userid);
+    }
+  }
+  function setupdatedlastFilter() {
+    if (lastUpdatedFilter === "highest") {
+      setLastUpdatedFilters("lowest");
+    } else if (lastUpdatedFilter === "lowest") {
+      setLastUpdatedFilters(null);
+    } else {
+      setLastUpdatedFilters("highest");
+    }
+  }
+  
   return (
     <div className="overflow-y-hidden">
       <AuthWrapper _teamid={teamid}>
@@ -125,13 +167,25 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                 <h1 className="text-2xl font-bold w-full md:w-auto ">
                   Templates
                 </h1>
-                <div className='flex  md:w-[40rem] flex-row w-full gap-5'>
+                <div className='flex  md:w-[40rem] flex-row w-full'>
                   <Input 
                   placeholder="Search Templates" 
-                  className="w-full md:w-full"
+                  className="w-full md:w-full rounded-r-none"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   />
+                <Select
+                  value={nameFilter}
+                  onValueChange={(value) => setNameFilter(value)}
+                >
+                  <SelectTrigger className="w-full md:w-[180px] rounded-l-none">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="asc">Name (A-Z)</SelectItem>
+                    <SelectItem value="desc">Name (Z-A)</SelectItem>
+                  </SelectContent>
+                </Select>
                 </div>
                 {getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
                 <Link href={`/application/${teamid}/templates/new`}>
@@ -140,78 +194,88 @@ export default function Page({ params }: { params: { _teamid: string}}) {
                 )}  
                 </div>
             </div>
-            <Table className='overflow-y-auto max-h-screen'>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className='flex flex-row gap-1 items-center' onClick={() => nameFilterSetter()}>
-                    <div className='cursor-pointer flex flex-row gap-1 items-center w-auto'>
-                      Name <Filter height={15} />
-                    </div>
-                  </TableHead>
-                  <TableHead>Fields</TableHead>
-                  <TableHead>Last Updated By</TableHead>
-                  <TableHead>Updated</TableHead>
-                </TableRow>
-              </TableHeader>
-                <TableBody>
-                {
-                  filteredTemplates.length > 0 ? (
-                  filteredTemplates.map((template, index) => (
-                    <TableRow className='cursor-pointer border-b-red-200' key={index}>
-                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
-                      <div className='flex flex-col gap-0.5 items-start justify-center'>
-                        <p>{template.title}</p>
-                        <p className='text-sm dark:text-neutral-400 text-neutral-700'>{template.description}</p>
+            <div className='flex flex-row justify-start items-center gap-2'>
+              <div onClick={() => filterbyuser(user.user.id)} className={`flex cursor-pointer  hover:border-blue-300 transition-all items-center justify-center gap-1 px-3 text-sm py-1.5 rounded-full border-dashed border ${usernameFilter === null ? "border-blue-400 hover:text-foreground text-muted-foreground" : "border-blue-300 text-foreground"}`}>
+                <PlusCircleIcon className='w-3 h-3'/> Filter by me
+              </div>
+
+              <div onClick={() => setupdatedlastFilter()} className='flex items-center justify-center gap-1 text-muted-foreground cursor-pointer hover:text-foreground hover:border-blue-300 transition-all px-3 text-sm py-1.5 rounded-full border-dashed border-blue-400 border'>
+                <PlusCircleIcon className='w-3 h-3'/> Filter by updated <ArrowUp className={`w-3 h-3 ${lastUpdatedFilter === "highest" ? "" : "rotate-180"} ${lastUpdatedFilter === null ? "hidden" : "flex"}`} />
+              </div>
+            </div>
+            <div className='border rounded-md'>
+              <Table className='overflow-y-auto max-h-screen'>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='flex flex-row gap-1 items-center' onClick={() => nameFilterSetter()}>
+                      <div className='cursor-pointer flex flex-row gap-1 items-center w-auto'>
+                        Name <Filter height={15} />
                       </div>
-                      </TableCell>
-                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{template.fields}</TableCell>
-                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
-                      {userData.length > 0 ? (
-                        <div className="flex flex-row items-center gap-2">
-                          <Avatar className='h-7 w-7 border-2 p-0.5'>
-                            <AvatarImage className='rounded-full' src={userData[0]?.imageUrl} />
-                            <AvatarFallback>
+                    </TableHead>
+                    <TableHead>Fields</TableHead>
+                    <TableHead>Last Updated By</TableHead>
+                    <TableHead>Updated</TableHead>
+                  </TableRow>
+                </TableHeader>
+                  <TableBody>
+                  {
+                    filteredTemplates.length > 0 ? (
+                    filteredTemplates.map((template, index) => (
+                      <TableRow className='cursor-pointer border-b-red-200' key={index}>
+                      <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
+                        <div className='flex flex-col gap-0.5 items-start justify-center'>
+                          <p>{template.title}</p>
+                          <p className='text-sm dark:text-neutral-400 text-neutral-700'>{template.description}</p>
+                        </div>
+                        </TableCell>
+                      <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{template.fields}</TableCell>
+                      <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>
+                        {userData.length > 0 ? (
+                          <div className="flex flex-row items-center gap-2">
+                            <Avatar className='h-7 w-7 border-2 p-0.5'>
+                              <AvatarImage className='rounded-full' src={userData[0]?.imageUrl} />
+                              <AvatarFallback>
+                                <AvatarImage>
+                                  <BookMarkedIcon />
+                                </AvatarImage>
+                              </AvatarFallback>
+                            </Avatar>
+                            <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-row items-center gap-2">
+                            <Avatar>
                               <AvatarImage>
                                 <BookMarkedIcon />
                               </AvatarImage>
-                            </AvatarFallback>
-                          </Avatar>
-                          <span>{userData[0]?.firstName} {userData[0]?.lastName}</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-row items-center gap-2">
-                          <Avatar>
-                            <AvatarImage>
-                              <BookMarkedIcon />
-                            </AvatarImage>
-                          </Avatar>
-                          <span>Unknown User</span>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{timeAgo(new Date(template._creationTime))}</TableCell>
-                    </TableRow>
-                  ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center items-center justify-center w-full">
-                        <div className='flex flex-col gap-2 items-center justify-center'>
-                        No templates found.
-                          {
-                            getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
-                              <Link href={`/application/${teamid}/templates/new`}>
-                                <Button variant="default" className="w-full md:w-auto">Create Template</Button>
-                              </Link>
-                            )
-                          }
-                        </div>
+                            </Avatar>
+                            <span>Unknown User</span>
+                          </div>
+                        )}
                       </TableCell>
-                    </TableRow>
-                  )
-                  
-                }
-              </TableBody>
-            </Table>
+                      <TableCell onClick={() => router.push(`/application/${teamid}/templates/edit/${template._id}`)}>{timeAgo(new Date(template._creationTime))}</TableCell>
+                      </TableRow>
+                    ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center items-center justify-center w-full">
+                          <div className='flex flex-col gap-2 items-center justify-center'>
+                          No templates found.
+                            {
+                              getRole?.[0]?.permissions?.some(permission => ['owner', 'admin', 'author'].includes(permission)) && (
+                                <Link href={`/application/${teamid}/templates/new`}>
+                                  <Button variant="default" className="w-full md:w-auto">Create Template</Button>
+                                </Link>
+                              )
+                            }
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  }
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </main>
       </div>
@@ -219,126 +283,4 @@ export default function Page({ params }: { params: { _teamid: string}}) {
     </div>
   );
 }
-interface DeleteTemplateProps {
-  id: any
-  title: string
-  onDelete: (id: string) => Promise<void>
-  getRole: { permissions: string[] }[]
-}
 
-function DeleteTemplate({ id, title, onDelete, getRole }: DeleteTemplateProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [confirmTitle, setConfirmTitle] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const [length, setLength] = useState(0)
-  const getContentSpecific = useQuery(api.template.getContentViaTemplate, { templateid: id as any});
-
-
-  const canDelete = getRole?.[0]?.permissions?.some(permission => ['owner', 'admin'].includes(permission))
-
-    const handleDelete = async () => {
-      if (confirmTitle !== title) {
-        setError("The entered title doesn't match. Please try again.")
-        return
-      }
-      if (getContentSpecific?.length > 0){
-        setError("The template has content associated with it. Please delete the content items before deleting the template.")
-        return
-      }
-      setIsDeleting(true)
-      setError(null)
-  
-      try {
-        await onDelete(id)
-        setSuccess(true)
-        setTimeout(() => setIsOpen(false), 2000) // Close dialog after 2 seconds
-      } catch (err) {
-        setError("An error occurred while deleting the template. Please try again.")
-      } finally {
-        setIsDeleting(false)
-      }
-    }
-
-  if (!canDelete) return null
-
-  useEffect(() => {
-    const length = getContentSpecific?.length
-    setLength(length)
-  }, [getContentSpecific])
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="destructive" size="icon">
-          Delete
-        </Button>
-      </DialogTrigger>
-      {getContentSpecific && getContentSpecific?.length === 0 && (
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete Template</DialogTitle>
-          <DialogDescription>
-            This action cannot be undone. This will permanently delete the template, all content, and all its contents.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="py-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            To confirm, type <strong>{title}</strong> in the box below:
-          </p>
-          <Input
-            className="mt-2"
-            value={confirmTitle}
-            onChange={(e) => setConfirmTitle(e.target.value)}
-            placeholder="Enter template title"
-          />
-        </div>
-        {error && (
-          <Alert variant="destructive">
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {success && (
-          <Alert>
-            <AlertTitle>Success</AlertTitle>
-            <AlertDescription>The template has been successfully deleted.</AlertDescription>
-          </Alert>
-        )}
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-          <Button 
-            variant="destructive" 
-            onClick={handleDelete}
-            disabled={confirmTitle !== title || isDeleting}
-          >
-            {isDeleting ? "Deleting..." : "Delete Template"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-      )} {
-        // we will show an error if the template has content
-        getContentSpecific && getContentSpecific?.length > 0 && (
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Error Deleting Template</DialogTitle>
-              <DialogDescription>
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              You are <strong>unable to delete this template</strong> as it has content associated with it. 
-              We detected <strong>{length}</strong> content items associated with this template.
-              Please delete the content items before deleting the template.
-              </p>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsOpen(false)}>Okay, Got it.</Button>
-            </DialogFooter>
-          </DialogContent>
-        )
-      }
-    </Dialog>
-  )
-}
