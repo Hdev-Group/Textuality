@@ -6,9 +6,9 @@ export const getCustomerInfo = query({
     userid: v.any(),
   },
   handler: async (ctx, { userid }) => {
-    console.log(userid);
     const membershipfind = await ctx.db.query("memberships").filter(q => q.eq(q.field("userid"), userid)).collect();
-    console.log(membershipfind);
+    const membershipfind = await ctx.db.query("memberships").filter(q => q.eq(q.field("userid"), userid)).collect();
+    // console.log(membershipfind);
     const membership = membershipfind[0];
     return membership;
     }
