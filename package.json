@@ -46,6 +46,7 @@
     "clsx": "^2.1.1",
     "convex": "^1.17.2",
     "date-fns": "^3.6.0",
+    "embla-carousel-react": "^8.5.1",
     "framer-motion": "^11.11.4",
     "highlight.js": "^11.10.0",
     "ioredis": "^5.4.1",
