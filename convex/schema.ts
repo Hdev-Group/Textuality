@@ -154,6 +154,7 @@ supporttickets: defineTable({
     lastUpdated: v.any(),
     pageid: v.string(),
     priority: v.string(),
+    responsetime: v.optional(v.number()),
 }),
 supportmessages: defineTable({
     ticketid: v.string(),

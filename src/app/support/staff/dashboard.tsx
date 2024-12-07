@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import { BellDotIcon } from "lucide-react";
 import { api } from "../../../../convex/_generated/api";
 import { useEffect, useRef } from "react";
+import { DashboardSummary, QuickActions, TicketsTable, RecentActivity } from "@/components/staff/staffcomp";
 
 export default function DashboardStaff() {
     const user = useUser();
@@ -53,29 +54,36 @@ export default function DashboardStaff() {
 
 
     return (
-        <body className={`flex bgmain flex-col min-h-screen w-full items-center justify-center`}>
-            <div className="flex items-center flex-col justify-center">
-                <Header />
-                <div className=" h-full w-full z-30 rounded-sm flex items-center justify-center flex-col border-b">
-                    <div className="flex flex-col items-start w-full pb-5 mx-auto container justify-center">
-                        <div className="flex flex-col gap-1">
-                            <h1 className="text-4xl font-bold text-white mt-10">Welcome {user?.user?.firstName},</h1>
-                            <p className="text-muted-foreground text-md">You are a <b>Senior Developer</b> at the <b>Hdev Group</b>.</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="h-screen w-full flex items-center flex-col">
-                    <div className="flex flex-col items-start w-full pb-5 mx-auto container justify-center">
-                        <div className="flex flex-col gap-1 w-full justify-center">
-                            <div className="flex flex-row items-end justify-between w-full">
-                                <h1 className="text-2xl font-bold text-white mt-10">Tickets</h1>
-                                <Button className="font-semibold" size="sm" onClick={() => NotificationPrompt()}><BellDotIcon className="w-5 h-5" /> Get Notified</Button>
-                            </div>
-                            <p className="text-muted-foreground">There are currently <b>{tickets.filter(ticket => ticket.status !== "closed" && !ticket.staffid).length}</b> unassigned tickets.</p>
-                        </div>
-                    </div>
-                </div>
+        <body className="flex bgmain flex-col min-h-screen w-full items-center justify-center">
+        <div className="flex items-center flex-col justify-center w-full">
+          <Header />
+          <main className="container mx-auto px-4 py-8">
+            <div className="flex flex-col gap-1 mb-8">
+              <h1 className="text-4xl font-bold text-white">Welcome {user?.user?.firstName},</h1>
+              <p className="text-muted-foreground text-md">You are a <b>Senior Developer</b> at the <b>Hdev Group</b>.</p>
             </div>
-        </body>
-    );
+            <div className="flex flex-col gap-6">
+            <div className=" flex flex-col">
+              <div className="flex flex-row items-end justify-between w-full mb-4">
+                <h2 className="text-2xl font-bold text-white">Tickets</h2>
+                <Button className="font-semibold" size="sm" onClick={() => NotificationPrompt()}>
+                  <BellDotIcon className="w-5 h-5 mr-2" /> Get Notified
+                </Button>
+              </div>
+              <div className="gap-6 flex-col flex">
+                <p className="text-muted-foreground">There are currently <b>{tickets?.filter(ticket => ticket.status !== "closed" && !ticket.staffid).length}</b> unassigned tickets.</p>
+                <TicketsTable tickets={tickets} />    
+              </div>
+            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <QuickActions />
+                    <DashboardSummary tickets={tickets} />
+                    <RecentActivity />
+                </div>
+            </div>            
+          </main>
+        </div>
+      </body>
+    )
 }
+

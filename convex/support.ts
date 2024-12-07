@@ -41,6 +41,7 @@ export const createTicket = mutation({
             staffid: "",
             priority,
             lastUpdated: Date.now(),
+            responsetime: undefined,
         });
         return result;
     },
