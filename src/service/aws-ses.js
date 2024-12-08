@@ -151,67 +151,105 @@ export const testMail = async (body) => {
             to: body.email,
             subject: `Support Request Update - ${body.title}`,
             html: `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f9f9f9;
-                margin: 0;
-                padding: 0;
-            }
-            .email-container {
-                padding: 20px;
-                max-width: 600px;
-                margin: 20px auto;
-                background-color: #ffffff;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            h2 {
-                color: #333333;
-            }
-            p {
-                color: #555555;
-                line-height: 1.6;
-            }
-            .footer {
-                margin-top: 20px;
-                font-size: 12px;
-                color: #888888;
-                text-align: center;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="email-container">
-            <h2>Support Request Response</h2>
-            <p>
-                Hello ${body.firstname},
-            </p>
-            <p>
-                Our team has responded to your support request titled: <b>${body.title}</b>. Please review the response and let us know if you need further assistance.
-            </p>
-            <p>
-                You can view the response by logging into your account or contacting support directly.
-            </p>
-            <p>
-                Thank you for reaching out to us.
-            </p>
-            <p>
-                Best regards,<br/>
-                Textuality Support Team
-            </p>
-            <div class="footer">
-                This is an automated message. Please do not reply directly to this email.
-            </div>
-        </div>
-    </body>
-    </html>
-`,
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h2 {
+            color: #333333;
+            margin-top: 0;
+        }
+        p {
+            color: #555555;
+            line-height: 1.6;
+        }
+        .outer-table {
+            width: 100%;
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            display: block;
+            margin: 10px auto;
+        }
+        .badge {
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .status-open {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+        .status-high {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .priority-low {
+            background-color: rgba(96, 165, 250, 0.2);
+            color: #60a5fa; 
+        }
+        .priority-medium {
+            background-color: rgba(250, 204, 21, 0.2);
+            color: #facc15;
+        }
+        .priority-high {
+            background-color: rgba(248, 113, 113, 0.2);
+            color: #f87171; 
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h2>Support Team Responded</h2>
+        <p>Dear ${body.firstname} ${body.lastname},</p>
+        <p>
+            We have responded to your support request titled: <b>${body.title}</b>. Please review the response and let us know if you need further assistance.
+        </p>
+
+        <table class="outer-table" cellpadding="10">
+            <tr>
+                <td style="width: 60px; text-align: center;">
+                    <img src="${body.imageUrl}" alt="Profile Picture" class="profile-img">
+                </td>
+                <td>
+                    <strong>Textuality Support</strong><br>
+                    <span>${body.datetime}</span><br>
+                    <p>${body.description || 'No description provided'}</p>
+                </td>
+            </tr>
+        </table>
+
+        <p class="footer">
+            This is an automated message. Please do not reply directly to this email.
+        </p>
+    </div>
+</body>
+</html>
+    `,
         });
     
     } else if (type === "awaitingresponse") {

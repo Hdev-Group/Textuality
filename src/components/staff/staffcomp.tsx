@@ -160,13 +160,58 @@ export function TicketsTable({ tickets }) {
               <TableCell>{TicketPriority(ticket.priority)}</TableCell>
               <TableCell>{ticket.staffid || 'Unassigned'}</TableCell>
               <TableCell>
-                <Button size="sm">View</Button>
+                <a href={`/support/staff/tickets/${ticket._id}`}>
+                  <Button size="sm">View</Button>
+                </a>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
         </div>
+    )
+  }
+
+  export function AssignedTickets({ tickets, staffid }) {
+    const copyId = (id) => (event) => {
+      navigator.clipboard.writeText(id);
+      const el = event.target;
+      el.innerText = 'Copied!';
+      setTimeout(() => {
+          el.innerText = id.slice(0, 6) + '...';
+      }, 1000);
+  }
+    return(
+      <div className="border rounded-md">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>ID</TableHead>
+              <TableHead>Subject</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Priority</TableHead>
+              <TableHead>Assigned To</TableHead>
+              <TableHead>Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tickets?.filter(ticket => ticket.staffid === staffid).map((ticket) => (
+            <TableRow key={ticket._id}>
+            <TableCell className="max-w-5 overflow-hidden cursor-pointer hover:text-green-300" onClick={copyId(ticket._id)}>{ticket._id.slice(0, 6)}...</TableCell>
+            <TableCell>{ticket.title}</TableCell>
+            <TableCell>{TicketStatus(ticket.status)}</TableCell>
+            <TableCell>{TicketPriority(ticket.priority)}</TableCell>
+            <TableCell>You</TableCell>
+            <TableCell>
+              <a href={`/support/staff/tickets/${ticket._id}`}>
+                <Button size="sm">View</Button>
+              </a>
+            </TableCell>
+            </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     )
   }
 

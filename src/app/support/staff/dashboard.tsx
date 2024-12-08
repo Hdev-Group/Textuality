@@ -6,7 +6,7 @@ import { useQuery } from "convex/react";
 import { BellDotIcon } from "lucide-react";
 import { api } from "../../../../convex/_generated/api";
 import { useEffect, useRef } from "react";
-import { DashboardSummary, QuickActions, TicketsTable, RecentActivity } from "@/components/staff/staffcomp";
+import { DashboardSummary, QuickActions, TicketsTable, RecentActivity, AssignedTickets } from "@/components/staff/staffcomp";
 
 export default function DashboardStaff() {
     const user = useUser();
@@ -72,7 +72,9 @@ export default function DashboardStaff() {
               </div>
               <div className="gap-6 flex-col flex">
                 <p className="text-muted-foreground">There are currently <b>{tickets?.filter(ticket => ticket.status !== "closed" && !ticket.staffid).length}</b> unassigned tickets.</p>
-                <TicketsTable tickets={tickets} />    
+                <TicketsTable tickets={tickets} />   
+                <h2 className="text-2xl font-bold text-white">Assigned Tickets</h2> 
+                <AssignedTickets tickets={tickets} staffid={user?.user?.id} />
               </div>
             </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
