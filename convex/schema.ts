@@ -154,6 +154,7 @@ supporttickets: defineTable({
     lastUpdated: v.any(),
     pageid: v.string(),
     priority: v.string(),
+    responsetime: v.optional(v.number()),
 }),
 supportmessages: defineTable({
     ticketid: v.string(),
@@ -161,9 +162,19 @@ supportmessages: defineTable({
     userId: v.string(),
     isstaff: v.boolean(),
 }),
+supportlogs: defineTable({
+    ticketid: v.string(),
+    log: v.string(),
+    userId: v.string(),
+}),
 pagesenderdata: defineTable({
     pageid: v.string(),
     contentsendingapi: v.number(),
     contentmanagerapi: v.number(),
+}),
+staffDB: defineTable({
+    staffId: v.string(),
+    department: v.string(),
+    role: v.string(),
 }),
 });

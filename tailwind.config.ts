@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+		fontFamily: {
+			Funnel_Sansfont: ['var(--font-Funnel_Sansfont)'],
+			mono: ['var(--font-roboto-mono)'],
+		},
   		animation: {
   			'spin-slow': 'spin 3s linear infinite',
   			'accordion-down': 'accordion-down 0.2s ease-out',

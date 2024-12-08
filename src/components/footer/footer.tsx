@@ -1,104 +1,104 @@
 "use client"
-import { Facebook, Instagram, Twitter, Youtube, Moon, Sun, LogIn, LucideTwitter, LucideLinkedin } from "lucide-react"
-import { Button } from "../ui/button";
-import { useEffect, useState } from "react";
-import Link from "next/link";
+
+import { Twitter, Linkedin } from 'lucide-react'
+import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function Footer() {
-  const [isdark, setDark] = useState(true);
-  const [image, setImage] = useState("");
+  const [isDark, setIsDark] = useState(true)
+  const [logoSrc, setLogoSrc] = useState("/IMG_6128.png")
 
-    useEffect(() => {
-      const themesetter = document.getElementById('themesetter');
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme')
+    setIsDark(savedTheme !== 'light')
+    setLogoSrc(savedTheme === 'light' ? "/IMG_6129.png" : "/IMG_6128.png")
 
-      if (localStorage.getItem('theme') === 'light') {
-        setDark(false);
-        document.documentElement.classList.add('light');
-        setImage("/IMG_6129.png")
-      } else {
-        setDark(true);
-        document.documentElement.classList.remove('light');
-        setImage("/IMG_6128.png")
-      }
+    const themeSetter = document.getElementById('themesetter')
+    themeSetter?.addEventListener('click', toggleTheme)
 
-      themesetter?.addEventListener('click', () => {
-        if (isdark) {
-          setDark(false);
-          document.documentElement.classList.remove('dark');
-          localStorage.setItem('theme', 'light');
-          setImage("/IMG_6129.png")
-        } else {
-          setDark(true);
-          document.documentElement.classList.add('dark');
-          localStorage.setItem('theme', 'dark');
-          setImage("/IMG_6128.png")
-        }
-      });
+    return () => themeSetter?.removeEventListener('click', toggleTheme)
+  }, [])
 
-      return () => {
-        themesetter?.removeEventListener('click', () => {});
-      };
-    }, [isdark]);
+  const toggleTheme = () => {
+    const newIsDark = !isDark
+    setIsDark(newIsDark)
+    document.documentElement.classList.toggle('dark', newIsDark)
+    document.documentElement.classList.toggle('light', !newIsDark)
+    localStorage.setItem('theme', newIsDark ? 'dark' : 'light')
+    setLogoSrc(newIsDark ? "/IMG_6128.png" : "/IMG_6129.png")
+  }
 
+  const footerLinks = [
+    { name: "Pricing", href: "/plans" },
+    { name: "Use Cases", href: "/" },
+    { name: "Blog", href: "/" },
+    { name: "Tutorials", href: "/" },
+  ]
 
-    return(
-      <footer className="bg-background mx-0 w-full mt-20 relative">
-            <div className="w-full bg-muted/10 border-t">
-              <div className="container relative mx-auto py-8 px-4 ">
-                <div className="flex flex-row justify-between">
-                  <div className="flex flex-col gap-4">
-                    <h1 className="text-[0.9rem] font-bold text-muted-foreground">PRODUCT</h1>
-                    <Link href={"/plans"}>
-                    <p className="text-sm text-muted-foreground">Pricing</p>
+  const helpLinks = [
+    { name: "Support", href: "/support" },
+    { name: "FAQ", href: "/faq" },
+    { name: "Status", href: "/status" },
+  ]
+
+  return (
+    <footer className="bg-background w-full mt-20">
+      <div className="border-t border-muted/20">
+        <div className="container mx-auto py-12 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Product</h2>
+              <ul className="space-y-2">
+                {footerLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">
+                      {link.name}
                     </Link>
-                    <Link href={"/"}>
-                    <p className="text-sm text-muted-foreground">Use Cases</p>
-                    </Link>
-                    <Link href={"/"}>
-                    <p className="text-sm text-muted-foreground">Blog</p>
-                    </Link>
-                    <Link href={"/"}>
-                    <p className="text-sm text-muted-foreground">Tutorials</p>
-                    </Link>
-                    <Link href={"/support"}>
-                    <p className="text-sm text-muted-foreground">Support</p>
-                    </Link>
-
-                  </div>
-                </div>
-              </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="w-full bg-muted/20 border-t">
-              <div className="container mx-auto  pb-8 px-4 w-full">
-                <div className="flex flex-row justify-between">
-                  <div className="flex flex-row gap-5 items-center text-sm text-muted-foreground">
-                    <Link href={"/"}>
-                    <div className="rounded-full p-2 bg-blue-500/20 text-blue-600 transition-all hover:bg-blue-400/30">
-                      <LucideTwitter size={16} />
-                    </div>
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Help</h2>
+              <ul className="space-y-2">
+                {helpLinks.map((link) => (
+                  <li key={link.name}>
+                    <Link href={link.href} className="text-muted-foreground hover:text-foreground transition-colors">
+                      {link.name}
                     </Link>
-                    <Link href={"/"}>
-                    <div className="rounded-full text-blue-600 p-2 bg-blue-500/20 transition-all hover:bg-blue-400/30">
-                      <LucideLinkedin size={16} />
-                    </div>
-                    </Link>
-                    <Link href={"/"}>
-                    <p>Textuality Terms of Service</p>
-                    </Link>
-                    <Link href={"/"}>
-                    <p>Textuality Privacy Policy</p>
-                    </Link>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div className="items-end justify-end">
-                      <img src={"/hdev/hdevlogo.png"} alt="HDev Logo" className="w-auto h-24" />
-                    </div>
-                    <p className="text-muted-foreground text-sm">© {new Date().getFullYear()}, Textuality, Inc. All Rights Reserved</p>
-                  </div>
-                </div>
-              </div>
+                  </li>
+                ))}
+              </ul>
+            </div>          </div>
+        </div>
+      </div>
+      <div className="border-t border-muted/20">
+        <div className="container mx-auto py-6 px-4">
+          <div className="flex flex-col md:flex-row justify-between items-end space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Twitter size={20} />
+              </Link>
+              <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Linkedin size={20} />
+              </Link>
+              <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Terms of Service
+              </Link>
+              <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Privacy Policy
+              </Link>
             </div>
-      </footer>
-
-    )
+            <div className="flex flex-col items-end">
+              <img src={logoSrc} alt="Textuality Logo" className="w-auto h-12 mb-2" />
+              <p className="text-sm text-muted-foreground">
+                © {new Date().getFullYear()} Textuality, Inc. All Rights Reserved
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
 }
+

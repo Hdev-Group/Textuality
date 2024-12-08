@@ -15,7 +15,6 @@ const TicketAuthWrapper = ({ children, ticketID }) => {
 
   useEffect(() => {
     if (isLoaded && getTicket) {
-        console.log(getTicket)
       if (getTicket?.[0]?.userId === userId) {
         setIsAuthorized(true);
       }
