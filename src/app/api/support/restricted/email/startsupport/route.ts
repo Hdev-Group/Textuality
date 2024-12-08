@@ -8,7 +8,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const body = await req.json();
-    console.log(body);
     const result = await testMail(body);
     return NextResponse.json(result);
 }

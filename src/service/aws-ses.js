@@ -23,12 +23,10 @@ const transporter = nodemailer.createTransport({
 const adminMail = "no-reply@textuality.hdev.uk";
 
 export const testMail = async (body) => {
-    console.log("BODY", body);
     const type = body.type;
     var response;
     try {
         if (type === "requestsubmitted") {
-        const priorityColor = body.priority === "high" ? "#ff0000" : body.priority === "medium" ? "#ffcc00" : "#00cc00";
 
         response = await transporter.sendMail({
             from: `"Textuality Support" <${adminMail}>`,
@@ -390,7 +388,6 @@ export const testMail = async (body) => {
             ? { ok: true }
             : { ok: false, msg: "Failed to send email" };
     } catch (error) {
-        console.log("ERROR", error.message);
         return { ok: false, msg: "Failed to send email" };
     }
 };

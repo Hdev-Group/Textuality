@@ -354,7 +354,6 @@ interface MetricCardProps {
 function MetricCard({ title, description, current, max, warningThreshold = 75 }: MetricCardProps) {
   const percentage = (current / max) * 100
   const isWarning = percentage >= warningThreshold
-  console.log(percentage)
 
   return (
     <Card className="w-full">
@@ -380,7 +379,6 @@ function MetricCard({ title, description, current, max, warningThreshold = 75 }:
 }
 
 function SetupAPI({pageinfo}: {pageinfo: any}) {
-  console.log(pageinfo)
   const [hasclicked, setHasClicked] = useState(false);
   return(
     <div className='flex flex-col w-full  overflow-x-scroll items-start justify-start mt-10 '>
@@ -441,7 +439,6 @@ export async function GET(_req: NextRequest) {
     if (data.error) {
         return NextResponse.json({ error: data.error }, { status: 500 });
     } else {
-        console.log(data);
         return NextResponse.json({ blogs: data }, { status: 200 });
     }
 }`}

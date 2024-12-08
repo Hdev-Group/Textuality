@@ -101,7 +101,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ _pag
       };
     });
 
-    console.log('Results with author information:', enrichedResults);
 
     if (enrichedResults.length === 0) {
       return NextResponse.json({ error: 'No published files found. Please publish a file.' }, { status: 400 });

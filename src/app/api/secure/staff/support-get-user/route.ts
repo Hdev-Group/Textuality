@@ -43,7 +43,6 @@ export async function GET(request: NextRequest) {
   try {
     // Fetch the pages data
     const fetchStaff = await fetchQuery(api.staff.getStaff, { staffId: userId });
-    console.log(fetchStaff);
     // If the user is not in the same project, return unauthorized
     if (fetchStaff.length === 0) {
       return NextResponse.json({ error: 'Unauthorized. You are not in the same project as this user. You are unable to see this data.' }, { status: 401 });

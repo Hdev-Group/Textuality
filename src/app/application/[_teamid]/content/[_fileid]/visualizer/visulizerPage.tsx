@@ -12,13 +12,11 @@ export default function Visualizer() {
         values: [],
         authorInfo: null
     });
-    console.log(contentData);
 
     useEffect(() => {
         // Listen for incoming messages
         const handleMessage = (event: MessageEvent) => {
             if (event.data && event.origin === window.location.origin) {
-                console.log(event.data);
                 const { content, fields, values, authorInfo } = event.data;
                 setContentData({ content, fields, values, authorInfo });
             }
@@ -168,7 +166,6 @@ function readtimecalc({ text }: { text: any }) {
 }
 function RichTextViewer({ content }: { content: string }) {
     if (!content) {
-        console.log('No content provided to RichTextViewer');
         return <p>No rich text content available</p>;
     }
 

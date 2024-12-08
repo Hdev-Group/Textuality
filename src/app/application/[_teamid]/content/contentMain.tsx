@@ -51,7 +51,6 @@ export default function Page({ params }: { params: { _teamid: string }}) {
     const [dataloaded, setDataLoaded] = useState(false);
     const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
-    console.log(getContent?.length);
     const [selectAll, setSelectAll] = useState(false);
 
     const departmentFilter = getDepartments?.filter((department) => department._id === getContent?.[0]?.authorid);

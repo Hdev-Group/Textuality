@@ -17,7 +17,6 @@ export function DashboardSummary({ tickets }) {
         const totaltime = (Array.isArray(tickets) ? tickets : []).reduce((acc: number, ticket: { responsetime: number, _creationTime: number }) => {
             if (typeof ticket.responsetime === 'number' && typeof ticket._creationTime === 'number' && ticket.responsetime !== undefined) {
                 const responseDuration = (ticket.responsetime / 1000) - (ticket._creationTime / 1000);
-                console.log(responseDuration); 
                 return acc + responseDuration;
             }
             return acc;

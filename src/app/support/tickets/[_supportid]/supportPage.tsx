@@ -14,6 +14,8 @@ export default function SupportPage({supportid}) {
   const sendUserMessage = useMutation(api.support.sendUserMessage);
   const ticket = getTicket?.[0];
   const ticketmessages = useQuery(api.support.getMessages, { ticketID: supportid });
+  const getStaffer = useQuery(api.staff.getStaff, { staffId: ticket?.staffid });
+  const getStaffData = getStaffer?.[0];
   const user = useUser();
   const router = useRouter();
 
@@ -77,7 +79,7 @@ export default function SupportPage({supportid}) {
                               if (message.isstaff === false) {
                                 return <UserTicket ticket={message} user={user} />
                               } else {
-                                return <StaffTicket ticket={message} />
+                                return <StaffTicket ticket={message} staffinfo={getStaffData} />
                               }
                             })
                           }
@@ -144,15 +146,24 @@ function UserTicket({ ticket, user }) {
   )
 }
 
-function StaffTicket({ ticket }) {
+function StaffTicket({ ticket, staffinfo }) {
+  const staffImages = [
+    { name: "Textuality Support", imageUrl: "/supporticons/support.png", department: "Support" },
+    { name: "Textuality Development", imageUrl: "/supporticons/developer.png", department: "Development" },
+    { name: "Textuality Management", imageUrl: "/supporticons/manager.png", department: "Management" },
+    { name: "Textuality Executive", imageUrl: "/supporticons/executive.png", department: "Executive" },
+  ];
+
+  const getstaffinfo = staffImages.find((image) => image.department === staffinfo?.department);
+
   return(
     <div className="border-b flex flex-row gap-3 pl-2">
-      <img src="/IMG_6128.png" alt="User" className="w-9 h-9 mt-6 mx-2 rounded-full" />
+      <img src={`${getstaffinfo?.imageUrl}`} alt="User" className="w-9 h-9 mt-6 mx-2 rounded-full" />
       <div className="flex flex-col py-6 pr-4 gap-2 w-full">
         <div className="flex flex-row justify-between w-full">
-          <span className="text-sm font-semibold">Textuality Team</span>
+          <span className="text-sm font-semibold">{getstaffinfo?.name}</span>
           <span className="text-sm text-muted-foreground">{new Date(ticket._creationTime).toLocaleString([], {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-        </div>
+          </div>
         <div className="flex flex-col gap-2">
           <p className="text-sm ">{ticket?.message}</p>
         </div>
