@@ -78,8 +78,8 @@ export default function Home() {
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col lg:flex-row items-start justify-start w-full">
                     <div className="flex flex-col w-auto">
-                      <h1 className="font-bold lg:text-[52px] text-5xl space-grotesk-600 text-foreground">Content management that brings everyone together</h1>
-                      <p className="text-lg text-muted-foreground mt-4 w-[75%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
+                      <h1 className="font-bold lg:text-[64px] text-5xl font-Funnel_Sansfont text-foreground">Content management that brings everyone together</h1>
+                      <p className="text-md text-muted-foreground mt-4 w-[90%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
                       <div className="flex flex-row gap-2 mt-5">
                         <Link href="/application/home">
                           <Button  size="lg">Get Started</Button>

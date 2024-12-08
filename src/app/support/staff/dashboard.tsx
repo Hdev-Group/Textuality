@@ -10,6 +10,7 @@ import { DashboardSummary, QuickActions, TicketsTable, RecentActivity, AssignedT
 
 export default function DashboardStaff() {
     const user = useUser();
+    const getStaffer = useQuery(api.staff.getStaff, { staffId: user?.user?.id });
 
     function NotificationPrompt() {
         if (Notification.permission === 'granted') {
@@ -60,7 +61,7 @@ export default function DashboardStaff() {
           <main className="container mx-auto px-4 py-8">
             <div className="flex flex-col gap-1 mb-8">
               <h1 className="text-4xl font-bold text-white">Welcome {user?.user?.firstName},</h1>
-              <p className="text-muted-foreground text-md">You are a <b>Senior Developer</b> at the <b>Hdev Group</b>.</p>
+              <p className="text-muted-foreground text-md">You are in the <b>{getStaffer?.[0]?.department} department</b> as a <b>{getStaffer?.[0]?.role}</b> at the <b>Hdev Group</b>.</p>
             </div>
             <div className="flex flex-col gap-6">
             <div className=" flex flex-col">

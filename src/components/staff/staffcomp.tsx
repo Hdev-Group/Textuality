@@ -152,7 +152,7 @@ export function TicketsTable({ tickets }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {tickets?.slice(0, 5).map((ticket) => (
+            {tickets?.filter(ticket => !ticket.staffid).slice(0, 5).map((ticket) => (
             <TableRow key={ticket._id}>
               <TableCell className="max-w-5 overflow-hidden cursor-pointer hover:text-green-300" onClick={copyId(ticket._id)}>{ticket._id.slice(0, 6)}...</TableCell>
               <TableCell>{ticket.title}</TableCell>

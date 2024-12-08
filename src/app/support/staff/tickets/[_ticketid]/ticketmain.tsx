@@ -12,6 +12,8 @@ export default function StaffTicketView({params}: {params: any}) {
     const getTicket = useQuery(api.support.getTicketsbyID, { _id: params });
     const sendUserMessage = useMutation(api.support.sendUserMessage);
     const ticket = getTicket?.[0];
+    const getStaffer = useQuery(api.staff.getStaff, { staffId: ticket?.staffid });
+    const getStaffData = getStaffer?.[0];
     const ticketmessages = useQuery(api.support.getMessages, { ticketID: params });
     const user = useUser();
     const router = useRouter();
@@ -62,7 +64,7 @@ export default function StaffTicketView({params}: {params: any}) {
         <div className="flex items-center justify-center">
           <div className="w-full flex items-center justify-center flex-col h-full rounded-sm">
             <Header />
-            <div className="flex flex-col w-full items-center min-h-screen">
+            <div className="flex flex-col w-full items-center pb-10 min-h-screen">
               <div className="flex flex-col h-auto w-full gap-4 mt-12">
                 <div className="flex flex-row w-full justify-between pb-10 items-center border-b">
                   <div className="flex flex-row mx-auto container">
@@ -71,7 +73,7 @@ export default function StaffTicketView({params}: {params: any}) {
                         <h1 className="text-3xl font-bold">Staff Ticket Center</h1>
                         <p className="text-sm text-muted-foreground">Respond to tickets and requests here.</p>
                       </div>
-                      <Button onClick={() => router.push("/support/tickets")}>View all Tickets</Button>
+                      <Button onClick={() => router.push("/support/staff")}>View all Tickets</Button>
                     </div>
                   </div>
                 </div>
@@ -86,7 +88,7 @@ export default function StaffTicketView({params}: {params: any}) {
                       </div>
                     </div>
                   </div>
-                    <div className="flex flex-row gap-5 w-full mt-5">
+                    <div className="flex flex-col md:flex-row gap-5 w-full mt-5">
                     <div className="w-full flex flex-col">
                       <div className="border border-muted/50 rounded-md bg-muted/30">
                         <div className="flex flex-col">
@@ -119,15 +121,14 @@ export default function StaffTicketView({params}: {params: any}) {
                           const messageElement = document.getElementById("replymessage") as HTMLTextAreaElement;
                           sendMessage({ value: messageElement.value });
                           messageElement.value = "";
-
                           }}>
                           <Textarea placeholder="Write a reply..." id="replymessage" maxLength={2000} />
                           <Button type="submit" className="absolute bottom-2 right-2" size="sm">Reply</Button>
                         </form>
                       </div>
                     </div>
-                    <div className="relative w-1/3 h-auto">
-                      <div className="sticky w-full top-20 bg-background pl-12 rounded-md shadow-md">
+                    <div className="relative w-full md:w-1/3 h-auto">
+                      <div className="sticky w-full top-20 bg-background px-2 md:pl-12 rounded-md shadow-md">
                         <div className="flex flex-col gap-4">
                           <h2 className="text-lg font-semibold">Ticket Information</h2>
                           <div className="flex flex-col gap-1">
@@ -149,7 +150,7 @@ export default function StaffTicketView({params}: {params: any}) {
                             <p className="text-sm text-muted-foreground">Support Agent</p>
                             <p className="text-sm  flex flex-row items-center gap-2">
                               <img src={data?.imageUrl} alt="User" className="w-4 h-4 rounded-full" />
-                              {data?.firstName} {data?.lastName} - <span className="text-xs text-muted-foreground">Senior Developer</span>
+                              {data?.firstName} {data?.lastName} - <span className="text-xs text-muted-foreground">{getStaffData?.role}</span>
                             </p>
                           </div>
                         </div>
