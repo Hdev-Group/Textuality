@@ -21,6 +21,7 @@ const transporter = nodemailer.createTransport({
 
 // change this to the "to" email that you want
 const adminMail = "no-reply@textuality.hdev.uk";
+const welcomeMail = "team@textuality.hdev.uk";
 
 export const testMail = async (body) => {
     const type = body.type;
@@ -382,8 +383,137 @@ export const testMail = async (body) => {
 </body>
 </html>
         `,
-    });
-}
+    }); 
+} else if (type === "welcome") {
+    response = await transporter.sendMail({
+        from: `"Textuality Team" <${welcomeMail}>`,
+        to: body.email,
+        subject: `Welcome to Textuality`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333333;
+        }
+        p {
+            color: #555555;
+            line-height: 1.6;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888888;
+            text-align: start;
+            margin: 0 20px;
+            margin-bottom: 20px;
+        }
+        .topwelcome {
+            background: linear-gradient(90deg, #F5F5F5  , #FFFFFF);
+            padding: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #0000001a;
+            color: black;
+            display: flex;
+            justify-content: center;
+            font-size: 25px;
+            align-items: center;
+        }
+        .otherinfo {
+            padding: 0px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .logoholder{
+            background-color: #000;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            color: #ffffff;
+        }
+        .button {
+            background-color: rgb(0, 119, 255);
+            color: white;
+            padding: 10px 0;
+            font-weight: 600;
+            font-size: large;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 20px;
+            width: 100%;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: rgb(0, 100, 255);
+        }
+        .lowerfooter {
+            background-color: #f9f9f9;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            color: #888888;
+        }
+        a {
+            color: #0077ff;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="logoholder">
+            <img src="/light-removebg-preview.png" alt="Textuality Logo" style="width: 100px; height: auto;">
+        </div>
+        <div class="topwelcome">
+            <h2 style="color: black;">Welcome to Textuality!</h2>
+        </div>
+        <div class="otherinfo">
+            <p>
+                Hello ${body.firstname} ${body.lastname},
+            </p>
+            <p>
+                Welcome to Textuality! We are excited to have you on board. Now you can begin to create your content and share it on your site.
+            </p>
+            <a style="width: 100%;">
+                <div class="button">
+                    Get Started
+                </div>
+            </a>
+        </div>
+        <div class="footer">
+            This is an automated message. Please do not reply directly to this email.
+        </div>
+    </div>
+    <div class="lowerfooter">
+        <a>Go to Textuality</a> | <a>Support Center</a>
+    </div>
+</body>
+</html>
+`,});
+    }
         return response?.messageId
             ? { ok: true }
             : { ok: false, msg: "Failed to send email" };
