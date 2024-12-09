@@ -38,9 +38,10 @@ export const createTicket = mutation({
             status: "open",
             updated: Date.now(),
             department: "general",
-            staffid: "",
+            staffid: [],
             priority,
             lastUpdated: Date.now(),
+            responsetime: undefined,
         });
         return result;
     },

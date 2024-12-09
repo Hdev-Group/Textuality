@@ -216,7 +216,6 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
   }
   
   function FieldForm({ field, onBack, onSubmit, type }: { type: string, field: FieldType, onBack: () => void, onSubmit: (field: FieldType) => void }) {
-    console.log(field)
     const [fieldName, setFieldName] = useState(field.fieldname || '');
     const [fieldId, setFieldId] = useState(field.reference || '');
     const [description, setDescription] = useState(field.description || '');
