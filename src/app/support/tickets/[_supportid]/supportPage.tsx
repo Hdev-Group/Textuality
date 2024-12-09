@@ -14,8 +14,10 @@ export default function SupportPage({supportid}) {
   const sendUserMessage = useMutation(api.support.sendUserMessage);
   const ticket = getTicket?.[0];
   const ticketmessages = useQuery(api.support.getMessages, { ticketID: supportid });
-  const getStaffer = useQuery(api.staff.getStaff, { staffId: ticket?.staffid });
+  const staffIds = Array.isArray(ticket?.staffid) ? ticket.staffid.filter(id => id) : [ticket?.staffid].filter(id => id);
+  const getStaffer = useQuery(api.staff.getStaff, { staffIds: staffIds.length > 0 ? staffIds : [] });
   const getStaffData = getStaffer?.[0];
+  const staffDataRoleInfo = getStaffer || [];
   const user = useUser();
   const router = useRouter();
 
@@ -79,8 +81,9 @@ export default function SupportPage({supportid}) {
                               if (message.isstaff === false) {
                                 return <UserTicket ticket={message} user={user} />
                               } else {
-                                return <StaffTicket ticket={message} staffinfo={getStaffData} />
-                              }
+                                const staffMember = staffDataRoleInfo.find(staff => staff.staffId === message.userId);
+                                return <StaffTicket ticket={message} staffinfo={staffMember} />;
+                            }
                             })
                           }
                         </div>

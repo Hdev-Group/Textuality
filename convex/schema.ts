@@ -150,7 +150,7 @@ supporttickets: defineTable({
     status: v.string(),
     updated: v.any(),
     department: v.string(),
-    staffid: v.string(),
+    staffid: v.array(v.string()),
     lastUpdated: v.any(),
     pageid: v.string(),
     priority: v.string(),

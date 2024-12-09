@@ -18,13 +18,15 @@ export const getRecentActivity = query({
         return result;
     },
 });
-
 export const getStaff = query({
     args: {
-        staffId: v.string(),
+      staffIds: v.array(v.string()),
     },
-    handler: async (ctx, {staffId}) => {
-        const result = await ctx.db.query("staffDB").filter(q => q.eq(q.field("staffId"), staffId)).collect();
-        return result;
+    handler: async (ctx, { staffIds }) => {
+      const result = await ctx.db
+        .query("staffDB")
+        .filter((q) => q.or(...staffIds.map(id => q.eq(q.field("staffId"), id))))
+        .collect();
+      return result;
     },
-});
+  });

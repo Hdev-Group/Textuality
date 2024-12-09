@@ -151,13 +151,13 @@ export function TicketsTable({ tickets }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-            {tickets?.filter(ticket => !ticket.staffid).slice(0, 5).map((ticket) => (
+            {tickets?.filter(ticket => Array.isArray(ticket.staffid) && ticket.staffid.length === 0).slice(0, 5).map((ticket) => (
             <TableRow key={ticket._id}>
               <TableCell className="max-w-5 overflow-hidden cursor-pointer hover:text-green-300" onClick={copyId(ticket._id)}>{ticket._id.slice(0, 6)}...</TableCell>
               <TableCell>{ticket.title}</TableCell>
               <TableCell>{TicketStatus(ticket.status)}</TableCell>
               <TableCell>{TicketPriority(ticket.priority)}</TableCell>
-              <TableCell>{ticket.staffid || 'Unassigned'}</TableCell>
+                <TableCell>{ticket.staffid.length > 0 ? ticket.staffid.join(', ') : 'Unassigned'}</TableCell>
               <TableCell>
                 <a href={`/support/staff/tickets/${ticket._id}`}>
                   <Button size="sm">View</Button>
@@ -194,7 +194,7 @@ export function TicketsTable({ tickets }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tickets?.filter(ticket => ticket.staffid === staffid).map((ticket) => (
+            {tickets?.filter(ticket => Array.isArray(ticket.staffid) && ticket.staffid.includes(staffid)).map((ticket) => (
             <TableRow key={ticket._id}>
             <TableCell className="max-w-5 overflow-hidden cursor-pointer hover:text-green-300" onClick={copyId(ticket._id)}>{ticket._id.slice(0, 6)}...</TableCell>
             <TableCell>{ticket.title}</TableCell>

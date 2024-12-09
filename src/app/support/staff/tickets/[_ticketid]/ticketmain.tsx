@@ -7,20 +7,25 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../../convex/_generated/api';
 import { useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
-
+const staffImages = [
+  { name: "Textuality Support", imageUrl: "/supporticons/support.png", department: "Support" },
+  { name: "Textuality Development", imageUrl: "/supporticons/developer.png", department: "Development" },
+  { name: "Textuality Management", imageUrl: "/supporticons/manager.png", department: "Management" },
+  { name: "Textuality Executive", imageUrl: "/supporticons/executive.png", department: "Executive" },
+];
 export default function StaffTicketView({params}: {params: any}) {
     const getTicket = useQuery(api.support.getTicketsbyID, { _id: params });
     const sendUserMessage = useMutation(api.support.sendUserMessage);
     const ticket = getTicket?.[0];
-    const getStaffer = useQuery(api.staff.getStaff, { staffId: ticket?.staffid });
-    const getStaffData = getStaffer?.[0];
+    const staffIds = Array.isArray(ticket?.staffid) ? ticket.staffid.filter(id => id) : [ticket?.staffid].filter(id => id);
+    const getStaffer = useQuery(api.staff.getStaff, { staffIds: staffIds.length > 0 ? staffIds : [] });
+    const staffDataRoleInfo = getStaffer || [];
+    const getStaffData = staffDataRoleInfo && staffDataRoleInfo[0];
     const ticketmessages = useQuery(api.support.getMessages, { ticketID: params });
     const user = useUser();
     const router = useRouter();
     const [userdata, setUserdata] = useState<any[]>([]);
-
-
-
+    const [staffdata, setStaffdata] = useState<any[]>([]);
     useEffect(() => {
         if (ticket?.userId) {
             fetch("/api/secure/staff/support-get-user?userId=" + ticket.userId)
@@ -30,6 +35,16 @@ export default function StaffTicketView({params}: {params: any}) {
                 });
         }
     }, [ticket?.userId]);
+
+    useEffect(() => {
+        if (Array.isArray(ticket?.staffid) && ticket?.staffid.length > 0) {
+            fetch("/api/secure/staff/support-get-user?userId=" + ticket?.staffid)
+                .then((res) => res.json())
+                .then((data) => {
+                    setStaffdata([data]);
+                });
+        }
+    }, [ticket?.staffid]);
 
     const data = userdata[0]?.users?.[0];
 
@@ -43,7 +58,7 @@ export default function StaffTicketView({params}: {params: any}) {
           title: ticket?.title,
           description: value,
           datetime: new Date().toLocaleDateString(),
-          imageUrl: "/IMG_6128.png",
+          imageUrl: staffImages.find((image) => image.department === getStaffData?.department)?.imageUrl,
           type: "staffresponse",
         }),
         headers: {
@@ -106,13 +121,15 @@ export default function StaffTicketView({params}: {params: any}) {
                             </div>
                           </div>
                           {
-                            ticketmessages?.map((message) => {
-                              if (message.isstaff === false) {
-                                return <UserTicket ticket={message} user={data} />
-                              } else {
-                                return <StaffTicket ticket={message} staffinfo={getStaffData} />
-                              }
-                            })
+                              ticketmessages?.map((message) => {
+                                  if (message.isstaff === false) {
+                                      return <UserTicket ticket={message} user={data} />;
+                                  } else {
+                                      const staffMember = staffDataRoleInfo.find(staff => staff.staffId === message.userId);
+                                      const staffMemberData = staffdata?.[0]?.users?.find(user => user.id === message.userId);
+                                      return <StaffTicket ticket={message} staffinfo={staffMember} staffMemberData={staffMemberData} />;
+                                  }
+                              })
                           }
                         </div>
                       </div>
@@ -148,11 +165,20 @@ export default function StaffTicketView({params}: {params: any}) {
                             </p>
                           </div>
                           <div className="flex flex-col gap-1">
-                            <p className="text-sm text-muted-foreground">Support Agent</p>
-                            <p className="text-sm  flex flex-row items-center gap-2">
-                              <img src={data?.imageUrl} alt="User" className="w-4 h-4 rounded-full" />
-                              {data?.firstName} {data?.lastName} - <span className="text-xs text-muted-foreground">{getStaffData?.role}</span>
-                            </p>
+                            {ticket?.staffid?.length > 1 && (
+                              <div className="flex flex-col ">
+                              <p className="text-sm text-muted-foreground mb-1">Support Agent{ticket.staffid.length > 1 ? "s" : ""}</p>
+                              <div className="flex flex-col gap-1">
+                              {ticket.staffid.map((id, index) => (
+                                <p key={index} className="text-sm flex flex-row items-center gap-2">
+                                <img src={staffImages.find(image => image.department === staffDataRoleInfo.find(staff => staff.staffId === id)?.department)?.imageUrl} alt="User" className="w-4 h-4 rounded-full" />
+                                {staffdata?.[0]?.users?.find(user => user.id === id)?.firstName} {staffdata?.[0]?.users?.find(user => user.id === id)?.lastName} - <span className="text-xs text-muted-foreground">{staffDataRoleInfo.find(staff => staff.staffId === id)?.role}</span>
+                                </p>
+                              
+                              ))}
+                              </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -183,22 +209,15 @@ function UserTicket({ ticket, user }) {
     )
   }
   
-  function StaffTicket({ ticket, staffinfo }) {
-    const staffImages = [
-      { name: "Textuality Support", imageUrl: "/supporticons/support.png", department: "Support" },
-      { name: "Textuality Development", imageUrl: "/supporticons/developer.png", department: "Development" },
-      { name: "Textuality Management", imageUrl: "/supporticons/manager.png", department: "Management" },
-      { name: "Textuality Executive", imageUrl: "/supporticons/executive.png", department: "Executive" },
-    ];
-
+  function StaffTicket({ ticket, staffinfo, staffMemberData }) {
     const getstaffinfo = staffImages.find((image) => image.department === staffinfo?.department);
 
     return(
       <div className="border-b flex flex-row gap-3 pl-2">
-        <img src={`${getstaffinfo.imageUrl}`} alt="User" className="w-9 h-9 mt-6 mx-2 rounded-full" />
+        <img src={`${getstaffinfo?.imageUrl}`} alt="User" className="w-9 h-9 mt-6 mx-2 rounded-full" />
         <div className="flex flex-col py-6 pr-4 gap-2 w-full">
           <div className="flex flex-row justify-between w-full">
-            <span className="text-sm font-semibold">{getstaffinfo.name} <span className="text-xs text-muted-foreground">( USERNAME - Only support staff can see this )</span></span>
+            <span className="text-sm font-semibold">{getstaffinfo?.name} <span className="text-xs text-muted-foreground">( {staffMemberData?.firstName} {staffMemberData?.lastName} - Only support staff can see this )</span></span>
             <span className="text-sm text-muted-foreground">{new Date(ticket._creationTime).toLocaleString([], {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
             </div>
           <div className="flex flex-col gap-2">

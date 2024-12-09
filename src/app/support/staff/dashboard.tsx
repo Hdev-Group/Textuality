@@ -10,7 +10,7 @@ import { DashboardSummary, QuickActions, TicketsTable, RecentActivity, AssignedT
 
 export default function DashboardStaff() {
     const user = useUser();
-    const getStaffer = useQuery(api.staff.getStaff, { staffId: user?.user?.id });
+    const getStaffer = useQuery(api.staff.getStaff, { staffIds: user?.user?.id ? [user.user.id] : [] });
 
     function NotificationPrompt() {
         if (Notification.permission === 'granted') {
