@@ -254,13 +254,13 @@ export default function Home() {
                       <Carousel>
                         <CarouselContent>
                           <CarouselItem>
-                            <BlurCard title="Create" description="Create content with ease using our powerful editor." icon={<Pen />} />
+                            <BlurCard title="Create" description="Create content with ease using our powerful editor." icon={<Pen className="h-14 w-14" />} />
                           </CarouselItem>
                           <CarouselItem>
-                            <BlurCard title="Collaborate" description="Work with your team in real-time to create amazing content." icon={<Stars />} />
+                            <BlurCard title="Collaborate" description="Work with your team in real-time to create amazing content." icon={<Stars className="h-14 w-14" />} />
                           </CarouselItem>
                           <CarouselItem>
-                            <BlurCard title="Publish" description="Publish your content to the web with a single click." icon={<FileText />} />
+                            <BlurCard title="Publish" description="Publish your content to the web with a single click." icon={<FileText className="h-14 w-14" />} />
                           </CarouselItem>
                         </CarouselContent>
                         <CarouselPrevious />
@@ -279,7 +279,7 @@ export default function Home() {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 function BlurCard({title, description, icon}){
   return (
-    <Card className="overflow-hidden bg-gradient-to-br from-background/80 to-background/40 backdrop-blur-xl border-muted/15 group hover:border-primary/50 transition-all duration-300">
+    <Card className="overflow-hidden bg-gradient-to-br h-[20rem] gap-5 flex flex-col from-background/80 to-background/40 backdrop-blur-xl border-muted/15 group hover:border-primary/50 transition-all duration-300">
       <CardHeader className="relative z-10">
         <motion.div
 
@@ -289,10 +289,10 @@ function BlurCard({title, description, icon}){
         </motion.div>
       </CardHeader>
       <CardContent className="relative z-10">
-        <CardTitle className="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">
+        <CardTitle className="text-4xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">
           {title}
         </CardTitle>
-        <p className="text-muted-foreground text-sm">{description}</p>
+        <p className="text-muted-foreground text-md">{description}</p>
       </CardContent>
       <div
         className="absolute inset-0 opacity-50 group-hover:opacity-75 transition-opacity duration-300"

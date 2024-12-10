@@ -11,7 +11,7 @@ export default function Footer() {
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme')
     setIsDark(savedTheme !== 'light')
-    setLogoSrc(savedTheme === 'light' ? "/IMG_6129.png" : "/IMG_6128.png")
+    setLogoSrc(savedTheme === 'light' ? "/wordmarks/dark-removebg-preview.png" : "/wordmarks/light-removebg-preview.png")
 
     const themeSetter = document.getElementById('themesetter')
     themeSetter?.addEventListener('click', toggleTheme)
@@ -25,7 +25,7 @@ export default function Footer() {
     document.documentElement.classList.toggle('dark', newIsDark)
     document.documentElement.classList.toggle('light', !newIsDark)
     localStorage.setItem('theme', newIsDark ? 'dark' : 'light')
-    setLogoSrc(newIsDark ? "/IMG_6128.png" : "/IMG_6129.png")
+    setLogoSrc(newIsDark ? "/wordmarks/dark-removebg-preview.png" : "/wordmarks/light-removebg-preview.png")
   }
 
   const footerLinks = [
@@ -74,7 +74,7 @@ export default function Footer() {
       </div>
       <div className="border-t border-muted/20">
         <div className="container mx-auto py-6 px-4">
-          <div className="flex flex-col md:flex-row justify-between items-end space-y-4 md:space-y-0">
+          <div className="flex flex-col md:flex-row justify-between md:items-end space-y-4 md:space-y-0">
             <div className="flex items-center space-x-4">
               <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
                 <Twitter size={20} />
@@ -89,10 +89,11 @@ export default function Footer() {
                 Privacy Policy
               </Link>
             </div>
-            <div className="flex flex-col items-end">
-              <img src={logoSrc} alt="Textuality Logo" className="w-auto h-12 mb-2" />
+            <div className="flex flex-col md:items-end">
+              <img src={logoSrc} alt="Textuality Logo" className="w-max h-auto max-w-[10rem] mb-2" />
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Textuality, Inc. All Rights Reserved
+                
               </p>
             </div>
           </div>

@@ -74,3 +74,15 @@ export const getMessages = query({
         return result;
     },
 });
+
+export const selfAssignTicket = mutation({
+    args: { _id: v.id("supporttickets"), staffID: v.string() },
+    handler: async (ctx, { _id, staffID }) => {
+        const ticket = await ctx.db.get(_id);
+        if (!ticket) {
+            throw new Error("Ticket not found");
+        }
+        const updatedStaffId = [...ticket.staffid, staffID];
+        await ctx.db.patch(_id, { staffid: updatedStaffId });
+    },
+});

@@ -22,6 +22,7 @@ export default function StaffTicketView({params}: {params: any}) {
     const staffDataRoleInfo = getStaffer || [];
     const getStaffData = staffDataRoleInfo && staffDataRoleInfo[0];
     const ticketmessages = useQuery(api.support.getMessages, { ticketID: params });
+    const selfAssignTicket = useMutation(api.support.selfAssignTicket);
     const user = useUser();
     const router = useRouter();
     const [userdata, setUserdata] = useState<any[]>([]);
@@ -75,6 +76,12 @@ export default function StaffTicketView({params}: {params: any}) {
           isStaff: true
         });
       }
+      const checkifassigned = ticket?.staffid?.includes(user?.user?.id);
+      function selfAssign() {
+        selfAssignTicket({ _id: params, staffID: user?.user.id });
+      }
+
+
     return (
         <div className={`flex bgmain flex-col min-h-screen w-full items-center justify-center`}>
         <div className="flex items-center justify-center">
@@ -89,7 +96,12 @@ export default function StaffTicketView({params}: {params: any}) {
                         <h1 className="text-3xl font-bold">Staff Ticket Center</h1>
                         <p className="text-sm text-muted-foreground">Respond to tickets and requests here.</p>
                       </div>
-                      <Button onClick={() => router.push("/support/staff")}>View all Tickets</Button>
+                      <div className="flex flex-row gap-5">
+                        {!checkifassigned && (
+                        <Button onClick={() => selfAssign()} variant="secondary">Self Assign</Button>
+                        )}
+                        <Button onClick={() => router.push("/support/staff")}>View all Tickets</Button>
+                      </div>
                     </div>
                   </div>
                 </div>
