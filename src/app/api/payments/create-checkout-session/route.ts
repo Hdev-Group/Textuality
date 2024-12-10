@@ -25,20 +25,21 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
+      {
+        price: priceId,
+        quantity: 1,
+      },
       ],
       mode: 'subscription',
       customer_email: mainemail,
       success_url: `${process.env.YOUR_DOMAIN}/plans?success=true&priceId=${priceId}`,
       cancel_url: `${process.env.YOUR_DOMAIN}/plans?canceled=true`,
       allow_promotion_codes: true,
+      payment_method_types: ["card"],
       automatic_tax: { enabled: true },
       metadata: {
-        userid: userid,
-        productid: productid, 
+      userid: userid,
+      productid: productid, 
       },
     });
 

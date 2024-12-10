@@ -10,11 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder, Text, LucideHardDriveUpload, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
-import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
 import AuthWrapper from '../withAuth';
-import { cookies } from 'next/headers';
-import { set } from 'zod';
-import { Progress } from "@/components/ui/progress"
 import {
   Sheet,
   SheetContent,
@@ -26,48 +22,47 @@ import {
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+
 export default function Page({ params }: { params: { _teamid: string} }) {
-  const { _teamid } = params;
-  const teamid = _teamid;
-  const user = useUser();
-  const pagespecific = useQuery(api.page.getExactPage, { _id: teamid as any });
-  const pageContentAPIGetter = useQuery(api.apicontent.pageContentAPIGetter, { pageid: teamid })
-  const getpageinfo = useQuery(api.page.getPageDetails, { _id: teamid as any });
+  const { _teamid: teamId } = params
+  const user = useUser()
+  const pageSpecific = useQuery(api.page.getExactPage, { _id: teamId as any })
+  const pageContentAPIGetter = useQuery(api.apicontent.pageContentAPIGetter, { pageid: teamId })
+  const getPageInfo = useQuery(api.page.getPageDetails, { _id: teamId as any })
 
-  const [preview, setPreview] = useState("Setup");
-
-  function changePreview(preview: string) {
-    if (preview === "PowerUser") {
-      document.cookie = `poweruser=true; path=/; SameSite=Lax`;
-      document.cookie = `setup=false; path=/; SameSite=Lax`;
-    } else {
-      document.cookie = `setup=true; path=/; SameSite=Lax`;
-      document.cookie = `poweruser=false; path=/; SameSite=Lax`;
-    }
-    setPreview(preview);
-  }
+  const [preview, setPreview] = useState("Setup")
 
   useEffect(() => {
-    if (document.cookie.includes('poweruser=true')) {
-      setPreview("PowerUser");
-    } else if (document.cookie.includes('setup=true')) {
-      setPreview("Setup");
-    }
-  }, []);
+    const powerUser = document.cookie.includes('poweruser=true')
+    setPreview(powerUser ? "PowerUser" : "Setup")
+  }, [])
+
+  const changePreview = (newPreview: string) => {
+    setPreview(newPreview)
+    document.cookie = `${newPreview.toLowerCase()}=true; path=/; SameSite=Lax`
+    document.cookie = `${newPreview === "PowerUser" ? "setup" : "poweruser"}=false; path=/; SameSite=Lax`
+  }
 
   return (
     <div>
         <body className='overflow-hidden'>
-          <AuthWrapper _teamid={teamid}>
+          <AuthWrapper _teamid={teamId}>
         <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
-          <AppHeader activesection="dashboard" teamid={teamid} />
+          <AppHeader activesection="dashboard" teamid={teamId} />
           <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
             <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg p-8 space-y-8 h-screen overflow-y-auto pb-32">
           <div className="flex flex-col md:gap-0 gap-5 w-full justify-between">
             <div>
-              {
-                preview === "Setup" ? <Setup changePreview={changePreview} getpageinfo={pagespecific} /> : <PowerUser changePreview={changePreview} pageContentAPIGetter={pageContentAPIGetter} getpageinfo={getpageinfo} _teamid={_teamid} />
-              }
+            {preview === "Setup" ? (
+              <Setup changePreview={changePreview} getpageinfo={pageSpecific} />
+            ) : (
+              <PowerUser 
+                changePreview={changePreview} 
+                pageContentAPIGetter={pageContentAPIGetter} 
+                getpageinfo={getPageInfo} 
+                _teamid={teamId} 
+              />
+            )}
             </div>
           </div>
           </div>
