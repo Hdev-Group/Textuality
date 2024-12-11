@@ -117,7 +117,7 @@ export default function Visualizer() {
 
     return (
         <div>
-     <div className="relative min-h-screen">
+     <div className="relative flex items-center justify-center w-full flex-col min-h-screen">
      <div 
         className="fixed inset-0 bg-background z-[-1]"
         style={{
