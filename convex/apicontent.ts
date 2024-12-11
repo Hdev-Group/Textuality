@@ -1,4 +1,4 @@
-import { v, Validator } from "convex/values";
+import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 export const APIGetter = query({
@@ -40,19 +40,21 @@ export const correctAuth = query({
     },
 });
 
-export const correctPageID = query({
-    args: {
-        pageid: v.any(),
-    },
-    handler: async (ctx, { pageid }) => {
-        const page = await ctx.db.query("pages").filter(q => q.eq(q.field("_id"), pageid)).collect();
-        if (page.length === 0) {
-            return false;
-        } else {
-            return true;
-        }
-    },
-});
+export const correctPageID = query({     
+    args: {         
+      _id: v.id("pages"),
+    },     
+    handler: async (ctx, { _id }) => {     
+    console.log(_id);    
+    const page = await ctx.db.get(_id);
+    console.log(page);
+      if (!page || page.users.length === 0) {             
+        return false;         
+      } else {             
+        return true;         
+      }     
+    }, 
+  });
 
 export const pageContentSendingAPICounter = mutation({
     args: {
@@ -106,6 +108,19 @@ export const pageContentAPIGetter = query({
     },
 });
 
+
+export const previewAPIFull = query({
+    args:{
+        pageid: v.any(),
+    },
+    handler: async (ctx, { pageid }) => {
+        const fileget = await ctx.db.query("content")
+        .withIndex("bypageid", (q) => q.eq("pageid", pageid))
+        .collect();
+      return fileget;
+    }
+});
+
 export const APIGetterFull = query({
     args: {
         pageid: v.any(),
@@ -113,6 +128,9 @@ export const APIGetterFull = query({
     handler: async (ctx, { pageid }) => {
         const fileget = await ctx.db.query("content").filter(q => q.eq(q.field("pageid"), pageid)).collect();
         const templateget = await ctx.db.query("templates").filter(q => q.eq(q.field("pageid"), pageid)).collect();
+        if (templateget.length === 0 || fileget.length === 0) {
+            throw new Error("Template or file not found");
+        }
         const fields = await ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), templateget[0]._id)).collect();
         const fieldvalues = await ctx.db.query("fieldvalues").filter(q => q.eq(q.field("fileid"), fileget[0]._id)).collect();
         const merged = fields.map((field) => {
