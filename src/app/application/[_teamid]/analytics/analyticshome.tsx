@@ -65,7 +65,6 @@ function DateSelector({teaminfo}: {teaminfo: any}) {
     const [filterType, setFilterType] = useState<"day" | "month" | "year">("day")
 
     const createdatday = new Date(teaminfo?._creationTime)
-    console.log(teaminfo)
   
     const handleDateChange = (newDate: Date | undefined) => {
       if (newDate) {

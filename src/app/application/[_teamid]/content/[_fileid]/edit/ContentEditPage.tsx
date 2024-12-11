@@ -154,12 +154,12 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                     if (getContent?.status === "Published" && hasClickedSave === true) {
                         await Promise.all(
                             Object.entries(debouncedFieldValues).map(([fieldid, value]) =>
-                                updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now(), isPublished: getContent?.status === "Published" ? false : true } as any)
+                                updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now(), } as any)
                             )
                         );                    } else {
                     await Promise.all(
                         Object.entries(debouncedFieldValues).map(([fieldid, value]) =>
-                            updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now(), isPublished: getContent?.status === "Published" ? false : true } as any)
+                            updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now(),  } as any)
                         )
                     );
                     }

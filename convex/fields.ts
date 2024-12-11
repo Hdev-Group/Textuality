@@ -53,7 +53,7 @@ export const updateField = mutation({
           });
           const itemId: Id<"content"> = fileid as Id<"content">
           await ctx.db.patch(itemId, { updated });
-          return { ...existingRecord, value, externalId, fileid, isPublished };
+          return { ...existingRecord, value, externalId, fileid };
         } else {
           const newRecord = {
             fieldid,

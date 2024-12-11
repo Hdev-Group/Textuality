@@ -8,6 +8,13 @@ import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2
 import { motion } from 'framer-motion'
 import Link from "next/link"
 import { useState, useEffect, useRef } from 'react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 
 export default function Home() {
@@ -62,7 +69,7 @@ export default function Home() {
     },
   ]
   return (
-          <div className="w-full relative justify-center flex-col items-center flex">
+          <div className="w-full relative justify-center flex-col items-center flex ">
             <OverHeader />
             <Header />
               <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
@@ -71,8 +78,8 @@ export default function Home() {
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col lg:flex-row items-start justify-start w-full">
                     <div className="flex flex-col w-auto">
-                      <h1 className="font-bold lg:text-[52px] text-5xl space-grotesk-600 text-foreground">Content management that brings everyone together</h1>
-                      <p className="text-lg text-muted-foreground mt-4 w-[75%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
+                      <h1 className="font-bold lg:text-[55px] text-5xl font-Funnel_Sansfont text-foreground">Content management that brings everyone together</h1>
+                      <p className="text-md text-muted-foreground mt-4 w-[90%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
                       <div className="flex flex-row gap-2 mt-5">
                         <Link href="/application/home">
                           <Button  size="lg">Get Started</Button>
@@ -126,8 +133,10 @@ export default function Home() {
                       <Extrainfocard title="Publish" description="Publish your content to the web with a single click." icon={<FileText />} />
                     </div>
                   </div>
-                  <div className="w-full rounded-3xl bg-background h-full container mx-10 md:py-0 py-10 relative mt-20">
-                    <div className="absolute top-0 right-0 bg-gradient-to-br  from-blue-600 to-purple-900 w-full h-full opacity-20 rounded-3xl" />
+                </div>
+                </main>
+                <div className="w-full flex overflow-x-hidden">
+                <div className="w-full rounded-3xl bg-gradient-to-br from-blue-600/20 to-purple-900/20 h-full  md:py-0 py-10 relative mt-20">
                     <h1 className="lg:text-[52px] text-5xl text-white mt-20 text-center">Industry-Disruptive content management software</h1>
                     <p className="text-md text-muted-foreground dark:text-muted-foreground text-center px-2 mt-2">
                       Textuality is the perfect tool for your next project. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.
@@ -149,6 +158,10 @@ export default function Home() {
                           <div className="flex flex-row gap-3 text-white">
                             <CheckSquare size={24} />
                             <p>Secure | End-to-end encryption</p>
+                          </div>
+                          <div className="flex flex-row gap-3 text-white">
+                            <CheckSquare size={24} />
+                            <p>Secure | AES-256 bit encryption</p>
                           </div>
                         </div>
                       </div>
@@ -181,6 +194,9 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
+                </div>
+                <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
+                <div className="flex flex-col z-10 w-full items-center justify-start h-full">
                   <div className="flex flex-col w-full  items-start justify-start gap-3 mt-32 container relative">
                   <div className="absolute inset-0 max-w-xs  left-0 h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
                     <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start">A <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-teal-300">secure foundation</span> to write on</h1>
@@ -234,13 +250,22 @@ export default function Home() {
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end">
                       With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
                     </p>
-                    {/* example of it */}
-                    <div className="flex flex-col md:flex-row mt-10 ">
-                      <BlurCard title="Instant Visulisation" description="See your content in real-time as you create it." icon={<GalleryThumbnailsIcon size={24} />} />
-                      <BlurCard title="Split Screen Editing" description="Edit your content in a split screen view." icon={<EditIcon size={24} />} />
-                    </div>
-                    <div className="flex flex-col md:flex-row">
-                      <BlurCard title="Drag and Drop" description="Drag and drop template editor to create your page." icon={<CloudUploadIcon size={24} />} />
+                    <div className="w-full mt-10">
+                      <Carousel>
+                        <CarouselContent>
+                          <CarouselItem>
+                            <BlurCard title="Create" description="Create content with ease using our powerful editor." icon={<Pen className="h-14 w-14" />} />
+                          </CarouselItem>
+                          <CarouselItem>
+                            <BlurCard title="Collaborate" description="Work with your team in real-time to create amazing content." icon={<Stars className="h-14 w-14" />} />
+                          </CarouselItem>
+                          <CarouselItem>
+                            <BlurCard title="Publish" description="Publish your content to the web with a single click." icon={<FileText className="h-14 w-14" />} />
+                          </CarouselItem>
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                      </Carousel>
                     </div>
                   <div>
                 </div>
@@ -251,24 +276,32 @@ export default function Home() {
         </div>
   )
 }
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 function BlurCard({title, description, icon}){
-  return(
-    <div className="backdrop-blur-xl relative gap-2 flex flex-col duration-500 transition-colors  bg-transparent  border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
-      <div className="w-full left-0 h-44 blur rounded-xl" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
-      <div className="flex flex-col h-44 absolute pt-7 px-5 gap-2">
-      <div className="text-muted-foreground group-hover:text-blue-300">
-        {icon}
-      </div>
-      <h1 className="text-xl group-hover:ml-5 duration-500 ml-0 transition-all space-grotesk-600 font-bold leading-tight">
-        {title}
-      </h1>
-      <p className="text-muted-foreground text-sm sm:text-md">
-      {description}
-      </p>
-      </div>
+  return (
+    <Card className="overflow-hidden bg-gradient-to-br h-[20rem] gap-5 flex flex-col from-background/80 to-background/40 backdrop-blur-xl border-muted/15 group hover:border-primary/50 transition-all duration-300">
+      <CardHeader className="relative z-10">
+        <motion.div
 
-    </div>
+          className="text-primary/80 group-hover:text-primary transition-colors duration-300"
+        >
+          {icon}
+        </motion.div>
+      </CardHeader>
+      <CardContent className="relative z-10">
+        <CardTitle className="text-4xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">
+          {title}
+        </CardTitle>
+        <p className="text-muted-foreground text-md">{description}</p>
+      </CardContent>
+      <div
+        className="absolute inset-0 opacity-50 group-hover:opacity-75 transition-opacity duration-300"
+        style={{
+          background:
+            "radial-gradient(circle at top left, rgba(64, 224, 208, 0.1), transparent 50%), radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.1), transparent 50%)",
+        }}
+      />
+    </Card>
   )
 }
 
