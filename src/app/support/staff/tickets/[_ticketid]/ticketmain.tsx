@@ -7,6 +7,7 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../../convex/_generated/api';
 import { useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
+import StaffOnlyWrapper from "../../StaffOnlyWrapper";
 const staffImages = [
   { name: "Textuality Support", imageUrl: "/supporticons/support.png", department: "Support" },
   { name: "Textuality Development", imageUrl: "/supporticons/developer.png", department: "Development" },
@@ -83,6 +84,7 @@ export default function StaffTicketView({params}: {params: any}) {
 
 
     return (
+      <StaffOnlyWrapper>
         <div className={`flex bgmain flex-col min-h-screen w-full items-center justify-center`}>
         <div className="flex items-center justify-center">
           <div className="w-full flex items-center justify-center flex-col h-full rounded-sm">
@@ -202,6 +204,7 @@ export default function StaffTicketView({params}: {params: any}) {
           </div>
         </div>
       </div>
+    </StaffOnlyWrapper>
     )
 }
 function UserTicket({ ticket, user }) {

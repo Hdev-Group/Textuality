@@ -156,7 +156,8 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                             Object.entries(debouncedFieldValues).map(([fieldid, value]) =>
                                 updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now(), } as any)
                             )
-                        );                    } else {
+                        );                    
+                    } else {
                     await Promise.all(
                         Object.entries(debouncedFieldValues).map(([fieldid, value]) =>
                             updateContent({ fieldid, value: value as any, fileid: _fileid, externalId: userId, teamid: _teamid, updated: Date.now(),  } as any)

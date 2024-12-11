@@ -87,7 +87,7 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
       </div>
     )
   }
-  export function AddFieldDialog({ open, onOpenChange, onAddField }: { open: boolean; onOpenChange: (open: boolean) => void; onAddField: (field: FieldType) => void }) {
+  export function AddFieldDialog({ open, onOpenChange, onAddField, totalfields }: {totalfields: any; open: boolean; onOpenChange: (open: boolean) => void; onAddField: (field: FieldType) => void }) {
     const [selectedField, setSelectedField] = useState<FieldType | null>(null);
     const [animationDirection, setAnimationDirection] = useState<'left' | 'right'>('right');
   
@@ -114,9 +114,17 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     };
   
     const handleSelectTemplate = (template) => {
+      const currentFieldsCount = totalfields; 
+      const newFieldsCount = template.fields.length;
+    
+      if (currentFieldsCount + newFieldsCount > 12) {
+        alert('Adding these fields would exceed the maximum limit of 12 fields.');
+        return;
+      }
+    
       const newFields = template.fields.map((field, index) => {
         const matchedType = fieldTypes.find((type) => type.name === field.type);
-        
+    
         if (!matchedType) {
           console.error(`No matching field type found for ${field.type}`);
           return null;
@@ -127,14 +135,12 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
           type: field.type,
           fieldname: field.name,
           reference: `${template.name.toLowerCase().replace(/\s+/g, '_')}_${field.name.toLowerCase().replace(/\s+/g, '_')}`,
-          position: index + 1,
-          fieldappearance: matchedType.fieldappearance || 'number-editor'
+          fieldposition: currentFieldsCount + index + 1,
+          fieldappearance: matchedType.fieldappearance || 'number-editor',
         };
-      }).filter(field => field !== null);  
+      }).filter(field => field !== null);
     
-
       newFields.forEach((field) => onAddField(field));
-    
       handleClose();
     };
     
@@ -224,6 +230,11 @@ import { AlignLeft, ArrowLeft, Type, Hash, Calendar, MapPin, Image, ToggleLeft, 
     const [fieldappearance, setFieldAppearance] = useState(field.fieldappearance || 'number-editor');
   
     const handleSubmit = (event: React.FormEvent) => {
+      // check if there is 12 fields already
+      if (field.fieldposition === 12) {
+        alert('You can only have 12 fields in a template');
+        return;
+      }
       event.preventDefault();
       onSubmit({
         ...field,

@@ -16,10 +16,14 @@ import { useAuth } from "@clerk/clerk-react";
 export default function SupportPage() {
     const user = useUser();
     const { isSignedIn } = useAuth();
-
-
-    const [searchQuery, setSearchQuery] = useState('')
     const checktickets = useQuery(api.support.getTickets, { userId: user.user?.id });
+    const checkifstaff = useQuery(
+      api.staff.getStaff, 
+      { staffIds: user.user?.id ? [user.user.id] : [] }, 
+    );
+    
+    const [searchQuery, setSearchQuery] = useState('')
+      console.log(checkifstaff)
 
     const supportCategories = [
       { icon: <LifeBuoy className="h-6 w-6" />, title: 'General Help', href: '/general-help' },
@@ -27,9 +31,6 @@ export default function SupportPage() {
       { icon: <MessageCircle className="h-6 w-6" />, title: 'Live Chat', href: '/support/new-request' },
       { icon: <Mail className="h-6 w-6" />, title: 'Email Support', href: '/support/new-request' },
     ]
-  
-
-
     interface TypewriterEffectProps {
       firstName: string;
     }
@@ -91,8 +92,14 @@ export default function SupportPage() {
                       <span className="sr-only">Search</span>
                     </Button>
                 </div>
+
                 </div>
               </div>
+              {Array.isArray(checkifstaff) && checkifstaff.length > 0 && (
+              <a href="/support/staff" className="w-full flex items-center justify-center">
+                <Button className="mt-10 w-full md:w-1/2 my-10 z-50">Staff Dashboard</Button>
+              </a>
+            )}
               {
                 checktickets?.length > 0 &&
                 <div className="container flex flex-col w-full items-center justify-center">

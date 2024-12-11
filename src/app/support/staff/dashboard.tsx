@@ -7,6 +7,7 @@ import { BellDotIcon } from "lucide-react";
 import { api } from "../../../../convex/_generated/api";
 import { useEffect, useRef } from "react";
 import { DashboardSummary, QuickActions, TicketsTable, RecentActivity, AssignedTickets } from "@/components/staff/staffcomp";
+import StaffOnlyWrapper from "./StaffOnlyWrapper"
 
 export default function DashboardStaff() {
     const user = useUser();
@@ -55,6 +56,7 @@ export default function DashboardStaff() {
 
 
     return (
+      <StaffOnlyWrapper>
         <body className="flex bgmain flex-col min-h-screen w-full items-center justify-center">
         <div className="flex items-center flex-col justify-center w-full">
           <Header />
@@ -87,6 +89,7 @@ export default function DashboardStaff() {
           </main>
         </div>
       </body>
+      </StaffOnlyWrapper>
     )
 }
 

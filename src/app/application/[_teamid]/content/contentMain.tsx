@@ -300,14 +300,16 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                         <TableCell colSpan={7} className="text-center items-center justify-center w-full">
                                                             <div className="flex flex-col gap-2 w-auto">
                                                             <h1 className="font-semibold text-3xl">Start getting your content out there.</h1>
-                                                                <div className="flex flex-col gap-1 items-start justify-start">
-                                                                <div className="flex flex-row gap-2">
-                                                                    <LineChart className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
-                                                                    <p className="text-foreground/80">Keep your blog organised in one spot</p>
-                                                                </div>
-                                                                <div className="flex flex-row gap-2">
-                                                                    <LineChart className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
-                                                                    <p className="text-foreground/80">Invite your team members to collaborate on content</p>
+                                                                <div className='w-full flex items-center justify-center'>
+                                                                <div className="flex flex-col gap-1">
+                                                                    <div className="flex flex-row gap-2">
+                                                                        <LineChart className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
+                                                                        <p className="text-foreground/80">Keep your blog organised in one spot</p>
+                                                                    </div>
+                                                                    <div className="flex flex-row gap-2">
+                                                                        <LineChart className="w-5 h-5 dark:text-cyan-400 text-cyan-500" />
+                                                                        <p className="text-foreground/80">Invite your team members to collaborate on content</p>
+                                                                    </div>
                                                                 </div>
                                                                 </div>
                                                                 <div className="w-auto">

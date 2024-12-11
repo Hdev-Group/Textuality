@@ -4,7 +4,8 @@ import { api } from '../../../../../convex/_generated/api';
 import { preloadQuery } from "convex/nextjs";
 
 export async function generateMetadata({ params }) {
-    const { _teamid } = params;
+    const awaitedParams = await params;
+    const { _teamid } = awaitedParams;
 
     const pageResponse = await preloadQuery(api.page.getPage, { _id: _teamid });
     
@@ -33,8 +34,9 @@ export async function generateMetadata({ params }) {
 }
 
   
-export default function ProductWrapper({ params }) {
-    const { _teamid, _fileid } = params;
+export default async function ProductWrapper({ params }) {
+    const awaitedParams = await params;
+    const { _teamid, _fileid } = awaitedParams;
 
     return <Page params={{_teamid: _teamid}} />;
 }
