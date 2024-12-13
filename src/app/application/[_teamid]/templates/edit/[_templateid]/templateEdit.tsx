@@ -20,6 +20,12 @@ import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import "../../../team.css"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 
 type FieldType = {
@@ -71,9 +77,35 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
   const getRole = useQuery(api.page.getRoledetail, { externalId: userId || "none", pageId: teamid });
-  const saveField = useMutation(api.template.updateFieldTemplate)
+  const fieldSaver = useMutation(api.template.updateFieldTemplate)
+  const [saveField, setSaveField] = useState([
+    {
+      fieldid: null,
+      templateid: null,
+      lastUpdatedBy: null,
+      description: null,
+      fieldname: null,
+      type: null,
+      reference: null,
+      fieldposition: 0,
+      fieldappearance: null
+    }
+  ])
+  console.log(saveField)
+  const hasChanged = saveField.some(field => 
+    field.fieldid && 
+    field.templateid && 
+    field.lastUpdatedBy && 
+    field.description && 
+    field.fieldname && 
+    field.type && 
+    field.reference && 
+    field.fieldposition && 
+    field.fieldappearance
+  )
   const deleteField = useMutation(api.template.deleteField)
   const TemplateRemove = useMutation(api.template.remove);
+
   useEffect(() => {
     const currentType = searchParams.get('type');
     setType(currentType === 'settings' || currentType === 'preview' ? currentType : '');
@@ -265,6 +297,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
     });
   };
 
+  
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
   
@@ -283,18 +316,21 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   
     // Batch update the new positions in backend
     await Promise.all(updatedFields.map((field) =>
-      saveField({
-        fieldid: field._id as any, 
-        templateid: _templateid as any,
-        fieldname: field.fieldname as string,
-        type: field.type as string,
-        description: field.description,
-        reference: field.reference,
-        fieldposition: field.fieldposition,
-        lastUpdatedBy: userId as string,
-        fieldappearance: field.fieldappearance as any
-      })
-    ));
+      setSaveField((prevFields) => [
+        ...prevFields,
+        {
+          fieldid: field._id as any, 
+          templateid: _templateid as any,
+          fieldname: field.fieldname as string,
+          type: field.type as string,
+          description: field.description,
+          reference: field.reference,
+          fieldposition: field.fieldposition,
+          lastUpdatedBy: userId as string,
+          fieldappearance: field.fieldappearance as any
+        }
+      ])
+    ))
   };
   const handleEdit = (fieldId: string) => {
     const fieldToEdit = fields?.find(field => field._id === fieldId);
@@ -316,19 +352,37 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
 
     // Save the updated positions after deletion
     for (const field of updatedFields) {
-      await saveField({
-        fieldid: field._id as any, 
-        templateid: _templateid as any,
-        fieldname: field.fieldname as string,
-        type: field.type as string,
-        description: field.description,
-        reference: field.reference,
-        fieldposition: field.position,
-        lastUpdatedBy: userId as string,
-        fieldappearance: field.fieldappearance as any
-      })
+      setSaveField((prevFields) => [
+        ...prevFields,
+        {
+          fieldid: field._id as any, 
+          templateid: _templateid as any,
+          fieldname: field.fieldname as string,
+          type: field.type as string,
+          description: field.description,
+          reference: field.reference,
+          fieldposition: field.fieldposition,
+          lastUpdatedBy: userId as string,
+          fieldappearance: field.fieldappearance as any
+        }
+      ])
     }
   }
+
+  const livepreviewcolours = [
+    { type: 'Rich text', colour: 'border-blue-400/80' },
+    { type: 'Title', colour: 'border-green-400/80' },
+    { type: 'Short Text', colour: 'border-yellow-400/80' },
+    { type: 'Number', colour: 'border-red-400/80' },
+    { type: 'Date and time', colour: 'border-purple-400/80' },
+    { type: 'Location', colour: 'border-indigo-400/80' },
+    { type: 'Media', colour: 'border-pink-400/80' },
+    { type: 'Boolean', colour: 'border-gray-400/80' },
+    { type: 'JSON object', colour: 'border-neutral-400/80' },
+  ]
+
+
+
   const title = getTemplates?.[0]?.title + ' — Templates' + ' — Textuality'
   return (
     <div className='overflow-y-hidden'>
@@ -336,7 +390,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
           <AppHeader activesection="templates" teamid={teamid} />
-          <main className="mx-auto px-10 py-3 transition-all">
+          <main className="mx-auto md:px-10 py-3 transition-all">
             <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg h-screen scrollbaredit overflow-y-auto">
               <div className="flex justify-between items-center px-6 border-b py-4">
                 <div className='flex flex-row gap-1 items-center'>
@@ -346,17 +400,16 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                   <h1 className="text-2xl font-semibold ml-3">{getTemplates?.[0]?.title} Fields</h1>
                 </div>
                 <div className='flex flex-row gap-4 items-center justify-center'>
-
-                      <DeleteTemplate
-                              id={_templateid}
-                              title={getTemplates?.[0]?.title}
-                              onDelete={async (id) => {
-                                await TemplateRemove({ _id: id as any});
-                              }}
-                              getRole={getRole}
-                        />
-
+                <DeleteTemplate
+                    id={_templateid}
+                    title={getTemplates?.[0]?.title}
+                    onDelete={async (id) => {
+                      await TemplateRemove({ _id: id as any});
+                    }}
+                    getRole={getRole}
+                  />
                   <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
+                  <Button variant='publish' disabled={!hasChanged} >Save</Button>
                 </div>
               </div>
               <div className='flex flex-row '>
@@ -479,12 +532,21 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                                     fields.map((field, index) => (
                                       <Draggable key={field._id} draggableId={field._id as string} index={index}>
                                         {(provided, snapshot) => (
-                                          <div className='flex flex-row gap-2 items-center py-2' ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                                            <div className='w-full flex flex-rpw gap-2 items-center px-4 justify-start border-dashed border rounded-lg py-2'>
-                                              <GripVertical className="h-4 w-4" />
-                                              <h3 className="text-md font-semibold text-foreground">{field.fieldname}</h3>
-                                            </div>
-                                          </div>
+                                          <TooltipProvider>
+                                              <Tooltip>
+                                                <TooltipTrigger>
+                                                <div className='flex flex-row gap-2 items-center py-2' ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                  <div className={`w-full flex flex-row gap-2 items-center px-4 justify-start border-dashed border ${livepreviewcolours.find(colour => colour.type === field.type)?.colour} rounded-lg py-2`}>
+                                                    <GripVertical className="h-4 w-4" />
+                                                    <h3 className="text-md font-semibold text-foreground">{field.fieldname}</h3>
+                                                  </div>
+                                                </div>
+                                                </TooltipTrigger>
+                                                <TooltipContent align='start'>
+                                                  {field.type}
+                                                </TooltipContent>
+                                              </Tooltip>
+                                          </TooltipProvider>
                                       )}
                                       </Draggable>
                                     ))
@@ -538,7 +600,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
             )
             setFields(updatedFields)
             setIsEditFieldOpen(false)
-            await saveField({
+            setSaveField((prevFields) => [
+              {              
               fieldid: updatedField._id as any,
               templateid: _templateid as any,
               lastUpdatedBy: userId as string,
@@ -548,7 +611,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
               reference: updatedField.reference,
               fieldposition: updatedField.fieldposition as number,
               fieldappearance: updatedField.fieldappearance,
-            })
+            }
+          ]);
           }}
         />
       </AuthWrapper>
