@@ -359,8 +359,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                   <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
                 </div>
               </div>
-              <div className='flex flex-row px-6'>
-                <aside className='border-r h-screen pb-6 w-1/6'>
+              <div className='flex flex-row '>
+                <aside className='border-r h-screen pb-6 w-1/6 pl-6'>
                   <div className="flex pr-5 items-start flex-col gap-3 mt-4">
                     <Link href={`/application/${teamid}/templates/edit/${templateid}`} className={`${type === "" ? "bg-neutral-400/20 font-semibold" : "hover:bg-neutral-400/20"} w-full transition-all text-sm rounded-md px-2 py-1.5`}>
                       <p className=''>Fields ({fields.length})</p>
@@ -377,8 +377,9 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                 {
                     type === "" ? (
                       <DragDropContext onDragEnd={onDragEnd} >
-                        <div className='border border-gray-200 dark:border-neutral-800 rounded-lg mt-4'>
-                          <Table className='mx-auto rounded-lg border-none py-6'>
+                        <div className='flex flex-row w-full gap-3'>
+                        <div className='border border-gray-200 w-full h-min dark:border-neutral-800 rounded-lg mt-4'>
+                          <Table className='mx-auto rounded-lg h-auto border-none py-6'>
                           <TableHeader className='rounded-t-md'>
                             <TableRow>
                               <TableHead>Position</TableHead>
@@ -463,6 +464,38 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                           )}
                         </Droppable>
                         </Table>
+                        </div>
+                        <div className='flex flex-col border-l border-b pb-4 rounded-bl-lg pl-2 w-1/2'>
+                          <div className='flex flex-col px-2 pt-4'>
+                            <div className='flex flex-col mb-4'>
+                              <h1 className='text-lg font-semibold'>Live Preview</h1>
+                              <p className='text-xs text-gray-500'>This is a live preview of the fields in the template</p>
+                            </div>
+                            <DragDropContext onDragEnd={onDragEnd} >
+                              <Droppable droppableId="fields">
+                              {(provided) => (
+                                <div className='flex flex-col ' {...provided.droppableProps} ref={provided.innerRef}>
+                                  {
+                                    fields.map((field, index) => (
+                                      <Draggable key={field._id} draggableId={field._id as string} index={index}>
+                                        {(provided, snapshot) => (
+                                          <div className='flex flex-row gap-2 items-center py-2' ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                            <div className='w-full flex flex-rpw gap-2 items-center px-4 justify-start border-dashed border rounded-lg py-2'>
+                                              <GripVertical className="h-4 w-4" />
+                                              <h3 className="text-md font-semibold text-foreground">{field.fieldname}</h3>
+                                            </div>
+                                          </div>
+                                      )}
+                                      </Draggable>
+                                    ))
+                                  }
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                            </DragDropContext>
+                          </div>
+                        </div>
                         </div>
                     </DragDropContext>
                     ) : type === "settings" ? (
