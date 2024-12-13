@@ -339,6 +339,38 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       setIsEditFieldOpen(true);
     }
   };
+
+  const handleSave = async () => {
+    await Promise.all(saveField.map(async (field) => {
+      if (field.fieldid && field.templateid && field.lastUpdatedBy && field.description && field.fieldname && field.type && field.reference && field.fieldposition && field.fieldappearance) {
+        await fieldSaver({
+          fieldid: field.fieldid as any,
+          templateid: field.templateid as any,
+          fieldname: field.fieldname as string,
+          type: field.type as string,
+          description: field.description,
+          reference: field.reference,
+          fieldposition: field.fieldposition as number,
+          lastUpdatedBy: field.lastUpdatedBy as string,
+          fieldappearance: field.fieldappearance as any
+        })
+      }
+      // then clear the saveField state
+      setSaveField([
+        {
+          fieldid: null,
+          templateid: null,
+          lastUpdatedBy: null,
+          description: null,
+          fieldname: null,
+          type: null,
+          reference: null,
+          fieldposition: 0,
+          fieldappearance: null
+        }
+      ])
+    })
+  )}
   
   const handleDelete = async (fieldId: string) => {
     const updatedFields = fields
@@ -370,15 +402,15 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   }
 
   const livepreviewcolours = [
-    { type: 'Rich text', colour: 'border-blue-400/80' },
-    { type: 'Title', colour: 'border-green-400/80' },
-    { type: 'Short Text', colour: 'border-yellow-400/80' },
-    { type: 'Number', colour: 'border-red-400/80' },
-    { type: 'Date and time', colour: 'border-purple-400/80' },
-    { type: 'Location', colour: 'border-indigo-400/80' },
-    { type: 'Media', colour: 'border-pink-400/80' },
-    { type: 'Boolean', colour: 'border-gray-400/80' },
-    { type: 'JSON object', colour: 'border-neutral-400/80' },
+    { type: 'Rich text', colour: 'border-blue-400 text-blue-400 dark:border-blue-400/80 dark:text-blue-400' },
+    { type: 'Title', colour: 'border-green-400 text-green-400 dark:border-green-400/80 dark:text-green-400' },
+    { type: 'Short Text', colour: 'border-yellow-500 text-yellow-500 dark:border-yellow-400/80 dark:text-yellow-400' },
+    { type: 'Number', colour: 'border-red-400 text-red-400 dark:border-red-400/80 dark:text-red-400' },
+    { type: 'Date and time', colour: 'border-purple-400 text-purple-400 dark:border-purple-400/80 dark:text-purple-400' },
+    { type: 'Location', colour: 'border-indigo-400 text-indigo-400 dark:border-indigo-400/80 dark:text-indigo-400' },
+    { type: 'Media', colour: 'border-pink-400 text-pink-400 dark:border-pink-400/80 dark:text-pink-400' },
+    { type: 'Boolean', colour: 'border-gray-400 text-gray-400 dark:border-gray-400/80 dark:text-gray-400' },
+    { type: 'JSON object', colour: 'border-neutral-400 text-neutral-400 dark:border-neutral-400/80 dark:text-neutral-400' },
   ]
 
 
@@ -409,7 +441,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                     getRole={getRole}
                   />
                   <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
-                  <Button variant='publish' disabled={!hasChanged} >Save</Button>
+                  <Button variant='publish' disabled={!hasChanged} onClick={() => handleSave()}>Save</Button>
                 </div>
               </div>
               <div className='flex flex-row '>
@@ -455,6 +487,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                                             ref={provided.innerRef}
                                             {...provided.draggableProps}
                                             {...provided.dragHandleProps}
+                                            className={`${livepreviewcolours.find(colour => colour.type === field.type)?.colour}`}
                                           >
                                             <TableCell>
                                               <div className="flex items-center">
@@ -464,7 +497,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                                                 {field?.fieldposition} {/* Display the field position */}
                                               </div>
                                             </TableCell>
-                                            <TableCell>{field.fieldname || field.name}</TableCell>
+                                            <TableCell >{field.fieldname || field.name}</TableCell>
                                             <TableCell>
                                               <div className="flex items-center">
                                                 <div className="flex items-center">
@@ -538,7 +571,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                                                 <div className='flex flex-row gap-2 items-center py-2' ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                                                   <div className={`w-full flex flex-row gap-2 items-center px-4 justify-start border-dashed border ${livepreviewcolours.find(colour => colour.type === field.type)?.colour} rounded-lg py-2`}>
                                                     <GripVertical className="h-4 w-4" />
-                                                    <h3 className="text-md font-semibold text-foreground">{field.fieldname}</h3>
+                                                    <h3 className="text-md font-semibold ">{field.fieldname}</h3>
                                                   </div>
                                                 </div>
                                                 </TooltipTrigger>
