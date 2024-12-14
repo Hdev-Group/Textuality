@@ -1,10 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
-import { api } from '../../../../../../convex/_generated/api';
+import { api } from '../../../../../../../convex/_generated/api';
 import { fetchMutation, fetchQuery } from "convex/nextjs";
 
 const requestCounts = new Map();
 const RATE_LIMIT = 10; 
 const TIME_WINDOW = 60000;
+
+const responseCache = new Map<string, { data: any; expires: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 const getAuthToken = (req: NextRequest): string | null => {
   const authorizationHeader = req.headers.get('Authorization');
@@ -32,6 +35,23 @@ function isRateLimited(token: string) {
   return false;
 }
 
+// Get cached response if available
+function getCachedResponse(key: string) {
+  const now = Date.now();
+  const cached = responseCache.get(key);
+  if (cached && cached.expires > now) {
+    return cached.data;
+  }
+  responseCache.delete(key);
+  return null;
+}
+
+// Set a new response in the cache
+function setCachedResponse(key: string, data: any) {
+  const expires = Date.now() + CACHE_TTL;
+  responseCache.set(key, { data, expires });
+}
+
 export async function GET(req: NextRequest) {
   const token = getAuthToken(req);
   if (!token) {
@@ -52,9 +72,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'File ID is required' }, { status: 400 });
   }
 
+  const cacheKey = `pageid:${pageid}_fileid:${_fileid}`;
+  const cachedData = getCachedResponse(cacheKey);
+
+  if (cachedData) {
+    return NextResponse.json({ data: cachedData });
+  }
+
   try {
     const [correctPageID, isAuthCorrect] = await Promise.all([
-      fetchQuery(api.apicontent.correctPageID, { pageid }),
+      fetchQuery(api.apicontent.correctPageID, { _id: pageid as any }),
       fetchQuery(api.apicontent.correctAuth, { token }),
     ]);
 
@@ -73,6 +100,9 @@ export async function GET(req: NextRequest) {
     if (data.fileget?.status !== 'Published') {
       return NextResponse.json({ error: 'File is not published' }, { status: 400 });
     }
+
+    // Cache the response
+    setCachedResponse(cacheKey, data);
 
     return NextResponse.json({ data });
 
