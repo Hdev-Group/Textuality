@@ -77,6 +77,7 @@ export async function GET(req: NextRequest) {
   const cachedData = getCachedResponse(cacheKey);
 
   if (cachedData) {
+    await fetchMutation(api.apicontent.pageContentSendingAPICounter, { pageid });
     return NextResponse.json({ data: cachedData });
   }
 

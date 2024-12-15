@@ -69,6 +69,7 @@ export async function GET(req: NextRequest, { params }: { params: { _pageid: str
   const cacheKey = `pageid:${pageid}`;
   const cachedData = getCachedResponse(cacheKey);
   if (cachedData) {
+    await fetchMutation(api.apicontent.pageContentSendingAPICounter, { pageid });
     return NextResponse.json({ results: cachedData });
   }
 

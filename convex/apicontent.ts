@@ -7,9 +7,9 @@ export const APIGetter = query({
   },
   handler: async (ctx, { id }) => {
     const fileget = await ctx.db.get(id);
-    const templateget = await ctx.db.query("templates").filter(q => q.eq(q.field("pageid"), fileget?.pageid)).collect();
     const fields = await ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), fileget?.templateid)).collect();
     const fieldvalues = await ctx.db.query("fieldvalues").filter(q => q.eq(q.field("fileid"), id)).collect();
+    console.log(fieldvalues, "h");
     const merged = fields.map((field) => {
       const fieldvalue = fieldvalues.find((fv) => fv.fieldid === field._id);
       return {
@@ -21,7 +21,6 @@ export const APIGetter = query({
     return {
       merged,
       fileget,
-      templateget, 
     };
   },
 });
@@ -123,11 +122,11 @@ export const previewAPIFull = query({
 
 export const APIGetterFull = query({
     args: {
-        pageid: v.any(),
+        _id: v.any(),
     },
-    handler: async (ctx, { pageid }) => {
-        const fileget = await ctx.db.query("content").filter(q => q.eq(q.field("pageid"), pageid)).collect();
-        const templateget = await ctx.db.query("templates").filter(q => q.eq(q.field("pageid"), pageid)).collect();
+    handler: async (ctx, { _id }) => {
+        const fileget = await ctx.db.query("content").filter(q => q.eq(q.field("pageid"), _id)).collect();
+        const templateget = await ctx.db.query("templates").filter(q => q.eq(q.field("pageid"), _id)).collect();
         if (templateget.length === 0 || fileget.length === 0) {
             throw new Error("Template or file not found");
         }
