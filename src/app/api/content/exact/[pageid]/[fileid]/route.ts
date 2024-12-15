@@ -1,12 +1,13 @@
 import { NextResponse, NextRequest } from "next/server";
 import { api } from '../../../../../../../convex/_generated/api';
 import { fetchMutation, fetchQuery } from "convex/nextjs";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 
 const requestCounts = new Map();
 const RATE_LIMIT = 10; // Maximum 10 requests
 const TIME_WINDOW = 60000; // 1 minute in milliseconds
 
-const responseCache = new Map<string, { data: any; expires: number }>();
+const responseCache = new Map<string, { data: any; expires: number; userMap: any }>();
 const CACHE_TTL = 5 * 60 * 1000; // Cache responses for 5 minutes
 
 const getAuthToken = (req: NextRequest): string | null => {
@@ -40,16 +41,16 @@ function getCachedResponse(key: string) {
   const now = Date.now();
   const cached = responseCache.get(key);
   if (cached && cached.expires > now) {
-    return cached.data;
+    return { data: cached.data, userMap: cached.userMap };
   }
   responseCache.delete(key);
   return null;
 }
 
 // Set a new response in the cache
-function setCachedResponse(key: string, data: any) {
+function setCachedResponse(key: string, data: any, userMap: any) {
   const expires = Date.now() + CACHE_TTL;
-  responseCache.set(key, { data, expires });
+  responseCache.set(key, { data, expires, userMap });
 }
 
 export async function GET(req: NextRequest) {
@@ -74,17 +75,17 @@ export async function GET(req: NextRequest) {
   }
 
   const cacheKey = `pageid:${pageid}_fileid:${fileid}`;
-  const cachedData = getCachedResponse(cacheKey);
+  const cachedResponse = getCachedResponse(cacheKey);
 
-  if (cachedData) {
+  if (cachedResponse) {
     await fetchMutation(api.apicontent.pageContentSendingAPICounter, { pageid });
-    return NextResponse.json({ data: cachedData });
+    return NextResponse.json({ data: cachedResponse.data, author: cachedResponse.userMap });
   }
 
   try {
     const [correctPageID, isAuthCorrect] = await Promise.all([
       fetchQuery(api.apicontent.correctPageID, { _id: pageid as any }),
-       fetchQuery(api.apicontent.correctAuth, { token }),
+      fetchQuery(api.apicontent.correctAuth, { token }),
     ]);
 
     if (!correctPageID) {
@@ -94,19 +95,29 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Access token is invalid' }, { status: 401 });
     }
 
+    const clerk = await clerkClient();
+
     const [_, data] = await Promise.all([
       fetchMutation(api.apicontent.pageContentSendingAPICounter, { pageid }),
       fetchQuery(api.apicontent.APIGetter, { id: fileid as any }),
     ]);
+
+    // get author id
+    const user = await clerk.users.getUser(data.fileget.authorid);
+    const userMap = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      imageUrl: user.imageUrl,
+    };
 
     if (data.fileget?.status !== 'Published') {
       return NextResponse.json({ error: 'File is not published' }, { status: 400 });
     }
 
     // Cache the response
-    setCachedResponse(cacheKey, data);
+    setCachedResponse(cacheKey, data, userMap);
 
-    return NextResponse.json({ data });
+    return NextResponse.json({ data, author: userMap });
 
   } catch (error) {
     console.error('Error fetching data:', error);

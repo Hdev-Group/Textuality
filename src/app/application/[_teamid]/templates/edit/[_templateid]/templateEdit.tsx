@@ -91,6 +91,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       fieldappearance: null
     }
   ])
+
   console.log(saveField)
   const hasChanged = saveField.some(field => 
     field.fieldid && 
@@ -103,6 +104,25 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
     field.fieldposition && 
     field.fieldappearance
   )
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (hasChanged) {
+        // Standard behavior for most modern browsers
+        const message = "You have unsaved changes. Are you sure you want to leave?";
+        event.returnValue = message; // Required for some browsers
+        return message; // Some browsers expect this for compatibility
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Clean up the event listener
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasChanged]);
+
+
   const deleteField = useMutation(api.template.deleteField)
   const TemplateRemove = useMutation(api.template.remove);
 
