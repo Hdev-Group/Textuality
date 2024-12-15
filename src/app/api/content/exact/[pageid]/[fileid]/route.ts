@@ -3,11 +3,11 @@ import { api } from '../../../../../../../convex/_generated/api';
 import { fetchMutation, fetchQuery } from "convex/nextjs";
 
 const requestCounts = new Map();
-const RATE_LIMIT = 10; 
-const TIME_WINDOW = 60000;
+const RATE_LIMIT = 10; // Maximum 10 requests
+const TIME_WINDOW = 60000; // 1 minute in milliseconds
 
 const responseCache = new Map<string, { data: any; expires: number }>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_TTL = 5 * 60 * 1000; // Cache responses for 5 minutes
 
 const getAuthToken = (req: NextRequest): string | null => {
   const authorizationHeader = req.headers.get('Authorization');
@@ -65,14 +65,15 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const [_, pageid] = token.split(' ');
+  const pathSegments = req.nextUrl.pathname.split('/');
+  const fileid = pathSegments.pop();
+  const pageid = pathSegments.pop();
 
-  const _fileid = req.nextUrl.pathname.split('/').pop();
-  if (!_fileid) {
-    return NextResponse.json({ error: 'File ID is required' }, { status: 400 });
+  if (!pageid || !fileid) {
+    return NextResponse.json({ error: 'Page ID and File ID are required' }, { status: 400 });
   }
 
-  const cacheKey = `pageid:${pageid}_fileid:${_fileid}`;
+  const cacheKey = `pageid:${pageid}_fileid:${fileid}`;
   const cachedData = getCachedResponse(cacheKey);
 
   if (cachedData) {
@@ -82,7 +83,7 @@ export async function GET(req: NextRequest) {
   try {
     const [correctPageID, isAuthCorrect] = await Promise.all([
       fetchQuery(api.apicontent.correctPageID, { _id: pageid as any }),
-      fetchQuery(api.apicontent.correctAuth, { token }),
+       fetchQuery(api.apicontent.correctAuth, { token }),
     ]);
 
     if (!correctPageID) {
@@ -94,7 +95,7 @@ export async function GET(req: NextRequest) {
 
     const [_, data] = await Promise.all([
       fetchMutation(api.apicontent.pageContentSendingAPICounter, { pageid }),
-      fetchQuery(api.apicontent.APIGetter, { id: _fileid as any }),
+      fetchQuery(api.apicontent.APIGetter, { id: fileid as any }),
     ]);
 
     if (data.fileget?.status !== 'Published') {
