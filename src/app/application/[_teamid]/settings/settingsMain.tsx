@@ -34,7 +34,6 @@ import { useToast } from "@/hooks/use-toast"
 
 export default function Page({ params }) {
     const { _teamid } = params
-    console.log(_teamid)
     const { toast } = useToast()
     const route = useRouter()
     const teamid = _teamid
@@ -56,7 +55,6 @@ export default function Page({ params }) {
             setActiveTab('general');
         }
       }, [searchParams])
-    console.log(getPage?.title)
     useEffect(() => {
         if (getPage) {
             setTitle(getPage?.title)
@@ -96,7 +94,7 @@ export default function Page({ params }) {
               variant: "destructive",
             })
           } else {
-            console.log(departmentid, "aaa")
+            // delete department
           }
         }
         )
@@ -503,7 +501,6 @@ function AddDepartment({ teamid }) {
         return;
       }
       const customerId = customerinfo?.stripeid;
-      console.log('Customer ID:', customerId);
     
       const fetchSubscriptions = async () => {
         try {
@@ -516,7 +513,6 @@ function AddDepartment({ teamid }) {
           });
     
           const data = await response.json();
-          console.log(data);
     
           if (!response.ok) {
             console.error(data.error);

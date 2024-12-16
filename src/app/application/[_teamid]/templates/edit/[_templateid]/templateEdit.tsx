@@ -20,6 +20,12 @@ import {AddFieldDialog, EditFieldDialog} from '@/components/template/comp'
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import "../../../team.css"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 
 type FieldType = {
@@ -71,9 +77,55 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   const getFields = useQuery(api.template.getFields, { templateid: templateid })
   const templateaddfield = useMutation(api.template.addField)
   const getRole = useQuery(api.page.getRoledetail, { externalId: userId || "none", pageId: teamid });
-  const saveField = useMutation(api.template.updateFieldTemplate)
+  const fieldSaver = useMutation(api.template.updateFieldTemplate)
+  const [saveField, setSaveField] = useState([
+    {
+      fieldid: null,
+      templateid: null,
+      lastUpdatedBy: null,
+      description: null,
+      fieldname: null,
+      type: null,
+      reference: null,
+      fieldposition: 0,
+      fieldappearance: null
+    }
+  ])
+
+  console.log(saveField)
+  const hasChanged = saveField.some(field => 
+    field.fieldid && 
+    field.templateid && 
+    field.lastUpdatedBy && 
+    field.description && 
+    field.fieldname && 
+    field.type && 
+    field.reference && 
+    field.fieldposition && 
+    field.fieldappearance
+  )
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (hasChanged) {
+        // Standard behavior for most modern browsers
+        const message = "You have unsaved changes. Are you sure you want to leave?";
+        event.returnValue = message; // Required for some browsers
+        return message; // Some browsers expect this for compatibility
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Clean up the event listener
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasChanged]);
+
+
   const deleteField = useMutation(api.template.deleteField)
   const TemplateRemove = useMutation(api.template.remove);
+
   useEffect(() => {
     const currentType = searchParams.get('type');
     setType(currentType === 'settings' || currentType === 'preview' ? currentType : '');
@@ -236,6 +288,11 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
     )
   }
   const addField = async (field: FieldType) => {
+    // lets check if there is already 12 fields]
+    if (fields.length >= 12) {
+      alert('You have reached the maximum number of fields allowed for a template.')
+    }
+
     const newField = { 
       ...field, 
       fieldid: field.fieldid, 
@@ -260,6 +317,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
     });
   };
 
+  
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
   
@@ -278,18 +336,21 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
   
     // Batch update the new positions in backend
     await Promise.all(updatedFields.map((field) =>
-      saveField({
-        fieldid: field._id as any, 
-        templateid: _templateid as any,
-        fieldname: field.fieldname as string,
-        type: field.type as string,
-        description: field.description,
-        reference: field.reference,
-        fieldposition: field.fieldposition,
-        lastUpdatedBy: userId as string,
-        fieldappearance: field.fieldappearance as any
-      })
-    ));
+      setSaveField((prevFields) => [
+        ...prevFields,
+        {
+          fieldid: field._id as any, 
+          templateid: _templateid as any,
+          fieldname: field.fieldname as string,
+          type: field.type as string,
+          description: field.description,
+          reference: field.reference,
+          fieldposition: field.fieldposition,
+          lastUpdatedBy: userId as string,
+          fieldappearance: field.fieldappearance as any
+        }
+      ])
+    ))
   };
   const handleEdit = (fieldId: string) => {
     const fieldToEdit = fields?.find(field => field._id === fieldId);
@@ -298,6 +359,38 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       setIsEditFieldOpen(true);
     }
   };
+
+  const handleSave = async () => {
+    await Promise.all(saveField.map(async (field) => {
+      if (field.fieldid && field.templateid && field.lastUpdatedBy && field.description && field.fieldname && field.type && field.reference && field.fieldposition && field.fieldappearance) {
+        await fieldSaver({
+          fieldid: field.fieldid as any,
+          templateid: field.templateid as any,
+          fieldname: field.fieldname as string,
+          type: field.type as string,
+          description: field.description,
+          reference: field.reference,
+          fieldposition: field.fieldposition as number,
+          lastUpdatedBy: field.lastUpdatedBy as string,
+          fieldappearance: field.fieldappearance as any
+        })
+      }
+      // then clear the saveField state
+      setSaveField([
+        {
+          fieldid: null,
+          templateid: null,
+          lastUpdatedBy: null,
+          description: null,
+          fieldname: null,
+          type: null,
+          reference: null,
+          fieldposition: 0,
+          fieldappearance: null
+        }
+      ])
+    })
+  )}
   
   const handleDelete = async (fieldId: string) => {
     const updatedFields = fields
@@ -311,19 +404,37 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
 
     // Save the updated positions after deletion
     for (const field of updatedFields) {
-      await saveField({
-        fieldid: field._id as any, 
-        templateid: _templateid as any,
-        fieldname: field.fieldname as string,
-        type: field.type as string,
-        description: field.description,
-        reference: field.reference,
-        fieldposition: field.position,
-        lastUpdatedBy: userId as string,
-        fieldappearance: field.fieldappearance as any
-      })
+      setSaveField((prevFields) => [
+        ...prevFields,
+        {
+          fieldid: field._id as any, 
+          templateid: _templateid as any,
+          fieldname: field.fieldname as string,
+          type: field.type as string,
+          description: field.description,
+          reference: field.reference,
+          fieldposition: field.fieldposition,
+          lastUpdatedBy: userId as string,
+          fieldappearance: field.fieldappearance as any
+        }
+      ])
     }
   }
+
+  const livepreviewcolours = [
+    { type: 'Rich text', colour: 'border-blue-400 text-blue-400 dark:border-blue-400/80 dark:text-blue-400' },
+    { type: 'Title', colour: 'border-green-400 text-green-400 dark:border-green-400/80 dark:text-green-400' },
+    { type: 'Short Text', colour: 'border-yellow-500 text-yellow-500 dark:border-yellow-400/80 dark:text-yellow-400' },
+    { type: 'Number', colour: 'border-red-400 text-red-400 dark:border-red-400/80 dark:text-red-400' },
+    { type: 'Date and time', colour: 'border-purple-400 text-purple-400 dark:border-purple-400/80 dark:text-purple-400' },
+    { type: 'Location', colour: 'border-indigo-400 text-indigo-400 dark:border-indigo-400/80 dark:text-indigo-400' },
+    { type: 'Media', colour: 'border-pink-400 text-pink-400 dark:border-pink-400/80 dark:text-pink-400' },
+    { type: 'Boolean', colour: 'border-gray-400 text-gray-400 dark:border-gray-400/80 dark:text-gray-400' },
+    { type: 'JSON object', colour: 'border-neutral-400 text-neutral-400 dark:border-neutral-400/80 dark:text-neutral-400' },
+  ]
+
+
+
   const title = getTemplates?.[0]?.title + ' — Templates' + ' — Textuality'
   return (
     <div className='overflow-y-hidden'>
@@ -331,7 +442,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
       <AuthWrapper _teamid={teamid}>
         <div className="bg-gray-100 dark:bg-neutral-900 min-h-screen">
           <AppHeader activesection="templates" teamid={teamid} />
-          <main className="mx-auto px-10 py-3 transition-all">
+          <main className="mx-auto md:px-10 py-3 transition-all">
             <div className="bg-white dark:bg-neutral-950 rounded-lg shadow-lg h-screen scrollbaredit overflow-y-auto">
               <div className="flex justify-between items-center px-6 border-b py-4">
                 <div className='flex flex-row gap-1 items-center'>
@@ -341,21 +452,20 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                   <h1 className="text-2xl font-semibold ml-3">{getTemplates?.[0]?.title} Fields</h1>
                 </div>
                 <div className='flex flex-row gap-4 items-center justify-center'>
-
-                      <DeleteTemplate
-                              id={_templateid}
-                              title={getTemplates?.[0]?.title}
-                              onDelete={async (id) => {
-                                await TemplateRemove({ _id: id as any});
-                              }}
-                              getRole={getRole}
-                        />
-
+                <DeleteTemplate
+                    id={_templateid}
+                    title={getTemplates?.[0]?.title}
+                    onDelete={async (id) => {
+                      await TemplateRemove({ _id: id as any});
+                    }}
+                    getRole={getRole}
+                  />
                   <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
+                  <Button variant='publish' disabled={!hasChanged} onClick={() => handleSave()}>Save</Button>
                 </div>
               </div>
-              <div className='flex flex-row px-6'>
-                <aside className='border-r h-screen pb-6 w-1/6'>
+              <div className='flex flex-row '>
+                <aside className='border-r h-screen pb-6 w-1/6 pl-6'>
                   <div className="flex pr-5 items-start flex-col gap-3 mt-4">
                     <Link href={`/application/${teamid}/templates/edit/${templateid}`} className={`${type === "" ? "bg-neutral-400/20 font-semibold" : "hover:bg-neutral-400/20"} w-full transition-all text-sm rounded-md px-2 py-1.5`}>
                       <p className=''>Fields ({fields.length})</p>
@@ -372,91 +482,136 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
                 {
                     type === "" ? (
                       <DragDropContext onDragEnd={onDragEnd} >
-                      <Table className='mt-4 mx-auto  py-6'>
-                        <TableHeader className='border rounded-t-md'>
-                          <TableRow>
-                            <TableHead>Position</TableHead>
-                            <TableHead className='w-1/2'>Name</TableHead>
-                            <TableHead className='w-full'>Field Type</TableHead>
-                            <TableHead>Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <Droppable droppableId="fields">
-                        {(provided) => (
-                          <TableBody className='border-x border-b-2 border-gray-200 dark:border-neutral-800' {...provided.droppableProps} ref={provided.innerRef}>
-                            {
-                              fields.length > 0 ? (
-                                fields
-                                  .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))  
-                                  .map((field, index) => (
-                                    <Draggable  key={field._id} draggableId={field._id as string} index={index}>
-                                      {(provided) => (
-                                        <TableRow
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                        >
-                                          <TableCell>
-                                            <div className="flex items-center">
-                                              <span {...provided.dragHandleProps} className="mr-2 cursor-move">
-                                                <GripVertical className="h-4 w-4" />
-                                              </span>
-                                              {field?.fieldposition} {/* Display the field position */}
-                                            </div>
-                                          </TableCell>
-                                          <TableCell>{field.fieldname || field.name}</TableCell>
-                                          <TableCell>
-                                            <div className="flex items-center">
+                        <div className='flex flex-row w-full gap-3'>
+                        <div className='border border-gray-200 w-full h-min dark:border-neutral-800 rounded-lg mt-4'>
+                          <Table className='mx-auto rounded-lg h-auto border-none py-6'>
+                          <TableHeader className='rounded-t-md'>
+                            <TableRow>
+                              <TableHead>Position</TableHead>
+                              <TableHead className='w-1/2'>Name</TableHead>
+                              <TableHead className='w-full'>Field Type</TableHead>
+                              <TableHead>Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <Droppable droppableId="fields">
+                          {(provided) => (
+                            <TableBody className=' ' {...provided.droppableProps} ref={provided.innerRef}>
+                              {
+                                fields.length > 0 ? (
+                                  fields
+                                    .sort((a, b) => Number(a.fieldposition) - Number(b.fieldposition))  
+                                    .map((field, index) => (
+                                      <Draggable  key={field._id} draggableId={field._id as string} index={index}>
+                                        {(provided) => (
+                                          <TableRow
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            {...provided.dragHandleProps}
+                                            className={`${livepreviewcolours.find(colour => colour.type === field.type)?.colour}`}
+                                          >
+                                            <TableCell>
                                               <div className="flex items-center">
-                                                {fieldTypes?.find(ft => ft.name === field.type)?.icon && 
-                                                  React.createElement(fieldTypes?.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
-                                                }
-                                                {field.type}
+                                                <span {...provided.dragHandleProps} className="mr-2 cursor-move">
+                                                  <GripVertical className="h-4 w-4" />
+                                                </span>
+                                                {field?.fieldposition} {/* Display the field position */}
                                               </div>
-                                            </div>
-                                          </TableCell>
-                                          <TableCell>
-                                            <div className="flex items-center space-x-2">
-                                              <Button variant="ghost" size="sm" onClick={() => handleEdit(field._id as string)}>
-                                                <Edit className="h-4 w-4" />
-                                                <span className="sr-only">Edit {field.fieldname || field.name}</span>
-                                              </Button>
-                                              <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                  <Button variant="ghost" size="sm">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                    <span className="sr-only">More options for {field.fieldname || field.name}</span>
-                                                  </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                  <DropdownMenuItem onClick={() => handleDelete(field._id as string)}>
-                                                    <Trash className="mr-2 h-4 w-4" />
-                                                    Delete
-                                                  </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                              </DropdownMenu>
-                                            </div>
-                                          </TableCell>
-                                        </TableRow>
+                                            </TableCell>
+                                            <TableCell >{field.fieldname || field.name}</TableCell>
+                                            <TableCell>
+                                              <div className="flex items-center">
+                                                <div className="flex items-center">
+                                                  {fieldTypes?.find(ft => ft.name === field.type)?.icon && 
+                                                    React.createElement(fieldTypes?.find(ft => ft.name === field.type)!.icon, { className: "mr-2 h-4 w-4" })
+                                                  }
+                                                  {field.type}
+                                                </div>
+                                              </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              <div className="flex items-center space-x-2">
+                                                <Button variant="ghost" size="sm" onClick={() => handleEdit(field._id as string)}>
+                                                  <Edit className="h-4 w-4" />
+                                                  <span className="sr-only">Edit {field.fieldname || field.name}</span>
+                                                </Button>
+                                                <DropdownMenu>
+                                                  <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="sm">
+                                                      <MoreHorizontal className="h-4 w-4" />
+                                                      <span className="sr-only">More options for {field.fieldname || field.name}</span>
+                                                    </Button>
+                                                  </DropdownMenuTrigger>
+                                                  <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => handleDelete(field._id as string)}>
+                                                      <Trash className="mr-2 h-4 w-4" />
+                                                      Delete
+                                                    </DropdownMenuItem>
+                                                  </DropdownMenuContent>
+                                                </DropdownMenu>
+                                              </div>
+                                            </TableCell>
+                                          </TableRow>
+                                        )}
+                                      </Draggable>
+                                    ))
+                                ) : (
+                                  <TableRow  className="text-center py-4 w-full">
+                                    <TableCell colSpan={4} className='space-y-2'>
+                                      <p className='w-full'>No fields found. Click "Add Field" to create your first field.</p>
+                                      <div className='flex justify-center items-center'>
+                                      <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
+                                      </div>
+                                    </TableCell>
+                                  </TableRow>
+                                )
+                              }
+                              {provided.placeholder}
+                            </TableBody>
+                          )}
+                        </Droppable>
+                        </Table>
+                        </div>
+                        <div className='flex flex-col border-l border-b pb-4 rounded-bl-lg pl-2 w-1/2'>
+                          <div className='flex flex-col px-2 pt-4'>
+                            <div className='flex flex-col mb-4'>
+                              <h1 className='text-lg font-semibold'>Live Preview</h1>
+                              <p className='text-xs text-gray-500'>This is a live preview of the fields in the template</p>
+                            </div>
+                            <DragDropContext onDragEnd={onDragEnd} >
+                              <Droppable droppableId="fields">
+                              {(provided) => (
+                                <div className='flex flex-col ' {...provided.droppableProps} ref={provided.innerRef}>
+                                  {
+                                    fields.map((field, index) => (
+                                      <Draggable key={field._id} draggableId={field._id as string} index={index}>
+                                        {(provided, snapshot) => (
+                                          <TooltipProvider>
+                                              <Tooltip>
+                                                <TooltipTrigger>
+                                                <div className='flex flex-row gap-2 items-center py-2' ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                                  <div className={`w-full flex flex-row gap-2 items-center px-4 justify-start border-dashed border ${livepreviewcolours.find(colour => colour.type === field.type)?.colour} rounded-lg py-2`}>
+                                                    <GripVertical className="h-4 w-4" />
+                                                    <h3 className="text-md font-semibold ">{field.fieldname}</h3>
+                                                  </div>
+                                                </div>
+                                                </TooltipTrigger>
+                                                <TooltipContent align='start'>
+                                                  {field.type}
+                                                </TooltipContent>
+                                              </Tooltip>
+                                          </TooltipProvider>
                                       )}
-                                    </Draggable>
-                                  ))
-                              ) : (
-                                <TableRow  className="text-center py-4 w-full">
-                                  <TableCell colSpan={4} className='space-y-2'>
-                                    <p className='w-full'>No fields found. Click "Add Field" to create your first field.</p>
-                                    <div className='flex justify-center items-center'>
-                                    <Button onClick={() => setIsAddFieldOpen(true)}>Add Field</Button>
-                                    </div>
-                                  </TableCell>
-                                </TableRow>
-                              )
-                            }
-                            {provided.placeholder}
-                          </TableBody>
-                        )}
-                      </Droppable>
-                      </Table>
+                                      </Draggable>
+                                    ))
+                                  }
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                            </DragDropContext>
+                          </div>
+                        </div>
+                        </div>
                     </DragDropContext>
                     ) : type === "settings" ? (
                       <div className="flex justify-center items-center h-full">
@@ -486,6 +641,7 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
           open={isAddFieldOpen}
           onOpenChange={setIsAddFieldOpen}
           onAddField={addField}
+          totalfields={fields.length}
         />
         <EditFieldDialog
           open={isEditFieldOpen}
@@ -497,7 +653,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
             )
             setFields(updatedFields)
             setIsEditFieldOpen(false)
-            await saveField({
+            setSaveField((prevFields) => [
+              {              
               fieldid: updatedField._id as any,
               templateid: _templateid as any,
               lastUpdatedBy: userId as string,
@@ -507,7 +664,8 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
               reference: updatedField.reference,
               fieldposition: updatedField.fieldposition as number,
               fieldappearance: updatedField.fieldappearance,
-            })
+            }
+          ]);
           }}
         />
       </AuthWrapper>

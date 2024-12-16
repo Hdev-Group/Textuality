@@ -166,7 +166,6 @@ export default function NewRequest() {
     
       // Convert intent to user-friendly message
       const userMessage = intentMessageEditing[value];
-      console.log(userMessage);
       setChatHelp((prev) => [...prev, { text: userMessage, isbot: false }]);
 
       // Match intent and handle response
@@ -449,7 +448,6 @@ function SupportForm({ showRequestForm, contentHeightForm, contentFormRef, repor
     setSubmitted(true)
     if (hassubmitted) {
       setShowSuccess("true")
-      console.log(hassubmitted)
       router.push("/support/tickets")
     } else {
       setShowSuccess("error")

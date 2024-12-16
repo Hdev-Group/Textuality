@@ -94,8 +94,8 @@ export default function PricingPage() {
                 </div>
                 <div className="flex justify-between w-full mt-5 gap-10 flex-col lg:flex-row">
                   <PricingCard plans={plans[0]} productid={null} lastone={null} billingCycle={"forever"} priceId={null} />
-                  <PricingCard plans={plans[1]} productid={"prod_RD94s4Pa5cgS4C"} lastone="Free" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKilvG1nQ3zP4pJN3WVpvHs" : ""} />
-                  <PricingCard plans={plans[2]} productid={"prod_RD94mxiuenz1m9"} lastone="Pro" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKimJG1nQ3zP4pJeDdPL6RB" : ""} />
+                  <PricingCard plans={plans[1]} productid={"prod_RD94s4Pa5cgS4C"} lastone="Free" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKilvG1nQ3zP4pJN3WVpvHs" : "price_1QKjYBG1nQ3zP4pJf9yeSali"} />
+                  <PricingCard plans={plans[2]} productid={"prod_RD94mxiuenz1m9"} lastone="Pro" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKimJG1nQ3zP4pJeDdPL6RB" : "price_1QKlKOG1nQ3zP4pJQBJffEqx"} />
                 </div>
               </div>
             </div>

@@ -32,6 +32,33 @@ export function IsAuthorizedEdge() {
   );
 }
 
+export function IsAuthorizedStaffEdge() {
+  return (
+    <div>
+      <Head>
+        <title>Not Authorized | Staff | Textuality</title>
+      </Head>
+      <div className="flex items-center justify-center min-h-screen">
+        <img src="/authimg/restricted.png" className="absolute h-full z-0 w-full bg-contain" />
+        <Card className="w-full border-red-500 max-w-md z-50 pingpulseborder">
+          <CardContent className="pt-6 text-left items-start flex flex-col justify-start">
+            <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Not Authorized</h2>
+            <p className="text-muted-foreground">
+              You are not authorized to access this +.
+              <br />
+              <span className="text-xs">Think this is wrong? Contact the page owner.</span>
+            </p>
+            <Button className="mt-4" variant="outline" onClick={() => window.history.back()}>
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 export function IsLoadedEdge(){
   return (
     <div>

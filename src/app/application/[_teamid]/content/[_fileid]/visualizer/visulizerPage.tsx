@@ -12,13 +12,11 @@ export default function Visualizer() {
         values: [],
         authorInfo: null
     });
-    console.log(contentData);
 
     useEffect(() => {
         // Listen for incoming messages
         const handleMessage = (event: MessageEvent) => {
             if (event.data && event.origin === window.location.origin) {
-                console.log(event.data);
                 const { content, fields, values, authorInfo } = event.data;
                 setContentData({ content, fields, values, authorInfo });
             }
@@ -119,7 +117,7 @@ export default function Visualizer() {
 
     return (
         <div>
-     <div className="relative min-h-screen">
+     <div className="relative flex items-center justify-center w-full flex-col min-h-screen">
      <div 
         className="fixed inset-0 bg-background z-[-1]"
         style={{
@@ -168,7 +166,6 @@ function readtimecalc({ text }: { text: any }) {
 }
 function RichTextViewer({ content }: { content: string }) {
     if (!content) {
-        console.log('No content provided to RichTextViewer');
         return <p>No rich text content available</p>;
     }
 
