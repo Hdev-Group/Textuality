@@ -8,7 +8,7 @@ const RATE_LIMIT = 10; // Maximum 10 requests
 const TIME_WINDOW = 60000; // 1 minute in milliseconds
 
 const responseCache = new Map<string, { data: any; expires: number; userMap: any }>();
-const CACHE_TTL = 5 * 60 * 1000; // Cache responses for 5 minutes
+const CACHE_TTL = 30 * 60 * 1000; // Cache responses for 30 minutes
 
 const getAuthToken = (req: NextRequest): string | null => {
   const authorizationHeader = req.headers.get('Authorization');
