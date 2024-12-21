@@ -90,7 +90,7 @@ export default function Home() {
                     <VideoSection />
                   </div>
                   </div>
-                  <div className="w-full overflow-hidden flex items-center flex-col py-8">
+                  {/* <div className="w-full overflow-hidden flex items-center flex-col py-8">
                     <h1 className="lg:text-[32px] text-2xl font-semibold text-center">Trusted by </h1>
                     <p className="text-muted-foreground text-center text-sm mb-4">Some of the world's leading companies trust Textuality to create, share, and manage their content.</p>
                     <motion.div
@@ -120,7 +120,7 @@ export default function Home() {
                     <div className="flex flex-row gap-2 mt-10">
 
                     </div>
-                  </div>
+                  </div> */}
                   <div className="flex flex-col container w-full lg:w-[80%] relative items-center justify-center gap-3 mt-20">
                   <div className="absolute inset-0 max-w-xs mx-auto h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.2) 4.54%, rgba(64, 224, 208, 0.26) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
                   <h1 className="lg:text-[52px] text-5xl font-bold text-center">Create <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-blue-500"> expert level blogs</span>, easily</h1>
