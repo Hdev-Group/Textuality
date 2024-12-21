@@ -258,7 +258,6 @@ function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }
         </div>
       </div>
     </div>
-
     <UsageMeter getpageinfo={getpageinfo} pageContentAPIGetter={pageContentAPIGetter} />
   </div>
   )
@@ -335,6 +334,11 @@ function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  
               max={2}
             />
           </div>
+          </div>
+          <div className='flex mx-4 pb-4'>
+            <a href='./analytics' className='w-full'>
+              <Button className='w-full' variant='secondary'>View all insights</Button>
+            </a>
           </div>
         </div>
       </div>

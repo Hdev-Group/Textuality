@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState, useMemo } from "react"
 import { format, addDays, subDays, addMonths, subMonths, addYears, subYears, startOfWeek, eachDayOfInterval } from "date-fns"
-import { CalendarIcon, ChevronLeft, ChevronRight, AreaChartIcon as ChartArea } from 'lucide-react'
+import { CalendarIcon, ChevronLeft, ChevronRight, AreaChartIcon as ChartArea, ChevronDown } from 'lucide-react'
 
 import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar"
@@ -27,6 +27,7 @@ import { api } from "../../../../../convex/_generated/api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { jsPDF } from "jspdf";
 
 // Helper function to generate random data
 const generateRandomData = (date: Date, filterType: "day" | "week" | "month" | "year") => {
@@ -104,7 +105,7 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string } 
                       </Link>
                     </div>
                   </div>
-                  <div className="flex flex-row py-4 px-8">
+                  <div className="flex flex-row justify-between items-center py-4 px-8">
                     <div className="flex flex-row">
                       <DateSelector 
                         teaminfo={teaminfo} 
@@ -112,6 +113,16 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string } 
                         setDate={setSelectedDate}
                         filterType={filterType}
                         setFilterType={setFilterType}
+                      />
+                    </div>
+                    <div className="flex flex-row">
+                      <ExportButton
+                        totalViews={totalViews}
+                        totalImpressions={totalImpressions}
+                        data={data}
+                        heatmapData={heatmapData}
+                        selectedDate={selectedDate}
+                        filterType={filterType}
                       />
                     </div>
                   </div>
@@ -356,4 +367,106 @@ function DateSelector({
       </div>
     </div>
   )
+}
+import { saveAs } from "file-saver";
+function ExportButton({
+  totalViews,
+  totalImpressions,
+  data,
+  heatmapData,
+  selectedDate,
+  filterType,
+}: {
+  totalViews: number;
+  totalImpressions: number;
+  data: any[];
+  heatmapData: any[];
+  selectedDate: Date;
+  filterType: "day" | "week" | "month" | "year";
+}) {
+  function dataExport({
+    totalViews,
+    totalImpressions,
+    data,
+    heatmapData,
+    selectedDate,
+    filterType,
+    typeExport
+  }: {
+    totalViews: number;
+    totalImpressions: number;
+    data: any[];
+    heatmapData: any[];
+    selectedDate: Date;
+    filterType: "day" | "week" | "month" | "year";
+    typeExport: "JSON" | "CSV" | "PDF";
+  }) {
+    // Combine all data into a single object or structured format
+    const exportData = {
+      summary: {
+        totalViews,
+        totalImpressions,
+        selectedDate: selectedDate.toISOString(),
+        filterType,
+      },
+      details: data,
+      heatmap: heatmapData,
+    };
+
+    if (typeExport === "JSON"){
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      saveAs(blob, `exported-data-${selectedDate.toISOString()}.json`);
+    } else if (typeExport === "CSV") {
+      const csvString = data.map((item) => `${item.date},${item.views},${item.impressions}`).join("\n");
+      const blob = new Blob([csvString], { type: "text/csv" });
+      saveAs(blob, `exported-data-${selectedDate.toISOString()}.csv`);
+    } else if (typeExport === "PDF") {
+          const doc = new jsPDF();
+          doc.text("Summary:", 10, 10);
+          doc.text(`Total Views: ${totalViews}`, 10, 20);
+          doc.text(`Total Impressions: ${totalImpressions}`, 10, 30);
+          doc.text(`Selected Date: ${selectedDate.toISOString()}`, 10, 40);
+          doc.text(`Filter Type: ${filterType}`, 10, 50);
+
+          doc.text("Details:", 10, 70);
+          data.forEach((item, index) => {
+            doc.text(
+              `Date: ${item.date}, Views: ${item.views}, Impressions: ${item.impressions}`,
+              10,
+              80 + index * 10
+            );
+          });
+
+          if (filterType !== "year"){
+          doc.text("Heatmap:", 10, 150);
+          heatmapData.forEach((item, index) => {
+            const heatmapLine = `${item.day}: ${Object.entries(item)
+              .map(([time, value]) => `${time}: ${value}`)
+              .join(", ")}`;
+            doc.text(heatmapLine, 10, 160 + index * 10);
+          });
+        }
+
+        doc.save(`exported-data-${selectedDate.toISOString()}.pdf`);
+      }
+
+  }
+  return (
+    <Select onValueChange={(value) => dataExport({ totalViews, totalImpressions, data, heatmapData, selectedDate, filterType, typeExport: value === "JSON" ? "JSON" : value === "CSV" ? "CSV" : "PDF" })}>
+      <SelectTrigger className="w-44">
+      Export Data as <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+      <SelectItem value="JSON"
+      >JSON</SelectItem>
+      <SelectItem 
+      value="CSV"
+      >CSV</SelectItem>
+      <SelectItem 
+      value="PDF"
+      >PDF</SelectItem>
+      </SelectContent>
+    </Select>
+  );
 }
