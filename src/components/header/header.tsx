@@ -23,13 +23,25 @@ export default function Header() {
   const [hasScrolled, setHasScrolled] = useState(false)
   const [underlineStyle, setUnderlineStyle] = useState({ left: mainlocation.left, width: mainlocation.width })
   const [activeNav, setActiveNav] = useState<string | null>(null)
+  const [isHeaderVisible, setIsHeaderVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 100) {
-        setHasScrolled(true)
+      const currentScrollY = window.scrollY
+
+      if (currentScrollY > 250 && currentScrollY > lastScrollY) {
+      setIsHeaderVisible(false)
       } else {
-        setHasScrolled(false)
+      setIsHeaderVisible(true)
+      }
+
+      setLastScrollY(currentScrollY)
+
+      if (currentScrollY > 1) {
+      setHasScrolled(true)
+      } else {
+      setHasScrolled(false)
       }
     }
 
@@ -38,7 +50,7 @@ export default function Header() {
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [])
+  }, [lastScrollY])
 
   // auto set underline based on URL
   useEffect(() => {
@@ -76,7 +88,7 @@ export default function Header() {
     setUnderlineStyle({ width: mainlocation.width, left: mainlocation.left })
   }
   return (
-    <header className={`sticky container px-4 top-0 z-50 rounded-b-lg bg-background/20 backdrop-blur-xl ${hasScrolled ? "border-b  border-x" : ""} `}>
+    <header className={`sticky container px-4 top-0 z-50 rounded-b-lg bg-background/20 backdrop-blur-xl transition-transform duration-300 ${hasScrolled ? "border-b  border-x" : ""} ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="container mx-auto">
         <div className="flex justify-between items-center py-4 lg:justify-start md:space-x-10">
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">
