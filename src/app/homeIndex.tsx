@@ -78,7 +78,7 @@ export default function Home() {
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col lg:flex-row items-start justify-start w-full">
                     <div className="flex flex-col w-auto">
-                      <h1 className="font-bold lg:text-[55px] text-5xl font-Funnel_Sansfont text-foreground">Content management that brings everyone together</h1>
+                      <h1 className="font-bold lg:text-[65px] text-5xl font-Funnel_Sansfont text-foreground">Content management that brings everyone together</h1>
                       <p className="text-md text-muted-foreground mt-4 w-[90%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
                       <div className="flex flex-row gap-2 mt-5">
                         <Link href="/application/home">
@@ -124,7 +124,7 @@ export default function Home() {
                   <div className="flex flex-col container w-full lg:w-[80%] relative items-center justify-center gap-3 mt-20">
                   <div className="absolute inset-0 max-w-xs mx-auto h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.2) 4.54%, rgba(64, 224, 208, 0.26) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
                   <h1 className="lg:text-[52px] text-5xl font-bold text-center">Create <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-blue-500"> expert level blogs</span>, easily</h1>
-                    <p className="lg:text-md text-sm text-muted-foreground text-center px-2 md:w-1/2">
+                    <p className="lg:text-md text-sm text-muted-foreground text-center px-2 w-full lg:w-1/2">
                       Recreate what's possible with Textuality. Our platform is designed to help you create content that's engaging, informative, and beautiful while we handle all the heavy lifting.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-3 w-full mt-10">

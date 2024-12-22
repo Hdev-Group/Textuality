@@ -306,11 +306,11 @@ nav a.active span {
   width: 10px;
 }
 .scrollbaredit::-webkit-scrollbar-thumb{
-  background: var(--accent-foreground);
+  background: var(--muted-foreground);
   border-radius: 10px;
 }
 .scrollbaredit::-webkit-scrollbar-track{
-  background: var(--accent-foregroun);
+  background: var(--muted);
 }
 
 @keyframes pingpulse {

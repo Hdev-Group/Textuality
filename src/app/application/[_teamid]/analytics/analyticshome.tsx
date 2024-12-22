@@ -91,7 +91,7 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string } 
           <div className="bg-gray-100 dark:bg-neutral-900 h-auto min-h-screen">
             <AppHeader activesection="analytics" teamid={teamid} />
             <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
-              <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg space-y-8 h-screen overflow-y-auto pb-32">
+              <div className="bg-white dark:bg-neutral-950 w-full rounded-lg scrollbaredit shadow-lg space-y-8 h-screen overflow-y-auto  pb-32">
                 <div className="flex flex-col md:gap-0 gap-5 w-full justify-between">
                   <div className="py-4 px-8 flex flex-row w-full border-b">
                     <div className="flex flex-row w-full items-center justify-between">
@@ -129,11 +129,11 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string } 
                   {/* Total views, Impressions etc */}
                   <div className="flex flex-row py-4 px-8">
                     <div className="flex flex-row w-full space-x-4">
-                      <div className="flex flex-col w-1/3 bg-white dark:bg-neutral-950 border-muted-foreground border rounded-lg shadow-lg p-4">
+                      <div className="flex flex-col w-1/3 bg-white dark:bg-neutral-950 border-muted border rounded-lg shadow-lg p-4">
                         <h1 className="text-lg font-bold">Total Views</h1>
                         <p className="text-2xl font-bold">{totalViews.toLocaleString()}</p>
                       </div>
-                      <div className="flex flex-col w-1/3 bg-white dark:bg-neutral-950 border-muted-foreground border rounded-lg shadow-lg p-4">
+                      <div className="flex flex-col w-1/3 bg-white dark:bg-neutral-950 border-muted border rounded-lg shadow-lg p-4">
                         <h1 className="text-lg font-bold">Impressions</h1>
                         <p className="text-2xl font-bold">{totalImpressions.toLocaleString()}</p>
                       </div>
@@ -142,7 +142,7 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string } 
                 </div>
                 {/* Graphs */}
                 <div className="flex flex-col space-y-8 px-8">
-                  <Card>
+                  <Card className="shadow-lg">
                     <CardHeader className="mb-4">
                       <CardTitle>{filterType === 'day' ? 'Hourly' : filterType === 'month' ? 'Daily' : 'Monthly'} Views and Impressions</CardTitle>
                       <CardDescription>Number of views and impressions over time</CardDescription>
@@ -177,7 +177,7 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string } 
                       </ChartContainer>
                     </CardContent>
                   </Card>
-                  <Card>
+                  <Card className="shadow-lg">
                     <CardHeader>
                       <CardTitle>Weekly Activity Heatmap</CardTitle>
                       <CardDescription>User activity throughout the week</CardDescription>
@@ -317,7 +317,6 @@ function DateSelector({
           <SelectItem value="day">Day</SelectItem>
           <SelectItem value="week">Week</SelectItem>
           <SelectItem value="month">Month</SelectItem>
-          <SelectItem value="year">Year</SelectItem>
         </SelectContent>
       </Select>
       <div className="flex items-center space-x-4">
