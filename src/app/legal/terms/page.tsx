@@ -17,7 +17,7 @@ export default function TermsPage() {
             <Header />
             <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
                 <div className="flex flex-col z-10 w-full items-center justify-start h-full">
-                    <div className="container h-full px-4 md:px-4 flex flex-row">
+                    <div className="container overflow-y-hidden h-full px-4 md:px-4 flex flex-row">
                         <div className="flex flex-row md:pr-4">
                             <div className="flex flex-col w-full">
                                 <div className="flex flex-col">
@@ -25,7 +25,7 @@ export default function TermsPage() {
                                     <div className="flex flex-col gap-2 w-full ">
                                         <p className="text-sm ml-1 mt-1 text-white/50">Last updated: 21-12-2024</p>
                                         <div className="flex flex-row gap-2 items-center">
-                                        <div className="rounded-full bg-muted font-semibold flex items-center justify-center  text-sm p-1 w-9 h-9">T&S</div>
+                                        <div className="rounded-full bg-muted font-semibold flex items-center justify-center  text-sm p-1 w-9 h-9"></div>
                                         <p className="text-sm text-muted-foreground">By: <span className="text-sm font-semibold">Trust and Safety</span></p>
                                         </div>
                                     </div>
@@ -173,8 +173,8 @@ const TableOfContents = () => {
     ]
 
     return (
-        <div className='hidden lg:block top-20 h-fit w-64 pt-6 pr-6'>
-            <nav className="fixed border border-border bg-muted/30 w-64 p-6 rounded-lg">
+        <div className='hidden lg:block top-20 h-fit w-64 pt-6 '>
+            <nav className="fixed border border-border bg-muted/30 w-64 p-6 mr-6 rounded-lg">
                 <ul className="space-y-2">
                     {links.map((link) => (
                         <li key={link.href}>

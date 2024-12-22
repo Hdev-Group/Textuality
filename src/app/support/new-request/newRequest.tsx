@@ -143,7 +143,7 @@ export default function NewRequest() {
         setPageID(value);
         setChatHelp((prev) => [
           ...prev,
-          { text: `Okay, What seems to be the problem in ${selectedPage}?`, isbot: true },
+          { text: `${selectedPage === undefined ? "Okay, Whats the issue your having?" : `Okay, What seems to be the problem in ${selectedPage}?`}`, isbot: true },
         ]);
         window.scrollBy({ top: 350, behavior: "smooth" });
       }
@@ -320,6 +320,9 @@ export default function NewRequest() {
                                                         </SelectGroup>
                                                     ))
                                                 }
+                                                <SelectGroup>
+                                                    <SelectItem value="other">Other</SelectItem>
+                                                </SelectGroup>
                                             </SelectContent>
                                         </Select>
                                     </div>

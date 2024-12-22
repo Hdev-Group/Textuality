@@ -103,6 +103,18 @@ export const testMail = async (body) => {
             background-color: rgba(248, 113, 113, 0.2);
             color: #f87171; 
         }
+        .button{
+            background-color: #0077ff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            width: 100%;
+        }
+        .button a{
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -135,10 +147,12 @@ export const testMail = async (body) => {
                 <td><span class="badge priority-${body.priority.toLowerCase()}">${body.priority}</span></td>
             </tr>
         </table>
-
         <p class="footer">
             This is an automated message. Please do not reply directly to this email.
         </p>
+        <a href="https://textuality.hdev.uk/support/" class="button">
+            View Request
+        </a>
     </div>
 </body>
 </html>
@@ -219,6 +233,18 @@ export const testMail = async (body) => {
             background-color: rgba(248, 113, 113, 0.2);
             color: #f87171; 
         }
+        .button{
+            background-color: #0077ff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            width: 100%;
+        }
+        .button a{
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -245,6 +271,9 @@ export const testMail = async (body) => {
         <p class="footer">
             This is an automated message. Please do not reply directly to this email.
         </p>
+        <a href="https://textuality.hdev.uk/support/" class="button">
+            View Request
+        </a>
     </div>
 </body>
 </html>
@@ -290,6 +319,18 @@ export const testMail = async (body) => {
             color: #888888;
             text-align: center;
         }
+        .button{
+            background-color: #0077ff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            width: 100%;
+        }
+        .button a{
+            color: white;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -311,6 +352,9 @@ export const testMail = async (body) => {
         <div class="footer">
             This is an automated message. Please do not reply directly to this email.
         </div>
+        <a href="https://textuality.hdev.uk/support/" class="button">
+            View Request
+        </a>
     </div>
 </body>
 </html>
@@ -384,6 +428,264 @@ export const testMail = async (body) => {
 </html>
         `,
     }); 
+} else if (type === "statuschange") {
+    response = await transporter.sendMail({
+        from: `"Textuality Support" <${adminMail}>`,
+        to: body.email,
+        subject: `Status Changed - ${body.title}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h2 {
+            color: #333333;
+            margin-top: 0;
+        }
+        p {
+            color: #555555;
+            line-height: 1.6;
+        }
+        .outer-table {
+            width: 100%;
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            display: block;
+            margin: 10px auto;
+        }
+        .badge {
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .status-open {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+        .status-high {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .priority-low {
+            background-color: rgba(96, 165, 250, 0.2);
+            color: #60a5fa; 
+        }
+        .priority-medium {
+            background-color: rgba(250, 204, 21, 0.2);
+            color: #facc15;
+        }
+        .priority-high {
+            background-color: rgba(248, 113, 113, 0.2);
+            color: #f87171; 
+        }
+        .button{
+            background-color: #0077ff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            width: 100%;
+        }
+        .button a{
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h2>Support Request Updated Status</h2>
+        <p>Dear ${body.firstname} ${body.lastname},</p>
+        <p>
+            The statuschange of your support request titled: <b>${body.title}</b> has been changed to <b>${body.status}</b>.
+        </p>
+
+        <table class="outer-table" cellpadding="10">
+            <tr>
+                <td style="width: 60px; text-align: center;">
+                    <img src="${body.imageUrl}" alt="Profile Picture" class="profile-img">
+                </td>
+                <td>
+                    <strong>${body.firstname} ${body.lastname}</strong><br>
+                    <span>${body.datetime}</span><br>
+                    <p>${body.description || 'No description provided'}</p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Status:</strong></td>
+                <td><span class="badge status-${body.status.toLowerCase()}">${body.status}</span></td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Priority:</strong></td>
+                <td><span class="badge priority-${body.priority.toLowerCase()}">${body.priority}</span></td>
+            </tr>
+        </table>
+
+        <p class="footer">
+            This is an automated message. Please do not reply directly to this email.
+        </p>
+        <a href="https://textuality.hdev.uk/support/" class="button">
+            View Request
+        </a>
+    </div>
+</body>
+</html>
+`
+});
+} else if (type === "prioritychange") {
+    response = await transporter.sendMail({
+        from: `"Textuality Support" <${adminMail}>`,
+        to: body.email,
+        subject: `Priority Changed - ${body.title}`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h2 {
+            color: #333333;
+            margin-top: 0;
+        }
+        p {
+            color: #555555;
+            line-height: 1.6;
+        }
+        .outer-table {
+            width: 100%;
+            margin-top: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            display: block;
+            margin: 10px auto;
+        }
+        .badge {
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .status-open {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+        .status-high {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .priority-low {
+            background-color: rgba(96, 165, 250, 0.2);
+            color: #60a5fa; 
+        }
+        .priority-medium {
+            background-color: rgba(250, 204, 21, 0.2);
+            color: #facc15;
+        }
+        .priority-high {
+            background-color: rgba(248, 113, 113, 0.2);
+            color: #f87171; 
+        }
+        .button{
+            background-color: #0077ff;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            width: 100%;
+        }
+        .button a{
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h2>Support Request Updated Priority</h2>
+        <p>Dear ${body.firstname} ${body.lastname},</p>
+        <p>
+            The priority of your support request titled: <b>${body.title}</b> has been changed to <b>${body.priority}</b>.
+        </p>
+
+        <table class="outer-table" cellpadding="10">
+            <tr>
+                <td style="width: 60px; text-align: center;">
+                    <img src="${body.imageUrl}" alt="Profile Picture" class="profile-img">
+                </td>
+                <td>
+                    <strong>${body.firstname} ${body.lastname}</strong><br>
+                    <span>${body.datetime}</span><br>
+                    <p>${body.description || 'No description provided'}</p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Status:</strong></td>
+                <td><span class="badge status-${body.status.toLowerCase()}">${body.status}</span></td>
+            </tr>
+            <tr>
+                <td style="text-align: right;"><strong>Priority:</strong></td>
+                <td><span class="badge priority-${body.priority.toLowerCase()}">${body.priority}</span></td>
+            </tr>
+        </table>
+
+        <p class="footer">
+            This is an automated message. Please do not reply directly to this email.
+        </p>
+        <a href="https://textuality.hdev.uk/support/" class="button">
+            View Request
+        </a>
+    </div>
+</body>
+</html>
+`
+});
 } else if (type === "welcome") {
     response = await transporter.sendMail({
         from: `"Textuality Team" <${welcomeMail}>`,
