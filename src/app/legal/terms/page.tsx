@@ -173,7 +173,7 @@ const TableOfContents = () => {
     ]
 
     return (
-        <div className='hidden lg:block top-20 h-fit w-64 p-6'>
+        <div className='hidden lg:block top-20 h-fit w-64 pt-6 pr-6'>
             <nav className="fixed border border-border bg-muted/30 w-64 p-6 rounded-lg">
                 <ul className="space-y-2">
                     {links.map((link) => (
