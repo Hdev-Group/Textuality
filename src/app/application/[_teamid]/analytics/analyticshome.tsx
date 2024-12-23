@@ -162,17 +162,17 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string } 
                         className="h-[300px] w-full"
                       >
                         <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={data}>
+                            <LineChart data={data}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis 
                               dataKey="date" 
-                              tickFormatter={(value) => format(new Date(value), filterType === 'day' ? 'HH:mm' : filterType === 'month' ? 'dd' : 'MMM')}
+                              tickFormatter={(value) => format(new Date(value), filterType === 'day' ? 'HH:mm' : filterType === 'week' ? 'EEE' : filterType === 'month' ? 'dd' : 'MMM')}
                             />
                             <YAxis />
                             <ChartTooltip content={<ChartTooltipContent />} />
                             <Line type="monotone" dataKey="views" stroke="var(--color-views)" strokeWidth={2} />
                             <Line type="monotone" dataKey="impressions" stroke="var(--color-impressions)" strokeWidth={2} />
-                          </LineChart>
+                            </LineChart>
                         </ResponsiveContainer>
                       </ChartContainer>
                     </CardContent>

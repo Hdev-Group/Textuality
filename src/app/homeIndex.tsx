@@ -263,24 +263,23 @@ export default function Home() {
                         />
                       </div>
                       <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
-                        <Image
-                          src="/images/editor-screenshot.jpg"
+                        <img
+                          src="/indeximg/textuality-editor.png"
                           alt="Textuality Editor"
-                          layout="fill"
-                          objectFit="cover"
+                          className="rounded-xl"  
                         />
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                       <div className="order-2 md:order-1">
-                        <Image
-                          src="/images/analytics-dashboard.jpg"
-                          alt="Analytics Dashboard"
-                          width={500}
-                          height={300}
-                          className="rounded-lg shadow-lg"
+                        <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
+                        <img
+                          src="/indeximg/analytics.png"
+                          alt="Textuality Editor"
+                          className="rounded-xl"  
                         />
+                        </div>
                       </div>
                       <div className="space-y-6 order-1 md:order-2 items-end justify-center">
                         <AnimatedFeature

@@ -100,7 +100,7 @@ export default function PricingPage() {
               </div>
             </div>
             <div className="flex flex-col h-full w-full mt-20 pt-20 border-t relative justify-center">
-            <div className="sticky container mx-auto h-28 py-2 border-b-accent border-b bg-background top-[4.5rem] z-30">
+            <div className="sticky container mx-auto h-28 py-2 border-b-accent border-b bg-background top-[0rem] z-30">
               <div className="w-full flex flex-row items-center justify-center">
               <TableHead className="w-[200px] h-max flex items-center">Features</TableHead>
               {plans.map((plan) => (
@@ -264,7 +264,7 @@ function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
           <div className="p-6 h-auto lg:h-80">
             <ul className="space-y-2">
               <p className="text-md font-semibold text-foreground">
-                {lastone !== "null" && <span className="text-muted-foreground">Includes all features from {lastone} and</span>}
+                {lastone !== null && <span className="text-muted-foreground">Includes all features from {lastone} and</span>}
               </p>
               {plans.features.map((feature, index) => (
                 <li key={index} className="flex items-center text-sm text-foreground">
