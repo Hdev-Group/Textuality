@@ -57,13 +57,18 @@ export default function Team() {
       <div className="bg-gradient-to-t relative from-purple-700 z-50 to-indigo-800/20 h-screen rounded-lg overflow-y-auto p-8 space-y-8" style={{ boxShadow: '0 4px 6px 1px rgba(0, 0, 0, 0.1), 0 2px 4px 1px rgba(0, 0, 0, 0.06), inset 0 0 10px rgba(255, 255, 255, 0.5)' }}>
       <div className="w-full h-full inset-0 bgstars"></div>
           <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
-        <div>
+        <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-bold">
             Welcome to your Premium, {user?.firstName}.
           </h1>
-          <p className="text-lg text-neutral-600 dark:text-neutral-200">
-            You have 1 upgrade token available. Use it to upgrade a page to premium.
-          </p>
+          <div className="text-lg text-neutral-600 dark:text-neutral-200 flex flex-row items-center gap-2">
+            You have {premiumProjects.length === 0 ? "0 premium tokens, Buy some here:" : `${premiumProjects} upgrade token available. Use it to upgrade a page to premium.` }
+            <Link href="/plans">
+              <Button variant="default" size="sm" asChild className="bg-gradient-to-r from-cyan-400 to-blue-600 text-primary-foreground hover:from-cyan-400/80 hover:to-blue-600/80">
+                <span className="flex flex-row justify-between items-center">Upgrade <Sparkles className="w-4 h-4 ml-1" /></span>
+              </Button>
+            </Link>
+          </div>
         </div>
         </div>
         <div className="flex flex-col md:gap-0 gap-5 mt-5">

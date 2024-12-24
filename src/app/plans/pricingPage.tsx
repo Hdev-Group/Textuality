@@ -20,9 +20,10 @@ export default function PricingPage() {
       name: "Free",
       price: "0",
       users: "5",
+      projects: "2",
       requests: "500k",
       description: "For personal projects, marketers and small teams looking to get started.",
-      features: ["Basic analytics", "Limited projects", "Standard support", "Content creation tools", "API access", "Webhooks"],
+      features: ["Basic analytics", "Standard support", "Content creation tools", "API access", "Webhooks", "Role Based Access Control"],
       popular: false,
       highlight: false,
     },
@@ -30,9 +31,10 @@ export default function PricingPage() {
       name: "Pro",
       price: billingCycle === "month" ? "12.50" : "125",
       description: "For growing teams and businesses that need more advanced tools.",
-      users: "10",
+      users: "15",
       requests: "5 Million",
-      features: ["Advanced analytics", "Unlimited projects", "Content Approval", "AI tools", "Webhooks", "Priority support", "Role Based Access Control"],
+      projects: "10",
+      features: ["Advanced analytics", "Content Approval", "AI tools", "Webhooks", "Priority support"],
       popular: true,
       highlight: true,
     },
@@ -42,6 +44,7 @@ export default function PricingPage() {
       description: "For large businesses and enterprises that require custom solutions.",
       users: "30 + Pay per user/month",
       requests: "20 Million + Pay as you go/month",
+      projects: "Unlimited",
       features: ["Custom integrations", "Subscription & Paywall", "Social media scheduling", "Custom branding"],
       popular: false,
       highlight: true,
@@ -131,6 +134,14 @@ export default function PricingPage() {
                     <TableBody>
                       <TableRow>
                         <TableCell className="font-medium flex flex-row items-center gap-1">
+                          <CheckCircleIcon size={16} /> Projects
+                        </TableCell>
+                        {plans.map((plan) => (
+                          <TableCell key={plan.name} className="text-center">{plan.projects}</TableCell>
+                        ))}
+                      </TableRow>
+                      <TableRow>
+                        <TableCell className="font-medium flex flex-row items-center gap-1">
                           <User size={16} /> Users
                         </TableCell>
                         {plans.map((plan) => (
@@ -199,7 +210,9 @@ function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
       router.push("/sign-in?redirect=/plans?priceId=" + priceId);
       return;
     }
-    const bundel = { priceId, mainemail, userid: user.user.id, productid: productid };
+    const subscriptionInstanceId = "sub_" + "textuality" + "_" + user.user.id + "_" + productid + "_" + Date.now();
+
+    const bundel = { priceId, mainemail, userid: user.user.id, productid: productid, subscriptionInstanceId };
     const response = await fetch('/api/payments/create-checkout-session', {
       method: 'POST',
       headers: {
@@ -263,6 +276,14 @@ function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
               <p className="text-md font-semibold text-foreground">
                 {lastone !== null && <span className="text-muted-foreground">Includes all features from {lastone} and</span>}
               </p>
+              <li className="flex items-center text-sm text-foreground">
+                <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
+                {plans.projects} Projects
+              </li>
+              <li className="flex items-center text-sm text-foreground">
+                <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
+                {plans.users} Users
+              </li>
               {plans.features.map((feature, index) => (
                 <li key={index} className="flex items-center text-sm text-foreground">
                   <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
