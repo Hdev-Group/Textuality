@@ -52,9 +52,6 @@ export default function PricingPage() {
   
   const tableRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLTableSectionElement>(null);
-
-
-
   return (
     <div className={`flex bgmain flex-col min-h-screen w-full  items-center justify-center `}>
       <div className="flex items-center justify-center">

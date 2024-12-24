@@ -6,7 +6,7 @@ import { useQuery } from "convex/react";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { CalendarDays, BookOpen, Users, ArrowRight, Crown } from 'lucide-react'
+import { CalendarDays, BookOpen, Users, ArrowRight, Crown, Sparkles } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 export default function Team() {
   const { user } = useUser();
   const projects = useQuery(api.page.getPages);
+  const filteredprojects = projects?.filter((page) => page.users.includes(user?.id));
   const premiumcheck = useQuery(api.page.getPremiumPages, { userid: user?.id });
   const [premiumProjects, setPremiumProjects] = useState([]);
   console.log(premiumProjects);
@@ -67,7 +68,7 @@ export default function Team() {
         </div>
         <div className="flex flex-col md:gap-0 gap-5 mt-5">
           <div className="flex flex-col gap-5 mb-5">
-            <h2 className="text-2xl font-bold">Premium Pages</h2>
+            <h2 className="text-2xl font-bold">Upgraded Pages</h2>
             <div className="flex flex-col md:flex-row gap-5 w-full">
             {premiumProjects?.map((page) => (
               <PremiumProject
@@ -81,14 +82,33 @@ export default function Team() {
                 _id={page._id}
                 _creationTime={page._creationTime}
                 product={page.product}
-                premiumlevel={premiumProjects?.[0]?.name}
+                premiumlevel={page.product?.name}
               />
             ))}
             </div>
           </div>
           <div className="flex flex-col md:flex-row gap-5 w-full">
-            <div className="flex flex-row justify-between w-full items-center">
+            <div className="flex flex-col justify-between w-full">
               <h2 className="text-2xl font-bold">Standard Pages</h2>
+              <div className="flex flex-col md:flex-row gap-5 mt-5 w-full">
+                {
+                  filteredprojects?.filter(page => !premiumProjects.some(premiumPage => premiumPage._id === page._id)).map((page) => (
+                  <Project
+                    key={page._id}
+                    title={page.title}
+                    description={page.content}
+                    users={page.users}
+                    date={page._creationTime}
+                    category={page.category}
+                    content={page.content}
+                    _id={page._id}
+                    _creationTime={page._creationTime}
+                    product={null}
+                    premiumlevel={premiumProjects?.[0]?.name}
+                  />
+                  ))
+                }
+              </div>
             </div>
           </div>
         </div>
@@ -116,6 +136,117 @@ interface UserData {
   imageUrl: string
 }
 
+export function Project({
+  title,
+  description,
+  users,
+  date,
+  category,
+  content,
+  _id,
+  _creationTime,
+  product = "Standard",
+  premiumlevel = null,
+}: ProjectProps) {
+  const [userData, setUserData] = useState<UserData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const userCache: { [key: string]: UserData } = {};
+
+  useEffect(() => {
+    async function fetchAssigneeData() {
+      if (users && users.length > 0) {
+        const usersToFetch = users.filter((user: string) => !userCache[user]);
+
+        if (usersToFetch.length > 0) {
+          setIsLoading(true);
+          try {
+            const response = await fetch(`/api/get-user?userId=${usersToFetch.join(",")}`);
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            data.users.forEach((user: UserData) => {
+              userCache[user.id] = user;
+            });
+
+            setUserData(users.map((user: string) => userCache[user]));
+
+          } catch (error) {
+            console.error("Error fetching assignee data:", error);
+            setUserData([]);
+          } finally {
+            setIsLoading(false);
+          }
+        } else {
+          setUserData(users.map((user: string) => userCache[user]));
+        }
+      }
+    }
+
+    fetchAssigneeData();
+  }, [users]);
+
+  const teamMemberCount = users.length;
+  const creationDate = new Date(_creationTime);
+
+  return (
+    <Card className="overflow-hidden transition-all hover:shadow-lg md:min-w-[30rem] md:w-min w-full">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold truncate">{title}</h3>
+          <Badge variant="secondary" className="font-normal">
+            <CalendarDays className="w-3 h-3 mr-1" />
+            {creationDate.toLocaleDateString()}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="pb-0">
+        <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+        <div className="flex justify-between items-center mt-4 text-sm text-muted-foreground">
+          <div className="flex items-center">
+            <BookOpen className="w-4 h-4 mr-1" />
+            <span>
+              {/* Placeholder for post count */}
+              No posts
+            </span>
+          </div>
+          <div className="flex items-center">
+            <Users className="w-4 h-4 mr-1" />
+            <span>{teamMemberCount} {teamMemberCount >= 1 ? "member" : "members"}</span>
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="flex flex-row items-center justify-between mt-4 bg-primary/5">
+            <div className="flex flex-row items-center justify-between overflow-hidden">
+              {!isLoading && userData.slice(0, 3).map((member, index) => (
+                <Avatar key={index} className="w-8 h-8 border-2 border-primary">
+                  <AvatarImage src={member.imageUrl} alt={member.firstName} />
+                  <AvatarFallback>{member.firstName.charAt(0)}</AvatarFallback>
+                </Avatar>
+              ))}
+              {teamMemberCount > 3 && (
+                <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium border-2 border-primary text-primary">
+                  +{teamMemberCount - 3}
+                </div>
+              )}
+            </div>
+            <div className="flex flex-row gap-3">
+            <Link href={`/application/${_id}/dashboard`}>
+            <Button variant="default" size="sm" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <span className="flex flex-row justify-between items-center">View Project <ArrowRight className="w-4 h-4 ml-1" /></span>
+            </Button>
+            </Link>
+            <Link href={`/application/${_id}/dashboard`}>
+            <Button variant="default" size="sm" asChild className="bg-gradient-to-r from-cyan-400 to-blue-600 text-primary-foreground hover:from-cyan-400/80 hover:to-blue-600/80">
+                <span className="flex flex-row justify-between items-center">Upgrade <Sparkles className="w-4 h-4 ml-1" /></span>
+            </Button>
+            </Link>
+            </div>
+          </CardFooter>
+    </Card>
+  )
+}
 export function PremiumProject({
   title,
   description,
@@ -132,7 +263,6 @@ export function PremiumProject({
   const [isLoading, setIsLoading] = useState(true);
   const userCache: { [key: string]: UserData } = {};
 
-  console.log(premiumlevel);
   useEffect(() => {
     async function fetchAssigneeData() {
       if (users && users.length > 0) {
@@ -174,14 +304,17 @@ export function PremiumProject({
   return (
 <Card 
   key={_id} 
-  className="overflow-hidden transition-all hover:shadow-2xl  md:min-w-[30rem] md:w-min w-full 
+  className="overflow-hidden transition-all hover:shadow-2xl md:min-w-[30rem] md:w-min w-full 
            border-[1px] border-white/10 backdrop-blur-2xl 
            bg-black bg-opacity-25
            rounded-lg px-4 pb-4">
     <CardHeader className="pb-2 px-2">
       <div className="flex items-center justify-between">
         <div className="flex gap-2 flex-col">
-          <Crown className="w-5 h-5 mr-2 text-yellow-200" />
+          <div className="flex flex-row gap-0 items-center">
+            <Crown className={`w-5 h-5 mr-2 ${premiumlevel !== "Pro" ? "text-cyan-400" : "text-yellow-200"} `} />
+            <h3 className="text-sm font-bold truncate">{premiumlevel}</h3>
+          </div>
           <h3 className="text-xl font-bold truncate">{title}</h3>
         </div>
         <Badge variant="secondary" className="font-normal bg-primary/20 text-primary">
@@ -218,7 +351,7 @@ export function PremiumProject({
             </div>
             <Button variant="default" size="sm" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
               <Link href={`/application/${_id}/dashboard`}>
-                <span className="flex flex-row justify-between items-center">View Premium Project <ArrowRight className="w-4 h-4 ml-1" /></span>
+                <span className="flex flex-row justify-between items-center">View {premiumlevel} Project <ArrowRight className="w-4 h-4 ml-1" /></span>
               </Link>
             </Button>
           </CardFooter>
