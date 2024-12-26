@@ -20,6 +20,7 @@ import type * as customer from "../customer.js";
 import type * as department from "../department.js";
 import type * as fields from "../fields.js";
 import type * as http from "../http.js";
+import type * as jobs from "../jobs.js";
 import type * as message from "../message.js";
 import type * as page from "../page.js";
 import type * as payments from "../payments.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   department: typeof department;
   fields: typeof fields;
   http: typeof http;
+  jobs: typeof jobs;
   message: typeof message;
   page: typeof page;
   payments: typeof payments;

@@ -23,13 +23,13 @@ export default function PricingPage() {
       projects: "2",
       requests: "500k",
       description: "For personal projects, marketers and small teams looking to get started.",
-      features: ["Basic analytics", "Standard support", "Content creation tools", "API access", "Role Based Access Control"],
+      features: ["Basic analytics", "Standard support", "Content creation tools", "API access", "Role Based Access Control", "Scheduled Publishing"],
       popular: false,
       highlight: false,
     },
     {
       name: "Pro",
-      price: billingCycle === "month" ? "12.50" : "125",
+      price: billingCycle === "month" ? "19.99" : "199.90",
       description: "For growing teams and businesses that need more advanced tools.",
       users: "15",
       requests: "5 Million",
@@ -40,7 +40,7 @@ export default function PricingPage() {
     },
     {
       name: "Enterprise",
-      price: billingCycle === "month" ? "23.50" : "240",
+      price: billingCycle === "month" ? "49.99" : "499.90",
       description: "For large businesses and enterprises that require custom solutions.",
       users: "30, Scalable",
       requests: "20 Million + Pay as you go/month",
@@ -82,20 +82,19 @@ export default function PricingPage() {
                       >
                         Monthly
                       </button>
-
                       <button
                         className={`px-4 py-2 rounded-lg text-sm font-semibold ${billingCycle === "year" ? "bg-primary text-background" : "bg-muted text-foreground"} focus:outline-none transition-colors duration-300`}
                         onClick={() => setBillingCycle("year")}
                       >
-                        Yearly <span className={`text-xs ${billingCycle === "year" ? "text-green-400 dark:text-green-950" : "dark:text-green-500"}`}>Save 16%</span>
+                        Yearly <span className={`text-xs ${billingCycle === "year" ? "text-green-400 dark:text-green-950" : "dark:text-green-500"}`}>2 months free</span>
                       </button>
                     </div>
                   </div>
                 </div>
                 <div className="flex justify-between w-full mt-5 gap-10 flex-col lg:flex-row">
                   <PricingCard plans={plans[0]} productid={null} lastone={null} billingCycle={"forever"} priceId={null} />
-                  <PricingCard plans={plans[1]} productid={"prod_RD94s4Pa5cgS4C"} lastone="Free" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKilvG1nQ3zP4pJN3WVpvHs" : "price_1QKjYBG1nQ3zP4pJf9yeSali"} />
-                  <PricingCard plans={plans[2]} productid={"prod_RD94mxiuenz1m9"} lastone="Pro" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKimJG1nQ3zP4pJeDdPL6RB" : "price_1QKlKOG1nQ3zP4pJQBJffEqx"} />
+                  <PricingCard plans={plans[1]} productid={"prod_RD94s4Pa5cgS4C"} lastone="Free" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QaNcBG1nQ3zP4pJ9XLl5m27" : "price_1QaNcLG1nQ3zP4pJZ89pWD9k"} />
+                  <PricingCard plans={plans[2]} productid={"prod_RD94mxiuenz1m9"} lastone="Pro" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QaNbfG1nQ3zP4pJb2GWwE0t" : "price_1QaNbEG1nQ3zP4pJVR6awUY6"} />
                 </div>
               </div>
             </div>
@@ -247,7 +246,7 @@ function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
                 <span className="text-muted-foreground font-medium text-sm">{plans.price === "0" ? "forever" : billingCycle} </span>
                 {billingCycle === "year" && plans.price !== "0" && (
                   <span className="text-green-500 text-xs">
-                    Save {plans.name === "Pro" ? "16%" : plans.name === "Enterprise" ? "15%" : "0%"}
+                    Save {plans.name === "Pro" ? "£39.98" : plans.name === "Enterprise" ? "£99.98" : "0%"}
                   </span>
                 )}
               </h2>

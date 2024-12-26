@@ -6,10 +6,12 @@ import { useQuery } from "convex/react";
 import Link from "next/link";
 import { api } from "../../../../convex/_generated/api";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { CalendarDays, BookOpen, Users, ArrowRight, Crown, Sparkles } from 'lucide-react'
+import { CalendarDays, BookOpen, Users, ArrowRight, Crown, Sparkles, ArrowLeft, Plus, Minus, X } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 
 export default function Team() {
   const { user } = useUser();
@@ -51,10 +53,10 @@ export default function Team() {
     return(
     <div className="overflow-y-hidden">
       <title>Premium | Textuality</title>
-    <div className="bg-gradient-to-t z-10 from-purple-700 to-indigo-800/20 h-auto overflow-y-hidden relative">
+    <div className="bg-gradient-to-t z-10 from-purple-700 to-indigo-800/20 h-auto overflow-y-hidden ">
       <HomeHeader activesection="premium" />
-      <main className="md:mx-auto md:px-10 py-3 h-full transition-all relative">
-      <div className="bg-gradient-to-t relative from-purple-700 z-50 to-indigo-800/20 h-screen rounded-lg overflow-y-auto p-8 space-y-8" style={{ boxShadow: '0 4px 6px 1px rgba(0, 0, 0, 0.1), 0 2px 4px 1px rgba(0, 0, 0, 0.06), inset 0 0 10px rgba(255, 255, 255, 0.5)' }}>
+      <main className="md:mx-auto md:px-10 py-3 h-full transition-all ">
+      <div className="bg-gradient-to-t  from-purple-700 z-50 to-indigo-800/20 h-screen rounded-lg overflow-y-auto p-8 space-y-8" style={{ boxShadow: '0 4px 6px 1px rgba(0, 0, 0, 0.1), 0 2px 4px 1px rgba(0, 0, 0, 0.06), inset 0 0 10px rgba(255, 255, 255, 0.5)' }}>
       <div className="w-full h-full inset-0 bgstars"></div>
           <div className="flex flex-col md:gap-0 gap-5 md:flex-row justify-between">
         <div className="flex flex-col gap-2">
@@ -63,11 +65,7 @@ export default function Team() {
           </h1>
           <div className="text-lg text-neutral-600 dark:text-neutral-200 flex flex-row items-center gap-2">
             You have {premiumProjects.length === 0 ? "0 premium tokens, Buy some here:" : `${premiumProjects} upgrade token available. Use it to upgrade a page to premium.` }
-            <Link href="/plans">
-              <Button variant="default" size="sm" asChild className="bg-gradient-to-r from-cyan-400 to-blue-600 text-primary-foreground hover:from-cyan-400/80 hover:to-blue-600/80">
-                <span className="flex flex-row justify-between items-center">Upgrade <Sparkles className="w-4 h-4 ml-1" /></span>
-              </Button>
-            </Link>
+            <PlanSender priceId={"price_1Qa17KG1nQ3zP4pJz8fnzYIq"} productid={"prod_RSx1eBHERSrufq"} />
           </div>
         </div>
         </div>
@@ -361,5 +359,140 @@ export function PremiumProject({
             </Button>
           </CardFooter>
   </Card>
+  )
+}
+
+function PlanSender({
+  productid,
+  priceId,
+}) {
+  const { user } = useUser();
+  const router = useRouter();
+  const [isopen, setIsOpen] = useState(false);
+
+  const [items, totalItems] = useState(1);
+  var totalCost = items * 2.50
+
+  useEffect(() => {
+    if (isopen){
+      document.body.style.overflow = "hidden";
+    }
+  }, [isopen])
+  const handleCheckout = async (priceId: string, totalItems: string) => {
+    const mainemail = user.emailAddresses[0].emailAddress;
+    if (!user || !mainemail) {
+      router.push("/sign-in?redirect=/plans?priceId=" + priceId);
+      return;
+    }
+    const subscriptionInstanceId = "sub_" + "textuality" + "_" + user.id + "_" + productid + "_" + Date.now();
+
+    const bundel = { priceId, mainemail, userid: user.id, productid: productid, subscriptionInstanceId, quantity: items };
+    const response = await fetch('/api/payments/create-checkout-session-tokens', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bundel }),
+    });
+  
+    const data = await response.json();
+    if (data.url) {
+      router.push(data.url);
+    } else {
+      console.error(data.error);
+    }
+  };
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isopen]);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (e.target === document.getElementById("outer-modal")) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("click", handleOutsideClick);
+    return () => window.removeEventListener("click", handleOutsideClick);
+  }, [isopen]);
+
+  return(
+    <>
+    <Button variant="default" size="sm" asChild className="bg-gradient-to-r from-cyan-400 to-blue-600 text-primary-foreground hover:from-cyan-400/80 hover:to-blue-600/80" onClick={() => setIsOpen(true)}>
+      <span className="flex flex-row justify-between items-center">Upgrade to Pro <Sparkles className="w-4 h-4 ml-1" /></span>
+    </Button>
+    {isopen && (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" id="outer-modal">
+    <div className="bg-background rounded-lg shadow-lg overflow-hidden w-11/12 md:w-1/4 max-h-[90vh]">
+      <div className="p-6 border-b flex justify-between">
+        <div>
+          <h2 className="text-xl font-bold">Upgrade to Pro</h2>
+          <p className="mt-2 text-sm text-gray-600">Unlock additional pro slots for your subscription</p>
+        </div>
+        <Button 
+          variant="ghost"
+          className="p-1 h-7"
+          onClick={() => setIsOpen(false)}
+        >
+          <X className="w-5 h-5" />
+        </Button>
+      </div>
+      <div className="p-6 flex flex-col items-center space-y-8">
+          <div>
+            <h2 className="text-xl font-semibold mb-6 text-start">How many pro tokens?</h2>
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                className={`h-10 w-14 rounded-full `}
+                onClick={() => totalItems(Math.max(0, items - 1))}
+                disabled={items === 0}
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              <Input
+                type="number"
+                className="h-12 text-center text-xl font-semibold"
+                value={items}
+                min={0}
+                max={99}
+                onChange={(e) => {
+                  const value = Math.max(0, parseInt(e.target.value))
+                  totalItems(isNaN(value) ? 0 : value)
+                }}
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-14 rounded-full"
+                onClick={() => totalItems(items + 1)}
+                disabled={items === 99}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              
+            </div>
+          </div>
+          <Button
+            className="w-full"
+            size="lg"
+            onClick={() => handleCheckout(priceId, totalItems as unknown as string)
+            }
+            disabled={items === 0}
+          >
+            £{totalCost.toFixed(2)}/month - Upgrade to Pro
+          </Button>
+        </div>
+    </div>
+  </div>
+    )}
+    </>
   )
 }

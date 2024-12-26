@@ -7,11 +7,12 @@ import { useQuery, useMutation } from 'convex/react'
 import React, { useEffect, useState, useRef, useCallback,useMemo } from 'react'
 import { useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronDown, ChevronLeft, Clock2, Link2, Lock, LucideClipboardSignature, Mailbox, MessagesSquare, Save, SidebarOpen, Text, View } from 'lucide-react';
+import { ArrowLeft, BotMessageSquare, CalendarDaysIcon, ChevronDown, ChevronLeft, Clock, Clock2, Link2, Lock, LucideClipboardSignature, Mailbox, MessagesSquare, Save, SidebarOpen, Text, View } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/richtext/editor';
+import { ScheduleDialog } from '@/components/schedule/schedule';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Select,
@@ -71,6 +72,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const updateContentStatus = useMutation(api.content.updateContentStatus);
     const [lastSavedValues, setLastSavedValues] = useState({});
     const [hasChanges, setHasChanges] = useState(false);
+    const [scheduleOpen, setScheduleOpen] = useState(false);
     const [updated, setUpdated] = useState("true");
     const debouncedFieldValues = useDebounce(fieldValues, 2000); 
     useEffect(() => {
@@ -329,8 +331,18 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             setUpdated("true");
         };
     }
+    function contentSetDraft({_id}) {
+        return async () => {
+            await updateContentStatus({
+                _id: _id,
+                status: "Draft",
+            });
+            setUpdated("true");
+        };
+    }
     return (
         <div className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
+            <ScheduleDialog isOpen={scheduleOpen} _id={_fileid} onClose={() => setScheduleOpen(false)} />
             <AuthWrapper _teamid={_teamid}>
                 <DoesExist _fileid={_fileid}>
                 <div className="h-full">
@@ -416,7 +428,8 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                             {isSideBarOpen && activeSidebar === null ? <p className='text-sm font-semibold text-gray-700 dark:text-gray-100 tracking-wide leading-tight flex-nowrap'>Logs</p> : null}
                                         </div>
                                         <div>
-                                            <div className={`
+                                            <div className={`                                  
+                                            ${getContent?.status === "Scheduled" ? "bg-blue-300 text-blue-700 dark:bg-blue-700 dark:text-blue-300" : ""}
                                             ${getContent?.status === "Published" ? "bg-green-300/60 text-green-700 dark:bg-green-700 dark:text-green-300" : ""}
                                             ${getContent?.status === "Draft" ? "bg-yellow-300/60 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""}
                                             ${getContent?.status === "Review" ? "bg-purple-300/60 text-purple-700 dark:bg-purple-700 dark:text-purple-300" : ""}
@@ -428,6 +441,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                             }
                                             {isSideBarOpen && activeSidebar === null  && (
                                                 <>
+                                                    {getContent?.status === "Scheduled" && <span className='text-xs font-medium'>This content is scheduled to be published.</span>}
                                                     {getContent?.status === "Published" && <span className='text-xs font-medium'>This content has been published.</span>}
                                                     {getContent?.status === "Draft" && <span className='text-xs font-medium'>This content has not been posted.</span>}
                                                     {getContent?.status === "Review" && <span className='text-xs font-medium'>This content is under review. An owner, admin or author needs to review this first.</span>}
@@ -659,6 +673,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                         <div className='w-full flex flex-row items-center justify-between'>
                                             <p>Current</p>
                                             <div className={`
+                                            ${getContent?.status === "Scheduled" ? "bg-blue-300 text-blue-700 dark:bg-blue-700 dark:text-blue-300" : ""}
                                             ${getContent?.status === "Published" ? "bg-green-300 text-green-700 dark:bg-green-700 dark:text-green-300" : ""}
                                             ${getContent?.status === "Draft" ? "bg-yellow-300 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""}
                                             ${getContent?.status === "Review" ? "bg-purple-300/60 text-purple-700 dark:bg-purple-700 dark:text-purple-300" : ""}
@@ -674,8 +689,19 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                             <button onClick={contentPublish({_id: getContent._id})} className='bg-green-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-green-800 transition-all'>
                                                 Publish
                                             </button>
-                                            <button className='bg-green-700 hover:bg-green-800 text-white rounded-l-none px-3 py-2 rounded-md'>
-                                                <ChevronDown />
+                                            <button className='bg-green-700 flex items-center justify-center hover:bg-green-800 text-white rounded-l-none px-3 py-2 rounded-md'>
+                                            <DropdownMenu modal={false}>
+                                                <DropdownMenuTrigger>
+                                                    <ChevronDown />
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align='end'>
+                                                    <DropdownMenuItem onClick={() => setScheduleOpen(true)}>
+                                                        <p className='flex flex-row gap-2 items-center'>
+                                                            <Clock className='w-5 h-5' /> Schedule
+                                                        </p>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                             </button>
                                             </>
                                             ) : (
@@ -687,14 +713,9 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align='end'>
                                                         <DropdownMenuLabel>Change Status to</DropdownMenuLabel>
-                                                        <DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={contentSetDraft({_id: getContent._id})}>
                                                             <div className='flex flex-row gap-2 items-center'>
                                                                 <p className='flex flex-row gap-1 items-center justify-center'><Text className='w-5 h-5' /> Change to Draft</p>
-                                                            </div>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem>
-                                                            <div className='flex flex-row gap-2 items-center'>
-                                                                <p className='flex flex-row gap-1 items-center justify-center'><Clock2 className='w-5 h-5' /> Schedule</p>
                                                             </div>
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>

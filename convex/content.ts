@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 
 export const createContent = mutation({
     args: {
@@ -26,15 +27,17 @@ export const createContent = mutation({
     }
 });
 
+
+
 export const updateContentStatus = mutation({
     args: {
-        _id: v.id("content"),
-        status: v.string(),
+      _id: v.id("content"),
+      status: v.string(),
     },
     handler: async (ctx, { _id, status }) => {
-        return ctx.db.patch(_id, { status });
+      return ctx.db.patch(_id, { status });
     }
-});
+  });
 
 export const getContentSpecific = query({
     args: {
@@ -78,3 +81,18 @@ export const deleteContent = mutation({
         return ctx.db.delete(_id);
     }
 });
+
+export const schedulecontent = mutation({
+    args: {
+      _id: v.id("content"),
+      scheduled: v.number(),
+    },
+    handler: async (ctx, { _id, scheduled }) => {
+      await ctx.db.patch(_id, { scheduled, status: "Scheduled" });
+      await ctx.scheduler.runAt(
+        scheduled,
+        internal.jobs.updateContentStatusInternal,
+        { _id: _id, status: "Published" }
+      );
+    }
+  });

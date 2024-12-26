@@ -11,11 +11,12 @@ export async function POST(req: NextRequest) {
     const { bundel } = await req.json();
     const { priceId, mainemail, userid, productid, quantity } = bundel;
 
+    // Validate input fields
     if (!priceId) throw new Error("Price ID is required");
     if (!mainemail) throw new Error("Email is required");
     if (!userid) throw new Error("User ID is required");
     if (!productid) throw new Error("Product ID is required");
-    
+    if (!quantity) throw new Error("Quantity is required");
 
     const subscriptionInstanceId = uuidv4();
 
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
 
     let customerId = customer ? customer.id : undefined;
     if (!customerId) {
+      // Create a new customer if not found
       const newCustomer = await stripe.customers.create({
         email: mainemail,
         metadata: { userid },
@@ -32,26 +34,30 @@ export async function POST(req: NextRequest) {
       customerId = newCustomer.id;
     }
 
-    // Create subscription
+    // Create subscription (no need to check for existing subscription)
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
         {
           price: priceId,
-          quantity: quantity,
+          quantity: quantity || 1, 
+          adjustable_quantity: {
+            enabled: true,
+            minimum: 1,
+          }
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.YOUR_DOMAIN}/plans?success=true&priceId=${priceId}`,
-      cancel_url: `${process.env.YOUR_DOMAIN}/plans?canceled=true`,
+      success_url: `${process.env.YOUR_DOMAIN}/application/premium?success=true&priceId=${priceId}`,
+      cancel_url: `${process.env.YOUR_DOMAIN}/application/premium?canceled=true`,
       allow_promotion_codes: true,
       payment_method_types: ["card"],
       automatic_tax: { enabled: true },
       metadata: {
         userid,
         productid,
-        subscriptionInstanceId, // Track the unique subscription
-        timestamp: new Date().toISOString(), // Optional, for tracking purposes
+        subscriptionInstanceId,
+        timestamp: new Date().toISOString(),
       },
     });
 
