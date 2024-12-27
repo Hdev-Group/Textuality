@@ -33,6 +33,7 @@ import { useUser } from '@clerk/clerk-react';
 import Head from 'next/head';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { get } from 'http';
+import ScheduleChangeOpen from '@/components/schedule/schedulechangeopen'
 
 const useDebounce = (value: any, delay: number) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -73,6 +74,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const [lastSavedValues, setLastSavedValues] = useState({});
     const [hasChanges, setHasChanges] = useState(false);
     const [scheduleOpen, setScheduleOpen] = useState(false);
+    const [scheduleChangeOpen, setScheduleChangeOpen] = useState(false);
     const [updated, setUpdated] = useState("true");
     const debouncedFieldValues = useDebounce(fieldValues, 2000); 
     useEffect(() => {
@@ -343,6 +345,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     return (
         <div className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
             <ScheduleDialog isOpen={scheduleOpen} _id={_fileid} onClose={() => setScheduleOpen(false)} />
+            <ScheduleChangeOpen isOpen={scheduleChangeOpen} _id={_fileid} onClose={() => setScheduleChangeOpen(false)} scheduleInfo={getContent?.scheduled} />
             <AuthWrapper _teamid={_teamid}>
                 <DoesExist _fileid={_fileid}>
                 <div className="h-full">
@@ -671,7 +674,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                     </div>
                                     <div className='flex flex-col gap-5 px-5'>
                                         <div className='w-full flex flex-row items-center justify-between'>
-                                            <p>Current</p>
+                                            <p className='font-semibold'>Current</p>
                                             <div className={`
                                             ${getContent?.status === "Scheduled" ? "bg-blue-300 text-blue-700 dark:bg-blue-700 dark:text-blue-300" : ""}
                                             ${getContent?.status === "Published" ? "bg-green-300 text-green-700 dark:bg-green-700 dark:text-green-300" : ""}
@@ -681,10 +684,22 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                 <p className=''>{getContent?.status}</p>
                                             </div>
                                         </div>
+                                        {
+                                            getContent?.status === "Scheduled" ? (
+                                                <div className='flex flex-col gap-2'>
+                                                    <div className='flex flex-row items-center gap-2'>
+                                                        <p><b>Scheduled for:</b> {new Date(getContent?.scheduled).toLocaleDateString()} <b>At:</b> {new Date(getContent?.scheduled).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                    </div>
+                                                    <div className='flex flex-row items-center gap-2'>
+                                                        <p><b>In:</b> {scheduleTime({time: getContent?.scheduled})}</p>
+                                                    </div>
+                                                </div>
+                                            ) : null
+                                        }
                                     </div>
                                     <div className='flex flex-row  px-5'>
                                         {
-                                            getContent?.status != "Published" ? (
+                                            getContent?.status != "Published" && getContent?.status !="Scheduled" ? (
                                                 <>
                                             <button onClick={contentPublish({_id: getContent._id})} className='bg-green-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-green-800 transition-all'>
                                                 Publish
@@ -705,6 +720,11 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                             </button>
                                             </>
                                             ) : (
+                                                getContent?.status === "Scheduled" ? (
+                                                    <button onClick={() => setScheduleChangeOpen(true)} className='bg-blue-300 w-full font-semibold text-blue-700 dark:bg-blue-700 dark:text-blue-300 px-3 py-2 flex flex-row gap-2 items-center justify-center rounded-md hover:bg-green-800 transition-all'>
+                                                        <Clock className='w-5 h-5' /> Change Schedule
+                                                    </button>
+                                                ) : (                                                        
                                                 <DropdownMenu >
                                                     <DropdownMenuTrigger className='w-full'>
                                                     <button className='bg-green-700 w-full font-semibold text-white px-3 py-2 flex flex-row gap-2 items-center justify-center rounded-md hover:bg-green-800 transition-all'>
@@ -720,6 +740,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
+                                                )
                                             )
                                         }
                                     </div>
@@ -1056,4 +1077,16 @@ function RichTextViewer({ content }: { content: string }) {
     );
 }
 
-
+function scheduleTime({ time }: { time: any }) {
+    const timeDifference = time - Date.now();
+    const timeInMinutes = Math.floor(timeDifference / 60000);
+    if (timeInMinutes < 60) {
+        return `${timeInMinutes} minute${timeInMinutes !== 1 ? 's' : ''}`;
+    }
+    const timeInHours = Math.floor(timeInMinutes / 60);
+    if (timeInHours < 24) {
+        return `${timeInHours} hour${timeInHours !== 1 ? 's' : ''}`;
+    }
+    const timeInDays = Math.floor(timeInHours / 24);
+    return `${timeInDays} day${timeInDays !== 1 ? 's' : ''}`;
+}

@@ -76,6 +76,7 @@ content: defineTable({
     content: v.string(),
     updated: v.any(),
     scheduled: v.optional(v.any()),
+    scheduledFunctionId: v.optional(v.string()),
 }).index("bytemplateid", ["templateid"]).index("bypageid", ["pageid"]),
 newcontent: defineTable({
     mainContentID: v.string(),

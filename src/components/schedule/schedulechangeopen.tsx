@@ -23,11 +23,19 @@ import { useState, useEffect } from 'react'
 import { useMutation } from "convex/react"
 import { api } from "../../../convex/_generated/api"
 
-export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id: string, onClose() }) {
-    const [Open, setIsOpen] = React.useState(true)
-    const [date, setDate] = React.useState<Date>()
-    const [time, setTime] = React.useState<string>()
-    const publishschedule = useMutation(api.content.schedulecontent)
+
+export default function ScheduleChangeOpen({ isOpen, onClose, _id, scheduleInfo }: { isOpen: boolean, onClose(), _id: string, scheduleInfo: any }) {
+
+    const scheduleInfoUpdate = useMutation(api.content.schedulecontent)
+    const [date, setDate] = React.useState<Date>(scheduleInfo ? new Date(scheduleInfo) : new Date())
+    const [time, setTime] = React.useState<string>(scheduleInfo ? format(new Date(scheduleInfo), "HH:mm") : "00:00")
+    useEffect(() => {
+        if (scheduleInfo) {
+            const date = new Date(scheduleInfo);
+            setTime(format(date, "HH:mm"));
+        }
+    }, [scheduleInfo]);
+    console.log(scheduleInfo)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,24 +45,16 @@ export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id:
           const [hours, minutes] = selectedTime.split(":").map(Number);
           const selectedDateTime = new Date(selectedDate);
           selectedDateTime.setHours(hours, minutes, 0, 0);
-          const returner = await publishschedule({ _id: _id as any, scheduled: selectedDateTime.getTime() });
-            if (returner) {
-                onClose()
-            } else {
-                console.log("Error scheduling content")
-            }
+          const returner = await scheduleInfoUpdate({ _id: _id as any, scheduled: selectedDateTime.getTime() });
+        if (returner) {
+            onClose()
+        } else {
+            console.log("Error scheduling content")
+        }
         } catch (error) {
           console.error("Error scheduling content:", error);
         }
-      };
-
-    useEffect(() => {
-        if (isOpen) {
-            setDate(new Date())
-            }
-    }, [isOpen])
-
-
+      }
 
     useEffect(() => {
         if (isOpen) {
@@ -67,7 +67,7 @@ export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id:
         }
     }, [isOpen])
 
-    return (
+    return(
         <>
             {isOpen && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex z-50 items-center justify-center p-4" id="modal-overlay">
@@ -75,7 +75,7 @@ export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id:
             <div className="p-6">
                 <div className="flex flex-row justify-between">
                     <div className="flex flex-col">
-                        <h2 className="text-2xl font-bold mb-1">Schedule Publishing</h2>
+                        <h2 className="text-2xl font-bold mb-1">Edit Schedule</h2>
                         <p className="mb-4 text-sm text-muted-foreground">Choose a date and time for your content.</p>
                     </div>
                     <Button onClick={onClose} variant="outline"><X className="h-4 w-4" /> </Button>
@@ -119,13 +119,15 @@ export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id:
                 <Label htmlFor="time" className="text-right">
                     Time
                 </Label>
-                <Select onValueChange={setTime}>
+                <Select onValueChange={setTime} defaultValue={time}>
                     <SelectTrigger 
                     id="time" 
                     className="w-full"
                     onClick={(e) => e.stopPropagation()}
                     >
-                    <SelectValue placeholder="Select a time" />
+                    <SelectValue placeholder="Select a time" defaultValue={time}>
+                        {time}
+                    </SelectValue>
                     </SelectTrigger>
                     <SelectContent onCloseAutoFocus={(e) => e.preventDefault()}>
                     {Array.from({ length: 24 }, (_, i) => i).map((hour) => {
@@ -148,7 +150,7 @@ export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id:
                 </div>
             </div>
             <div>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Edit Schedule</Button>
             </div>
             </form>
               </div>
@@ -157,4 +159,4 @@ export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id:
         )}
       </>
     )
-  }
+}

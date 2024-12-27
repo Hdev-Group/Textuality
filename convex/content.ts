@@ -88,11 +88,28 @@ export const schedulecontent = mutation({
       scheduled: v.number(),
     },
     handler: async (ctx, { _id, scheduled }) => {
-      await ctx.db.patch(_id, { scheduled, status: "Scheduled" });
-      await ctx.scheduler.runAt(
+      // Get the current content document
+      const content = await ctx.db.get(_id);
+      if (!content) {
+        throw new Error("Content not found");
+      }
+      // If there's an existing scheduled function, cancel it
+      if (content.scheduledFunctionId) {
+        await ctx.scheduler.cancel(content.scheduledFunctionId as any);
+      }
+      
+      // Schedule the new function
+      const newScheduledFunctionId = await ctx.scheduler.runAt(
         scheduled,
         internal.jobs.updateContentStatusInternal,
         { _id: _id, status: "Published" }
       );
+      
+      // Update the content document with the new scheduled time and function ID
+      await ctx.db.patch(_id, { 
+        scheduled, 
+        status: "Scheduled",
+        scheduledFunctionId: newScheduledFunctionId
+      });
     }
   });
