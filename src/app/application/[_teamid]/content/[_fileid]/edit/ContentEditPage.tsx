@@ -58,7 +58,6 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const { userId } = useAuth();
     const getContent = useQuery(api.content.getContentSpecific, { _id: _fileid as any});
     const getFields = useQuery(api.content.getFields, { templateid: getContent?.templateid });
-
     const changeAuthor = useMutation(api.content.changeAuthor);
     const getFieldValues = useQuery(api.fields.getFieldValues, {fileid: _fileid as string});
     const getDepartments = useQuery(api.department.getDepartments, { pageid: _teamid as any });
@@ -1067,7 +1066,7 @@ function MessageInputter({authorid, contentid, teamid}: any) {
     )
 }
 
-function RichTextViewer({ content }: { content: string }) {
+export function RichTextViewer({ content }: { content: string }) {
     return (
         <div className='flex flex-col gap-1'>
             <div className='prose prose-headings:text-blue-600 prose-a:text-blue-400 prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg text-sm font-medium break-all'>

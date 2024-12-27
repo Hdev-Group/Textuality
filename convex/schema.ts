@@ -78,6 +78,15 @@ content: defineTable({
     scheduled: v.optional(v.any()),
     scheduledFunctionId: v.optional(v.string()),
 }).index("bytemplateid", ["templateid"]).index("bypageid", ["pageid"]),
+exactcomments: defineTable({
+    fileid: v.string(),
+    comment: v.object({
+        text: v.string(),
+        start: v.number(),
+        end: v.number(),
+    }),
+    userid: v.string(),
+}).index("byfileid", ["fileid"]),
 newcontent: defineTable({
     mainContentID: v.string(),
     pageid: v.string(),

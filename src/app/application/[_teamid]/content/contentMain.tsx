@@ -49,6 +49,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
     const DeleteContenta = useMutation(api.content.deleteContent);
     const getContent = useQuery(api.content.getContent, { pageid: _teamid });
     const [userData, setUserData] = useState<any[]>([]);
+    const [search, setSearch] = useState("");
     const [dataloaded, setDataLoaded] = useState(false);
     const [filteredContentItems, setFilteredContentItems] = useState(getContent || []);
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -130,6 +131,15 @@ export default function Page({ params }: { params: { _teamid: string }}) {
             setFilteredContentItems(filteredItems || []); // Update filtered items
         }
     }
+
+    useEffect(() => {
+        const filteredItems = getContent?.filter(
+            (item) =>
+                item.title.toLowerCase().includes(search.toLowerCase())
+        );
+        setFilteredContentItems(filteredItems || []);
+    }, [search, getContent]);
+
     function DeleteContent(contentId: any) {
         DeleteContenta({ _id: contentId as any});
     }
@@ -183,11 +193,9 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                 </Select>
                                             <div className="relative flex-1">
                                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                                <Input className="pl-10" placeholder="Search content..." />
+                                                <Input className="pl-10" placeholder="Search content..." onChange={(e) => setSearch(e.target.value)} value={search} />
                                             </div>
                                         </div>
-
-                                        {/* Content Table */}
                                         <div className='border rounded-md'>
                                         <Table>
                                             <TableHeader>
