@@ -244,16 +244,16 @@ function PlanUpgrade() {
           <div className="grid gap-4 mt-4">
             <PlanOption
               name="Pro"
-              price="£12.50"
+              price="£19.99"
               everythingin="Free"
               features={[
-                "Advanced analytics", "Unlimited projects", "Content Approval", "AI tools", "Webhooks", "Priority support", "Role Based Access Control"
+                "Advanced analytics", "10 Pro Projects", "Content Approval", "AI tools", "Webhooks", "Priority support"
               ]}
             />
             <PlanOption
               name="Enterprise"
               everythingin="Pro"
-              price="£23.50"
+              price="£49.99"
               features={[
                 "Custom integrations", "Subscription & Paywall", "Social media scheduling", "Custom branding"
               ]}

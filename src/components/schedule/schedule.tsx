@@ -38,7 +38,8 @@ export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id:
           const selectedDateTime = new Date(selectedDate);
           selectedDateTime.setHours(hours, minutes, 0, 0);
           const returner = await publishschedule({ _id: _id as any, scheduled: selectedDateTime.getTime() });
-            if (returner) {
+            await returner;
+          if (returner) {
                 onClose()
             } else {
                 console.log("Error scheduling content")

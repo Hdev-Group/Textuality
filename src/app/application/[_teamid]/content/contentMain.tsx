@@ -11,7 +11,7 @@ import AuthWrapper from '../withAuth';
 import { Input } from "@/components/ui/input";
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, Search, AlignLeftIcon, History, Timer, LineChart } from 'lucide-react';
+import { Plus, Search, AlignLeftIcon, History, Timer, LineChart, ClipboardCheck } from 'lucide-react';
 import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import {
     Table,
@@ -33,6 +33,7 @@ import {
 import { SelectSeparator } from '@radix-ui/react-select';
 import Link from 'next/link';
 import { Checkbox } from '@/components/ui/checkbox';
+import Sidebar from '@/components/sidebar/sidebar';
 
 export default function Page({ params }: { params: { _teamid: string }}) {
     const { _teamid } = params;
@@ -86,6 +87,14 @@ export default function Page({ params }: { params: { _teamid: string }}) {
         }
     };
 
+    const searchParams = new URLSearchParams(window.location.search);
+    useEffect(() => {
+        const filter = searchParams.get('filter');
+        if (filter) {
+            setActiveTab(filter);
+        }
+    }, [searchParams]);
+
     useEffect(() => {
         async function fetchAllUserData() {
             if (getContent && getContent.length > 0) {
@@ -138,7 +147,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                     <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
                         <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg h-screen overflow-y-auto">
                             <div className="flex">
-                                <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+                                <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} pageid={_teamid} />
                                 <main className="flex-1">
                                     <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
                                         <div className="flex justify-between items-center">
@@ -146,7 +155,6 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                             <ContentCreateButton getTemplates={getTemplates} _teamid={_teamid} />
                                         </div>
                                     </div>
-
                                     <div className="p-8 space-y-8 bg-white  dark:bg-neutral-950">
                                         {/* Filters */}
                                         <div className="flex gap-4 mb-6 ">
@@ -355,24 +363,6 @@ function timeAgo(date: Date) {
     }
 }
 
-function Sidebar({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: React.Dispatch<React.SetStateAction<string>> }) {
-    return (
-        <aside className="min-w-[13rem] bg-white h-screen dark:bg-neutral-950 border-r border-gray-200 dark:border-neutral-800">
-            <div className='px-4 py-5 space-y-8 border-b flex flex-col'>
-                <ul className='space-y-2'>
-                    <li className={`${activeTab === "all" ? "bg-accent/80" : "hover:bg-card-foreground/5"} cursor-pointer text-sm  px-2 py-1 rounded-sm flex flex-row gap-2 items-center`} onClick={() => setActiveTab('all')}><AlignLeftIcon className='h-4 w-4' />All Content</li>
-                    <li className={`${activeTab === "new" ? "bg-accent/80" : "hover:bg-card-foreground/5"} cursor-pointer text-sm  px-2 py-1 rounded-sm flex flex-row gap-2 items-center`} onClick={() => setActiveTab('new')}><History className='h-4 w-4' />New</li>
-                    <li className={`${activeTab === "scheduled" ? "bg-accent/80" : "hover:bg-card-foreground/5"} cursor-pointer text-sm  px-2 py-1 rounded-sm flex flex-row gap-2 items-center`} onClick={() => setActiveTab('scheduled')}><Timer className='h-4 w-4' /> Scheduled</li>
-                </ul>
-            </div>
-
-            <nav>
-                <ul className="space-y-2">
-                </ul>
-            </nav>
-        </aside>
-    );
-}
 function ContentCreateButton({getTemplates, _teamid}: any) {
     const router = useRouter();
 

@@ -46,11 +46,12 @@ export default function ScheduleChangeOpen({ isOpen, onClose, _id, scheduleInfo 
           const selectedDateTime = new Date(selectedDate);
           selectedDateTime.setHours(hours, minutes, 0, 0);
           const returner = await scheduleInfoUpdate({ _id: _id as any, scheduled: selectedDateTime.getTime() });
-        if (returner) {
-            onClose()
-        } else {
-            console.log("Error scheduling content")
-        }
+          await returner;
+          if (returner) {
+              onClose();
+          } else {
+              console.log("Error scheduling content");
+          }
         } catch (error) {
           console.error("Error scheduling content:", error);
         }
