@@ -8,11 +8,14 @@ import { api } from '../../../../../../convex/_generated/api';
 import { useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import StaffOnlyWrapper from "../../StaffOnlyWrapper";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { stat } from "fs";
 const staffImages = [
   { name: "Textuality Support", imageUrl: "/supporticons/support.png", department: "Support" },
   { name: "Textuality Development", imageUrl: "/supporticons/developer.png", department: "Development" },
   { name: "Textuality Management", imageUrl: "/supporticons/manager.png", department: "Management" },
   { name: "Textuality Executive", imageUrl: "/supporticons/executive.png", department: "Executive" },
+  { name: "Textuality Legal", imageUrl: "/supporticons/legal.png", department: "Legal" }, 
 ];
 export default function StaffTicketView({params}: {params: any}) {
     const getTicket = useQuery(api.support.getTicketsbyID, { _id: params });
@@ -24,6 +27,8 @@ export default function StaffTicketView({params}: {params: any}) {
     const getStaffData = staffDataRoleInfo && staffDataRoleInfo[0];
     const ticketmessages = useQuery(api.support.getMessages, { ticketID: params });
     const selfAssignTicket = useMutation(api.support.selfAssignTicket);
+    const changeTicketStatus = useMutation(api.support.changeTicketStatus);
+    const changeTicketPriority = useMutation(api.support.changeTicketPriority);
     const user = useUser();
     const router = useRouter();
     const [userdata, setUserdata] = useState<any[]>([]);
@@ -82,6 +87,54 @@ export default function StaffTicketView({params}: {params: any}) {
         selfAssignTicket({ _id: params, staffID: user?.user.id });
       }
 
+      function statusChanger({ value }) {
+        fetch("/api/support/restricted/email/startsupport", {
+          method: "POST",
+          body: JSON.stringify({
+            email: data?.emailAddresses,
+            firstname: data?.firstName,
+            lastname: data?.lastName,
+            title: ticket?.title,
+            description: `Your ticket status has been changed to ${value}`,
+            datetime: new Date().toLocaleDateString(),
+            imageUrl: staffImages.find((image) => image.department === getStaffData?.department)?.imageUrl,
+            type: "statuschange",
+            status: value,
+            priority: ticket?.priority,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SECURE_TOKEN}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => console.log(data));
+        changeTicketStatus({ _id: params, status: value });
+      }
+      function priorityChanger({ value }) {
+        fetch("/api/support/restricted/email/startsupport", {
+          method: "POST",
+          body: JSON.stringify({
+            email: data?.emailAddresses,
+            firstname: data?.firstName,
+            lastname: data?.lastName,
+            title: ticket?.title,
+            description: `Your ticket priority has been changed to ${value}`,
+            datetime: new Date().toLocaleDateString(),
+            imageUrl: staffImages.find((image) => image.department === getStaffData?.department)?.imageUrl,
+            type: "prioritychange",
+            status: ticket?.status,
+            priority: value,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_SECURE_TOKEN}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => console.log(data));
+        changeTicketPriority({ _id: params, priority: value });
+      }
 
     return (
       <StaffOnlyWrapper>
@@ -165,11 +218,29 @@ export default function StaffTicketView({params}: {params: any}) {
                           <h2 className="text-lg font-semibold">Ticket Information</h2>
                           <div className="flex flex-col gap-1">
                             <p className="text-sm text-muted-foreground">Status</p>
-                            <p className="text-sm font-semibold"><TicketStatus status={ticket?.status} /></p>
+                            <Select defaultValue={ticket?.status} onValueChange={(value) => statusChanger({ value })}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select status"><p className="text-sm font-semibold"><TicketStatus status={ticket?.status} /></p></SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="open"><TicketStatus status="open" /></SelectItem>
+                                <SelectItem value="closed"><TicketStatus status="closed" /></SelectItem>
+                                <SelectItem value="pending"><TicketStatus status="pending" /></SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                           <div className="flex flex-col gap-1">
                             <p className="text-sm text-muted-foreground">Priority</p>
-                            <p className="text-sm font-semibold"><TicketPriority priority={ticket?.priority} /></p>
+                            <Select defaultValue={ticket?.priority} onValueChange={(value) => priorityChanger({ value })}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select priority"><p className="text-sm font-semibold"><TicketPriority priority={ticket?.priority} /></p></SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="low"><TicketPriority priority="low" /></SelectItem>
+                                <SelectItem value="medium"><TicketPriority priority="medium" /></SelectItem>
+                                <SelectItem value="high"><TicketPriority priority="high" /></SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                           <div className="flex flex-col gap-1">
                             <p className="text-sm text-muted-foreground">Opened by</p>
@@ -179,14 +250,14 @@ export default function StaffTicketView({params}: {params: any}) {
                             </p>
                           </div>
                           <div className="flex flex-col gap-1">
-                            {ticket?.staffid?.length > 1 && (
+                            {ticket?.staffid?.length > 0 && (
                               <div className="flex flex-col ">
                               <p className="text-sm text-muted-foreground mb-1">Support Agent{ticket.staffid.length > 1 ? "s" : ""}</p>
                               <div className="flex flex-col gap-1">
                               {ticket.staffid.map((id, index) => (
                                 <p key={index} className="text-sm flex flex-row items-center gap-2">
                                 <img src={staffImages.find(image => image.department === staffDataRoleInfo.find(staff => staff.staffId === id)?.department)?.imageUrl} alt="User" className="w-4 h-4 rounded-full" />
-                                {staffdata?.[0]?.users?.find(user => user.id === id)?.firstName} {staffdata?.[0]?.users?.find(user => user.id === id)?.lastName} - <span className="text-xs text-muted-foreground">{staffDataRoleInfo.find(staff => staff.staffId === id)?.role}</span>
+                                {staffdata?.[0]?.users?.find(user => user.id === id)?.firstName} {staffdata?.[0]?.users?.find(user => user.id === id)?.lastName} <span className="text-xs text-muted-foreground"> -  {staffDataRoleInfo.find(staff => staff.staffId === id)?.role}</span>
                                 </p>
                               
                               ))}

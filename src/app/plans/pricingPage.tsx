@@ -20,28 +20,31 @@ export default function PricingPage() {
       name: "Free",
       price: "0",
       users: "5",
+      projects: "2",
       requests: "500k",
       description: "For personal projects, marketers and small teams looking to get started.",
-      features: ["Basic analytics", "Limited projects", "Standard support", "Content creation tools", "API access", "Webhooks"],
+      features: ["Basic analytics", "Standard support", "Content creation tools", "API access", "Role Based Access Control", "Scheduled Publishing"],
       popular: false,
       highlight: false,
     },
     {
       name: "Pro",
-      price: billingCycle === "month" ? "12.50" : "125",
+      price: billingCycle === "month" ? "19.99" : "199.90",
       description: "For growing teams and businesses that need more advanced tools.",
-      users: "10",
+      users: "15",
       requests: "5 Million",
-      features: ["Advanced analytics", "Unlimited projects", "Content Approval", "AI tools", "Webhooks", "Priority support", "Role Based Access Control"],
+      projects: "10",
+      features: ["Advanced analytics", "Content Approval", "AI tools", "Webhooks", "Priority support"],
       popular: true,
       highlight: true,
     },
     {
       name: "Enterprise",
-      price: billingCycle === "month" ? "23.50" : "240",
+      price: billingCycle === "month" ? "49.99" : "499.90",
       description: "For large businesses and enterprises that require custom solutions.",
-      users: "30 + Pay per user/month",
+      users: "30, Scalable",
       requests: "20 Million + Pay as you go/month",
+      projects: "Unlimited",
       features: ["Custom integrations", "Subscription & Paywall", "Social media scheduling", "Custom branding"],
       popular: false,
       highlight: true,
@@ -52,9 +55,6 @@ export default function PricingPage() {
   
   const tableRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLTableSectionElement>(null);
-
-
-
   return (
     <div className={`flex bgmain flex-col min-h-screen w-full  items-center justify-center `}>
       <div className="flex items-center justify-center">
@@ -82,25 +82,24 @@ export default function PricingPage() {
                       >
                         Monthly
                       </button>
-
                       <button
                         className={`px-4 py-2 rounded-lg text-sm font-semibold ${billingCycle === "year" ? "bg-primary text-background" : "bg-muted text-foreground"} focus:outline-none transition-colors duration-300`}
                         onClick={() => setBillingCycle("year")}
                       >
-                        Yearly <span className={`text-xs ${billingCycle === "year" ? "text-green-400 dark:text-green-950" : "dark:text-green-500"}`}>Save 16%</span>
+                        Yearly <span className={`text-xs ${billingCycle === "year" ? "text-green-400 dark:text-green-950" : "dark:text-green-500"}`}>2 months free</span>
                       </button>
                     </div>
                   </div>
                 </div>
                 <div className="flex justify-between w-full mt-5 gap-10 flex-col lg:flex-row">
                   <PricingCard plans={plans[0]} productid={null} lastone={null} billingCycle={"forever"} priceId={null} />
-                  <PricingCard plans={plans[1]} productid={"prod_RD94s4Pa5cgS4C"} lastone="Free" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKilvG1nQ3zP4pJN3WVpvHs" : "price_1QKjYBG1nQ3zP4pJf9yeSali"} />
-                  <PricingCard plans={plans[2]} productid={"prod_RD94mxiuenz1m9"} lastone="Pro" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QKimJG1nQ3zP4pJeDdPL6RB" : "price_1QKlKOG1nQ3zP4pJQBJffEqx"} />
+                  <PricingCard plans={plans[1]} productid={"prod_RD94s4Pa5cgS4C"} lastone="Free" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QaNcBG1nQ3zP4pJ9XLl5m27" : "price_1QaNcLG1nQ3zP4pJZ89pWD9k"} />
+                  <PricingCard plans={plans[2]} productid={"prod_RD94mxiuenz1m9"} lastone="Pro" billingCycle={billingCycle} priceId={billingCycle === "month" ? "price_1QaNbfG1nQ3zP4pJb2GWwE0t" : "price_1QaNbEG1nQ3zP4pJVR6awUY6"} />
                 </div>
               </div>
             </div>
             <div className="flex flex-col h-full w-full mt-20 pt-20 border-t relative justify-center">
-            <div className="sticky container mx-auto h-28 py-2 border-b-accent border-b bg-background top-[4.5rem] z-30">
+            <div className="sticky container mx-auto h-28 py-2 border-b-accent border-b bg-background top-[0rem] z-30">
               <div className="w-full flex flex-row items-center justify-center">
               <TableHead className="w-[200px] h-max flex items-center">Features</TableHead>
               {plans.map((plan) => (
@@ -132,6 +131,14 @@ export default function PricingPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
+                      <TableRow>
+                        <TableCell className="font-medium flex flex-row items-center gap-1">
+                          <CheckCircleIcon size={16} /> Projects
+                        </TableCell>
+                        {plans.map((plan) => (
+                          <TableCell key={plan.name} className="text-center">{plan.projects}</TableCell>
+                        ))}
+                      </TableRow>
                       <TableRow>
                         <TableCell className="font-medium flex flex-row items-center gap-1">
                           <User size={16} /> Users
@@ -202,7 +209,9 @@ function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
       router.push("/sign-in?redirect=/plans?priceId=" + priceId);
       return;
     }
-    const bundel = { priceId, mainemail, userid: user.user.id, productid: productid };
+    const subscriptionInstanceId = "sub_" + "textuality" + "_" + user.user.id + "_" + productid + "_" + Date.now();
+
+    const bundel = { priceId, mainemail, userid: user.user.id, productid: productid, subscriptionInstanceId };
     const response = await fetch('/api/payments/create-checkout-session', {
       method: 'POST',
       headers: {
@@ -237,7 +246,7 @@ function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
                 <span className="text-muted-foreground font-medium text-sm">{plans.price === "0" ? "forever" : billingCycle} </span>
                 {billingCycle === "year" && plans.price !== "0" && (
                   <span className="text-green-500 text-xs">
-                    Save {plans.name === "Pro" ? "16%" : plans.name === "Enterprise" ? "15%" : "0%"}
+                    Save {plans.name === "Pro" ? "£39.98" : plans.name === "Enterprise" ? "£99.98" : "0%"}
                   </span>
                 )}
               </h2>
@@ -264,8 +273,16 @@ function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
           <div className="p-6 h-auto lg:h-80">
             <ul className="space-y-2">
               <p className="text-md font-semibold text-foreground">
-                {lastone !== "null" && <span className="text-muted-foreground">Includes all features from {lastone} and</span>}
+                {lastone !== null && <span className="text-muted-foreground">Includes all features from {lastone} and</span>}
               </p>
+              <li className="flex items-center text-sm text-foreground">
+                <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
+                {plans.projects} Projects
+              </li>
+              <li className="flex items-center text-sm text-foreground">
+                <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
+                {plans.users} Users
+              </li>
               {plans.features.map((feature, index) => (
                 <li key={index} className="flex items-center text-sm text-foreground">
                   <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />

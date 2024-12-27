@@ -86,3 +86,17 @@ export const selfAssignTicket = mutation({
         await ctx.db.patch(_id, { staffid: updatedStaffId });
     },
 });
+
+export const changeTicketStatus = mutation({
+    args: { _id: v.id("supporttickets"), status: v.string() },
+    handler: async (ctx, { _id, status }) => {
+        await ctx.db.patch(_id, { status });
+    },
+});
+
+export const changeTicketPriority = mutation({
+    args: { _id: v.id("supporttickets"), priority: v.string() },
+    handler: async (ctx, { _id, priority }) => {
+        await ctx.db.patch(_id, { priority });
+    },
+});

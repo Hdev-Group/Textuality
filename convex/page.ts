@@ -30,6 +30,19 @@ export const getPages = query({
         return result;
     },
 });
+
+export const getPremiumPages = query({
+    args: {
+        userid: v.string(),
+    },
+    handler: async (ctx, { userid }) => {
+        const result = ctx.db.query("memberships")
+        .withIndex("byuserid", q => q.eq("userid", userid))
+        .collect();
+        return result;
+    },
+  });
+
 export const getPage = query({
   args: {
     _id: v.id("pages"),

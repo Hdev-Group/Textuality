@@ -111,8 +111,10 @@ function Setup({ changePreview, getpageinfo }: { changePreview: any, getpageinfo
             <div className='flex flex-row gap-5 items-center w-1/3 border-r pr-5 border-muted'>
             <Text className='h-10 w-10' />
               <div className='flex flex-col gap-1'>
-                <h3 className='font-semibold text-lg'>Quick Start Guide</h3>
-                <p className='text-muted-foreground text-sm'>Discover the best practices to use textuality effectively for your content</p>
+                <a>
+                  <h3 className='font-semibold text-lg'>Quick Start Guide</h3>
+                  <p className='text-muted-foreground text-sm'>Discover the best practices to use textuality effectively for your content</p>
+                </a>
               </div>
             </div>
             <div className='flex flex-col gap-2 w-3/4 pl-5'>
@@ -256,7 +258,6 @@ function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }
         </div>
       </div>
     </div>
-
     <UsageMeter getpageinfo={getpageinfo} pageContentAPIGetter={pageContentAPIGetter} />
   </div>
   )
@@ -333,6 +334,11 @@ function UsageMeter({ getpageinfo, pageContentAPIGetter }: { getpageinfo: any,  
               max={2}
             />
           </div>
+          </div>
+          <div className='flex mx-4 pb-4'>
+            <a href='./analytics' className='w-full'>
+              <Button className='w-full' variant='secondary'>View all insights</Button>
+            </a>
           </div>
         </div>
       </div>

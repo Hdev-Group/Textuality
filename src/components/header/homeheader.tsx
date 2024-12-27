@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Users, FolderPen, Image as ImageIcon, Component, Moon, Sun, Settings, Search, ArrowUp, House, Check } from "lucide-react"
+import { Users, FolderPen, Image as ImageIcon, Component, Moon, Sun, Settings, Search, ArrowUp, House, Check, Diamond, SparklesIcon } from "lucide-react"
 import { useUser } from "@clerk/clerk-react"
 import { UserButton } from '@clerk/clerk-react'
 import { useState, useEffect } from "react"
@@ -15,15 +15,46 @@ import {
 } from "@/components/ui/hover-card"
 
 
-const navItems = [
-  { icon: House, label: "Home", route: "/application/home", activesection: "home" },
-  { icon: Users, label: "Teams", route: "/application/teams", activesection: "teams" },
-  { icon: Settings, label: "Settings", route: "/application/settings", activesection: "settings" },
-]
-
 export default function HomeHeader({activesection}: any) {
   const [isdark, setDark] = useState(true);
   const [image, setImage] = useState("/IMG_6128.png");
+  const [mainlocation, setMainLocation] = useState({left: 0, width: 0})
+  const [hasScrolled, setHasScrolled] = useState(false)
+  const [underlineStyle, setUnderlineStyle] = useState({ left: mainlocation.left, width: mainlocation.width })
+  const [activeNav, setActiveNav] = useState<string | null>(null)
+
+  useEffect(() => {
+    const path = window.location.pathname
+    const navItems = [
+      { label: "Home", href: "/application/home" },
+      { label: "Premium", href: "/application/premium" },
+    ]
+  
+    const activeItem = navItems.find(item => path.includes(item.href))
+    if (activeItem) {
+      const element = document.querySelector(`a[href='${activeItem.href}']`) as HTMLElement
+      if (element) {
+        const { offsetLeft, offsetWidth } = element
+        setUnderlineStyle({ left: offsetLeft, width: offsetWidth })
+        setMainLocation({ left: offsetLeft, width: offsetWidth })
+      }
+    }
+  }, [])
+  
+  const handleMouseEnter = (e: React.MouseEvent, href: string) => {
+    setActiveNav(href)
+    const target = e.currentTarget as HTMLElement
+    const { offsetLeft, offsetWidth } = target
+    setUnderlineStyle({
+      left: offsetLeft,
+      width: offsetWidth,
+    })
+  }
+  
+  const handleMouseLeave = () => {
+    setUnderlineStyle({ width: mainlocation.width, left: mainlocation.left })
+  }
+  
 
   useEffect(() => {
   const themesetter = document.getElementById('themesetter');
@@ -69,6 +100,31 @@ export default function HomeHeader({activesection}: any) {
         <span className="sr-only">Textuality</span>
       </Link>
 
+      <nav className="hidden lg:flex z-20 items-center space-x-8 relative">
+          {[
+            { label: "Home", icon: <House size={18} />, href: "/application/home" },
+            { label: "Premium", icon: <SparklesIcon size={18} />, href: "/application/premium" },
+          ].map((item) => (
+            <Link
+            key={item.href}
+            href={item.href}
+            className={`relative z-10 text-sm font-medium flex items-center gap-1.5 transition-colors text-muted-foreground hover:text-primary ${pathname === item.href ? "text-primary font-semibold" : ""}`}
+            onMouseEnter={(e) => handleMouseEnter(e, item.href)}
+            onMouseLeave={handleMouseLeave}
+            >
+            {item.icon}
+            {item.label}
+            </Link>
+          ))}
+          <span
+            className="absolute bottom-0 rounded-sm border-cyan-300/80 border h-[30px] z-0 bg-cyan-300/20 transition-all duration-300"
+            style={{
+            left: `${underlineStyle.left}px`,
+            width: `${underlineStyle.width > 1 ? underlineStyle.width + 20 : underlineStyle.width}px`,
+            transform: `translate(-40px, 5px)`, 
+            }}
+          />
+      </nav>
       </div>
       <div className="flex items-center gap-2">
       <PlanUpgrade />
@@ -97,17 +153,6 @@ export default function HomeHeader({activesection}: any) {
     </div>
     {isMenuOpen && (
     <nav className="md:hidden bg-background py-2">
-      {navItems.slice(0, 6).map((item) => (
-      <Link href={item.route} key={item.label}>
-        <Button
-        variant="ghost"
-        className={`w-full justify-start font-semibold py-2 ${pathname === item.route ? 'text-blue-500' : ''}`}
-        >
-        <item.icon className="mr-2 h-4 w-4" />
-        {item.label}
-        </Button>
-      </Link>
-      ))}
       <Button variant="ghost" className="w-full justify-start font-semibold py-2">
       <ArrowUp className="mr-2 h-4 w-4" />
       Upgrade plan

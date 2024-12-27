@@ -4,17 +4,11 @@ import Header from "@/components/header/header"
 import OverHeader from "@/components/header/overheader"
 import { Button } from "@/components/ui/button"
 import Footer from "@/components/footer/footer"
-import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play} from "lucide-react"
+import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play, Edit3, Users, Zap, BarChart2, LockIcon, Globe} from "lucide-react"
 import { motion } from 'framer-motion'
 import Link from "next/link"
 import { useState, useEffect, useRef } from 'react';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
+import { TypeIcon as type, LucideIcon } from 'lucide-react'
 
 
 export default function Home() {
@@ -78,7 +72,7 @@ export default function Home() {
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col lg:flex-row items-start justify-start w-full">
                     <div className="flex flex-col w-auto">
-                      <h1 className="font-bold lg:text-[55px] text-5xl font-Funnel_Sansfont text-foreground">Content management that brings everyone together</h1>
+                      <h1 className="font-bold lg:text-[65px] text-5xl font-Funnel_Sansfont text-foreground">Content management that brings everyone together</h1>
                       <p className="text-md text-muted-foreground mt-4 w-[90%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
                       <div className="flex flex-row gap-2 mt-5">
                         <Link href="/application/home">
@@ -90,7 +84,7 @@ export default function Home() {
                     <VideoSection />
                   </div>
                   </div>
-                  <div className="w-full overflow-hidden flex items-center flex-col py-8">
+                  {/* <div className="w-full overflow-hidden flex items-center flex-col py-8">
                     <h1 className="lg:text-[32px] text-2xl font-semibold text-center">Trusted by </h1>
                     <p className="text-muted-foreground text-center text-sm mb-4">Some of the world's leading companies trust Textuality to create, share, and manage their content.</p>
                     <motion.div
@@ -120,11 +114,11 @@ export default function Home() {
                     <div className="flex flex-row gap-2 mt-10">
 
                     </div>
-                  </div>
+                  </div> */}
                   <div className="flex flex-col container w-full lg:w-[80%] relative items-center justify-center gap-3 mt-20">
                   <div className="absolute inset-0 max-w-xs mx-auto h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.2) 4.54%, rgba(64, 224, 208, 0.26) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
                   <h1 className="lg:text-[52px] text-5xl font-bold text-center">Create <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-blue-500"> expert level blogs</span>, easily</h1>
-                    <p className="lg:text-md text-sm text-muted-foreground text-center px-2 md:w-1/2">
+                    <p className="lg:text-md text-sm text-muted-foreground text-center px-2 w-full lg:w-1/2">
                       Recreate what's possible with Textuality. Our platform is designed to help you create content that's engaging, informative, and beautiful while we handle all the heavy lifting.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-3 w-full mt-10">
@@ -250,32 +244,165 @@ export default function Home() {
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end">
                       With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
                     </p>
-                    <div className="w-full mt-10">
-                      <Carousel>
-                        <CarouselContent>
-                          <CarouselItem>
-                            <BlurCard title="Create" description="Create content with ease using our powerful editor." icon={<Pen className="h-14 w-14" />} />
-                          </CarouselItem>
-                          <CarouselItem>
-                            <BlurCard title="Collaborate" description="Work with your team in real-time to create amazing content." icon={<Stars className="h-14 w-14" />} />
-                          </CarouselItem>
-                          <CarouselItem>
-                            <BlurCard title="Publish" description="Publish your content to the web with a single click." icon={<FileText className="h-14 w-14" />} />
-                          </CarouselItem>
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                      </Carousel>
+                    <div className="grid grid-cols-1 md:grid-cols-2 mt-8 gap-8 mb-16">
+                      <div className="space-y-6">
+                        <AnimatedFeature
+                          icon={Edit3}
+                          title="Intuitive Editor"
+                          description="Create and edit content with our user-friendly, powerful editor."
+                        />
+                        <AnimatedFeature
+                          icon={Users}
+                          title="Real-time Collaboration"
+                          description="Work together seamlessly with your team in real-time."
+                        />
+                        <AnimatedFeature
+                          icon={Zap}
+                          title="Instant Preview"
+                          description="See how your content will look as you create it."
+                        />
+                      </div>
+                      <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
+                        <img
+                          src="/indeximg/textuality-editor.png"
+                          alt="Textuality Editor"
+                          className="rounded-xl"  
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                      <div className="order-2 md:order-1">
+                        <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
+                        <img
+                          src="/indeximg/analytics.png"
+                          alt="Textuality Editor"
+                          className="rounded-xl"  
+                        />
+                        </div>
+                      </div>
+                      <div className="space-y-6 order-1 md:order-2 items-end justify-center">
+                        <AnimatedFeature
+                          icon={BarChart2}
+                          title="Analytics Dashboard"
+                          description="Track your content's performance with detailed insights."
+                        />
+                        <AnimatedFeature
+                          icon={LockIcon}
+                          title="Secure Platform"
+                          description="Keep your content safe with our robust security measures."
+                        />
+                        <AnimatedFeature
+                          icon={Globe}
+                          title="Multi-channel Publishing"
+                          description="Publish your content across various platforms effortlessly."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                    <div className="w-full mt-20 flex flex-col relative container">
+                      <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start "><span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Don't just take it from us</span></h1>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <TestimonialCard
+                          content="Textuality has revolutionized our content creation process. It's intuitive and powerful!"
+                          author="Jane Doe"
+                          role="Content Manager"
+                          avatarSrc="/avatars/jane-doe.png"
+                        />
+                        <TestimonialCard
+                          content="The collaboration features are top-notch. Our team's productivity has skyrocketed."
+                          author="John Smith"
+                          role="Editor-in-Chief"
+                          avatarSrc="/avatars/john-smith.png"
+                        />
+                        <TestimonialCard
+                          content="As a developer, I appreciate the API-first approach. Integration was a breeze!"
+                          author="Alex Johnson"
+                          role="Senior Developer"
+                          avatarSrc="/avatars/alex-johnson.png"
+                        />
+                      </div>
                     </div>
                   <div>
                 </div>
-              </div>
             </div>
           </main>
           <Footer />
         </div>
   )
 }
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+interface TestimonialCardProps {
+  content: string
+  author: string
+  role: string
+  avatarSrc: string
+}
+export function TestimonialCard({ content, author, role, avatarSrc }: TestimonialCardProps) {
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardContent className="pt-6">
+        <blockquote className="text-lg font-medium text-muted-foreground mb-4">"{content}"</blockquote>
+        <div className="flex items-center">
+          <Avatar className="h-10 w-10 mr-4">
+            <AvatarImage src={avatarSrc} alt={author} />
+            <AvatarFallback>{author[0]}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="font-semibold">{author}</p>
+            <p className="text-sm text-muted-foreground">{role}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+interface AnimatedFeatureProps {
+  icon: LucideIcon
+  title: string
+  description: string
+}
+function AnimatedFeature({ icon: Icon, title, description }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
+      className="group flex items-center space-x-4 p-4 rounded-lg bg-muted/20 border border-muted shadow-md transition-shadow duration-300 hover:shadow-xl cursor-pointer"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      whileHover={{ scale: 1.05 }}
+      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+    >
+      <motion.div
+        className="flex-shrink-0 p-4 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-700 text-white shadow-lg"
+        animate={{ rotate: isHovered ? 360 : 0 }}
+        transition={{ duration: 0.5, ease: "easeInOut" }}
+      >
+        <Icon className="w-8 h-8" />
+      </motion.div>
+      <div className="flex flex-col">
+        <motion.h3
+          className="text-xl font-semibold text-gray-300 group-hover:text-cyan-300 transition-colors duration-300"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {title}
+        </motion.h3>
+        <motion.p
+          className="text-sm text-gray-600 group-hover:text-gray-300 transition-colors duration-300"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          {description}
+        </motion.p>
+      </div>
+    </motion.div>
+  );
+}
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 function BlurCard({title, description, icon}){
   return (

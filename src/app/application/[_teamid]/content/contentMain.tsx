@@ -272,8 +272,11 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                                                                                 item.status === "Draft" ? "bg-yellow-300/60 text-yellow-700 dark:bg-yellow-700 dark:text-yellow-300" : ""
                                                                             } ${
                                                                                 item.status === "Review" ? "bg-purple-300/60 text-purple-700 dark:bg-purple-700 dark:text-purple-300" : ""
+                                                                            } ${
+                                                                                item.status === "Scheduled" ? "bg-blue-300/60 text-blue-700 dark:bg-blue-700 dark:text-blue-300" : ""
                                                                             } w-min px-2.5 py-1 rounded-sm`}>
                                                                                 {item.status}
+                                                                            
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>

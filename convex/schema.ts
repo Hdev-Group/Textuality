@@ -75,6 +75,8 @@ content: defineTable({
     status: v.string(),
     content: v.string(),
     updated: v.any(),
+    scheduled: v.optional(v.any()),
+    scheduledFunctionId: v.optional(v.string()),
 }).index("bytemplateid", ["templateid"]).index("bypageid", ["pageid"]),
 newcontent: defineTable({
     mainContentID: v.string(),
@@ -142,7 +144,8 @@ memberships: defineTable({
     subscriptionStatus: v.string(),
     cancellationDate: v.any(),
     status: v.string(),
-}).index("bystripeid", ["stripeid"]),
+    pageid: v.optional(v.string()),
+}).index("bystripeid", ["stripeid"]).index("byuserid", ["userid"]),
 supporttickets: defineTable({
     title: v.string(),
     content: v.string(),
