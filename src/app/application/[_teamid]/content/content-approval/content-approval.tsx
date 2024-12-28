@@ -28,7 +28,7 @@ import { api } from '../../../../../../convex/_generated/api';
 import { useRouter } from 'next/navigation';
 import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { AlignLeftIcon, CalendarDaysIcon, Search, X} from 'lucide-react';
+import { AlignLeftIcon, CalendarDaysIcon, Plus, Search, X} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useUser } from '@clerk/clerk-react';
 import { Input } from '@/components/ui/input';
@@ -133,8 +133,8 @@ export default function ContentApproval({ params }) {
                                         <h1 className="text-2xl font-bold">Content Review</h1>
                                     </div>
                                 </div>
-                                <div className="md:p-8 flex flex-row justify-between  bg-white gap-4  dark:bg-neutral-950 ">
-                                    <div className={`${viewextended ? "w-1/2" : "w-full"} flex flex-col gap-4 transition-all duration-500 ease-in-out`}>
+                                <div className={`${viewextended ? "md:pl-3 md:pr-2" : ""} flex md:p-8  flex-row justify-between  bg-white gap-4  dark:bg-neutral-950 `}>
+                                    <div className={`${viewextended ? "w-1/3" : "w-full"} flex flex-col gap-4 transition-all duration-500 ease-in-out`}>
                                     <div className="flex gap-4 mb-6 ">
                                         {/* Filter by Author */}
                                             <Select defaultValue="all" onValueChange={(value) => filterContentItem(value)}>
@@ -303,13 +303,16 @@ export default function ContentApproval({ params }) {
                                         </div>
                                     </div>
                                     </div>
-                                    <div className={`${viewextended ? "w-1/2" : "w-0"} flex flex-col transition-all duration-500 ease-in-out gap-1 overflow-hidden`}>
+                                    <div className={`${viewextended ? "w-3/4" : "w-0"} flex flex-col transition-all duration-500 ease-in-out gap-1 overflow-hidden`}>
                                         <div className='flex flex-row justify-between items-center'>
                                             <h1 className='text-2xl font-bold'>Content Preview</h1>
                                             <Button variant='outline' size='icon' onClick={() => { setViewExtended(false); setPreviewedFile(null); }}><X className='w-4 h-4' /> </Button>
                                         </div>
-                                        <div className='p-2 mb-16 border rounded-md'>
-                                            <ContentPreview _fileid={previewedFile} getContent={getContent} getDepartments={getDepartments} userData={userData}  />
+                                        <div className='p-2 mb-16 border px-4 rounded-md flex flex-row justify-between gap-1'>
+                                            <div className='flex flex-col gap-1'>
+                                                <ContentPreview _fileid={previewedFile} getContent={getContent} getDepartments={getDepartments} userData={userData}  />
+                                            </div>
+                                            <CommentLine />
                                         </div>
                                     </div>
                                 </div>
@@ -322,6 +325,174 @@ export default function ContentApproval({ params }) {
         </div>
     )
 }
+
+interface Comment {
+    id: number
+    position: number
+    text: string
+    userid: string
+  }
+  
+function CommentLine() {
+    const [mousePosition, setMousePosition] = useState<number | null>(null)
+    const [comments, setComments] = useState<Comment[]>([])
+    const [showAddComment, setShowAddComment] = useState(false)
+    const [newCommentPosition, setNewCommentPosition] = useState<number | null>(null)
+    const borderRef = useRef<HTMLDivElement>(null)
+    const [showComments, setShowComments] = useState(false)
+    const [userData, setUserData] = useState<any[]>([]);
+    const user = useUser();
+    const [lastclickposition, setLastClickPosition] = useState<number | null>(null);
+    const [dataLoaded, setDataLoaded] = useState(false);
+  
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (borderRef.current) {
+        const rect = borderRef.current.getBoundingClientRect()
+        setMousePosition(e.clientY - rect.top - 20)
+        setShowComments(true)
+      }
+    }
+    const handleMouseLeave = () => {
+      setMousePosition(null)
+      setShowComments(false)
+    }
+  
+    const handleClick = () => {
+      if (mousePosition !== null) {
+        setNewCommentPosition(mousePosition)
+        setShowAddComment(true)
+        setLastClickPosition(mousePosition)
+      }
+    }
+
+    useEffect(() => {
+        async function fetchAllUserData() {
+            if (comments && comments.length > 0) {
+                try {
+                    const authorIds = comments.map((item) => item.userid);
+                    const uniqueAuthorIds = [...new Set(authorIds)];
+                    const userAuthorIds = uniqueAuthorIds.filter((id) => id.includes("user_"));
+                    const response = await fetch(`/api/secure/get-user?userId=${userAuthorIds.join(",")}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    setUserData(data.users);
+                    setDataLoaded(true);
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                } finally {
+                    setDataLoaded(true);
+                }
+            }
+        }
+        fetchAllUserData();
+    }, [comments]);
+
+    const addComment = (text: string) => {
+      if (newCommentPosition !== null) {
+        const newComment: Comment = {
+          id: Date.now(),
+          position: newCommentPosition,
+          text: text,
+          userid: user.user.id
+        }
+        setComments([...comments, newComment])
+        setShowAddComment(false)
+        setNewCommentPosition(null)
+      }
+    }
+  
+    return (
+      <div className='flex flex-col gap-4 h-full pl-4 relative'>
+        <div 
+          ref={borderRef}
+          className='flex flex-row h-full border-l-4 hover:border-l-8 transition-all duration-200 border-gray-200 relative'
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          onClick={handleClick}
+        >
+          {mousePosition !== null && (
+            <div 
+              className='absolute left-0 transform -translate-x-1/2 cursor-pointer bg-muted border p-0.5 rounded-md shadow'
+              style={{ top: mousePosition }}
+            >
+              <Plus className='text-muted-foreground' />
+            </div>
+          )}
+          {comments.map((comment) => {
+            const user = userData.find((user) => user.id === comment.userid);
+            return (
+              <div 
+                key={comment.id}
+                className={`absolute right-[1.5px] w-1 h-4 bg-yellow-400 cursor-pointer`}
+                style={{ top: comment.position }}
+                onMouseEnter={() => setShowComments(true)}
+                onMouseLeave={() => setShowComments(false)}
+              >
+                {showComments && (
+                  <div className='bg-muted border p-2 text-sm rounded shadow absolute w-[12rem] transform -translate-x-full'>
+                    <p>{comment.text}</p>
+                    {user && (
+                      <div className='flex items-center gap-2 mt-2'>
+                        <Avatar className='w-6 h-6'>
+                          <AvatarImage src={user.imageUrl} alt={user.firstName} />
+                          <AvatarFallback>{user.firstName.charAt(0)}{user.lastName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <p>{user.firstName} {user.lastName}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {showAddComment && (
+          <AddCommentForm 
+            onSubmit={addComment}
+            onCancel={() => setShowAddComment(false)}
+            lastPosition={lastclickposition}
+          />
+        )}
+      </div>
+    )
+  }
+  
+  interface AddCommentFormProps {
+    onSubmit: (text: string) => void
+    onCancel: () => void
+    lastPosition: number | null
+  }
+  
+  function AddCommentForm({ onSubmit, onCancel, lastPosition }: AddCommentFormProps) {
+    const [text, setText] = useState('')
+  
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault()
+      if (text.trim()) {
+        onSubmit(text)
+        setText('')
+      }
+    }
+  
+    return (
+      <form onSubmit={handleSubmit} className={`absolute right-4  bg-background border p-4 rounded shadow`} style={{ top: lastPosition }}>
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className='w-full p-2 border rounded'
+          placeholder='Add your comment...'
+        />
+        <div className='flex justify-end mt-2'>
+          <Button type='button' variant='outline' onClick={onCancel} className='mr-2'>
+            Cancel
+          </Button>
+          <Button type='submit'>Add Comment</Button>
+        </div>
+      </form>
+    )
+  }
 
 function timeAgo(date: Date) {
     const now = new Date();
@@ -341,109 +512,6 @@ function timeAgo(date: Date) {
         return `a few seconds ago`;
     }
 }
-
-interface HighlightCommentProps {
-    text: string;
-    children: React.ReactNode;
-  }
-  
-  const HighlightComment: React.FC<HighlightCommentProps> = ({ text, children }) => {
-    const [selectedRange, setSelectedRange] = useState<{ start: number; end: number } | null>(null);
-    const [comments, setComments] = useState<{ range: { start: number; end: number }; comment: string }[]>([]);
-    const [showInput, setShowInput] = useState(false);
-    const [inputPosition, setInputPosition] = useState<{ x: number; y: number } | null>(null);
-    const [currentComment, setCurrentComment] = useState("");
-    const containerRef = useRef<HTMLDivElement>(null);
-  
-    const handleMouseUp = () => {
-        const selection = window.getSelection();
-        if (selection && selection.rangeCount > 0) {
-          const range = selection.getRangeAt(0);
-          const start = range.startOffset;
-          const end = range.endOffset;
-    
-          if (start !== end) {
-            setSelectedRange({ start, end });
-            setShowInput(true);
-            const rect = range.getBoundingClientRect();
-            setInputPosition({ x: rect.left, y: rect.bottom + window.scrollY });
-          }
-        }
-      };
-    
-      const handleClickOutside = (e: MouseEvent) => {
-        if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-          setShowInput(false);
-          setSelectedRange(null);
-          setCurrentComment("");
-        }
-      };
-    
-      useEffect(() => {
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
-        };
-      }, []);
-  
-    const handleAddComment = () => {
-      if (selectedRange && currentComment) {
-        setComments((prev) => [...prev, { range: selectedRange, comment: currentComment }]);
-        setSelectedRange(null);
-        setCurrentComment("");
-        setShowInput(false);
-      }
-    };
-  
-    return (
-        <div onMouseUp={handleMouseUp} style={{ position: "relative" }} >
-            {children}
-            {showInput && inputPosition && (
-            <div
-            id="content-commenter"
-            ref={containerRef}
-            className="fixed bg-background border shadow-lg p-4 z-50 rounded-lg w-64"
-            style={{
-                top: inputPosition.y,
-                left: inputPosition.x,
-                }}
-            >
-            <Textarea
-                value={currentComment}
-                onChange={(e) => setCurrentComment(e.target.value)}
-                placeholder="Add your comment..."
-                className="w-full mb-2"
-            />
-            <div className="flex justify-end space-x-2">
-                <Button variant="outline" size="sm" onClick={() => setShowInput(false)}>
-                Cancel
-                </Button>
-                <Button size="sm" onClick={handleAddComment}>
-                Add Comment
-                </Button>
-            </div>
-            </div>
-            )}
-
-            {comments.length > 0 && (
-            <div className="mt-2 p-2 bg-gray-100 rounded-md">
-                <h3 className="text-sm font-semibold mb-1">Comments:</h3>
-                <ul className="text-sm">
-                {comments.map((comment, index) => (
-                    <li key={index} className="mb-1">
-                    <strong>
-                        {text.slice(comment.range.start, comment.range.end)}:
-                    </strong>{" "}
-                    {comment.comment}
-                    </li>
-                ))}
-                </ul>
-            </div>
-            )}
-        </div>
-    );
-  };
-  
 
   function ContentPreview({ getDepartments, userData, getContent, _fileid }) {
     const getFields = useQuery(api.content.getFields, { templateid: getContent.length > 0 ? getContent[0].templateid : '' });
@@ -484,8 +552,7 @@ interface HighlightCommentProps {
     }).join(' ');
 
     return(
-        <HighlightComment text={getFields?.map(field => fieldValues[field._id] || '').join(' ')}>
-        {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => {
+        getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => {
             if (field.type === "Rich text") {
                 return <div key={index} id='richtext' className='flex flex-col gap-1'>
                     {renderLivePreviewFields(field)}
@@ -630,8 +697,7 @@ interface HighlightCommentProps {
                 </div>
             }
             return null;
-        })}
-        </HighlightComment>
+        })
     )
 }
 
