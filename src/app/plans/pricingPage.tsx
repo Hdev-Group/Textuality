@@ -130,8 +130,8 @@ export default function PricingPage() {
                           </TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
-                      <TableRow>
+                    <TableBody className="border-t-transparent border">
+                      <TableRow className="border-none">
                         <TableCell className="font-medium flex flex-row items-center gap-1">
                           <CheckCircleIcon size={16} /> Projects
                         </TableCell>
@@ -139,7 +139,7 @@ export default function PricingPage() {
                           <TableCell key={plan.name} className="text-center">{plan.projects}</TableCell>
                         ))}
                       </TableRow>
-                      <TableRow>
+                      <TableRow className="border-none">
                         <TableCell className="font-medium flex flex-row items-center gap-1">
                           <User size={16} /> Users
                         </TableCell>
@@ -147,7 +147,7 @@ export default function PricingPage() {
                           <TableCell key={plan.name} className="text-center">{plan.users}</TableCell>
                         ))}
                       </TableRow>
-                      <TableRow>
+                      <TableRow className="border-none">
                         <TableCell className="font-medium flex flex-row items-center gap-1">
                           <DatabaseIcon size={16} /> Requests <span>/ month</span>
                         </TableCell>
@@ -228,70 +228,70 @@ function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
     }
   };
   return (
-    <div>
+    <div className="w-full px-4 sm:px-0">
       <div className="relative">
-        {plans.popular && (
-          <div className="absolute top-0 right-0 bg-primary text-background px-4 py-1.5 rounded-bl-lg rounded-tr-lg text-xs shadow-md shadow-primary/40 font-semibold">
-            Popular
-          </div>
-        )}
-        <div className={`flex flex-col border-2 hover:bg-muted/20 transition-all w-full rounded-lg ${isSuccess ? "pingersuccessbought" : ""} ${plans.highlight ? "border-primary shadow-md shadow-primary/40 " : "border-muted"}`}>
-          <div className={`flex border-b-2 flex-col p-6 h-72 justify-between ${plans.highlight ? "border-primary" : "border-muted"}`}>
-            <div className="flex flex-col items-start gap-1">
-              <img src={plans.name === "Free" ? "/planimg/freeplan.png" : plans.name === "Pro" ? "/planimg/pro.png" : "/planimg/enterprise.png"} alt={plans.name} className="w-12 h-12" />
-              <h1 className="text-2xl font-semibold text-foreground">{plans.name}</h1>
-              <h2 className="text-2xl font-semibold text-foreground">
-                £{plans.price}
-                <span className="text-lg text-muted-foreground">/</span>
-                <span className="text-muted-foreground font-medium text-sm">{plans.price === "0" ? "forever" : billingCycle} </span>
-                {billingCycle === "year" && plans.price !== "0" && (
-                  <span className="text-green-500 text-xs">
-                    Save {plans.name === "Pro" ? "£39.98" : plans.name === "Enterprise" ? "£99.98" : "0%"}
-                  </span>
-                )}
-              </h2>
-              <p className="text-[15px]">{plans.description}</p>
-            </div>
-            {
-              isSignedIn ? (
-                <Button
-                  onClick={() => handleCheckout(priceId)}
-                  className="w-full mt-2 bg-primary text-background"
-                >
-                  Get Started
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => handlesigninCheckout(priceId)}
-                  className="w-full bg-primary text-background"
-                >
-                  Get Started
-                </Button>
-              )
-            }
-          </div>
-          <div className="p-6 h-auto lg:h-80">
-            <ul className="space-y-2">
-              <p className="text-md font-semibold text-foreground">
-                {lastone !== null && <span className="text-muted-foreground">Includes all features from {lastone} and</span>}
-              </p>
-              <li className="flex items-center text-sm text-foreground">
-                <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
-                {plans.projects} Projects
-              </li>
-              <li className="flex items-center text-sm text-foreground">
-                <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
-                {plans.users} Users
-              </li>
-              {plans.features.map((feature, index) => (
-                <li key={index} className="flex items-center text-sm text-foreground">
-                  <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
+      {plans.popular && (
+        <div className="absolute top-0 right-0 bg-primary text-background px-4 py-1.5 rounded-bl-lg rounded-tr-lg text-xs shadow-md shadow-primary/40 font-semibold">
+        Popular
         </div>
+      )}
+      <div className={`flex flex-col border-2 hover:bg-muted/20 transition-all w-full rounded-lg ${isSuccess ? "pingersuccessbought" : ""} ${plans.highlight ? "border-primary shadow-md shadow-primary/40 " : "border-muted"}`}>
+        <div className={`flex border-b-2 flex-col p-6 h-auto sm:h-72 justify-between ${plans.highlight ? "border-primary" : "border-muted"}`}>
+        <div className="flex flex-col items-start gap-1">
+          <img src={plans.name === "Free" ? "/planimg/freeplan.png" : plans.name === "Pro" ? "/planimg/pro.png" : "/planimg/enterprise.png"} alt={plans.name} className="w-12 h-12" />
+          <h1 className="text-2xl font-semibold text-foreground">{plans.name}</h1>
+          <h2 className="text-2xl font-semibold text-foreground">
+          £{plans.price}
+          <span className="text-lg text-muted-foreground">/</span>
+          <span className="text-muted-foreground font-medium text-sm">{plans.price === "0" ? "forever" : billingCycle} </span>
+          {billingCycle === "year" && plans.price !== "0" && (
+            <span className="text-green-500 text-xs">
+            Save {plans.name === "Pro" ? "£39.98" : plans.name === "Enterprise" ? "£99.98" : "0%"}
+            </span>
+          )}
+          </h2>
+          <p className="text-[15px]">{plans.description}</p>
+        </div>
+        {
+          isSignedIn ? (
+          <Button
+            onClick={() => handleCheckout(priceId)}
+            className="w-full mt-2 bg-primary text-background"
+          >
+            Get Started
+          </Button>
+          ) : (
+          <Button
+            onClick={() => handlesigninCheckout(priceId)}
+            className="w-full bg-primary text-background"
+          >
+            Get Started
+          </Button>
+          )
+        }
+        </div>
+        <div className="p-6 h-auto lg:h-80">
+        <ul className="space-y-2">
+          <p className="text-md font-semibold text-foreground">
+          {lastone !== null && <span className="text-muted-foreground">Includes all features from {lastone} and</span>}
+          </p>
+          <li className="flex items-center text-sm text-foreground">
+          <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
+          {plans.projects} Projects
+          </li>
+          <li className="flex items-center text-sm text-foreground">
+          <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
+          {plans.users} Users
+          </li>
+          {plans.features.map((feature, index) => (
+          <li key={index} className="flex items-center text-sm text-foreground">
+            <CheckCircleIcon className="w-4 h-4 mr-2 text-primary" />
+            {feature}
+          </li>
+          ))}
+        </ul>
+        </div>
+      </div>
       </div>
     </div>
   );

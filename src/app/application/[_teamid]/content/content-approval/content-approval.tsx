@@ -311,6 +311,10 @@ export default function ContentApproval({ params }) {
                                         <div className='p-2 mb-16 border px-4 rounded-md flex flex-row justify-between gap-1'>
                                             <div className='flex flex-col gap-1'>
                                                 <ContentPreview _fileid={previewedFile} getContent={getContent} getDepartments={getDepartments} userData={userData}  />
+                                                <div className='flex flex-row gap-3'>
+                                                    <Button variant='publish'>Approve</Button>
+                                                    <Button variant='destructive'>Reject</Button>
+                                                </div>
                                             </div>
                                             <CommentLine />
                                         </div>

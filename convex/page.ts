@@ -63,6 +63,30 @@ export const updatePage = mutation({
   },
 });
 
+export const updateSettings = mutation({
+  args: {
+    pageid: v.string(),
+    contentreview: v.boolean(),
+  },
+  handler: async (ctx, { pageid, contentreview }) => {
+    await ctx.db.insert("settings", {
+      pageid,
+      contentreview,
+    });
+  },
+});
+
+export const getSettings = query({
+  args: {
+    pageid: v.string(),
+  },
+  handler: async (ctx, { pageid }) => {
+    return ctx.db.query("settings")
+    .withIndex("bypageid", q => q.eq("pageid", pageid))
+    .collect();
+  },
+});
+
 export const inviteUser = mutation({
   args: {
     externalId: v.string(),

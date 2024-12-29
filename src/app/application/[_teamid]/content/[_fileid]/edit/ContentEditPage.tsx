@@ -70,6 +70,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const [userData, setUserData] = useState([]);
     const updateContent = useMutation(api.fields.updateField);
     const updateContentStatus = useMutation(api.content.updateContentStatus);
+    const getSettings = useQuery(api.page.getSettings, { pageid: _teamid });
     const [lastSavedValues, setLastSavedValues] = useState({});
     const [hasChanges, setHasChanges] = useState(false);
     const [scheduleOpen, setScheduleOpen] = useState(false);
@@ -696,28 +697,38 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                             ) : null
                                         }
                                     </div>
-                                    <div className='flex flex-row  px-5'>
+                                    <div className='flex flex-row px-5'>
                                         {
-                                            getContent?.status != "Published" && getContent?.status !="Scheduled" ? (
-                                                <>
-                                            <button onClick={contentPublish({_id: getContent._id})} className='bg-green-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-green-800 transition-all'>
-                                                Publish
-                                            </button>
-                                            <button className='bg-green-700 flex items-center justify-center hover:bg-green-800 text-white rounded-l-none px-3 py-2 rounded-md'>
-                                            <DropdownMenu modal={false}>
-                                                <DropdownMenuTrigger>
-                                                    <ChevronDown />
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align='end'>
-                                                    <DropdownMenuItem onClick={() => setScheduleOpen(true)}>
-                                                        <p className='flex flex-row gap-2 items-center'>
-                                                            <Clock className='w-5 h-5' /> Schedule
-                                                        </p>
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                            </button>
-                                            </>
+                                            getContent?.status != "Published" && getContent?.status != "Scheduled" ? (
+                                                getSettings?.[0]?.contentreview && getContent.status === "Draft" ? (
+                                                    <button onClick={() => updateContentStatus({_id: getContent._id, status: "Review"})} className='bg-purple-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-purple-800 transition-all'>
+                                                        Send to Review
+                                                    </button>
+                                                ) : getSettings?.[0]?.contentreview && getContent.status === "Review" ? (
+                                                    <button disabled className='bg-purple-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-purple-800 transition-all'>
+                                                        Currently in Review
+                                                    </button>
+                                                ) : (
+                                                    <>
+                                                        <button onClick={contentPublish({_id: getContent._id})} className='bg-green-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-green-800 transition-all'>
+                                                            Publish
+                                                        </button>
+                                                        <button className='bg-green-700 flex items-center justify-center hover:bg-green-800 text-white rounded-l-none px-3 py-2 rounded-md'>
+                                                            <DropdownMenu modal={false}>
+                                                                <DropdownMenuTrigger>
+                                                                    <ChevronDown />
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align='end'>
+                                                                    <DropdownMenuItem onClick={() => setScheduleOpen(true)}>
+                                                                        <p className='flex flex-row gap-2 items-center'>
+                                                                            <Clock className='w-5 h-5' /> Schedule
+                                                                        </p>
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </button>
+                                                    </>
+                                                )    
                                             ) : (
                                                 getContent?.status === "Scheduled" ? (
                                                     <button onClick={() => setScheduleChangeOpen(true)} className='bg-blue-300 w-full font-semibold text-blue-700 dark:bg-blue-700 dark:text-blue-300 px-3 py-2 flex flex-row gap-2 items-center justify-center rounded-md hover:bg-green-800 transition-all'>

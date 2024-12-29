@@ -14,6 +14,10 @@ pages: defineTable({
     users: v.array(v.string()),
     accesstoken: v.string(),
 }).index("bytitle", ["title"]).index("byusers", ["users"]),
+settings: defineTable({
+    pageid: v.string(),
+    contentreview: v.boolean(),
+}).index("bypageid", ["pageid"]),
 roles: defineTable({
     externalId: v.string(),
     pageid: v.string(),

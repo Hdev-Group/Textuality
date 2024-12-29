@@ -187,11 +187,11 @@ function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }
   return(
   <div className='xl:min-w-[1400px] w-full xl:w-min container mt-10 mx-auto items-center justify-center'>
     <div className='flex container mx-auto'>
-      <div className='flex flex-row justify-between w-full items-center'>
-        <h2 className='text-3xl font-semibold'>Become a Textuality power user with these tips</h2>
-        <div className='flex flex-row gap-1 items-center justify-center cursor-pointer' onClick={() => changePreview("Setup")}>
+      <div className='flex flex-col gap-2 w-full '>
+        <div className='flex flex-row gap-1  cursor-pointer' onClick={() => changePreview("Setup")}>
           <ArrowLeft className='h-5 w-5' /> <p className='text-md'>Return to setup</p>
         </div>
+        <h2 className='text-3xl font-semibold'>Become a Textuality power user with these tips</h2>
       </div>
       <div className='border-muted border mt-3 rounded-md'>
         <div className='flex flex-col gap-3 '>

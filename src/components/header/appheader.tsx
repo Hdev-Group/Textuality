@@ -202,19 +202,19 @@ export default function AppHeader({ teamid, activesection }: any) {
         </div>
       </div>
       {isMenuOpen && (
-        <nav className="lg:hidden bg-background py-2">
+        <nav className="lg:hidden bg-background py-2 md:mx-auto md:px-6">
           {navItems.slice(0, 6).map((item) => (
-            <Link href={item.route} key={item.label}>
+            <div onClick={() => router.push(item.route)} key={item.label} className='w-full'>
               <Button
                 variant="ghost"
-                className={`w-full justify-start font-semibold py-2 ${pathname === item.route ? 'text-blue-500' : ''}`}
+                className={`w-full items-center justify-start ${pathname === item.route ? 'text-blue-500' : ''}`}
               >
                 <item.icon className="mr-2 h-4 w-4" />
                 {item.label}
               </Button>
-            </Link>
+            </div>
           ))}
-          <Button variant="ghost" className="w-full justify-start font-semibold py-2">
+          <Button variant="ghost" className="w-full justify-start font-semibold py-2" onClick={() => router.push(`/plans`)}>
             <ArrowUp className="mr-2 h-4 w-4" />
             Upgrade plan
           </Button>
