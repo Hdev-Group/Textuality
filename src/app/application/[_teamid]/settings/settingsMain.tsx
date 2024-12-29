@@ -41,11 +41,29 @@ export default function Page({ params }) {
     const getPage = useQuery(api.page.getPage, { _id: teamid as any });
     const getRole = useQuery(api.page.getRoledetail, { externalId: user?.id ?? 'none', pageId: _teamid });
     const updatePage = useMutation(api.page.updatePage);
+    const updateSettings = useMutation(api.page.updateSettings);
+    const getSettings = useQuery(api.page.getSettings, { pageid: teamid as any });
     const getDepartments = useQuery(api.department.getDepartments, { pageid: teamid as any });
     const getContent = useQuery(api.content.getContent, { pageid: teamid as any });
     const deletePage = useMutation(api.page.deletePage);
     const [activeTab, setActiveTab] = React.useState("general");
     const searchParams = useSearchParams();
+    const [isContentReview, setContentReview] = useState(getSettings?.[0]?.contentreview ?? true);
+
+    useEffect(() => {
+      if (getSettings) {
+        setContentReview(getSettings?.[0]?.contentreview);
+      }
+    }, [getSettings])
+
+    function UpdateContentReview(checked: boolean) {
+      setContentReview(checked);
+      if (getRole?.[0]?.permissions.includes("owner") || getRole?.[0]?.permissions.includes("admin")) {
+        updateSettings({ pageid: teamid, contentreview: checked });
+      } else {
+        alert("You do not have permission to update content review settings")
+      }
+    }
 
     useEffect(() => {
         const currentType = searchParams.get('type');
@@ -208,6 +226,19 @@ export default function Page({ params }) {
                                                             </div>
                                                         </div>
                                                     )) : <p>No departments found</p>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div className="gap-0 flex flex-col border-y">
+                                            <div className="flex flex-row justify-between items-center py-5 px-8 gap-3 p-2 ">
+                                              <h1 className="font-semibold text-lg">Content Review</h1>
+                                              <Switch aria-checked={isContentReview} onCheckedChange={(checked) => UpdateContentReview(checked)} />
+                                            </div>
+                                            <div className="flex flex-col gap-4 px-8 pb-4">
+                                                {
+                                                  isContentReview ? (
+                                                    <h1 className="text-md">Content Review is enabled. When you attempt to publish content it will now go through the review stage.</h1>
+                                                  ) : null
                                                 }
                                             </div>
                                         </div>

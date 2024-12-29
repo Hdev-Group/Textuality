@@ -1,4 +1,4 @@
-import { v, Validator } from "convex/values";
+import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 export const create = mutation({
@@ -60,6 +60,30 @@ export const updatePage = mutation({
   },
   handler: async (ctx, { _id, title, content }) => {
     await ctx.db.patch(_id, { title, content });
+  },
+});
+
+export const updateSettings = mutation({
+  args: {
+    pageid: v.string(),
+    contentreview: v.boolean(),
+  },
+  handler: async (ctx, { pageid, contentreview }) => {
+    await ctx.db.insert("settings", {
+      pageid,
+      contentreview,
+    });
+  },
+});
+
+export const getSettings = query({
+  args: {
+    pageid: v.string(),
+  },
+  handler: async (ctx, { pageid }) => {
+    return ctx.db.query("settings")
+    .withIndex("bypageid", q => q.eq("pageid", pageid))
+    .collect();
   },
 });
 

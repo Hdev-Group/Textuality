@@ -19,25 +19,26 @@ http.route({
         try {
           console.log('Sending welcome email to', event.data.email_addresses[0].email_address);
           const response = await fetch('http://localhost:3000/api/support/restricted/email/startsupport', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SECURE_TOKEN}`
-            },
-            body: JSON.stringify({ 
-              email: event.data.email_addresses[0].email_address, 
-              firstName: event.data.first_name, 
-              lastName: event.data.last_name, 
-              type: "welcome" 
-            })
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SECURE_TOKEN}`
+        },
+        body: JSON.stringify({ 
+          email: event.data.email_addresses[0].email_address, 
+          firstName: event.data.first_name, 
+          lastName: event.data.last_name, 
+          type: "welcome" 
+        })
           });
         
           if (!response.ok) {
-            console.error('Error from API:', await response.text());
+        console.error('Error from API:', await response.text());
           }
         } catch (error) {
           console.error('Fetch error:', error);
         }
+        break;
       case "user.updated":
         await ctx.runMutation(internal.users.upsertFromClerk, {
           data: event.data,

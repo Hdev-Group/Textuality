@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { api } from '../../../../../../../convex/_generated/api';
 import { fetchMutation, fetchQuery } from "convex/nextjs";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 
 const requestCounts = new Map();
 const RATE_LIMIT = 10; // Maximum 10 requests
@@ -12,7 +12,7 @@ const CACHE_TTL = 30 * 60 * 1000; // Cache responses for 30 minutes
 
 const getAuthToken = (req: NextRequest): string | null => {
   const authorizationHeader = req.headers.get('Authorization');
-  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+  if (!authorizationHeader?.startsWith('Bearer ')) {
     return null;
   }
   return authorizationHeader.split(' ')[1];

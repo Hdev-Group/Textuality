@@ -93,12 +93,6 @@ export const schedulecontent = mutation({
       if (!content) {
         throw new Error("Content not found");
       }
-      // If there's an existing scheduled function, cancel it
-      if (content.scheduledFunctionId) {
-        await ctx.scheduler.cancel(content.scheduledFunctionId as any);
-      }
-      
-      // Schedule the new function
       const newScheduledFunctionId = await ctx.scheduler.runAt(
         scheduled,
         internal.jobs.updateContentStatusInternal,

@@ -128,7 +128,7 @@ export default function Visualizer() {
 
         <Header />
         <div className='flex px-5 flex-col min-h-screen items-start justify-start container mt-10  mx-auto w-full '>
-        <a className={`flex flex-row items-center text-xs w-auto mb-10 gap-1 cursor-pointer`} onClick={() => window.close()}>
+        <a className={`flex flex-row items-center text-xs w-auto mb-10 gap-1 cursor-pointer`} onClick={() => window.close()} onKeyDown={(e) => { if (e.key === 'Enter') window.close(); }} tabIndex={0}>
             <ArrowLeft width={14} height={14} /> Back
         </a>
             {contentData.fields

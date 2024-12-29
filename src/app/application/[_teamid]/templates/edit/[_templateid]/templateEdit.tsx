@@ -198,12 +198,12 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
         }
       }
   
-    if (!canDelete) return null
-  
     useEffect(() => {
       const length = getContentSpecific?.length
       setLength(length)
     }, [getContentSpecific])
+
+    if (!canDelete) return null
   
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
