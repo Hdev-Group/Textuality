@@ -48,7 +48,7 @@ export default function Page({ params }) {
     const deletePage = useMutation(api.page.deletePage);
     const [activeTab, setActiveTab] = React.useState("general");
     const searchParams = useSearchParams();
-    const [isContentReview, setContentReview] = useState(true);
+    const [isContentReview, setContentReview] = useState(getSettings?.[0]?.contentreview ?? true);
 
     useEffect(() => {
       if (getSettings) {
@@ -232,7 +232,7 @@ export default function Page({ params }) {
                                         <div className="gap-0 flex flex-col border-y">
                                             <div className="flex flex-row justify-between items-center py-5 px-8 gap-3 p-2 ">
                                               <h1 className="font-semibold text-lg">Content Review</h1>
-                                              <Switch checked={isContentReview} onCheckedChange={(checked) => UpdateContentReview(checked)} />
+                                              <Switch aria-checked={isContentReview} onCheckedChange={(checked) => UpdateContentReview(checked)} />
                                             </div>
                                             <div className="flex flex-col gap-4 px-8 pb-4">
                                                 {
