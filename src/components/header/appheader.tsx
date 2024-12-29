@@ -42,15 +42,25 @@ export default function AppHeader({ teamid, activesection }: any) {
   const [image, setImage] = useState("/IMG_6128.png");
   const [mainlocation, setMainLocation] = useState({left: 35, width: 0})
   const [activeNav, setActiveNav] = useState<string | null>(null)
-  const [underlineStyle, setUnderlineStyle] = useState({ left: mainlocation.left, width: mainlocation.width })
+  const [underlineStyle, setUnderlineStyle] = useState({ left: mainlocation.left, width: mainlocation.width });
+
   useEffect(() => {
-    const path = window.location.pathname
-      if( path.includes('/use-cases') || path.includes('/blog') || path.includes('/tutorials') || path.includes('/support') || path.includes('/plans')) {
-        setUnderlineStyle({ left: mainlocation.left, width: mainlocation.width })
-      } else {
-        setUnderlineStyle({ left: mainlocation.left, width: mainlocation.width })
-      }
-  }, [])
+    const path = window.location.pathname;
+    if (path.includes('/use-cases')) {
+      setUnderlineStyle({ left: mainlocation.left + 10, width: mainlocation.width + 10 });
+    } else if (path.includes('/blog')) {
+      setUnderlineStyle({ left: mainlocation.left + 20, width: mainlocation.width + 20 });
+    } else if (path.includes('/tutorials')) {
+      setUnderlineStyle({ left: mainlocation.left + 30, width: mainlocation.width + 30 });
+    } else if (path.includes('/support')) {
+      setUnderlineStyle({ left: mainlocation.left + 40, width: mainlocation.width + 40 });
+    } else if (path.includes('/plans')) {
+      setUnderlineStyle({ left: mainlocation.left + 50, width: mainlocation.width + 50 });
+    } else {
+      setUnderlineStyle({ left: mainlocation.left, width: mainlocation.width });
+    }
+  }, []);
+
   useEffect(() => {
     const activeNavElement = document.querySelector(`[href='${activeNav}']`);
     if (activeNavElement) {
@@ -143,7 +153,7 @@ export default function AppHeader({ teamid, activesection }: any) {
               className={` bottom-0 rounded-sm border h-[30px] z-0 border-blue-400  bg-blue-300/20  text-blue-500 transition-all duration-300 ${activeNav === null ? "hidden" : "absolute"}`}
               style={{
               left: `${underlineStyle.left + 40}px`,
-              width: `${underlineStyle.width > 1 ? underlineStyle.width  : underlineStyle.width}px`,
+              width: `${underlineStyle.width}px`,
               transform: `translate(-40px, 0px)`, 
               }}
             />

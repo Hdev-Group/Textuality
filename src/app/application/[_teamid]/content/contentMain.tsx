@@ -377,7 +377,7 @@ function ContentCreateButton({getTemplates, _teamid}: any) {
     return(
         <DropdownMenu>
         <DropdownMenuTrigger>
-            <div>
+            <div tabIndex={0} role="button" onKeyPress={(e) => { if (e.key === 'Enter') e.currentTarget.click(); }}>
             <Button>
                 <Plus className="mr-2 h-4 w-4" /> New Content
             </Button>
