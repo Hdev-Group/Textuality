@@ -4,14 +4,162 @@ import Header from "@/components/header/header"
 import OverHeader from "@/components/header/overheader"
 import { Button } from "@/components/ui/button"
 import Footer from "@/components/footer/footer"
-import {Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play, Edit3, Users, Zap, BarChart2, LockIcon, Globe} from "lucide-react"
+import { Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, AreaChartIcon as ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play, Edit3, Users, Zap, BarChart2, LockIcon, Globe } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from "next/link"
 import { useState, useEffect, useRef } from 'react';
-import { TypeIcon as type, LucideIcon } from 'lucide-react'
+import { TypeIcon as type, type LucideIcon } from 'lucide-react'
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 
 export default function Home() {
+
+    gsap.registerPlugin(ScrollTrigger);
+    useEffect(() => {
+      const headingWords = gsap.utils.toArray('.heading-word');
+      gsap.fromTo(headingWords, 
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          stagger: 0.2,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".main-heading",
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }, []);
+
+    useEffect(() => {
+      gsap.fromTo(".text-mid", 
+      { y: 100, opacity: 0 },
+      {
+      scrollTrigger: {
+      trigger: ".text-mid",
+      start: "top 80%",
+      end: "top 20%",
+      toggleActions: "play none none none",
+      },
+      y: 0,
+      opacity: 1,
+      duration: 1,
+      delay: 0.8,
+      ease: "bounce.out",
+      }
+      );
+    }, []);
+
+    useEffect(() => {
+      gsap.fromTo(".fadeIn", 
+      { y: 0, opacity: 0, filter: "blur(10px)" },
+      {
+      scrollTrigger: {
+      trigger: ".fadeIn",
+      start: "top 80%",
+      end: "top 20%",
+      toggleActions: "play none none none",
+      },
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      duration: 1,
+      delay: 1.2,
+      ease: "bounce.out",
+      }
+      );
+    }, []);
+
+    useEffect(() => {
+      gsap.to(".background-gradient", {
+        yPercent: -50,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1
+        }
+      });
+    }, []);
+
+    useEffect(() => {
+      gsap.to(".title-secure", {
+        yPercent: -50,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".title-secure",
+          start: "top 80%",
+          end: "top 20%",
+          scrub: 1
+        }
+      });
+    } )
+
+    useEffect(() => {
+      const elements = document.querySelectorAll(".title-second");
+      
+      elements.forEach((element) => {
+        gsap.fromTo(
+          element,
+          { y: 20, opacity: 0, filter: "blur(10px)" },
+          {
+            scrollTrigger: {
+              trigger: element,
+              start: "top 80%",
+              end: "top 20%",
+              toggleActions: "play none none none",
+            },
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 1,
+            delay: 0,
+            ease: "bounce.out",
+          }
+        );
+      });
+    
+      return () => {
+        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      };
+    }, []);
+
+    useEffect(() => {
+      const elements = document.querySelectorAll(".title-third");
+      
+      elements.forEach((element) => {
+        gsap.fromTo(
+          element,
+          { y: 20, opacity: 0, },
+          {
+            scrollTrigger: {
+              trigger: element,
+              start: "top 80%",
+              end: "top 20%",
+              toggleActions: "play none none none",
+            },
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 1,
+            delay: 0.7,
+            ease: "bounce.out",
+          }
+        );
+      });
+    
+      return () => {
+        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      };
+    }, []);
+
+
   const companies = [
     {
       name: "Hdev Group",
@@ -67,21 +215,48 @@ export default function Home() {
             <OverHeader />
             <Header />
               <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
-                <div className="absolute left-1/2 top-[-50px] -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))]"/>
+                <div className="absolute left-1/2 top-[-50px] -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))] background-gradient"/>
                 <div className="flex flex-col z-10 w-full items-center justify-start h-full">
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col lg:flex-row items-start justify-start w-full">
                     <div className="flex flex-col w-auto">
-                      <h1 className="font-bold lg:text-[65px] text-5xl font-Funnel_Sansfont text-foreground">Content management that brings everyone together</h1>
-                      <p className="text-md text-muted-foreground mt-4 w-[90%]">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
+                      <h1 className="font-bold lg:text-[65px] text-5xl font-Funnel_Sansfont text-foreground main-heading">
+                        <span className="heading-word">Content</span>{" "}
+                        <span className="heading-word">management</span>{" "}
+                        <span className="heading-word">that</span>{" "}
+                        <span className="heading-word">brings</span>{" "}
+                        <span className="heading-word">everyone</span>{" "}
+                        <span className="heading-word">together</span>
+                      </h1>
+                      <p className="text-md text-muted-foreground mt-4 w-[90%] text-mid">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
                       <div className="flex flex-row gap-2 mt-5">
-                        <Link href="/application/home">
-                          <Button  size="lg">Get Started</Button>
+                        <Link href="/application/home" className="fadeIn">
+                          <Button size="lg">Get Started</Button>
                         </Link>
-                        <Button variant="gradient" size="lg">Learn More</Button>
+                        <Button variant="gradient" className="fadeIn" size="lg">Learn More</Button>
                       </div>
                     </div>
                     <VideoSection />
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <div className="bg-muted w-11/12 h-auto px-0.5 pb-0.5 flex flex-col justify-center items-center rounded-lg">
+                      <div className="w-full flex flex-row justify-between py-2">
+                        <div className="flex flex-row gap-2 items-center w-full pl-3 justify-start">
+                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex items-center justify-center"/>
+                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex items-center justify-center"/>
+                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex items-center justify-center"/>
+                        </div>
+                        <div className="flex flex-row items-center w-full justify-center">
+                          <div className="px-4 text-muted-foreground text-sm z-50 bg-white/20 flex items-center justify-center rounded-lg">
+                            https://textuality.hdev.uk
+                          </div>
+                        </div>
+                        <div className="w-full"></div>
+                      </div>
+                      <div className="w-full">
+                        <img src="/textuality-7.png" alt="img" className="w-full rounded-b-lg h-auto" />
+                      </div>
+                    </div>
                   </div>
                   </div>
                   {/* <div className="w-full overflow-hidden flex items-center flex-col py-8">
@@ -117,11 +292,11 @@ export default function Home() {
                   </div> */}
                   <div className="flex flex-col container w-full lg:w-[80%] relative items-center justify-center gap-3 mt-20">
                   <div className="absolute inset-0 max-w-xs mx-auto h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.2) 4.54%, rgba(64, 224, 208, 0.26) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
-                  <h1 className="lg:text-[52px] text-5xl font-bold text-center">Create <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-blue-500"> expert level blogs</span>, easily</h1>
-                    <p className="lg:text-md text-sm text-muted-foreground text-center px-2 w-full lg:w-1/2">
+                  <h1 className="lg:text-[52px] text-5xl font-bold text-center title-second">Create <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-blue-500"> expert level blogs</span>, easily</h1>
+                    <p className="lg:text-md text-sm text-muted-foreground text-center px-2 w-full lg:w-1/2 title-third">
                       Recreate what's possible with Textuality. Our platform is designed to help you create content that's engaging, informative, and beautiful while we handle all the heavy lifting.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 w-full mt-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 w-full mt-10 feature-section">
                       <Extrainfocard title="Create" description="Create content with ease using our powerful editor." icon={<Pen />} />
                       <Extrainfocard title="Collaborate" description="Work with your team in real-time to create amazing content." icon={<Stars />} />
                       <Extrainfocard title="Publish" description="Publish your content to the web with a single click." icon={<FileText />} />
@@ -193,8 +368,8 @@ export default function Home() {
                 <div className="flex flex-col z-10 w-full items-center justify-start h-full">
                   <div className="flex flex-col w-full  items-start justify-start gap-3 mt-32 container relative">
                   <div className="absolute inset-0 max-w-xs  left-0 h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
-                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start">A <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-teal-300">secure foundation</span> to write on</h1>
-                    <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start">
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start title-second">A <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-teal-300">secure foundation</span> to write on</h1>
+                    <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start title-third">
                       Textuality is built with security in mind. Our platform is designed to keep your content safe and secure while you focus on creating amazing content.
                     </p>
                     <div>
@@ -240,69 +415,31 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="w-full mt-20 flex flex-col relative container">
-                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end ">An <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-teal-400">easy way</span> to do content.</h1>
-                    <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end">
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end title-second">An <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-teal-400">easy way</span> to do content.</h1>
+                    <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end title-third">
                       With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 mt-8 gap-8 mb-16">
-                      <div className="space-y-6">
-                        <AnimatedFeature
-                          icon={Edit3}
-                          title="Intuitive Editor"
-                          description="Create and edit content with our user-friendly, powerful editor."
-                        />
-                        <AnimatedFeature
-                          icon={Users}
-                          title="Real-time Collaboration"
-                          description="Work together seamlessly with your team in real-time."
-                        />
-                        <AnimatedFeature
-                          icon={Zap}
-                          title="Instant Preview"
-                          description="See how your content will look as you create it."
-                        />
-                      </div>
-                      <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
-                        <img
-                          src="/indeximg/textuality-editor.png"
-                          alt="Textuality Editor"
-                          className="rounded-xl"  
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                      <div className="order-2 md:order-1">
-                        <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
-                        <img
-                          src="/indeximg/analytics.png"
-                          alt="Textuality Editor"
-                          className="rounded-xl"  
-                        />
-                        </div>
-                      </div>
-                      <div className="space-y-6 order-1 md:order-2 items-end justify-center">
-                        <AnimatedFeature
-                          icon={BarChart2}
-                          title="Analytics Dashboard"
-                          description="Track your content's performance with detailed insights."
-                        />
-                        <AnimatedFeature
-                          icon={LockIcon}
-                          title="Secure Platform"
-                          description="Keep your content safe with our robust security measures."
-                        />
-                        <AnimatedFeature
-                          icon={Globe}
-                          title="Multi-channel Publishing"
-                          description="Publish your content across various platforms effortlessly."
-                        />
-                      </div>
-                    </div>
+
                   </div>
-                    <div className="w-full mt-20 flex flex-col relative container">
-                      <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start "><span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Don't just take it from us</span></h1>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <section className="w-full mt-20 py-20">
+                    <div className="container mx-auto px-4">
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-center mb-16"
+                      >
+                        <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                          <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 title-second">
+                            Don't just take it from us
+                          </span>
+                        </h2>
+                        <p className="text-xl text-muted-foreground max-w-2xl mx-auto title-third">
+                          See what our users have to say about their experience with Textuality.
+                        </p>
+                      </motion.div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <TestimonialCard
                           content="Textuality has revolutionized our content creation process. It's intuitive and powerful!"
                           author="Jane Doe"
@@ -323,10 +460,9 @@ export default function Home() {
                         />
                       </div>
                     </div>
-                  <div>
+                  </section>
                 </div>
-            </div>
-          </main>
+              </main>
           <Footer />
         </div>
   )
@@ -434,7 +570,7 @@ function BlurCard({title, description, icon}){
 
 function Extrainfocard({ title, description, icon }) {
   return(
-    <div className="md:border-l md:last:border-r backdrop-blur-xl relative gap-2 py-10 flex flex-col duration-500 transition-colors md:border-b bg-transparent hover:bg-gradient-to-t from-neutral-200/60 to-transparent dark:hover:bg-gradient-to-t dark:from-neutral-900 dark:to-transparent border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
+    <div className="feature-card md:border-l md:last:border-r backdrop-blur-xl relative gap-2 py-10 flex flex-col duration-500 transition-colors md:border-b bg-transparent hover:bg-gradient-to-t from-neutral-200/60 to-transparent dark:hover:bg-gradient-to-t dark:from-neutral-900 dark:to-transparent border-muted dark:border-muted group-hover:border-muted-foreground p-4 w-full group">
       <div className="absolute left-0 top-[20%] w-1 h-7 rounded-r-md bg-muted group-hover:bg-blue-500 duration-500 transit transition-all group-hover:h-14" />
       <div className="flex flex-col gap-2">
       <div className="text-muted-foreground">
@@ -506,3 +642,4 @@ const VideoSection = () => {
     </div>
   );
 };
+
