@@ -4,7 +4,7 @@ import Header from "@/components/header/header"
 import OverHeader from "@/components/header/overheader"
 import { Button } from "@/components/ui/button"
 import Footer from "@/components/footer/footer"
-import { Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, AreaChartIcon as ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play, Edit3, Users, Zap, BarChart2, LockIcon, Globe } from 'lucide-react'
+import { Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, AreaChartIcon as ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play, Edit3, Users, Zap, BarChart2, LockIcon, Globe, Eye, ScreenShare, Save } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from "next/link"
 import { useState, useEffect, useRef } from 'react';
@@ -71,6 +71,24 @@ export default function Home() {
       duration: 1,
       delay: 1.2,
       ease: "bounce.out",
+      }
+      );
+    }, []);
+
+    useEffect(() => {
+      gsap.fromTo(".ZoomUp",
+      { y: 100, opacity: 0 },
+      {
+      scrollTrigger: {
+      trigger: ".ZoomUp",
+      start: "top 80%",
+      end: "top 20%",
+      toggleActions: "play none none none",
+      },
+      y: 0,
+      opacity: 1,
+      duration: 1,
+      delay: 0.8,
       }
       );
     }, []);
@@ -239,7 +257,7 @@ export default function Home() {
                     <VideoSection />
                   </div>
                   <div className="flex items-center justify-center">
-                    <div className="bg-muted w-11/12 h-auto px-0.5 pb-0.5 flex flex-col justify-center items-center rounded-lg">
+                    <div className="dark:bg-neutral-900 ZoomUp w-11/12 h-auto px-0.5 mt-20 pb-0.5 shadow-md shadow-neutral-800/40 flex flex-col justify-center items-center rounded-lg">
                       <div className="w-full flex flex-row justify-between py-2">
                         <div className="flex flex-row gap-2 items-center w-full pl-3 justify-start">
                           <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex items-center justify-center"/>
@@ -253,8 +271,8 @@ export default function Home() {
                         </div>
                         <div className="w-full"></div>
                       </div>
-                      <div className="w-full">
-                        <img src="/textuality-7.png" alt="img" className="w-full rounded-b-lg h-auto" />
+                      <div className="w-full border-hidden">
+                        <img src="/heromain.png" alt="img" className="w-full rounded-b-lg border-hidden h-auto" />
                       </div>
                     </div>
                   </div>
@@ -368,7 +386,7 @@ export default function Home() {
                 <div className="flex flex-col z-10 w-full items-center justify-start h-full">
                   <div className="flex flex-col w-full  items-start justify-start gap-3 mt-32 container relative">
                   <div className="absolute inset-0 max-w-xs  left-0 h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
-                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start title-second">A <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-500 to-teal-300">secure foundation</span> to write on</h1>
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start title-second">A <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-200 to-teal-600">secure foundation</span> to write on</h1>
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start title-third">
                       Textuality is built with security in mind. Our platform is designed to keep your content safe and secure while you focus on creating amazing content.
                     </p>
@@ -419,7 +437,38 @@ export default function Home() {
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end title-third">
                       With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
                     </p>
-
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-10 px-2">
+                      <DiffFeatureCard
+                        icon={Eye}
+                        title="Content Visualization"
+                        description="Visualize your content in real-time with our powerful visualization tools."
+                      />
+                      <DiffFeatureCard
+                        icon={Check}
+                        title="Content Review"
+                        description="Ensure your content meets team standards by reviewing your team's content."
+                      />
+                      <DiffFeatureCard
+                        icon={Edit3}
+                        title="Content Editing"
+                        description="Edit your content with our powerful and intuitive editing tools."
+                      />
+                      <DiffFeatureCard
+                        icon={ScreenShare}
+                        title="Split Screen"
+                        description="Use both your screens to edit and see your content in real-time."
+                      />
+                      <DiffFeatureCard
+                        icon={Globe}
+                        title="Instant Components"
+                        description="Use Textuality's in-house NPM components to have your blog up in minutes."
+                      />
+                      <DiffFeatureCard
+                        icon={Save}
+                        title="Automatic Saving"
+                        description="Never lose your work with Textuality's automatic saving feature."
+                      />
+                    </div>
                   </div>
                   <section className="w-full mt-20 py-20">
                     <div className="container mx-auto px-4">
@@ -589,6 +638,27 @@ function Extrainfocard({ title, description, icon }) {
 
 
 const VideoSection = () => {
+
+  useEffect(() => {
+    gsap.fromTo(".fadeInvideo", 
+    { y: 0, opacity: 0, filter: "blur(10px)" },
+    {
+    scrollTrigger: {
+    trigger: ".fadeInvideo",
+    start: "top 80%",
+    end: "top 20%",
+    toggleActions: "play none none none",
+    },
+    y: 0,
+    opacity: 1,
+    filter: "blur(0px)",
+    duration: 1,
+    delay: 1.2,
+    ease: "bounce.out",
+    }
+    );
+  }, []);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef(null);
 
@@ -608,7 +678,7 @@ const VideoSection = () => {
   };
 
   return (
-    <div className="flex w-full h-full z-50 lg:mt-[-10rem]">
+    <div className="flex w-full h-full fadeInvideo z-50 lg:mt-[-10rem]">
       <div className="spinnercard borderspincard">
         <div className="inner group z-10 relative items-center flex justify-center">
           {
@@ -643,3 +713,21 @@ const VideoSection = () => {
   );
 };
 
+interface FeatureCardProps {
+  icon: LucideIcon
+  title: string
+  description: string
+}
+function DiffFeatureCard({ icon: Icon, title, description }: FeatureCardProps) {
+  return (
+    <div className="group border rounded-lg p-6 hover:border-primary/60 transition-all duration-300 ease-in-out border-border bg-card hover:bg-card/80 flex flex-col gap-4">
+      <div className="flex items-center gap-4">
+        <div className="p-2 rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+          <Icon size={24} />
+        </div>
+        <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors duration-300">{title}</h3>
+      </div>
+      <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">{description}</p>
+    </div>
+  )
+}
