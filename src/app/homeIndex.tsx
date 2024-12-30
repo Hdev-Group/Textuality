@@ -260,9 +260,9 @@ export default function Home() {
                     <div className="dark:bg-neutral-900 ZoomUp w-11/12 h-auto px-0.5 mt-20 pb-0.5 shadow-md shadow-neutral-800/40 flex flex-col justify-center items-center rounded-lg">
                       <div className="w-full flex flex-row justify-between py-2">
                         <div className="flex flex-row gap-2 items-center w-full pl-3 justify-start">
-                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex items-center justify-center"/>
-                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex items-center justify-center"/>
-                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex items-center justify-center"/>
+                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex bg-red-400 transition-all items-center justify-center"/>
+                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex bg-yellow-300 items-center justify-center"/>
+                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex bg-green-400 items-center justify-center"/>
                         </div>
                         <div className="flex flex-row items-center w-full justify-center">
                           <div className="px-4 text-muted-foreground text-sm z-50 bg-white/20 flex items-center justify-center rounded-lg">
