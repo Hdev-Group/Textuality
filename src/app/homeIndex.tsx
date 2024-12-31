@@ -4,7 +4,7 @@ import Header from "@/components/header/header"
 import OverHeader from "@/components/header/overheader"
 import { Button } from "@/components/ui/button"
 import Footer from "@/components/footer/footer"
-import { Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, AreaChartIcon as ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play, Edit3, Users, Zap, BarChart2, LockIcon, Globe, Eye, ScreenShare, Save } from 'lucide-react'
+import { Cloud, Component, Pen, Stars, FileText, User, MessageSquare, Mail, Link2, Share2, Check, Star, BookMarkedIcon, FileSpreadsheetIcon, EditIcon, CloudUploadIcon, GalleryThumbnailsIcon, AreaChartIcon as ChartArea, Clock10Icon, FileLock, Shield, Hand, BriefcaseBusiness, ActivitySquare, CheckSquare, Play, Edit3, Users, Zap, BarChart2, LockIcon, Globe, Eye, ScreenShare, Save, CheckCircleIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from "next/link"
 import { useState, useEffect, useRef } from 'react';
@@ -433,8 +433,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="w-full mt-20 flex flex-col relative container">
-                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end title-second">An <span className="bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-teal-400">easy way</span> to do content.</h1>
-                    <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end title-third">
+                  <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end title-second">A Simple but <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">effective</span> platform for content creators</h1>
+                  <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end title-third">
                       With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-10 px-2">
@@ -468,6 +468,24 @@ export default function Home() {
                         title="Automatic Saving"
                         description="Never lose your work with Textuality's automatic saving feature."
                       />
+                    </div>
+                  </div>
+                  <div className="w-full mt-20 flex flex-col relative container">
+                    <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start title-second">Pricing set <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-blue-500 to-purple-600">Right</span></h1>
+                    <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start title-third">
+                      Textuality offers a range of pricing plans to suit your needs. Whether you're a small business or a large enterprise, we have a plan for you.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mt-10">
+                      {plans.map((plan, index) => (
+                        <PricingCard
+                          key={index}
+                          plans={plan}
+                          lastone={plans[index - 1] ? plans[index - 1].name : null}
+                          billingCycle="month"
+                          priceId={plan.name.toLowerCase()}
+                          productid="textuality"
+                        />
+                      ))}
                     </div>
                   </div>
                   <section className="w-full mt-20 py-20">
@@ -543,6 +561,157 @@ export function TestimonialCard({ content, author, role, avatarSrc }: Testimonia
   )
 }
 
+const plans = [
+  {
+    name: "Free",
+    price: "0",
+    users: "5",
+    projects: "2",
+    requests: "500k",
+    description: "For personal projects, marketers and small teams looking to get started.",
+    features: ["Basic analytics", "Standard support", "Content creation tools", "API access", "Role Based Access Control", "Scheduled Publishing"],
+    popular: false,
+    highlight: false,
+  },
+  {
+    name: "Pro",
+    price: "19.99",
+    description: "For growing teams and businesses that need more advanced tools.",
+    users: "15",
+    requests: "5 Million",
+    projects: "10",
+    features: ["Advanced analytics", "Content Approval", "AI tools", "Webhooks", "Priority support"],
+    popular: true,
+    highlight: true,
+  },
+  {
+    name: "Enterprise",
+    price: "49.99",
+    description: "For large businesses and enterprises that require custom solutions.",
+    users: "30, Scalable",
+    requests: "20 Million + Pay as you go/month",
+    projects: "Unlimited",
+    features: ["Custom integrations", "Subscription & Paywall", "Social media scheduling", "Custom branding"],
+    popular: false,
+    highlight: true,
+  },
+];
+
+function PricingCard({ plans, lastone, billingCycle, priceId, productid }) {
+  const router = useRouter();
+  const user = useUser();
+  const { isSignedIn, isLoaded } = useAuth();
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  // check the url if ?success=true
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const success = searchParams.get("success");
+    const priceIder = searchParams.get("priceId");
+    if (success === "true" && priceIder === priceId) {
+      setIsSuccess(true);
+    }
+  }, [priceId]);
+  const handlesigninCheckout = async (priceId) => {
+    // send them to the sign in page
+    router.push("/sign-in?redirect=/plans?priceId=" + priceId);
+  }
+
+  const handleCheckout = async (priceId: string) => {
+    const mainemail = user.user.emailAddresses[0].emailAddress;
+    if (!user || !mainemail) {
+      router.push("/sign-in?redirect=/plans?priceId=" + priceId);
+      return;
+    }
+    const subscriptionInstanceId = "sub_" + "textuality" + "_" + user.user.id + "_" + productid + "_" + Date.now();
+
+    const bundel = { priceId, mainemail, userid: user.user.id, productid: productid, subscriptionInstanceId };
+    const response = await fetch('/api/payments/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bundel }),
+    });
+  
+    const data = await response.json();
+    if (data.url) {
+      router.push(data.url);
+    } else {
+      console.error(data.error);
+    }
+  };
+  return (
+    <div className="w-full px-4 sm:px-0">
+      <div className="relative">
+      {plans.popular && (
+        <div className="absolute top-0 right-0 bg-primary text-background px-4 py-1.5 rounded-bl-lg rounded-tr-lg text-xs shadow-md shadow-primary/40 font-semibold">
+        Popular
+        </div>
+      )}
+      <div className={`flex flex-col border-2 hover:bg-muted/20 transition-all w-full rounded-lg ${isSuccess ? "pingersuccessbought" : ""} ${plans.highlight ? "border-primary shadow-md shadow-primary/40 " : "border-muted"}`}>
+        <div className={`flex border-b-2 flex-col p-6 h-auto sm:h-72 justify-between ${plans.highlight ? "border-primary" : "border-muted"}`}>
+        <div className="flex flex-col items-start gap-1">
+          <img src={plans.name === "Free" ? "/planimg/freeplan.png" : plans.name === "Pro" ? "/planimg/pro.png" : "/planimg/enterprise.png"} alt={plans.name} className="w-12 h-12" />
+          <h1 className="text-2xl font-semibold text-foreground">{plans.name}</h1>
+          <h2 className="text-2xl font-semibold text-foreground">
+          £{plans.price}
+          <span className="text-lg text-muted-foreground">/</span>
+          <span className="text-muted-foreground font-medium text-sm">{plans.price === "0" ? "forever" : billingCycle} </span>
+          {billingCycle === "year" && plans.price !== "0" && (
+            <span className="text-green-500 text-xs">
+            Save {plans.name === "Pro" ? "£39.98" : plans.name === "Enterprise" ? "£99.98" : "0%"}
+            </span>
+          )}
+          </h2>
+          <p className="text-[15px]">{plans.description}</p>
+        </div>
+        {
+          isSignedIn ? (
+          <Button
+            onClick={() => handleCheckout(priceId)}
+            className="w-full mt-2 bg-primary text-background"
+          >
+            Get Started
+          </Button>
+          ) : (
+          <Button
+            onClick={() => handlesigninCheckout(priceId)}
+            className="w-full bg-primary text-background"
+          >
+            Get Started
+          </Button>
+          )
+        }
+        </div>
+        <div className="p-6 h-auto lg:h-80">
+        <ul className="space-y-2">
+          <p className="text-md font-semibold text-foreground">
+          {lastone !== null && <span className="text-muted-foreground">Includes all features from {lastone} and</span>}
+          </p>
+          <li className="flex items-center text-sm text-foreground">
+          <Check className="w-4 h-4 mr-2 text-primary" />
+          {plans.projects} Projects
+          </li>
+          <li className="flex items-center text-sm text-foreground">
+          <Check className="w-4 h-4 mr-2 text-primary" />
+          {plans.users} Users
+          </li>
+          {plans.features.map((feature, index) => (
+          <li key={index} className="flex items-center text-sm text-foreground">
+            <Check className="w-4 h-4 mr-2 text-primary" />
+            {feature}
+          </li>
+          ))}
+        </ul>
+        </div>
+      </div>
+      </div>
+    </div>
+  );
+}
+
+
 interface AnimatedFeatureProps {
   icon: LucideIcon
   title: string
@@ -588,7 +757,9 @@ function AnimatedFeature({ icon: Icon, title, description }) {
   );
 }
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
+import { useAuth, useUser } from "@clerk/clerk-react"
 function BlurCard({title, description, icon}){
   return (
     <Card className="overflow-hidden bg-gradient-to-br h-[20rem] gap-5 flex flex-col from-background/80 to-background/40 backdrop-blur-xl border-muted/15 group hover:border-primary/50 transition-all duration-300">
