@@ -31,7 +31,6 @@ export const deleteFromClerk = internalMutation({
   args: { clerkUserId: v.string() },
   async handler(ctx, { clerkUserId }) {
     // check if user exists
-    console.log("clerkUserId", clerkUserId);
     const user = await userByExternalId(ctx, clerkUserId);
 
     if (user !== null) {

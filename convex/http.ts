@@ -17,7 +17,6 @@ http.route({
     switch (event.type) {
       case "user.created":
         try {
-          console.log('Sending welcome email to', event.data.email_addresses[0].email_address);
           const response = await fetch('http://localhost:3000/api/support/restricted/email/startsupport', {
         method: 'POST',
         headers: {

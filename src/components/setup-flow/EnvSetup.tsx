@@ -16,7 +16,6 @@ interface PageInfo {
 }
 
 export default function EnvSetup({ pageInfo }: { pageInfo: PageInfo }) {
-console.log(pageInfo)
   const [showApiKey, setShowApiKey] = useState(false)
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<'env' | 'code'>('env')

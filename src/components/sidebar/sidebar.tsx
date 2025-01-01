@@ -3,7 +3,6 @@ import Link from 'next/link';
 
 export default function Sidebar({ activeTab, setActiveTab, pageid, contentApproval }: {contentApproval: any, activeTab: string, setActiveTab: React.Dispatch<React.SetStateAction<string>>, pageid: string }) {
     
-    console.log(contentApproval.length);
     const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>, tab: string) => {
         if (event.key === 'Enter' || event.key === ' ') {
             setActiveTab(tab);

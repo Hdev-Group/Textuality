@@ -35,7 +35,6 @@ export default function ScheduleChangeOpen({ isOpen, onClose, _id, scheduleInfo 
             setTime(format(date, "HH:mm"));
         }
     }, [scheduleInfo]);
-    console.log(scheduleInfo)
 
     const handleSubmit = async (e) => {
         e.preventDefault();

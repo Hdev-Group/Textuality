@@ -19,7 +19,6 @@ export default function Team() {
   const filteredprojects = projects?.filter((page) => page.users.includes(user?.id));
   const premiumcheck = useQuery(api.page.getPremiumPages, { userid: user?.id });
   const [premiumProjects, setPremiumProjects] = useState([]);
-  console.log(premiumProjects);
 
   useEffect(() => {
     const fetchPremiumProjects = async () => {

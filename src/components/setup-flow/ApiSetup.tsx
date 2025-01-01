@@ -69,7 +69,6 @@ export default function ApiSetup({ pageInfo }: { pageInfo: any }) {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [responseData, setResponseData] = useState<string | null>(null)
   const getAnalytics = useQuery(api.analytics.getAnalytics, { pageid: pageInfo?._id })
-  console.log(getAnalytics)
 
   const handleApiRequest = async () => {
     setIsLoading(true)
