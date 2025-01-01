@@ -105,7 +105,8 @@ export default function Footer() {
               </DropdownMenu>
             </div>
             <div className="flex flex-col md:items-end">
-              <img src={logoSrc} alt="Textuality Logo" className="w-max h-auto max-w-[10rem] mb-2" />
+              <img src="/wordmarks/light-removebg-preview.png" alt="Textuality Logo" className="w-max dark:block hidden h-auto max-w-[10rem] mb-2" />
+              <img src="/wordmarks/dark-removebg-preview.png" alt="Textuality Logo" className="w-max dark:hidden block  h-auto max-w-[10rem] mb-2" />
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Textuality, Inc. All Rights Reserved
                 

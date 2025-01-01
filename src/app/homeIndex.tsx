@@ -37,6 +37,29 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
+      const sections = document.querySelectorAll('.information-section');
+      
+      sections.forEach((section) => {
+      gsap.fromTo(
+        section,
+        { opacity: 0, y: 50 },
+        {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: section,
+          start: "top 80%",
+          end: "bottom 20%",
+          toggleActions: "play none none none",
+        },
+        }
+      );
+      });
+    }, []);
+
+    useEffect(() => {
       gsap.fromTo(".text-mid", 
       { y: 100, opacity: 0 },
       {
@@ -234,7 +257,7 @@ export default function Home() {
             <Header />
               <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
                 <div className="absolute left-1/2 top-[-50px] -translate-x-1/2 z-0 h-[80vh] w-[80vw] bg-[radial-gradient(ellipse_50%_80%_at_50%_-40%,rgba(64,224,208,0.3),rgba(255,255,255,0))] background-gradient"/>
-                <div className="flex flex-col z-10 w-full items-center justify-start h-full">
+                <div className="flex flex-col gap-20 mb-20 z-10 w-full items-center justify-start h-full">
                   <div className="container h-full px-4 md:px-1  mt-12 md:mt-44  mb-12">
                   <div className="flex flex-col lg:flex-row items-start justify-start w-full">
                     <div className="flex flex-col w-auto">
@@ -246,7 +269,7 @@ export default function Home() {
                         <span className="heading-word">everyone</span>{" "}
                         <span className="heading-word">together</span>
                       </h1>
-                      <p className="text-md text-muted-foreground mt-4 w-[90%] text-mid">Textuality is a new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
+                      <p className="text-md text-muted-foreground mt-4 w-[90%] text-mid">Textuality is the new way to create, share, and manage your content. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.</p>
                       <div className="flex flex-row gap-2 mt-5">
                         <Link href="/application/home" className="fadeIn">
                           <Button size="lg">Get Started</Button>
@@ -262,7 +285,7 @@ export default function Home() {
                         <div className="flex flex-row gap-2 items-center w-full pl-3 justify-start">
                           <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex bg-red-400 transition-all items-center justify-center"/>
                           <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex bg-yellow-300 items-center justify-center"/>
-                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex bg-green-400 items-center justify-center"/>
+                          <div className="bg-muted-foreground/30 md:w-4 md:h-4 h-3 w-3 rounded-full flex bg-green-500 items-center justify-center"/>
                         </div>
                         <div className="flex flex-row items-center w-full justify-center">
                           <div className="px-4 text-muted-foreground text-sm z-50 bg-white/20 flex items-center justify-center rounded-lg">
@@ -322,69 +345,62 @@ export default function Home() {
                   </div>
                 </div>
                 </main>
-                <div className="w-full flex overflow-x-hidden">
-                <div className="w-full rounded-3xl bg-gradient-to-br from-blue-600/20 to-purple-900/20 h-full  md:py-0 py-10 relative mt-20">
-                    <h1 className="lg:text-[52px] text-5xl text-white mt-20 text-center">Industry-Disruptive content management software</h1>
-                    <p className="text-md text-muted-foreground dark:text-muted-foreground text-center px-2 mt-2">
-                      Textuality is the perfect tool for your next project. Whether you're a writer, designer, or developer, Textuality is the perfect tool for your next project.
+                <div className="w-full mb-20 bg-transparent flex overflow-x-hidden">
+                <div className="w-full rounded-3xl bg-gradient-to-br pb-20 from-blue-600/20 to-purple-900/20 h-full py-10 relative mt-20">
+                  <div className="container mx-auto px-4">
+                    <h1 className="text-4xl md:text-5xl mt-10 lg:text-6xl font-bold text-white text-start mb-2">
+                      <span className="bg-clip-text text-transparent  bg-gradient-to-r from-blue-400  to-purple-600">Industry-Disruptive</span> Content Management Software
+                    </h1>
+                    <p className="text-lg text-white/60 text-start max-w-full mb-16">
+                      Textuality is the perfect tool for your next project. Whether you're a writer, designer, or developer, Textuality empowers your content creation and management.
                     </p>
-                    <div className="flex flex-col md:flex-row justify-between w-full mx-10 mt-10">
-                      <div className="flex flex-col gap-2">
-                        <h1 className="text-md font-semibold space-grotesk-600 text-blue-900 ">BEST IN CLASS</h1>
-                        <h1 className="text-3xl font-bold space-grotesk-600 text-white">Leading with ease</h1>
-                        <p className="text-md text-muted-foreground dark:text-muted-foreground">Our content management system is the most secure, user friendy, easy to use system on the market, With top sub second performance to get your content where it needs to go</p>
-                        <div className="flex flex-col gap-2">
-                          <div className="flex flex-row gap-3 text-white">
-                            <CheckSquare size={24} />
-                            <p>Low latency | ~750ms content delivery</p>
-                          </div>
-                          <div className="flex flex-row gap-3 text-white">
-                            <CheckSquare size={24} />
-                            <p>Easy to use | No learning curve</p>
-                          </div>
-                          <div className="flex flex-row gap-3 text-white">
-                            <CheckSquare size={24} />
-                            <p>Secure | End-to-end encryption</p>
-                          </div>
-                          <div className="flex flex-row gap-3 text-white">
-                            <CheckSquare size={24} />
-                            <p>Secure | AES-256 bit encryption</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <Image src="/images/hero.png" alt="img" width={500} height={500} />
-                      </div>
+                    <div className="grid md:grid-cols-2 gap-16 items-start">
+                      <FeatureSection
+                        title="Leading with Ease"
+                        subtitle="BEST IN CLASS"
+                        description="Our content management system is the most secure, user-friendly, and easy-to-use system on the market. With top sub-second performance to get your content where it needs to go."
+                        features={[
+                          "Low latency | ~750ms content delivery",
+                          "Easy to use | No learning curve",
+                          "Secure | End-to-end encryption",
+                          "Secure | AES-256 bit encryption"
+                        ]}
+                      />
+                      <Image
+                        src="/images/hero.png"
+                        alt="Textuality dashboard preview"
+                        width={500}
+                        height={500}
+                        className="rounded-lg shadow-2xl"
+                      />
                     </div>
-                    <div className="flex flex-col md:flex-row justify-between w-full mx-10 mt-2">
-                      <div>
-                        <Image src="/images/hero.png" alt="img" width={500} height={500} />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <h1 className="text-md font-semibold space-grotesk-600 text-blue-900 ">PRODUCTION-READY</h1>
-                        <h1 className="text-3xl font-bold space-grotesk-600 text-white">Backed by developers</h1>
-                        <p className="text-md text-muted-foreground dark:text-muted-foreground text-wrap break-words w-[90%]">From easy to use API's to publishing and monitoring your content developers choose Textuality because we build with them in mind.</p>
-                        <div className="flex flex-col gap-2">
-                          <div className="flex flex-row gap-3 text-white">
-                            <CheckSquare size={24} />
-                            <p>API-first | Easy to integrate</p>
-                          </div>
-                          <div className="flex flex-row gap-3 text-white">
-                            <CheckSquare size={24} />
-                            <p>Monitoring | Real-time metrics</p>
-                          </div>
-                          <div className="flex flex-row gap-3 text-white">
-                            <CheckSquare size={24} />
-                            <p>Developer friendly | Easy to use</p>
-                          </div>
-                        </div>
-                      </div>
+
+                    <div className="grid md:grid-cols-2 gap-16 items-end mt-20">
+                      <Image
+                        src="/images/hero.png"
+                        alt="Textuality API documentation"
+                        width={500}
+                        height={500}
+                        className="rounded-lg shadow-2xl order-2 md:order-1"
+                      />
+                      <FeatureSection
+                        title="Backed by Developers"
+                        subtitle="PRODUCTION-READY"
+                        description="From easy-to-use APIs to publishing and monitoring your content, developers choose Textuality because we build with them in mind."
+                        features={[
+                          "API-first | Easy to integrate",
+                          "Monitoring | Real-time metrics",
+                          "Developer friendly | Easy to use"
+                        ]}
+                        className="order-1 md:order-2"
+                      />
                     </div>
+                  </div>
                   </div>
                 </div>
                 <main className="flex-grow relative z-40 overflow-x-hidden bg-background w-full rounded-sm lg:mx-10 ">
-                <div className="flex flex-col z-10 w-full items-center justify-start h-full">
-                  <div className="flex flex-col w-full  items-start justify-start gap-3 mt-32 container relative">
+                <div className="flex flex-col  z-10 w-full items-center justify-start h-full">
+                  <div className="flex flex-col w-full mb-20 items-start justify-start gap-3 mt-32 container relative">
                   <div className="absolute inset-0 max-w-xs  left-0 h-44 blur-[118px]" style={{ background: 'linear-gradient(152.92deg, rgba(64, 224, 208, 0.1) 4.54%, rgba(64, 224, 208, 0.16) 34.2%, rgba(37, 99, 235, 0.1) 77.55%)' }} />
                     <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start title-second">A <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-200 to-teal-600">secure foundation</span> to write on</h1>
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start title-third">
@@ -432,7 +448,7 @@ export default function Home() {
                     </div>
                     </div>
                   </div>
-                  <div className="w-full mt-20 flex flex-col relative container">
+                  <div className="w-full mt-20 mb-20 flex flex-col relative container">
                   <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-end title-second">A Simple but <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">effective</span> platform for content creators</h1>
                   <p className="lg:text-lg text-sm px-4 text-muted-foreground text-end title-third">
                       With multiple real time tools to help visulise how your content will look, Textuality is the perfect tool for your next project.
@@ -470,7 +486,7 @@ export default function Home() {
                       />
                     </div>
                   </div>
-                  <div className="w-full mt-20 flex flex-col relative container">
+                  <div className="w-full mt-20 flex flex-col mb-20  relative container">
                     <h1 className="lg:text-[52px] text-5xl px-4 font-bold text-start title-second">Pricing set <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-blue-500 to-purple-600">Right</span></h1>
                     <p className="lg:text-lg text-sm px-4 text-muted-foreground text-start title-third">
                       Textuality offers a range of pricing plans to suit your needs. Whether you're a small business or a large enterprise, we have a plan for you.
@@ -899,6 +915,36 @@ function DiffFeatureCard({ icon: Icon, title, description }: FeatureCardProps) {
         <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors duration-300">{title}</h3>
       </div>
       <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">{description}</p>
+    </div>
+  )
+}
+
+interface FeatureSectionProps {
+  title: string
+  subtitle: string
+  description: string
+  features: string[]
+  className?: string
+}
+
+function FeatureSection({ title, subtitle, description, features, className = '' }: FeatureSectionProps) {
+
+
+  return (
+    <div className={`flex flex-col gap-6 ${className}`}>
+      <div>
+        <h2 className="text-sm font-semibold text-blue-400 mb-2 text-mid">{subtitle}</h2>
+        <h3 className="text-3xl font-bold text-white mb-4 text-mid">{title}</h3>
+        <p className="text-gray-300 text-mid">{description}</p>
+      </div>
+      <ul className="space-y-3">
+        {features.map((feature, index) => (
+          <li key={index} className="flex items-center gap-3 text-white information-section">
+            <CheckSquare className="w-5 h-5 text-green-400 flex-shrink-0" />
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

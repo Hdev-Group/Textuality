@@ -77,7 +77,7 @@ content: defineTable({
     previousauthors: v.array(v.string()),
     lastUpdatedBy: v.string(),
     status: v.string(),
-    content: v.string(),
+    about: v.string(),
     updated: v.any(),
     scheduled: v.optional(v.any()),
     scheduledFunctionId: v.optional(v.string()),
@@ -193,4 +193,12 @@ staffDB: defineTable({
     department: v.string(),
     role: v.string(),
 }),
+analytics: defineTable({
+    pageid: v.string(),
+    date: v.any(),
+    day: v.string(),
+    week: v.string(),
+    month: v.string(),
+    pageviews: v.number(),
+  }).index("bypageid", ["pageid"]),
 });

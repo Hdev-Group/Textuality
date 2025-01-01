@@ -99,14 +99,20 @@ export async function GET(req: NextRequest, { params }: { params: { _pageid: str
       imageUrl: user.imageUrl,
     }]));
 
+
     const enrichedResults = publishedResults.map((result: any) => ({
       ...result,
       author: userMap.get(result.authorid) || {},
     }));
 
+    await fetchMutation(api.analytics.createAnalytics, {
+      pageid,
+      dateString: new Date().toISOString(),
+      pageviews: 1,
+    })
+
     // Cache the response
     setCachedResponse(cacheKey, enrichedResults);
-
     return NextResponse.json({ results: enrichedResults });
   } catch (error) {
     console.error('Error processing request:', error);

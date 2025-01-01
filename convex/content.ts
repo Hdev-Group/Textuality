@@ -22,7 +22,7 @@ export const createContent = mutation({
             authorid: lastUpdatedBy,
             updated,
             status: "Draft",
-            content: "",
+            about: "",
         });
     }
 });
@@ -33,9 +33,10 @@ export const updateContentStatus = mutation({
     args: {
       _id: v.id("content"),
       status: v.string(),
+      about: v.string(),
     },
-    handler: async (ctx, { _id, status }) => {
-      return ctx.db.patch(_id, { status });
+    handler: async (ctx, { _id, status, about }) => {
+      return ctx.db.patch(_id, { status, about });
     }
   });
 

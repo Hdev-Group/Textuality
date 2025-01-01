@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sheet"
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import SetupFlow from '@/components/setup-flow/setup';
 
 
 export default function Page({ params }: { params: { _teamid: string} }) {
@@ -75,28 +76,23 @@ export default function Page({ params }: { params: { _teamid: string} }) {
 }
 
 function Setup({ changePreview, getpageinfo }: { changePreview: any, getpageinfo: any }) {
+
+  const [getStarted, setGetStarted] = useState(false);
+
   return(
     <div className='xl:min-w-[1400px] w-full xl:w-min container mt-10 mx-auto items-center justify-center'>
     <div className='flex container mx-auto'>
       <div className='flex flex-row justify-between w-full items-center'>
         <h2 className='text-3xl font-semibold'>Setup your Textuality account</h2>
         <div className='flex flex-row gap-3'>
-          <Sheet>
-            <SheetTrigger>
-              <Button>Get Started</Button>
-            </SheetTrigger>
-            <SheetContent className='w-1/2 h-full overflow-y-scroll overflow-x-hidden text-wrap break-words break-all'>
-              <SheetHeader>
-                <SheetTitle>Get Started</SheetTitle>
-              </SheetHeader>
-              <SheetDescription>
-                <p>Get started with Textuality by following the setup guide</p>
-              </SheetDescription>
-              <div className='flex flex-col gap-3'>
-                <SetupAPI pageinfo={getpageinfo} />
-              </div>
-            </SheetContent>
-          </Sheet>
+              <Button onClick={() => setGetStarted(true)}>Get Started</Button>
+              {
+                getStarted ? (
+                  <SetupAPI pageInfo={getpageinfo} OnClose={() => setGetStarted(false)} />
+                ) : (
+                  null
+                )
+              }
           <div className='flex flex-row gap-1 items-center justify-center cursor-pointer' onClick={() => changePreview("PowerUser")}>
           <X className='h-5 w-5' /> <p className='text-md'>Skip setup</p>
         </div>
@@ -238,14 +234,14 @@ function PowerUser({ getpageinfo, _teamid, changePreview, pageContentAPIGetter }
           </div>
           <div className={`flex w-full flex-row justify-between py-2 px-5 overflow-hidden ${showhideSuggesteder ? "h-auto" : "hidden"}`}>
             <div className='flex flex-col gap-5 w-full  pr-5 '>
-              <div className='flex flex-row py-4 gap-5'>
+              <a className='flex flex-row py-4 gap-5' href='../settings/users'>
                 <img src="/icons/IMG_6491.png" className='h-10 dark:flex hidden' />
                 <img src="/icons/IMG_6450.png" className='h-10 dark:hidden flex' />
                 <div className='flex flex-col gap-1'>
                   <h3 className='font-semibold text-lg'>Invite Team members</h3>
                   <p className='text-muted-foreground text-sm'>Discover the best practices to use textuality effectively for your content</p>
                 </div>
-              </div>
+              </a>
               <div className='flex flex-row py-4 gap-5'>
                 <LucideHardDriveUpload className='h-10 w-10' />
                 <div className='flex flex-col gap-2'>
@@ -379,72 +375,9 @@ function MetricCard({ title, description, current, max, warningThreshold = 75 }:
   )
 }
 
-function SetupAPI({pageinfo}: {pageinfo: any}) {
+function SetupAPI({pageInfo, OnClose}: {pageInfo: any, OnClose: () => void}) {
   const [hasclicked, setHasClicked] = useState(false);
   return(
-    <div className='flex flex-col w-full  overflow-x-scroll items-start justify-start mt-10 '>
-      <p className='text-xl font-semibold'>Setup your Textuality API</p>
-      <p className='text-lg font-semibold'>Your .env token setup</p>
-      <p className='text-red-400 font-semibold'>Warning. Your API key is how you access your content and it controls your limits. Be warned when giving this out.</p>
-      <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
-        {`TEXTUALITY_PAGE_ID=${pageinfo._id}`}
-      </SyntaxHighlighter>
-      <div className='flex flex-row relative'>
-        <div onClick={() => setHasClicked(!hasclicked)} className={`absolute w-full h-full flex items-center justify-center cursor-pointer rounded-lg z-50 ${hasclicked ? "backdrop-blur-none opacity-0" : " backdrop-blur-md flex"}`}>
-          <p className='flex flex-row gap-2 font-semibold text-xl'><EyeOff className='w-7 h-7' /> API Secret Inside</p>
-        </div>
-        <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
-          {`TEXTUALITY_API_KEY=${pageinfo.accesstoken}`}
-        </SyntaxHighlighter>
-      </div>
-      <p className='text-lg font-semibold'>Your content page setup</p>
-      <p>/blog</p>
-      <SyntaxHighlighter language="javascript" className="rounded-lg" style={materialDark}>
-        {`const [blogs, setBlogs] = useState([]);
-const [error, setError] = useState<string | null>(null);
-
-useEffect(() => {
-  fetch("/api/textuality/full")
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setBlogs(data.blogs);
-      }
-    })
-    .catch((err) => {
-      setError(err.message);
-    });
-}, []);
-        `}
-      </SyntaxHighlighter>
-      <div className='flex flex-col'>
-      <p className='text-lg font-semibold'>Your API setup</p>
-        <p>/api/textuality/full</p>
-        <SyntaxHighlighter language="javascript" className="rounded-lg overflow-x-scroll" style={materialDark}>
-          {`import { NextRequest, NextResponse } from "next/server";
-
-export async function GET(_req: NextRequest) {
-
-    const token = process.env.TEXTUALITY_API_KEY;
-    const pageid = process.env.TEXTUALITY_PAGE_ID;
-
-    const response = await fetch("http://textuality.hdev.uk/api/content/full/{pageid}", {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': \`Bearer \${token}\`
-        }
-    });
-    const data = await response.json();
-    if (data.error) {
-        return NextResponse.json({ error: data.error }, { status: 500 });
-    } else {
-        return NextResponse.json({ blogs: data }, { status: 200 });
-    }
-}`}
-        </SyntaxHighlighter>
-      </div>      
-    </div>
+    <SetupFlow pageInfo={pageInfo} OnClose={OnClose} />
   )
 }

@@ -10,3 +10,10 @@ export const updateContentStatusInternal = internalMutation({
       return ctx.db.patch(_id, { status });
     }
   });
+
+  export const deleteAnalytics = internalMutation({
+    args: { analyticsId: v.id("analytics") },
+    handler: async (ctx, { analyticsId }) => {
+      await ctx.db.delete(analyticsId);
+    },
+  });

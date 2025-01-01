@@ -126,7 +126,7 @@ export default function ContentApproval({ params }) {
                 <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
                     <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg h-screen overflow-y-auto">
                         <div className='flex'>
-                            <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} pageid={_teamid} />
+                            <Sidebar contentApproval={getContent ? getContent?.filter((content) => content.status === "Review") : null} activeTab={activeTab} setActiveTab={setActiveTab} pageid={_teamid} />
                             <main className="flex-1">
                                 <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
                                     <div className="flex justify-between items-center">
@@ -134,7 +134,7 @@ export default function ContentApproval({ params }) {
                                     </div>
                                 </div>
                                 <div className={`${viewextended ? "md:pl-3 md:pr-2" : ""} flex md:p-8  flex-row justify-between  bg-white gap-4  dark:bg-neutral-950 `}>
-                                    <div className={`${viewextended ? "w-1/3" : "w-full"} flex flex-col gap-4 transition-all duration-500 ease-in-out`}>
+                                    <div className={`${viewextended ? "w-0 md:flex hidden md:w-1/3" : "w-full"} flex flex-col gap-4 transition-all duration-500 ease-in-out`}>
                                     <div className="flex gap-4 mb-6 ">
                                         {/* Filter by Author */}
                                             <Select defaultValue="all" onValueChange={(value) => filterContentItem(value)}>
@@ -159,7 +159,7 @@ export default function ContentApproval({ params }) {
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
-                                        <div className="relative flex-1">
+                                        <div className="relative flex-1 md:flex hidden">
                                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                             <Input className="pl-10" placeholder="Search content..." onChange={(e) => setSearch(e.target.value)} value={search} />
                                         </div>
@@ -303,7 +303,7 @@ export default function ContentApproval({ params }) {
                                         </div>
                                     </div>
                                     </div>
-                                    <div className={`${viewextended ? "w-3/4" : "w-0"} flex flex-col transition-all duration-500 ease-in-out gap-1 overflow-hidden`}>
+                                    <div className={`${viewextended ? "w-full md:ml-0 md:w-3/4" : "w-0"} flex flex-col transition-all duration-500 ease-in-out gap-1 overflow-hidden`}>
                                         <div className='flex flex-row justify-between items-center'>
                                             <h1 className='text-2xl font-bold'>Content Preview</h1>
                                             <Button variant='outline' size='icon' onClick={() => { setViewExtended(false); setPreviewedFile(null); }}><X className='w-4 h-4' /> </Button>
@@ -507,11 +507,11 @@ function timeAgo(date: Date) {
     const days = Math.floor(hours / 24);
 
     if (days > 0) {
-        return `${days} days ago`;
+        return `${days} day${days > 1 ? 's' : ''} ago`;
     } else if (hours > 0) {
-        return `${hours} hours ago`;
+        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
     } else if (minutes > 0) {
-        return `${minutes} minutes ago`;
+        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
     } else {
         return `a few seconds ago`;
     }

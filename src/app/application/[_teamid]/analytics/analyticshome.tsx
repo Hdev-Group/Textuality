@@ -95,7 +95,7 @@ export default function AnalyticsHome({ params }: { params: { _teamid: string } 
                 <div className="flex flex-col md:gap-0 gap-5 w-full justify-between">
                   <div className="py-4 px-8 flex flex-row w-full border-b">
                     <div className="flex flex-row w-full items-center justify-between">
-                      <h1 className="text-2xl font-bold">Analytics</h1>
+                      <h1 className="text-2xl font-bold">Analytics - Soon</h1>
                       <Link href={`/application/${teamid}/analytics/tracknew`}>
                         <Button variant="gradient" className="mt-4 flex items-center justify-center flex-row">
                           <span className="flex flex-row gap-1 items-center justify-center">

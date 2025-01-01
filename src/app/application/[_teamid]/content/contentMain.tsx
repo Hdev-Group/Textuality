@@ -11,6 +11,7 @@ import AuthWrapper from '../withAuth';
 import { Input } from "@/components/ui/input";
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import SetupFlow from '@/components/setup-flow/setup';
 import { Plus, Search, AlignLeftIcon, History, Timer, LineChart, ClipboardCheck } from 'lucide-react';
 import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import {
@@ -157,8 +158,8 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                     <main className="md:mx-auto md:px-10 py-3 h-full transition-all">
                         <div className="bg-white dark:bg-neutral-950 w-full rounded-lg shadow-lg h-screen overflow-y-auto">
                             <div className="flex">
-                                <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} pageid={_teamid} />
-                                <main className="flex-1">
+                            <Sidebar contentApproval={getContent ? getContent?.filter((content) => content.status === "Review") : []} activeTab={activeTab} setActiveTab={setActiveTab} pageid={_teamid} />
+                            <main className="flex-1">
                                     <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
                                         <div className="flex justify-between items-center">
                                             <h1 className="text-2xl font-bold">All Content</h1>
@@ -361,29 +362,28 @@ function timeAgo(date: Date) {
     const days = Math.floor(hours / 24);
 
     if (days > 0) {
-        return `${days} days ago`;
+        return `${days} day${days > 1 ? 's' : ''} ago`;
     } else if (hours > 0) {
-        return `${hours} hours ago`;
+        return `${hours} hour${hours > 1 ? 's' : ''} ago`;
     } else if (minutes > 0) {
-        return `${minutes} minutes ago`;
+        return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
     } else {
         return `a few seconds ago`;
     }
 }
 
-function ContentCreateButton({getTemplates, _teamid}: any) {
-    const router = useRouter();
+export function ContentCreateButton({getTemplates, _teamid, className}: any) {
 
     return(
         <DropdownMenu>
-        <DropdownMenuTrigger>
-            <div tabIndex={0} role="button" onKeyPress={(e) => { if (e.key === 'Enter') e.currentTarget.click(); }}>
-            <Button>
-                <Plus className="mr-2 h-4 w-4" /> New Content
-            </Button>
+        <DropdownMenuTrigger className={className}>
+            <div className={className} tabIndex={0} role="button" onKeyPress={(e) => { if (e.key === 'Enter') e.currentTarget.click(); }}>
+                <Button className={className}>
+                    <Plus className="mr-2 h-4 w-4" /> New Content
+                </Button>
             </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className={className}>
             <DropdownMenuLabel>Templates</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {
