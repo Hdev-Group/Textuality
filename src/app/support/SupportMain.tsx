@@ -23,7 +23,6 @@ export default function SupportPage() {
     );
     
     const [searchQuery, setSearchQuery] = useState('')
-      console.log(checkifstaff)
 
     const supportCategories = [
       { icon: <LifeBuoy className="h-6 w-6" />, title: 'General Help', href: '/general-help' },

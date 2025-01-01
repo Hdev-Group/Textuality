@@ -253,9 +253,6 @@ export default function TeamManagement({ params }: { params: { _teamid: string }
                                   </span>
                                 </div>
                                 <div className="flex items-center justify-between gap-10 mt-4">
-                                  <Button asChild variant="outline" size="sm">
-                                    <Link href={`/author/${member.id}`}>View Profile</Link>
-                                  </Button>
                                   <Role
                                     teamid={teamid}
                                     userid={member.id}

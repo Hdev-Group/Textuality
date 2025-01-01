@@ -1,7 +1,8 @@
 import { AlignLeftIcon, ClipboardCheck, History, Timer } from 'lucide-react';
 import Link from 'next/link';
 
-export default function Sidebar({ activeTab, setActiveTab, pageid }: { activeTab: string, setActiveTab: React.Dispatch<React.SetStateAction<string>>, pageid: string }) {
+export default function Sidebar({ activeTab, setActiveTab, pageid, contentApproval }: {contentApproval: any, activeTab: string, setActiveTab: React.Dispatch<React.SetStateAction<string>>, pageid: string }) {
+    
     const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>, tab: string) => {
         if (event.key === 'Enter' || event.key === ' ') {
             setActiveTab(tab);
@@ -9,7 +10,7 @@ export default function Sidebar({ activeTab, setActiveTab, pageid }: { activeTab
     };
 
     return (
-        <aside className="md:min-w-[13rem] w-auto relative">
+        <aside className="md:min-w-[13rem] min-w-[4.9rem] h-full relative">
             <div className='bg-white h-screen fixed dark:bg-neutral-950 border-r border-gray-200 dark:border-neutral-800'>
                 <div className='pt-5 pb-2 space-y-2 border-b flex flex-col'>
                 <ul className='space-y-2 gap-2 px-1 md:px-4 border-b pb-2'>
@@ -57,7 +58,11 @@ export default function Sidebar({ activeTab, setActiveTab, pageid }: { activeTab
                     >
                         <ClipboardCheck className='h-4 w-4' />
                         <span className="hidden md:inline">Content Approval</span>
-                        <div className='rounded-full bg-red-400 h-5 w-5 hidden md:flex items-center justify-center p-2'>1</div>
+                        {
+                            contentApproval?.length > 0 && (
+                                <span className='bg-accent/80 text-foreground text-sm px-2.5 py-1 rounded-full'>{contentApproval?.length}</span>
+                            )
+                        }
                     </li>
                     </Link>
                 </ul>

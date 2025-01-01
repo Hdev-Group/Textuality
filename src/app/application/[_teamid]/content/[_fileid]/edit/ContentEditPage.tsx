@@ -329,6 +329,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             await updateContentStatus({
                 _id: _id,
                 status: "Published",
+                about: richTextFields.split(' ').slice(0, 30).join(' ')
             });
             setUpdated("true");
         };
@@ -338,6 +339,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             await updateContentStatus({
                 _id: _id,
                 status: "Draft",
+                about: richTextFields.split(' ').slice(0, 30).join(' ')
             });
             setUpdated("true");
         };
@@ -701,7 +703,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                         {
                                             getContent?.status != "Published" && getContent?.status != "Scheduled" ? (
                                                 getSettings?.[0]?.contentreview && getContent.status === "Draft" ? (
-                                                    <button onClick={() => updateContentStatus({_id: getContent._id, status: "Review"})} className='bg-purple-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-purple-800 transition-all'>
+                                                    <button onClick={() => updateContentStatus({_id: getContent._id, status: "Review", about: ""})} className='bg-purple-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-purple-800 transition-all'>
                                                         Send to Review
                                                     </button>
                                                 ) : getSettings?.[0]?.contentreview && getContent.status === "Review" ? (

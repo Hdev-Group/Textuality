@@ -33,7 +33,7 @@ export default function AppHeader({ teamid, activesection }: any) {
     { icon: Wrench, label: "Templates", route: `/application/${teamid}/templates`, activesection: "templates" },
     { icon: FolderPen, label: "Content", route: `/application/${teamid}/content`, activesection: "content" },
     { icon: Component, label: "Components", route: `/application/${teamid}/components`, activesection: "components" },
-    { icon: ChartArea, label: "Analytics", route: `/application/${teamid}/analytics`, activesection: "analytics" },
+    // { icon: ChartArea, label: "Analytics", route: `/application/${teamid}/analytics`, activesection: "analytics" },
   ];
   const teamname = useQuery(api.page.getExactPage, { _id: teamid })?.title;
   const { signOut } = useClerk()

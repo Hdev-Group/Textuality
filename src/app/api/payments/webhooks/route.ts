@@ -78,9 +78,7 @@ export async function POST(req: NextRequest) {
         const newPlan = subscription.items.data[0].plan.id;
       
         // Check for cancellation
-        console.log(subscription);
         const cancellationDate = subscription.cancel_at;
-        console.log(cancellationDate);
 
           // Call the subscription updated mutation
           await fetchMutation(api.payments.subscriptionUpdated, {

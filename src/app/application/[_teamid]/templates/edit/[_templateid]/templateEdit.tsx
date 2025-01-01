@@ -92,7 +92,6 @@ export default function TemplateManager({ params }: { params: { _teamid: any; _t
     }
   ])
 
-  console.log(saveField)
   const hasChanged = saveField.some(field => 
     field.fieldid && 
     field.templateid && 

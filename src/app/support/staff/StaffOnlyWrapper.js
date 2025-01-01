@@ -12,7 +12,6 @@ const StaffOnlyWrapper = ({ children }) => {
   const [authChecked, setAuthChecked] = useState(false); 
 
   const checkifstaff = useQuery(api.staff.getStaff, { staffIds: userId ? [userId] : [] });
-  console.log(checkifstaff);
 
   useEffect(() => {
     if (isLoaded && checkifstaff) {

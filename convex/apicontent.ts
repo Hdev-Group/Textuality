@@ -9,7 +9,6 @@ export const APIGetter = query({
     const fileget = await ctx.db.get(id);
     const fields = await ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), fileget?.templateid)).collect();
     const fieldvalues = await ctx.db.query("fieldvalues").filter(q => q.eq(q.field("fileid"), id)).collect();
-    console.log(fieldvalues, "h");
     const merged = fields.map((field) => {
       const fieldvalue = fieldvalues.find((fv) => fv.fieldid === field._id);
       return {
@@ -44,9 +43,7 @@ export const correctPageID = query({
       _id: v.id("pages"),
     },     
     handler: async (ctx, { _id }) => {     
-    console.log(_id);    
     const page = await ctx.db.get(_id);
-    console.log(page);
       if (!page || page.users.length === 0) {             
         return false;         
       } else {             
