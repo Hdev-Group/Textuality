@@ -10,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { api } from '../../../convex/_generated/api'
 import { query } from '../../../convex/_generated/server'
 import { useQuery } from 'convex/react'
+import Link from 'next/link'
 
 
 const apiCode = `import { NextRequest, NextResponse } from "next/server";
@@ -173,9 +174,11 @@ export default function ApiSetup({ pageInfo }: { pageInfo: any }) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon">
-                <ExternalLink className="h-4 w-4" />
-              </Button>
+              <Link href='https://textualitydocs.hdev.uk/setup/'>
+                <Button variant="outline" size="icon">
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </Link>
             </TooltipTrigger>
             <TooltipContent>
               <p>Open API documentation</p>

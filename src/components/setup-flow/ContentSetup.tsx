@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { FileCode, Copy, CheckCircle, ExternalLink } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Badge } from "@/components/ui/badge"
+import Link from 'next/link'
 
 export default function ContentSetup() {
   const [copiedTab, setCopiedTab] = useState<string | null>(null)
@@ -201,9 +202,11 @@ export default function BlogGrid() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
+                  <Link href='https://textualitydocs.hdev.uk/setup/#general-blog-page'>
+                    <Button variant="outline" size="icon">
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </Link>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Open documentation</p>
