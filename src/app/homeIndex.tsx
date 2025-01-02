@@ -367,20 +367,20 @@ export default function Home() {
                         ]}
                       />
                       <Image
-                        src="/images/hero.png"
+                        src="/indeximg/image.png"
                         alt="Textuality dashboard preview"
-                        width={500}
-                        height={500}
+                        width={1000}
+                        height={1000}
                         className="rounded-lg shadow-2xl"
                       />
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-16 items-end mt-20">
                       <Image
-                        src="/images/hero.png"
+                        src="/indeximg/docs.png"
                         alt="Textuality API documentation"
-                        width={500}
-                        height={500}
+                        width={1000}
+                        height={1000}
                         className="rounded-lg shadow-2xl order-2 md:order-1"
                       />
                       <FeatureSection
