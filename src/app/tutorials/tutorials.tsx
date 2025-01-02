@@ -75,7 +75,7 @@ const VideoSection = ({source}: any) => {
         <div className="spinnercard">
           <div className="inner group z-10 relative items-center flex justify-center">
             {
-              !isPlaying ? (
+              !isPlaying && !source.includes("youtu.be") ? (
                 <button
                 className="group absolute z-50 inset-0 flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 shadow-lg transition-all duration-300 ease-out hover:shadow-xl hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 m-auto"
                 onClick={handlePlayPause}
@@ -91,15 +91,33 @@ const VideoSection = ({source}: any) => {
               </button>
               ) : null
             }
-            <video
-              ref={videoRef}
-              loop
-              muted={!isPlaying}
-              autoPlay={isPlaying}
-              className="w-full h-full object-cover"
-            >
-              <source src={source} type="video/mp4" />
-            </video>
+              {source.includes("youtube") || source.includes("youtu.be") ? (
+                <iframe
+                  width="100%"
+                  height="400px"
+                  className="object-cover"
+                src={`${source
+                .replace("youtu.be/", "www.youtube.com/embed/")
+                .replace("watch?v=", "embed/")}?autoplay=1`}
+                  
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : (
+                <>
+                  <video
+                    ref={videoRef}
+                    loop
+                    muted={!isPlaying}
+                    autoPlay={isPlaying}
+                    className="w-full h-full object-cover"
+                  >                    
+                  <source src={source} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </>
+              )}
           </div>
         </div>
       </div>
