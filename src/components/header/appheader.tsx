@@ -191,7 +191,7 @@ export default function AppHeader({ teamid, activesection }: any) {
                 <Link href="./settings/users" passHref>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem onClick={() => signOut({ redirectUrl: '/' })}>
+                <DropdownMenuItem onClick={() => { signOut({ redirectUrl: '/sign-in' }); router.push('/sign-in'); }}>
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

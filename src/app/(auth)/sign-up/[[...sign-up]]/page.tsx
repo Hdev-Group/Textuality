@@ -1,5 +1,5 @@
 "use client"
-import { SignUp, useAuth } from '@clerk/nextjs';
+import { SignUp, useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -56,9 +56,9 @@ export default function Page() {
   const currentImage = currentImageIndex === 4 ? '/IMG_6128.png' : colourgradientsandimages[currentImageIndex].image;
 
   return (
-    <body className='overflow-hidden'>
+    <body className='overflow-y-scroll'>
       <title>Sign Up | Textuality</title>
-      <main className="flex flex-col md:flex-row justify-between items-start h-screen bg-background">
+      <main className="flex flex-col md:flex-row justify-between items-start  h-auto bg-background">
         <div className='mx-auto md:px-10 h-screen flex flex-col w-full'>
           <div className='w-full h-20 md:px-0 px-3 py-3 flex items-center justify-between'>
             <a href='/'>
@@ -71,8 +71,8 @@ export default function Page() {
               </Link>
             </div>
           </div>
-          <div className='w-full rounded-t-2xl bg-gradient-to-t flex items-center flex-col h-full from-background to-[#1f1f23] p-8'>
-            <div className='flex flex-col gap-4 items-center md:mt-[3%]'>
+          <div className='w-full rounded-t-2xl bg-gradient-to-t flex items-center pb-20 flex-col h-full from-background to-[#1f1f23] p-8'>
+            <div className='flex flex-col pb-20 gap-4 items-center md:mt-[3%]'>
               <div className='relative w-20 h-20 overflow-hidden bg-transparent flex items-center justify-center'>
                 <div
                   className='w-16 h-16 rounded-xl overflow-hidden z-20 m-4 absolute flex items-center justify-center'

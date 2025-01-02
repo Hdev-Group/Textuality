@@ -1,6 +1,6 @@
 import { useQuery } from "convex/react"
 import { api } from "../../../../../convex/_generated/api"
-import { useAuth } from "@clerk/nextjs"
+import { useAuth } from "@clerk/clerk-react"
 import { useEffect, useState } from "react"
 import { IsAuthorizedEdge, IsLoadedEdge } from "@/components/edgecases/Auth"
 

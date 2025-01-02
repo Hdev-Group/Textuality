@@ -88,9 +88,9 @@ export default function Header() {
     setUnderlineStyle({ width: mainlocation.width, left: mainlocation.left })
   }
   return (
-    <header className={`sticky container px-4 top-0 z-50 rounded-b-lg bg-background/20 backdrop-blur-xl transition-transform duration-300 ${hasScrolled ? "border-b  border-x" : ""} ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center py-4 lg:justify-start md:space-x-10">
+    <header className={`sticky lg:container w-full px-4 top-0 z-50 rounded-b-lg bg-background/20 backdrop-blur-xl transition-transform duration-300 ${hasScrolled ? "border-b  border-x" : ""} ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className="lg:container w-full lg:mx-auto">
+        <div className="flex justify-between w-full items-center py-4 lg:justify-start md:space-x-10">
           <div className="flex justify-start items-center gap-5 lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
               <img src="/IMG_6128.png" alt="Textuality Logo" className="h-8 w-8 dark:flex hidden" />

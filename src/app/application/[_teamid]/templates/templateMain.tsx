@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { useAuth } from '@clerk/nextjs'
+import { useAuth } from '@clerk/clerk-react'
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import AppHeader from "@/components/header/appheader"

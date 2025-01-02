@@ -9,7 +9,7 @@ import { motion } from 'framer-motion'
 import Link from "next/link"
 import { useState, useEffect, useRef } from 'react';
 import { TypeIcon as type, type LucideIcon } from 'lucide-react'
-import { gsap } from "gsap";
+import { gsap } from "gsap"; 
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 
@@ -277,7 +277,7 @@ export default function Home() {
                         <Button variant="gradient" className="fadeIn" size="lg">Learn More</Button>
                       </div>
                     </div>
-                    <VideoSection />
+                    <VideoSection source={"/HeroVid.mp4"} />
                   </div>
                   <div className="flex items-center justify-center">
                     <div className="dark:bg-neutral-900 ZoomUp w-11/12 h-auto px-0.5 mt-20 pb-0.5 shadow-md shadow-neutral-800/40 flex flex-col justify-center items-center rounded-lg">
@@ -824,8 +824,7 @@ function Extrainfocard({ title, description, icon }) {
 }
 
 
-const VideoSection = () => {
-
+export const VideoSection = ({source}: any) => {
   useEffect(() => {
     gsap.fromTo(".fadeInvideo", 
     { y: 0, opacity: 0, filter: "blur(10px)" },
@@ -866,7 +865,7 @@ const VideoSection = () => {
 
   return (
     <div className="flex w-full h-full fadeInvideo z-50 lg:mt-[-10rem]">
-      <div className="spinnercard borderspincard">
+      <div className="spinnercard borderspincard my-[100px]">
         <div className="inner group z-10 relative items-center flex justify-center">
           {
             !isPlaying ? (
@@ -892,7 +891,7 @@ const VideoSection = () => {
             autoPlay
             className="w-full h-full object-cover"
           >
-            <source src="/HeroVid.mp4" type="video/mp4" />
+            <source src={source} type="video/mp4" />
           </video>
         </div>
       </div>
