@@ -11,6 +11,13 @@ export async function generateMetadata({ params }) {
         keywords: [
             "Textuality",
             "create",
+            "textuality cms",
+            "Textuality content management",
+            "Textuality content creation",
+            "Textuality content collaboration",
+            "Textuality content workflow",
+            "Textuality content marketing",
+            "content creation tool",
             "CMS",
             "content management system",
             "content creation",
