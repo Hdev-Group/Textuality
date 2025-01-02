@@ -7,7 +7,7 @@ import { Play } from "lucide-react";
 
 const tutorials = [
     { title: "Getting Started", description: "Learn how to set up your account and get started with Textuality.", video: "/HeroVid.mp4" },
-    { title: "Creating Content", description: "Discover how to create and manage content with Textuality's powerful tools.", video: "/tutorials/Textuality-Tutorial-Creating-Content.mp4" },
+    { title: "Creating Content", description: "Discover how to create and manage content with Textuality's powerful tools.", video: "https://youtu.be/7w27YfFnd0g" },
     { title: "Collaboration", description: "Explore how to collaborate with your team in real-time using Textuality.", video: "/tutorials/collaboration.mp4" },
     { title: "Content Publishing", description: "Discover how to publish and distribute content using Textuality's powerful tools.", video: "/tutorials/content-publishing.mp4" },
     { title: "Content Management", description: "Explore how to manage and organize your content with Textuality's versatile tools.", video: "/tutorials/content-management.mp4" },
