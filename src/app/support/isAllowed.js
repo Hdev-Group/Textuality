@@ -1,6 +1,6 @@
 "use client";
 import { IsAuthorizedEdge, IsLoadedEdge } from '@/components/edgecases/Auth';
-import { useAuth } from '@clerk/nextjs';
+import { useAuth } from '@clerk/clerk-react';
 import { useState, useEffect } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';

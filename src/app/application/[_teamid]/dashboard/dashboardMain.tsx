@@ -1,34 +1,21 @@
 "use client"
 import AppHeader from '@/components/header/appheader';
 import React, { useEffect, useState } from 'react';
-import { use } from 'react';
-import { useUser } from "@clerk/clerk-react";
-import { useAuth } from '@clerk/nextjs'
-import { useMutation, useQuery } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check, X, ChevronDown, Layout, FileText, Cloud, Code, BookMarkedIcon, AlertTriangle, ChartArea, CreditCard, ArrowLeft, LucideMessageCircleQuestion, Folder, Text, LucideHardDriveUpload, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
 import AuthWrapper from '../withAuth';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import SetupFlow from '@/components/setup-flow/setup';
 
 
 export default function Page({ params }: { params: { _teamid: string} }) {
-  const { _teamid: teamId } = params
-  const user = useUser()
+  const { _teamid: teamId } = params  
   const pageSpecific = useQuery(api.page.getExactPage, { _id: teamId as any })
   const pageContentAPIGetter = useQuery(api.apicontent.pageContentAPIGetter, { pageid: teamId })
+
   const getPageInfo = useQuery(api.page.getPageDetails, { _id: teamId as any })
 
   const [preview, setPreview] = useState("Setup")

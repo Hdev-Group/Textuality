@@ -1,12 +1,12 @@
 import React from 'react';
-import Home from './homeIndex';
+import UseCases from './use-cases';
 import { preloadQuery } from "convex/nextjs";
 
 export async function generateMetadata({ params }) {
     const { _teamid } = params;
 
     return {
-        title: `Textuality | The Ultimate Content Management Solution for Teams`,
+        title: `Textuality | Use Cases`,
         description: `Textuality is a powerful and user-friendly collaborative tool designed for content teams. Seamlessly create, manage, and innovate with your team in real-time for blogs, digital content, and more.`,
         keywords: [
             "Textuality",
@@ -83,5 +83,5 @@ export async function generateMetadata({ params }) {
 }
 
 export default function ProductWrapper({ params }) {
-    return <Home />;
+    return <UseCases />;
 }

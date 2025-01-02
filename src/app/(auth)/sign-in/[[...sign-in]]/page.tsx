@@ -1,5 +1,5 @@
 "use client"
-import { SignIn, useAuth } from '@clerk/nextjs';
+import { SignIn, useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';

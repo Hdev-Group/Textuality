@@ -21,17 +21,13 @@ export default function EnvSetup({ pageInfo }: { pageInfo: PageInfo }) {
   const [activeTab, setActiveTab] = useState<'env' | 'code'>('env')
 
   const envContent = `TEXTUALITY_PAGE_ID=${pageInfo?._id}
-TEXTUALITY_API_KEY=${showApiKey ? pageInfo?.accesstoken : '**********'}`
+TEXTUALITY_API_KEY=${showApiKey ? pageInfo?.accesstoken : '****************'}`
 
-  const codeContent = `import { TextualityClient } from '@textuality/sdk'
-
-const client = new TextualityClient({
+  const codeContent = `
   pageId: process.env.TEXTUALITY_PAGE_ID,
   apiKey: process.env.TEXTUALITY_API_KEY,
-})
+  `
 
-// Use the client to interact with the Textuality API
-const result = await client.someMethod()`
 
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text)

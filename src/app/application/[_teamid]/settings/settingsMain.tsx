@@ -4,7 +4,6 @@ import AuthWrapper from "../withAuth"
 import React from "react"
 import { useUser } from "@clerk/clerk-react";
 import { useMutation, useQuery } from 'convex/react';
-import { useAuth } from '@clerk/nextjs'
 import { api } from '../../../../../convex/_generated/api';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";

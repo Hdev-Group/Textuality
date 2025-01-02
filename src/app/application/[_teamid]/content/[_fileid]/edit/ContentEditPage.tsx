@@ -56,6 +56,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const router = useRouter();
     const user = useUser();
     const { userId } = useAuth();
+    const getpage = useQuery(api.page.getPage, { _id: _teamid });
     const getContent = useQuery(api.content.getContentSpecific, { _id: _fileid as any});
     const getFields = useQuery(api.content.getFields, { templateid: getContent?.templateid });
     const changeAuthor = useMutation(api.content.changeAuthor);
@@ -373,7 +374,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                     </div>
                                     <div className='container mx-auto px-5 py-5 overflow-y-auto'>
                                         <div className='flex flex-col gap-5'>
-                                            <Author authordetails={userData} getDepartments={getDepartments} getAuthorid={getContent?.authorid} onValueChange={setAuthor} teamid={_teamid} />
+                                            <Author usersinfo={getpage.users} authordetails={userData} getDepartments={getDepartments} getAuthorid={getContent?.authorid} onValueChange={setAuthor} teamid={_teamid} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1 border-l-gray-500/40 border-l-2 pl-4'>
                                                     <div className='flex flex-row justify-between'>
@@ -823,83 +824,113 @@ interface Author {
     authordescription: string
   }
   
-function Author({ authordetails, onValueChange, teamid, getDepartments, getAuthorid }: { authordetails: any, onValueChange: (selectedAuthor) => void, teamid: string, getDepartments: any, getAuthorid: string }) {
+function Author({ authordetails, onValueChange, teamid, getDepartments, getAuthorid, usersinfo }: {usersinfo: any, authordetails: any, onValueChange: (selectedAuthor: string) => void, teamid: string, getDepartments: any, getAuthorid: string }) {
     const mainAuthor = authordetails?.find((author: any) => author.id === getAuthorid);
     const maindepartment = getDepartments?.find((dept: any) => dept._id === getAuthorid);
     const [selectedAuthor, setSelectedAuthor] = useState<string | undefined>(mainAuthor?._id);
     const [isMainAuthor, setMainAuthor] = useState(false);
+    const [allUserData, setAllUserData] = useState([]);
 
     function handleSelectedAuthor(selectedAuthor: string) {
-        setSelectedAuthor(selectedAuthor)
+        setSelectedAuthor(selectedAuthor);
+        setMainAuthor(mainAuthor?._id === selectedAuthor);
+        onValueChange(selectedAuthor);
     }
+
     useEffect(() => {
         if (getDepartments && mainAuthor) {
-          setSelectedAuthor(mainAuthor._id);
+            setSelectedAuthor(mainAuthor._id);
         }
-      }, [getDepartments, mainAuthor]);
-      useEffect(() => {            
+    }, [getDepartments, mainAuthor]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await fetch(`/api/secure/get-user?userId=${usersinfo.map((user: any) => user).join(',')}`);
+            if (!response.ok) throw new Error('Failed to fetch user');
+            const data = await response.json();
+            setAllUserData(data.users);
+            return data.users;
+        };
+        fetchData();
+    }, [usersinfo]);
+
+    useEffect(() => {
         if (!mainAuthor && !maindepartment) {
             return;
-        } if (maindepartment) {
-            setSelectedAuthor(maindepartment._id)
+        }
+        if (maindepartment) {
+            setSelectedAuthor(maindepartment._id);
         } else if (mainAuthor) {
-            setSelectedAuthor(mainAuthor._id)
+            setSelectedAuthor(mainAuthor._id);
         }
     }, [mainAuthor, maindepartment]);
-  
+
     return (
         <Select
-        value={selectedAuthor || mainAuthor?._id} 
-        disabled={isMainAuthor}
-        onValueChange={(value: string) => handleSelectedAuthor(value)}
-        >        
-        <SelectTrigger className="w-full py-2">
-          <SelectValue className='p-2'  />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Main Author</SelectLabel>
-                {
-                    getDepartments?.some((dept: any) => dept?._id === mainAuthor?._id) ? (
-                        <SelectItem value={getDepartments?._id}>
-                            <DepartmentOption
-                                author={mainAuthor}
+            value={selectedAuthor || mainAuthor?._id}
+            disabled={isMainAuthor}
+            onValueChange={(value: string) => handleSelectedAuthor(value)}
+        >
+            <SelectTrigger className="w-full py-2">
+                <SelectValue className='p-2' />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectGroup>
+                    <SelectLabel>Main Author</SelectLabel>
+                    {
+                        maindepartment ? (
+                            <SelectItem value={maindepartment._id}>
+                                <DepartmentOption
+                                    author={maindepartment.departmentname}
+                                    showImage={false}
+                                    label={maindepartment.departmentdescription}
+                                />
+                            </SelectItem>
+                        ) : mainAuthor ? (
+                            <SelectItem value={mainAuthor._id}>
+                                <AuthorOption
+                                    author={mainAuthor}
+                                    showImage={true}
+                                    label={mainAuthor.authordescription}
+                                />
+                            </SelectItem>
+                        ) : null
+                    }
+                    <SelectSeparator />
+                    <SelectLabel>Departments</SelectLabel>
+                    {(getDepartments && getDepartments.length > 0) ? (
+                        getDepartments
+                            .filter((department: any) => department._id !== getAuthorid)
+                            .map((department: any) => (
+                                <SelectItem value={department._id} key={department._id}>
+                                    <DepartmentOption
+                                        author={department.departmentname}
+                                        showImage={false}
+                                        label={department.departmentdescription}
+                                    />
+                                </SelectItem>
+                            ))
+                    ) : (
+                        <Link href={`/application/${teamid}/settings?type=content`}>
+                            <Button className='w-full text-left'>Create a department</Button>
+                        </Link>
+                    )}
+                    <SelectSeparator />
+                    <SelectLabel>Other Authors</SelectLabel>
+                    {allUserData?.map((author: any) => (
+                        <SelectItem value={author.id} key={author.id}>
+                            <AuthorOption
+                                author={author}
                                 showImage={true}
-                                label={mainAuthor.authordescription}
+                                label={author.authordescription}
                             />
                         </SelectItem>
-                    ) : (
-                        <SelectItem value={mainAuthor?._id}>
-                        <AuthorOption
-                            author={mainAuthor}
-                            showImage={true}
-                            label="Main author"
-                        />
-                        </SelectItem>
-                    )
-                }
-            <SelectSeparator />
-            <SelectLabel>Departments</SelectLabel>
-            {(getDepartments && getDepartments.length > 0) ? (
-                getDepartments.map((department: any) => (
-                    <SelectItem value={department._id} key={department._id}>
-                    <DepartmentOption
-                        author={department.departmentname}
-                        showImage={false}
-                        label={department.departmentdescription}
-                    />
-                    </SelectItem>
-                ))
-                ) : (
-                <Link href={`/application/${teamid}/settings?type=content`}>
-                    <Button className='w-full text-left'>Create a department</Button>
-                </Link>
-                )}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+                    ))}
+                </SelectGroup>
+            </SelectContent>
+        </Select>
     )
-  }
+}
   
   function AuthorOption({ author, showImage, label }: { author: any, showImage: boolean, label: string }) {
     const displayName = typeof author === 'string' ? author : `${author?.firstName || ''} ${author?.lastName || ''}`;

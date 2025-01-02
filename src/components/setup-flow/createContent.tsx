@@ -25,7 +25,7 @@ export default function CreateContent({ pageInfo }: WelcomeProps) {
         <CardContent className="p-0 flex flex-col mt-2">
             <p className="text-muted-foreground text-start mt-2">Click the button below to create your content. You may need to create a template before you can start making content.</p>
             <div className="space-y-2 w-full mt-4">
-                <ContentCreateButton className="w-full" />
+                <ContentCreateButton className="w-full" _teamid={pageInfo._id} />
             </div>
         </CardContent>
       </Card>
