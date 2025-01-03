@@ -374,7 +374,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                     </div>
                                     <div className='container mx-auto px-5 py-5 overflow-y-auto'>
                                         <div className='flex flex-col gap-5'>
-                                            <Author usersinfo={getpage.users} authordetails={userData} getDepartments={getDepartments} getAuthorid={getContent?.authorid} onValueChange={setAuthor} teamid={_teamid} />
+                                            <Author usersinfo={getpage?.users} authordetails={userData} getDepartments={getDepartments} getAuthorid={getContent?.authorid} onValueChange={setAuthor} teamid={_teamid} />
                                             {getFields?.sort((a, b) => a.fieldposition - b.fieldposition).map((field, index) => (
                                                 <div key={index} className='flex flex-col gap-1 border-l-gray-500/40 border-l-2 pl-4'>
                                                     <div className='flex flex-row justify-between'>
@@ -486,7 +486,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                         <div className={`${isSideBarOpen && activeSidebar !== null  ? `${activeSidebar === "viewer" ? "w-[90%]" : "w-[30rem]"}` : "w-[0rem]"} : "w-[0rem]"} flex h-auto flex-col gap-5 transition-all`}>
                         {
                             activeSidebar === "viewer" ? (
-                                <div className='flex flex-col gap-5'>
+                                <div className='flex flex-col gap-5 overflow-hidden'>
                                     <div className='border-b p-5 flex flex-row justify-between items-center'>
                                         <h1 className='text-2xl font-bold'>Content Preview</h1>
                                         <div onClick={sendToVisualizer({ content: getContent, fields: getFields, values: getFieldValues, authorInfo: authorInfo })}>
@@ -495,7 +495,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='flex px-5 flex-col justify-between'>
+                                    <div className='flex px-5 flex-col justify-between overflow-y-scroll'>
                                         <a className={`flex flex-row items-center text-xs w-auto gap-1 cursor-pointer`}>
                                             <ArrowLeft width={14} height={14} /> Back
                                         </a>
