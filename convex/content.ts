@@ -109,3 +109,24 @@ export const schedulecontent = mutation({
       });
     }
   });
+
+  export const deleteschedule = mutation({
+    args: {
+      _id: v.id("content"),
+    },
+    handler: async (ctx, { _id }) => {
+      // Get the current content document
+      const content = await ctx.db.get(_id);
+      if (!content) {
+        throw new Error("Content not found");
+      }
+    if (content.scheduledFunctionId) {
+        await ctx.scheduler.cancel(content.scheduledFunctionId as any);
+      }
+    await ctx.db.patch(_id, { 
+        status: "Draft",
+        scheduled: undefined,
+        scheduledFunctionId: undefined
+      });
+    }
+  });
