@@ -323,7 +323,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
 
     const contentTitleandvalues = getFields?.filter((field: any) => field.type === "Title").map((field: any) => fieldValues[field._id]).join(' ');
 
-    const titleslug = contentTitleandvalues.replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+    const titleslug = contentTitleandvalues?.replace(/[^\w\s-]/g, '')?.replace(/\s+/g, '-').toLowerCase();
 
     function contentPublish({_id}) {
         return async () => {
