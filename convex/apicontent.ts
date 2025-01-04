@@ -1,27 +1,46 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-export const APIGetter = query({
-  args: {
-    id: v.id("content"),
-  },
-  handler: async (ctx, { id }) => {
-    const fileget = await ctx.db.get(id);
-    const fields = await ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), fileget?.templateid)).collect();
-    const fieldvalues = await ctx.db.query("fieldvalues").filter(q => q.eq(q.field("fileid"), id)).collect();
-    const merged = fields.map((field) => {
-      const fieldvalue = fieldvalues.find((fv) => fv.fieldid === field._id);
-      return {
-        ...field,
-        value: fieldvalue?.value, 
-      };
-    });
+export const getdepartment = query({
+    args: {
+        _id: v.id("departments"),
+    },
+    handler: async (ctx, { _id }) => {
+        return ctx.db.get(_id);
+    },
+});
 
-    return {
-      merged,
-      fileget,
-    };
-  },
+export const APIGetter = query({
+    args: {
+        id: v.string(),
+    },
+    handler: async (ctx, { id }) => {
+        const fileget = await ctx.db.query("content")
+            .filter(q => q.or(
+                q.eq(q.field("_id"), id),
+                q.eq(q.field("slug"), id)
+            ))
+            .collect();
+        
+        if (fileget.length === 0) {
+            throw new Error("Content not found");
+        }
+
+        const fields = await ctx.db.query("fields").filter(q => q.eq(q.field("templateid"), fileget[0].templateid)).collect();
+        const fieldvalues = await ctx.db.query("fieldvalues").filter(q => q.eq(q.field("fileid"), fileget[0]._id)).collect();
+        const merged = fields.map((field) => {
+            const fieldvalue = fieldvalues.find((fv) => fv.fieldid === field._id);
+            return {
+                ...field,
+                value: fieldvalue?.value, 
+            };
+        });
+
+        return {
+            merged,
+            fileget,
+        };
+    },
 });
 
 export const correctAuth = query({

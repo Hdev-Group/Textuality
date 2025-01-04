@@ -160,7 +160,7 @@ export default function Page({ params }: { params: { _teamid: string }}) {
                             <div className="flex">
                             <Sidebar contentApproval={getContent ? getContent?.filter((content) => content.status === "Review") : []} activeTab={activeTab} setActiveTab={setActiveTab} pageid={_teamid} />
                             <main className="flex-1">
-                                    <div className="p-8 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
+                                    <div className="p-8 pl-0 space-y-8 border-b bg-white dark:bg-neutral-950 border-gray-200 dark:border-neutral-800">
                                         <div className="flex justify-between items-center">
                                             <h1 className="text-2xl font-bold">All Content</h1>
                                             <ContentCreateButton getTemplates={getTemplates} _teamid={_teamid} />

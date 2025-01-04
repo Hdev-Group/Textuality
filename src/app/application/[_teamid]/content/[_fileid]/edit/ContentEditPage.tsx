@@ -122,7 +122,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         Object.entries(fieldValues).map(([fieldid, value]) => ({ fieldid, value })),
         [fieldValues]
     );
-        const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
+    const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
 
     useEffect(() => {
         if (getFieldValues?.length) {
@@ -133,8 +133,8 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
             setFieldValues(initialFieldValues);
         }
     }, [getFieldValues]);
-    
 
+    const [contentSlug, setContentSlug] = useState('')
 
     const handleSidebarClick = (sidebar: string) => {
         setActiveSidebar(sidebar);
@@ -278,13 +278,9 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     const [authorInfo, setAuthorInfo] = useState<any>(null);
     const sendToVisualizer = ({ content, fields, values, authorInfo }) => {
         return () => {
-            // Open the visualizer window if it's not already open
             if (!visualizerWindowRef.current || visualizerWindowRef.current.closed) {
                 visualizerWindowRef.current = window.open(`/application/${_teamid}/content/${_fileid}/visualizer`, '_blank');
-            }
-            
-            // Ensure the data is sent after the new page has loaded
-            
+            }            
             setTimeout(() => {
                 visualizerWindowRef.current?.postMessage({ content, fields, values, authorInfo }, window.location.origin);
             }, 500);
@@ -325,12 +321,17 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
         return fieldValueObj?.value || null;
     }).join(' ');
 
+    const contentTitleandvalues = getFields?.filter((field: any) => field.type === "Title").map((field: any) => fieldValues[field._id]).join(' ');
+
+    const titleslug = contentTitleandvalues.replace(/\s+/g, '-').toLowerCase();
+
     function contentPublish({_id}) {
         return async () => {
             await updateContentStatus({
                 _id: _id,
                 status: "Published",
-                about: richTextFields.split(' ').slice(0, 30).join(' ')
+                about: richTextFields.split(' ').slice(0, 30).join(' '),
+                slug: titleslug
             });
             setUpdated("true");
         };
@@ -704,7 +705,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
                                         {
                                             getContent?.status != "Published" && getContent?.status != "Scheduled" ? (
                                                 getSettings?.[0]?.contentreview && getContent.status === "Draft" ? (
-                                                    <button onClick={() => updateContentStatus({_id: getContent._id, status: "Review", about: ""})} className='bg-purple-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-purple-800 transition-all'>
+                                                    <button onClick={() => updateContentStatus({_id: getContent._id, status: "Review", about: richTextFields.split(' ').slice(0, 30).join(' '), slug: contentSlug})} className='bg-purple-700 font-semibold text-white px-3 py-2 rounded-md rounded-r-none w-full hover:bg-purple-800 transition-all'>
                                                         Send to Review
                                                     </button>
                                                 ) : getSettings?.[0]?.contentreview && getContent.status === "Review" ? (
