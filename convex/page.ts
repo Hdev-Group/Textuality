@@ -69,10 +69,18 @@ export const updateSettings = mutation({
     contentreview: v.boolean(),
   },
   handler: async (ctx, { pageid, contentreview }) => {
-    await ctx.db.insert("settings", {
-      pageid,
-      contentreview,
-    });
+    const existingSettings = await ctx.db.query("settings")
+      .withIndex("bypageid", q => q.eq("pageid", pageid))
+      .first();
+    
+    if (existingSettings) {
+      await ctx.db.patch(existingSettings._id, { contentreview });
+    } else {
+      await ctx.db.insert("settings", {
+        pageid,
+        contentreview,
+      });
+    }
   },
 });
 

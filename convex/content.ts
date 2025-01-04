@@ -34,7 +34,7 @@ export const updateContentStatus = mutation({
       _id: v.id("content"),
       status: v.string(),
       slug: v.optional(v.string()),
-      about: v.string(),
+      about: v.optional(v.string()),
     },
     handler: async (ctx, { _id, status, about, slug }) => {
       return ctx.db.patch(_id, { status, about, slug });

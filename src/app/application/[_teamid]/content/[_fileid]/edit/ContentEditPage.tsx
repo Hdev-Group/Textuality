@@ -349,7 +349,7 @@ export default function ContentEditPage({ params }: { params: { _teamid: any, _f
     return (
         <div className='overflow-y-hidden bg-gray-100 dark:bg-neutral-900 h-full'>
             <ScheduleDialog isOpen={scheduleOpen} _id={_fileid} onClose={() => setScheduleOpen(false)} />
-            <ScheduleChangeOpen isOpen={scheduleChangeOpen} _id={_fileid} onClose={() => setScheduleChangeOpen(false)} scheduleInfo={getContent?.scheduled} />
+            <ScheduleChangeOpen isOpen={scheduleChangeOpen} _id={_fileid} onClose={() => setScheduleChangeOpen(false)} scheduleInfo={getContent?.scheduled} Blocking={getSettings?.[0]?.contentreview} />
             <AuthWrapper _teamid={_teamid}>
                 <DoesExist _fileid={_fileid}>
                 <div className="h-full">
