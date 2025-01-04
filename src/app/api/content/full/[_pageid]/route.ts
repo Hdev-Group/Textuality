@@ -49,8 +49,8 @@ function isRateLimited(userKey: string) {
   return false;
 }
 
-export async function GET(req: NextRequest, { params }: { params: { _pageid: string } }): Promise<NextResponse> {
-  const { _pageid: pageid } = params;
+export async function GET(req: NextRequest, context: { params: { _pageid: string } }): Promise<NextResponse> {
+  const { _pageid: pageid } = await context.params;
   const token = getAuthToken(req);
 
   if (!token) {
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest, { params }: { params: { _pageid: str
   }
 
   try {
-    const [counterResult, data] = await Promise.all([
+    const [, data] = await Promise.all([
       fetchMutation(api.apicontent.pageContentSendingAPICounter, { pageid }),
       fetchQuery(api.apicontent.previewAPIFull, { pageid }),
     ]);
@@ -92,8 +92,8 @@ export async function GET(req: NextRequest, { params }: { params: { _pageid: str
     // Process the data
     const uniqueAuthorIds = [...new Set(publishedResults.map((result: any) => result.authorid))];
     const userPromises = uniqueAuthorIds.map(authorId => clerk.users.getUser(authorId));
-    const users = await Promise.all(userPromises);
-    const userMap = new Map(users.map(user => [user.id, {
+    const users = await Promise.all(userPromises.map(p => p.catch(e => null)));
+    const userMap = new Map(users.filter(user => user !== null).map(user => [user.id, {
       firstName: user.firstName,
       lastName: user.lastName,
       imageUrl: user.imageUrl,

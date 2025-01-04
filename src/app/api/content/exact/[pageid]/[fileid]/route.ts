@@ -103,14 +103,32 @@ export async function GET(req: NextRequest) {
     ]);
 
     // get author id
-    const user = await clerk.users.getUser(data.fileget.authorid);
-    const userMap = {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      imageUrl: user.imageUrl,
-    };
+    let userMap = null;
+    try {
+      if (data.fileget?.[0]?.authorid && !data.fileget[0].authorid.startsWith('user_')) {
+        // its a department
+        const user = fetchQuery(api.apicontent.getdepartment, { _id: data.fileget[0].authorid as any });
+        userMap = {
+          firstName: (await user).departmentname ,
+          imageUrl: null,
+          type: 'department',
+        };
+      } else {
+        const user = await clerk.users.getUser(data.fileget?.[0]?.authorid);
+        userMap = {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          imageUrl: user.imageUrl,
+          type: 'user',
+        };
+      }
 
-    if (data.fileget?.status !== 'Published') {
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      return NextResponse.json({ error: 'Author not found' }, { status: 404 });
+    }
+
+    if (data.fileget[0]?.status !== 'Published') {
       return NextResponse.json({ error: 'File is not published' }, { status: 400 });
     }
 
