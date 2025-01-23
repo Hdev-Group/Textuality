@@ -11,7 +11,8 @@ const tutorials = [
     { title: "Collaboration", description: "Explore how to collaborate with your team in real-time using Textuality.", video: "/tutorials/collaboration.mp4" },
     { title: "Content Publishing", description: "Discover how to publish and distribute content using Textuality's powerful tools.", video: "/tutorials/content-publishing.mp4" },
     { title: "Content Management", description: "Explore how to manage and organize your content with Textuality's versatile tools.", video: "/tutorials/content-management.mp4" },
-];
+    { title: "Content Approval", description: "Learn how to approve and review content with Textuality's intuitive tools.", video: "/tutorials/content-approval.mp4" },
+  ];
 
 export default function Tutorials() {
     return(

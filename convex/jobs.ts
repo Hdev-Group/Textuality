@@ -11,9 +11,9 @@ export const updateContentStatusInternal = internalMutation({
     }
   });
 
-  export const deleteAnalytics = internalMutation({
+export const deleteAnalytics = internalMutation({
     args: { analyticsId: v.id("analytics") },
     handler: async (ctx, { analyticsId }) => {
       await ctx.db.delete(analyticsId);
     },
-  });
+});

@@ -22,11 +22,14 @@ import {
 import { useState, useEffect } from 'react'
 import { useMutation } from "convex/react"
 import { api } from "../../../convex/_generated/api"
+import { DropdownMenu } from "@radix-ui/react-dropdown-menu"
+import { DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu"
 
 
-export default function ScheduleChangeOpen({ isOpen, onClose, _id, scheduleInfo }: { isOpen: boolean, onClose(), _id: string, scheduleInfo: any }) {
-
+export default function ScheduleChangeOpen({ isOpen, onClose, _id, scheduleInfo, Blocking }: { isOpen: boolean, onClose(), _id: string, scheduleInfo: any, Blocking: boolean }) {
     const scheduleInfoUpdate = useMutation(api.content.schedulecontent)
+    const deleteSchedule = useMutation(api.content.deleteschedule)
+    const updateContentStatus = useMutation(api.content.updateContentStatus);
     const [date, setDate] = React.useState<Date>(scheduleInfo ? new Date(scheduleInfo) : new Date())
     const [time, setTime] = React.useState<string>(scheduleInfo ? format(new Date(scheduleInfo), "HH:mm") : "00:00")
     useEffect(() => {
@@ -35,6 +38,21 @@ export default function ScheduleChangeOpen({ isOpen, onClose, _id, scheduleInfo 
             setTime(format(date, "HH:mm"));
         }
     }, [scheduleInfo]);
+
+    useEffect(() => {
+        const modal = document.getElementById("modal-overlay");
+        if (!modal) return;
+        // if clicked on backdrop, close modal
+        const handleClick = (e: MouseEvent) => {
+            if (e.target === modal) {
+                onClose();
+            }
+        }
+        modal.addEventListener("click", handleClick);
+        return () => {
+            modal.removeEventListener("click", handleClick);
+        }
+    }, [onClose])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -66,6 +84,20 @@ export default function ScheduleChangeOpen({ isOpen, onClose, _id, scheduleInfo 
             document.body.style.overflow = "auto"
         }
     }, [isOpen])
+
+    function deleteSchedules() {
+        deleteSchedule({ _id: _id as any });
+        onClose();
+    }
+
+    function alterPushing({status}) {
+        deleteSchedule({ _id: _id as any });
+        updateContentStatus({                 
+            _id: _id as any,
+            status: status,
+        });
+        onClose();
+    }
 
     return(
         <>
@@ -149,7 +181,20 @@ export default function ScheduleChangeOpen({ isOpen, onClose, _id, scheduleInfo 
                 </Select>
                 </div>
             </div>
-            <div>
+            <div className="flex flex-row justify-between w-full items-center">
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <Button variant="outline">Other</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="gap-2 flex flex-col">
+                        <Button variant="destructive" onClick={() => deleteSchedules()}>Delete Schedule</Button>
+                        {Blocking ? (
+                                <Button className="bg-purple-700 text-white" onClick={() => alterPushing({status: "Review"})}>Send to review</Button>
+                            ) : (
+                                <Button variant="publish" onClick={() => alterPushing({status: "Published"})}>Publish</Button>
+                            )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
                 <Button type="submit">Edit Schedule</Button>
             </div>
             </form>

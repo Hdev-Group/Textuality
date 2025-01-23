@@ -29,6 +29,21 @@ export function ScheduleDialog({ isOpen, onClose, _id }: { isOpen: boolean, _id:
     const [time, setTime] = React.useState<string>()
     const publishschedule = useMutation(api.content.schedulecontent)
 
+    useEffect(() => {
+        const modal = document.getElementById("modal-overlay");
+        if (!modal) return;
+        // if clicked on backdrop, close modal
+        const handleClick = (e: MouseEvent) => {
+            if (e.target === modal) {
+                onClose();
+            }
+        }
+        modal.addEventListener("click", handleClick);
+        return () => {
+            modal.removeEventListener("click", handleClick);
+        }
+    }, [onClose])
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
