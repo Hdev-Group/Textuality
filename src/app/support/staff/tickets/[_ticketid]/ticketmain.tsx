@@ -211,8 +211,8 @@ export default function StaffTicketView({params}: {params: any}) {
                           sendMessage({ value: messageElement.value });
                           messageElement.value = "";
                           }}>
-                          <Textarea placeholder="Write a reply..." disabled={isAssigned} id="replymessage" maxLength={2000} />
-                          <Button type="submit" className="absolute bottom-2 right-2" disabled={isAssigned} size="sm">Reply</Button>
+                          <Textarea placeholder="Write a reply..." disabled={!isAssigned} id="replymessage" maxLength={2000} />
+                          <Button type="submit" className="absolute bottom-2 right-2" disabled={!isAssigned} size="sm">Reply</Button>
                         </form>
                       </div>
                     </div>
