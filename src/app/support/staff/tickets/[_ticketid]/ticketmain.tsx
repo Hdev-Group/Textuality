@@ -135,6 +135,10 @@ export default function StaffTicketView({params}: {params: any}) {
           .then((data) => console.log(data));
         changeTicketPriority({ _id: params, priority: value });
       }
+      
+      // check if the staff member is assigned to the ticket
+      const isAssigned = ticket?.staffid?.includes(user?.user?.id);
+
 
     return (
       <StaffOnlyWrapper>
@@ -207,8 +211,8 @@ export default function StaffTicketView({params}: {params: any}) {
                           sendMessage({ value: messageElement.value });
                           messageElement.value = "";
                           }}>
-                          <Textarea placeholder="Write a reply..." id="replymessage" maxLength={2000} />
-                          <Button type="submit" className="absolute bottom-2 right-2" size="sm">Reply</Button>
+                          <Textarea placeholder="Write a reply..." disabled={isAssigned} id="replymessage" maxLength={2000} />
+                          <Button type="submit" className="absolute bottom-2 right-2" disabled={isAssigned} size="sm">Reply</Button>
                         </form>
                       </div>
                     </div>
