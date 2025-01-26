@@ -4,7 +4,7 @@ import { preloadQuery } from "convex/nextjs";
 
 export async function generateMetadata() {
     return {
-        title: "Textuality | The Ultimate Content Management Solution for Teams",
+        title: "Textuality",
         description: "A cutting-edge CMS for teams to create, collaborate, and innovate. Ideal for blogs, digital content, and seamless workflows.",
         keywords: [
             "Textuality CMS",
