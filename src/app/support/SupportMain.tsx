@@ -117,9 +117,9 @@ export default function SupportPage() {
                         </div>
                       </div>
                       <div className="w-full mt-3">
-                      <Link href={`/support/tickets/${ticket._id}`}>
+                      <a href={`/support/tickets/${ticket._id}`}>
                           <Button variant="gradient" className="w-full">View</Button>
-                      </Link>
+                      </a>
                       </div>
                       </div>
                     ))}
