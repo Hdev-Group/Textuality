@@ -1,6 +1,6 @@
 # Custom Non-Commercial License
 
-**Copyright © 2024 Hdev Group**
+**Copyright © 2025 Hdev Group**
 
 ---
 
